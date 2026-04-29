@@ -83,3 +83,48 @@ test('evidence 누적은 최대 20개', () => {
   assert.ok(target);
   assert.ok(target.evidence.length <= 20);
 });
+
+const { ready } = await import('../../scripts/lib/instincts.js');
+
+test('ready: confidence < 1 → blocked (confidence)', () => {
+  // 새 인스팅트, 1번만 record
+  record({ kind: 'routing', key: 'just-once-pattern', evidence: { sessionId: 's1' } });
+  const r = ready();
+  const blk = r.blocked.find(b => b.key === 'just-once-pattern');
+  assert.ok(blk);
+  assert.match(blk.reason, /confidence/);
+});
+
+test('ready: 동일 sessionId 만 → diversity 낮아 blocked', () => {
+  for (let i = 0; i < 3; i++) {
+    record({ kind: 'fix-flow', key: 'same-session-only', evidence: { sessionId: 'one' } });
+  }
+  const r = ready({ minDiversity: 0.5 });
+  const blk = r.blocked.find(b => b.key === 'same-session-only');
+  assert.ok(blk);
+  assert.match(blk.reason, /diversity/);
+});
+
+test('ready: 다양 session + 임계 → ready 후보', () => {
+  for (const sid of ['a', 'b', 'c']) {
+    record({ kind: 'routing', key: 'diverse-pattern', evidence: { sessionId: sid } });
+  }
+  const r = ready({ minDiversity: 0.5, maxStaleDays: 365 });
+  const ok = r.ready.find(x => x.key === 'diverse-pattern');
+  assert.ok(ok, '다양 session 인스팅트는 ready 에 들어와야 함');
+  assert.ok(ok.diversity >= 0.5);
+});
+
+test('ready: 이미 promoted → blocked (already_promoted)', () => {
+  for (const sid of ['x', 'y', 'z']) {
+    record({ kind: 'routing', key: 'promote-target', evidence: { sessionId: sid } });
+  }
+  const r1 = ready({ maxStaleDays: 365 });
+  const target = r1.ready.find(x => x.key === 'promote-target');
+  assert.ok(target);
+  promote(target.id);
+  const r2 = ready({ maxStaleDays: 365 });
+  const blk = r2.blocked.find(b => b.id === target.id);
+  assert.ok(blk);
+  assert.equal(blk.reason, 'already_promoted');
+});
