@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 // PreToolUse(Bash) 디스패처. ECC pre-bash-dispatcher.js 패턴.
 // 단일 진입점 → 매처 분기 → 모듈. ENV 토글로 개별 on/off.
-//
-// Day 3 stub: 입력 cmd 를 검사하고 위험 패턴이 있으면 차단 메시지 출력.
-// 실제 Claude Code hook 인터페이스 (stdin JSON) 는 Day 5 에 정식 통합.
+// stdin JSON 으로 Claude Code hook 입력을 받고, 위험 패턴 발견 시 차단 메시지 출력.
 
 import fs from 'node:fs';
 

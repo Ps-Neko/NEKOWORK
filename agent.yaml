@@ -3,7 +3,7 @@ name: harness
 version: 0.0.1
 description: "HARNESS — Hybrid Agent Runtime with Native Evaluation, Skills, and Security"
 license: MIT
-# homepage: 깃허브 레포 URL을 publish 전에 채울 것 (예: https://github.com/<owner>/harness)
+homepage: https://github.com/Ps-Neko/NEKOWORK
 # authors: contributor 목록은 git 히스토리로 갈음. 별도 명시 안 함.
 
 # 정규 카탈로그 (진실 원본). 하네스별 디렉터리는 빌드 산출물.
@@ -27,6 +27,7 @@ skills:
   - tdd-workflow
   - review
   - ship
+  - ralph   # 명시 옵트인 영속 루프. 자동 키워드 활성 OFF.
 
 commands:
   # legacy compat (slash entry). 신규 추가 금지.

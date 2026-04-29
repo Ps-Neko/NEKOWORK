@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // HARNESS MCP 단일 게이트웨이.
 // 4개 도구: state_read, state_write, notepad_append, handoff_write.
-// .mcp.json 에서 단일 서버로 등록되어 외부 MCP (github, context7, exa, memory) 는 별도 namespace 로 prox-y 가능.
-// Day 4 MVP: 4도구만. namespace 프록시는 Day 5 이후.
+// .mcp.json 에서 단일 서버로 등록되어 외부 MCP (github, context7, exa, memory) 는 별도 namespace 로 proxy 가능.
+// 현재 4 도구만. namespace 프록시는 향후 확장.
 
 import fs from 'node:fs';
 import path from 'node:path';

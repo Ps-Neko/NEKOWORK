@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// HARNESS CLI 진입점.
-// Day 6 부터: review / plan / self-review / codex-review wiring.
+// HARNESS CLI 진입점. 10 verb: install / validate / review / plan / self-review /
+// codex-review / ralph / wait / sessions / costs / instincts / version.
 
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -35,11 +35,11 @@ harness <verb> [args]
   self-review                            단계 4 만 (Claude self-review)
   codex-review                           단계 5 만 (Codex 독립 리뷰)
 
-Day 6 시점 옵션:
+옵션:
   --live      실 LLM 호출 (ANTHROPIC_API_KEY + codex CLI 필요)
   (기본)      mock provider — API 키 / CLI 없이 풀사이클 검증
 
-영속 / ralph (Day 8)
+영속 / ralph
   ralph "<task>" [--max-iter 5] [--secure] [--live]
                                          PRD AC 가 모두 passes 될 때까지 반복
   wait start                             영속 데몬 시작 (background)
@@ -129,7 +129,7 @@ function parseReviewArgs(argv) {
       const opts = parseReviewArgs(rest);
       opts.fast = false;          // ideate + plan 둘 다 보고 싶을 때
       opts.noShip = true;
-      // 임시 stop-after: implement 이전에 멈추기. Day 7 에 정식 분리.
+      // stop-after: implement 이전 단계까지만 실행 (ideate + plan)
       const { reviewCycle } = await import('./orchestrators/review.js');
       const result = await reviewCycle({ ...opts, harnessRoot: ROOT });
       console.log('handoffs:', result.handoffs.map(h => h.stage).join(' → '));
@@ -137,7 +137,7 @@ function parseReviewArgs(argv) {
     }
     case 'self-review':
     case 'codex-review':
-      console.error(`${verb} 단독 호출은 Day 7 에 분리 구현. 지금은 'review' 풀사이클을 쓰세요.`);
+      console.error(`${verb} 단독 호출은 미구현. 'review' 풀사이클을 쓰세요.`);
       process.exit(2);
     case 'instincts': {
       const sub = rest[0] || 'list';
