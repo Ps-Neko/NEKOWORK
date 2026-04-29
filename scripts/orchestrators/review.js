@@ -1,0 +1,222 @@
+// 7단계 review 오케스트레이터.
+// claude-led-codex-review SKILL 의 Stage Routing 표를 코드로 구현.
+//
+// 핵심 규칙:
+//   - 단계 5/6 의 verdict 가 block 또는 critical/high 발견 시 fix loop (executor 재호출, round++)
+//   - round 한도 = 3. critical 발견 또는 round ≥ 3 → human gate.
+//   - --secure 또는 auth/crypto/payment 디렉터리 변경 자동 감지 → 단계 6 활성.
+//   - --fast → 단계 1·6 스킵.
+//   - --no-ship → 단계 7 생략.
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { dispatch } from '../agents/dispatch.js';
+
+const STAGE_INDEX = {
+  ideate: '01', plan: '02', implement: '03', 'self-review': '04',
+  'codex-review': '05', 'codex-challenge': '06', ship: '07',
+};
+
+const ROUND_LIMIT = Number(process.env.HARNESS_REVIEW_ROUND_LIMIT || 3);
+const SENSITIVE_PATTERNS = [
+  /\bauth\b/i, /\bcrypto\b/i, /\bpayment\b/i, /\bsession\b/i,
+  /\bpermission\b/i, /\boauth\b/i, /\bjwt\b/i, /\bpassword\b/i, /\bsecret\b/i,
+];
+
+export async function reviewCycle(opts) {
+  const root = opts.harnessRoot || process.cwd();
+  const sessionId = opts.sessionId || `review-${Date.now()}`;
+  const sessionDir = path.join(root, '.harness', 'state', 'sessions', sessionId);
+  fs.mkdirSync(path.join(sessionDir, 'handoffs'), { recursive: true });
+
+  const live = !!opts.live;
+  const fast = !!opts.fast;
+  const noShip = !!opts.noShip;
+  let secureRequested = !!opts.secure;
+
+  const log = (msg) => console.log(`[review:${sessionId}] ${msg}`);
+
+  log(`task: ${opts.task}`);
+  log(`mode: ${live ? 'live' : 'mock'}${fast ? ' --fast' : ''}${noShip ? ' --no-ship' : ''}${secureRequested ? ' --secure' : ''}`);
+
+  const handoffs = [];
+  const writeHandoff = (h) => {
+    const nn = STAGE_INDEX[h.stage] || '00';
+    fs.writeFileSync(path.join(sessionDir, 'handoffs', `${nn}-${h.stage}.md`), renderHandoff(h));
+    fs.writeFileSync(path.join(sessionDir, 'handoffs', `${nn}-${h.stage}.json`), JSON.stringify(h, null, 2));
+    handoffs.push(h);
+  };
+
+  // ---- 1. ideate ----
+  if (!fast) {
+    log('1 ideate');
+    const h1 = await runWithFallback({ agent: 'planner', stage: 'ideate', task: opts.task, live, root });
+    writeHandoff(h1);
+  } else {
+    log('1 ideate skipped (--fast)');
+  }
+
+  // ---- 2. plan ----
+  log('2 plan');
+  const h2 = await runWithFallback({ agent: 'planner', stage: 'plan', task: opts.task, live, root });
+  writeHandoff(h2);
+
+  // mock 일 경우 prdSeed 가 같이 옴. PRD 저장.
+  if (h2.prdSeed) {
+    fs.writeFileSync(path.join(sessionDir, 'prd.json'), JSON.stringify(h2.prdSeed, null, 2));
+  }
+  const prd = readPrd(sessionDir);
+
+  // sensitive path 감지
+  const sensitiveHit = (h2.files || []).some(f => SENSITIVE_PATTERNS.some(re => re.test(f))) ||
+                       SENSITIVE_PATTERNS.some(re => re.test(opts.task));
+
+  // ---- 3. implement ----
+  log('3 implement');
+  const h3 = await runWithFallback({
+    agent: 'executor', stage: 'implement', task: opts.task, live, root,
+    context: { prd, acCount: prd?.acceptance?.length || 3 },
+  });
+  writeHandoff(h3);
+
+  // ---- 4. self-review (round loop) ----
+  let reviewRound = 0;
+  let lastVerdict = null;
+  const allFiles = [...(h3.files || [])];
+  while (true) {
+    reviewRound++;
+    log(`4 self-review (round ${reviewRound})`);
+    const hSelf = await runWithFallback({
+      agent: 'code-reviewer', stage: 'self-review', task: opts.task, live, root,
+      context: { round: reviewRound, prd, priorHandoffs: handoffs.slice(-3), diff: opts.diff || '' },
+    });
+    hSelf.round = reviewRound;
+    writeHandoff(hSelf);
+    lastVerdict = hSelf.verdict;
+    if (hasCritical(hSelf.issues) || reviewRound >= ROUND_LIMIT) {
+      if (hasCritical(hSelf.issues)) return humanGate(sessionDir, 'critical 발견 (단계 4)', sessionId, handoffs);
+      if (reviewRound >= ROUND_LIMIT && lastVerdict !== 'approve') {
+        return humanGate(sessionDir, `round ≥ ${ROUND_LIMIT}, verdict=${lastVerdict}`, sessionId, handoffs);
+      }
+    }
+    if (lastVerdict === 'approve') break;
+    if (lastVerdict === 'block' || lastVerdict === 'approve_with_fixes') {
+      log(`fix-loop: executor round ${reviewRound + 1}`);
+      const hFix = await runWithFallback({
+        agent: 'executor', stage: 'implement', task: opts.task, live, root,
+        context: { prd, round: reviewRound + 1, issues: hSelf.issues },
+      });
+      hFix.round = reviewRound + 1;
+      writeHandoff(hFix);
+      continue;
+    }
+    break;
+  }
+
+  // ---- 5. codex-review ----
+  log('5 codex-review');
+  const h5 = await runWithFallback({
+    agent: 'codex-reviewer', stage: 'codex-review', task: opts.task, live, root,
+    context: { round: 1, prd, priorHandoffs: handoffs.slice(-3), diff: opts.diff || '' },
+  });
+  writeHandoff(h5);
+  if (hasCritical(h5.issues)) {
+    return humanGate(sessionDir, 'codex-review 에서 critical 발견', sessionId, handoffs);
+  }
+
+  // ---- 6. codex-challenge ----
+  const wantChallenge = (secureRequested || sensitiveHit) && !fast;
+  if (wantChallenge) {
+    log(`6 codex-challenge (${secureRequested ? '--secure' : 'sensitive 자동'})`);
+    const h6 = await runWithFallback({
+      agent: 'codex-challenger', stage: 'codex-challenge', task: opts.task, live, root,
+      context: { round: 1, prd, priorHandoffs: handoffs.slice(-3), diff: opts.diff || '' },
+    });
+    writeHandoff(h6);
+    if (hasCritical(h6.issues)) {
+      return humanGate(sessionDir, 'codex-challenge 에서 critical 발견', sessionId, handoffs);
+    }
+  } else {
+    log(`6 codex-challenge skipped${fast ? ' (--fast)' : ' (sensitive 미감지, --secure 미지정)'}`);
+  }
+
+  // ---- 7. ship ----
+  if (noShip) {
+    log('7 ship skipped (--no-ship)');
+  } else {
+    log('7 ship');
+    const h7 = await runWithFallback({
+      agent: 'doc-writer', stage: 'ship', task: opts.task, live, root,
+      context: { prd, priorHandoffs: handoffs },
+    });
+    writeHandoff(h7);
+  }
+
+  return {
+    sessionId,
+    sessionDir,
+    handoffs,
+    files: dedupe(allFiles),
+    secureActive: wantChallenge,
+    verdict: 'approve',
+    humanGate: false,
+  };
+}
+
+// ----------------
+
+async function runWithFallback({ agent, stage, task, live, root, context }) {
+  try {
+    return await dispatch({ agent, stage, task, live, harnessRoot: root, context });
+  } catch (e) {
+    if (live) {
+      console.error(`[review] ${agent}/${stage} live 실패 → mock 폴백: ${e.message}`);
+      return await dispatch({
+        agent, stage, task, live: false, harnessRoot: root, context,
+        providerOverride: 'mock',
+      });
+    }
+    throw e;
+  }
+}
+
+function readPrd(sessionDir) {
+  const f = path.join(sessionDir, 'prd.json');
+  if (!fs.existsSync(f)) return null;
+  try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch { return null; }
+}
+
+function hasCritical(issues) {
+  return Array.isArray(issues) && issues.some(i => i.severity === 'critical');
+}
+
+function humanGate(sessionDir, reason, sessionId, handoffs) {
+  const f = path.join(sessionDir, 'HUMAN_GATE');
+  fs.writeFileSync(f, `reason: ${reason}\nat: ${new Date().toISOString()}\n`);
+  console.error(`[review] HUMAN_GATE: ${reason}`);
+  return { sessionId, sessionDir, handoffs, humanGate: true, reason };
+}
+
+function dedupe(arr) { return [...new Set(arr)]; }
+
+function renderHandoff(h) {
+  const lines = [];
+  lines.push(`# Handoff: ${h.stage}  (round ${h.round || 1}, agent: ${h.agent}, ${h.provider}/${h.model})`);
+  lines.push('');
+  lines.push(`**Decided**: ${h.decided || ''}`);
+  if (h.rejected)  lines.push(`**Rejected**: ${h.rejected}`);
+  if (h.risks)     lines.push(`**Risks**: ${h.risks}`);
+  lines.push(`**Files**: ${(h.files || []).join(', ')}`);
+  if (h.remaining) lines.push(`**Remaining**: ${h.remaining}`);
+  if (h.verdict)   lines.push(`**Verdict**: ${h.verdict}${h.confidence != null ? ` (confidence ${h.confidence})` : ''}`);
+  if (h.issues?.length) {
+    lines.push('');
+    lines.push('## Issues');
+    for (const i of h.issues) {
+      lines.push(`- [${i.severity}/${i.category}] ${i.file || ''}${i.line ? ':' + i.line : ''} — ${i.summary}`);
+    }
+  }
+  lines.push('');
+  lines.push(`<sub>provider=${h.provider} model=${h.model} duration_ms=${h.duration_ms}</sub>`);
+  return lines.join('\n') + '\n';
+}

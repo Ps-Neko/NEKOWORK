@@ -55,3 +55,9 @@
   - Day 4: MCP gateway (4도구, smoke PASS) + install-apply 풀체인.
   - Day 5: gateguard 실 (importer/exports 정적 추출 + 답변 강제), quality-gate 실 (tsc/ruff 차단), demo-review 7단계 풀사이클 검증.
   - 통계: 66 파일, 6,765 LOC. 137 packages 의존성.
+- 2026-04-29 **Day 6 완료**.
+  - 4 provider runner (mock/claude/codex/gemini) + dispatch + 7단계 orchestrator + cli wiring.
+  - mock 디폴트 (API 키 / Codex CLI 미보유 환경에서도 동작), --live 옵션으로 실 호출.
+  - sensitive path 자동 감지 (auth/crypto/payment/jwt 등) → 단계 6 자동 활성.
+  - round 한도 + critical 발견 → HUMAN_GATE 자동.
+  - node --test 5/5 PASS. harness review CLI 데모 OK.
