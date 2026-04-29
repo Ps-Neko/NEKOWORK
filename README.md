@@ -2,6 +2,8 @@
 
 > Hybrid Agent Runtime with Native Evaluation, Skills, and Security
 
+[![harness-validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
+
 Claude Code · Codex CLI · Gemini CLI 를 단일 매니페스트로 통합하는 차세대 AI 개발 에이전트 하네스. ECC(everything-claude-code) 의 매니페스트·인스톨러 골격 위에 OMC(oh-my-claudecode) 의 멀티 에이전트·영속 실행 런타임을 얹고, claude-led-codex-review 7단계 풀사이클을 디폴트 검증 루프로 박았다.
 
 ## 5대 원칙
@@ -12,40 +14,41 @@ Claude Code · Codex CLI · Gemini CLI 를 단일 매니페스트로 통합하�
 4. **Fact-Forcing Security** — 자기평가는 무력. Edit 직전 importer·API·schema 사실 조사 강제.
 5. **Test → Review → Re-Review → Human Gate** — 모든 자동 수정은 4단 게이트.
 
-## 빠른 시작 (Day 1 시점)
+## 빠른 시작
 
 ```bash
-# 설치 dry-run
-node scripts/install-plan.js --profile core
+node scripts/install-plan.js --profile core      # 설치 dry-run
+npm test                                          # 73 테스트 (56 unit + 10 integration + 7 e2e)
+node scripts/cli.js review "<task>" --no-ship    # 7단계 풀사이클 dry-run (mock provider)
 ```
 
-## 상태 (2026-04-29 기준)
+## 상태 (2026-04-29 기준, v0.0.2)
 
-- **Week 1 완료**: 골격 + 거버넌스 + 매니페스트 + 11 agents + 5 skills + 5 hooks + MCP 4도구 + gateguard·quality-gate 실 구현.
-- **Week 2 완료**: orchestrator + 4 provider runner (mock/claude/codex/gemini) + lib (severity/router/costs) + MCP 7도구 + ralph 영속 루프 + GitHub Actions 2개 + PORTING 가이드.
-- **Week 3 완료**: 인스팅트 시스템 (record/list/promote/prune) + PoC 이식 시뮬레이터 + live runner extractJson/buildPrompt 단위 테스트.
-- **Week 4 완료**: 인스팅트 자동 promote 규칙 (`ready()`) + Rust runtime 골격 (529 LOC, 컴파일 미검증) + Week 1~4 통합 AUDIT.
-- 누적: 5 커밋, ~100 파일, ~12,000 LOC, 단위 테스트 **56/56 PASS**.
+- **0.0.1** (Week 1~4): 골격·거버넌스·매니페스트·11 agents·5 skills·5 hooks·MCP 7 도구·orchestrator·4 provider runner·인스팅트·Rust runtime 골격(529 LOC, 컴파일 미검증)·GitHub Actions 2개. ~12,000 LOC.
+- **0.0.2** (P1 회수): 빈 디렉터리 0, 미구현 스크립트 0 (validate-* 4개 / build-{cursor,gemini,opencode} / sync-claude-md / repair / build-codemaps), 통합 테스트 10·E2E 테스트 7 신규. 단위 56 + 통합 10 + E2E 7 = **73/73 PASS**. 누적 ~14,500 LOC.
+- **다음**: P2 외부 의존 — Rust 컴파일 / Codex·Gemini CLI live / Anthropic SDK live / npm publish.
 
 ## 빠진 / 부채
 
-`docs/AUDIT.md` 참조. 요약:
-- 빈 디렉터리 6 (rules/{common,typescript,python}, tests/{e2e,integration}, docs/CODEMAPS)
-- 미구현 스크립트 9 (validate-* 4개, build-{cursor,gemini,opencode}, sync-claude-md, repair)
-- 검증 안 된 컴포넌트 7 (live 호출 3, Rust 컴파일, GitHub Actions 실, PoC 실 이식, install sha256)
-- stub 메시지 2 (install-plan/apply 의 "Day 5 이후" 흔적)
-- 다음 세션 P1 1~2시간이면 99% 정합성 도달.
+`docs/AUDIT.md` 참조. 0.0.2 P1 회수 결과:
+
+- 빈 디렉터리 **0**, 미구현 스크립트 **0**, stub 메시지 **0**.
+- 자체 완결 영역 100% 정합.
+- 외부 의존 잔존 5건: Anthropic SDK live 1회 / Rust 컴파일 / Codex CLI live / Gemini CLI live / 사내 PoC 결합.
 
 ## 문서
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — 통합 설계 (18절)
+- [docs/CHANGELOG.md](docs/CHANGELOG.md) — 버전 이력
+- [docs/AUDIT.md](docs/AUDIT.md) — 부채 / 우선순위
+- [docs/RUNBOOK.md](docs/RUNBOOK.md) — 운영 절차
+- [docs/PORTING.md](docs/PORTING.md) — 사내 PoC 결합 가이드
 - [SOUL.md](SOUL.md) — 정체성
 - [RULES.md](RULES.md) — Must / Must Never
 - [CLAUDE.md](CLAUDE.md) — Claude Code 부팅 컨텍스트
 - [AGENTS.md](AGENTS.md) — 외부 하네스용 풀 사양
 - [WORKING-CONTEXT.md](WORKING-CONTEXT.md) — 현재 스프린트 액티브 메모리
 - [REVIEW.md](REVIEW.md) — 핸드오프 표준
-- [docs/RUNBOOK.md](docs/RUNBOOK.md) — 운영 절차
 
 ## 라이선스
 
