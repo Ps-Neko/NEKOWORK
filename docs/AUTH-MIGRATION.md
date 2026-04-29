@@ -277,3 +277,4 @@ PR #4 (codex 0.125+ 호환) 는 본 smoke 와 무관 — 별도 검증 (`npm run
 |---|---|---|
 | 2026-04-29 | 1-5 | 본 문서 작성. 5개 PR 단위 진행 예정. |
 | 2026-04-30 | 1-3 | 4-stack PR (#1-#3 auth + #4 codex 호환) CI 통과. §8 acceptance criteria 추가. |
+| 2026-04-30 | 1-3 | PR #1-#3 main 머지 완료 (`60e9de9` → `7c4f2c8`, +4 commits, rebase). PR #2/#3 은 phase-1 옛 SHA 포함으로 force-push 1회씩 (`--onto origin/main` + `--force-with-lease`). Smoke 3/4 PASS — #1 (Claude Max 구독 OAuth) / #2 (pre-bash-dispatcher 차단 3 케이스) / #4 (Windows Credential Manager). #3 GitHub OAuth Device Flow 는 OAuth App 미등록으로 deferred. PR #4 (codex 0.125+) 무관, OPEN 잔존. |

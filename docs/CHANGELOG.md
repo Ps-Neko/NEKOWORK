@@ -4,10 +4,39 @@
 
 ## [Unreleased]
 
+### Added (Auth migration, 2026-04-30 머지)
+- `agent.yaml#auth` — 3계층 인증 모델 (`delegated_cli_auth` / `oauth_device` / `api_key_vault`) + 정책 (`block_subscription_override`, `redact_tokens_in_audit`, `deny_static_api_keys_in_repo`).
+- `schemas/agent-yaml.schema.json` — `auth` 섹션 스키마 검증.
+- `hooks/scripts/pre-bash-dispatcher.js` — `block_subscription_override` 가드: claude/codex/gemini CLI 호출 직전 `ANTHROPIC_API_KEY`/`OPENAI_API_KEY`/`GEMINI_API_KEY`/`GOOGLE_API_KEY` 차단. `HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1` 옵트아웃.
+- `scripts/auth/github-{login,status,logout}.js` — GitHub OAuth Device Flow (scopes: `repo`, `workflow`).
+- `scripts/lib/token-vault.js` — `encrypted-file` vault + audit redaction (정규식 후필터).
+- `scripts/lib/keychain.js` — `@napi-rs/keyring` wrapper (Windows Credential Manager / macOS Keychain / Linux Secret Service 통일 API).
+- `tests/unit/token-vault.test.js`, `tests/optional/keychain-smoke.test.js` (`HARNESS_KEYCHAIN_SMOKE=1` 게이트).
+- `docs/AUTH-MIGRATION.md` — 정책 / 단계별 마이그레이션 / 사용자 가이드 / 보안 노트 / smoke checklist (§8).
+
+### Changed (Auth migration)
+- `.env.example` — LLM API key 슬롯 제거, `HARNESS_GITHUB_CLIENT_ID` 신설, `GITHUB_TOKEN` 은 fallback 격하, Context7/Exa 는 vault 권장 안내.
+- `docs/RUNBOOK.md` — §0/§4/§10 인증 안내를 OAuth 위임 기반으로 갱신.
+- `docs/ARCHITECTURE.md` — auth 섹션 정합.
+
+### Smoke (acceptance criteria, 2026-04-30)
+- ✅ #1 `claude /status` — Login: **Claude Max account**, API Key 미사용.
+- ✅ #2 `pre-bash-dispatcher` 차단 — 3 케이스 (차단 exit 2 / 통과 exit 0 / 옵트아웃 exit 0).
+- ⏸ #3 GitHub OAuth Device Flow — OAuth App 미등록, 실제 GitHub automation 사용 시점에 수행 결정.
+- ✅ #4 OS keychain (Windows Credential Manager) — set/get/remove 사이클 9.4ms.
+
+### 머지 흔적
+- main: `60e9de9` → `7c4f2c8` (+4 commits, rebase merge).
+- PR #1 (`phase-1-auth-migration`): `06fbe8f` + `8f943af` (smoke checklist).
+- PR #2 (`phase-2-env-cleanup`): `0feaa59` — force-push 1회 (`--onto origin/main b2b1bce` + `--force-with-lease`).
+- PR #3 (`phase-3-keychain`): `7c4f2c8` — force-push 1회 (`--onto origin/main bf72841` + `--force-with-lease`).
+- PR #4 (`phase-4-codex-compat`) 는 본 작업과 무관 OPEN 잔존.
+
 ### 다음 후보 (`docs/AUDIT.md §5` + `docs/dev-log/2026-04-29-p1-recovery.md §6` 참조)
-- **P0** (사용자 동의): Anthropic SDK live 1회, GitHub push + Actions 실 동작, 사내 PoC 결합
+- **P0** (사용자 동의): Anthropic SDK live 1회, ~~GitHub push + Actions 실 동작~~ (auth migration 머지로 수행됨), 사내 PoC 결합
 - **P2** (외부 의존): Rust runtime 컴파일, Codex CLI / Gemini CLI live 검증, npm publish 결정
 - **P3** (사내 임팩트, 사용자 명시 시): 사내 풀 결합, `runners/internal.js` 사내 LLM, 사내 GitLab CI 가이드
+- **Auth**: smoke #3 (GitHub OAuth Device Flow) — OAuth App 등록 후 `HARNESS_GITHUB_CLIENT_ID` 설정 → `npm run auth:github:login` 실연.
 
 ## [0.0.2] — 2026-04-29
 
