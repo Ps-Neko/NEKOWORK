@@ -31,6 +31,29 @@ const RULES = [
 const blocks = [];
 for (const r of RULES) if (r.re.test(cmd)) blocks.push(r.msg);
 
+// auth.policy.block_subscription_override 가드.
+// agent.yaml: providers.<name>.disallow_env_keys 와 동기. 자세한 배경은 docs/AUTH-MIGRATION.md.
+// LLM CLI 호출 직전 환경 변수에 long-lived API key 가 있으면 구독 OAuth 가 무시되어
+// 종량제 과금으로 빠지는 사고를 막는다. HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1 로 명시 옵트아웃.
+const SUBSCRIPTION_GUARDS = [
+  { cli: /\bclaude\b/,             keys: ['ANTHROPIC_API_KEY'],                provider: 'Claude (Anthropic)' },
+  { cli: /\bcodex\b/,               keys: ['OPENAI_API_KEY'],                   provider: 'Codex (OpenAI)' },
+  { cli: /\bgemini\b|\bgcloud\b/,   keys: ['GEMINI_API_KEY', 'GOOGLE_API_KEY'], provider: 'Gemini (Google)' },
+];
+
+if (process.env.HARNESS_AUTH_ALLOW_ENV_OVERRIDE !== '1') {
+  for (const g of SUBSCRIPTION_GUARDS) {
+    if (!g.cli.test(cmd)) continue;
+    const set = g.keys.filter((k) => process.env[k]);
+    if (!set.length) continue;
+    blocks.push(
+      `구독 보호: ${g.provider} CLI 호출 직전 ${set.join(', ')} 가 환경에 설정되어 있습니다. ` +
+      `구독 OAuth 세션이 무시되어 종량제 과금으로 빠질 수 있습니다. ` +
+      `\`unset ${set.join(' ')}\` 또는 HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1 로 명시 옵트아웃.`
+    );
+  }
+}
+
 if (blocks.length) {
   process.stderr.write('[pre-bash-dispatcher] 차단:\n');
   for (const b of blocks) process.stderr.write('  - ' + b + '\n');
