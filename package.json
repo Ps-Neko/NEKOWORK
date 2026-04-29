@@ -68,10 +68,12 @@
     "verify:codex": "node scripts/verify/codex-live.js",
     "auth:github:login": "node scripts/auth/github-login.js",
     "auth:github:status": "node scripts/auth/github-status.js",
-    "auth:github:logout": "node scripts/auth/github-logout.js"
+    "auth:github:logout": "node scripts/auth/github-logout.js",
+    "test:keychain": "node --test tests/optional/keychain-smoke.test.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "@napi-rs/keyring": "^1.2.0",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "yaml": "^2.6.1"
