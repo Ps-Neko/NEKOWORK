@@ -1,15 +1,9 @@
 #!/usr/bin/env node
 // GitHub OAuth 상태 점검. vault 에 토큰이 있고 GitHub API 가 응답하는지 확인.
 
-import { load, redact } from '../lib/token-vault.js';
+import { load, redact, backend } from '../lib/token-vault.js';
 
-const tok = load('github');
-if (!tok) {
-  process.stdout.write('GitHub: 미인증 (`npm run auth:github:login` 필요).\n');
-  process.exit(1);
-}
-
-async function verify() {
+async function verify(tok) {
   try {
     const r = await fetch('https://api.github.com/user', {
       headers: {
@@ -27,12 +21,19 @@ async function verify() {
 }
 
 (async () => {
+  const tok = await load('github');
+  if (!tok) {
+    process.stdout.write('GitHub: 미인증 (`npm run auth:github:login` 필요).\n');
+    process.exit(1);
+  }
+
   process.stdout.write('GitHub 인증 상태:\n');
+  process.stdout.write(`  backend  : ${await backend()}\n`);
   process.stdout.write(`  scope    : ${tok.scope}\n`);
   process.stdout.write(`  saved_at : ${tok.saved_at}\n`);
   process.stdout.write(`  token    : ${redact(tok.access_token)}\n`);
 
-  const v = await verify();
+  const v = await verify(tok);
   if (v.ok) {
     process.stdout.write(`  user     : ${v.login}\n`);
     process.stdout.write(`  유효      : ✓\n`);
