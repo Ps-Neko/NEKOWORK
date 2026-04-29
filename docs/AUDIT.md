@@ -104,7 +104,7 @@ tests/integration/     (통합 테스트 미작성)
 
 ### P0 — 사용자 환경 동의 후 즉시 가치
 1. **Anthropic SDK 1회 실 호출** — `harness review --live --no-ship "간단 변경"` 한 번. 비용 ~$0.10. live runner 의 실 응답 파싱 검증.
-2. **사내 PoC 비파괴 결합** (`iljin-rag-poc/.harness-tool/`, gitignore). 첫 review 동작 확인.
+2. **사내 PoC 비파괴 결합** — 사용자가 지정하는 사내 프로젝트에 `.harness-tool/` 결합. 첫 review 동작 확인. (디렉터리는 사용자 명시 시점에 결정)
 3. **GitHub 레포 push** — Actions 자동 동작 검증, PR 코멘트 실 등록.
 
 ### P1 — 자체 완결 (다음 세션 1~2시간)
@@ -121,9 +121,9 @@ tests/integration/     (통합 테스트 미작성)
 12. **codemap 자동 생성** — `docs/CODEMAPS/<area>.md` 스크립트.
 
 ### P3 — 사내 임팩트 (사용자 요청 시)
-13. iljin-rag-poc 풀 결합 + 첫 실 task 1개로 사이클 돌려보기.
-14. cad-api-bridge / solidedge-mcp 도 동일 절차.
-15. 사내 LLM endpoint 를 추가 provider 로 (`runners/iljin.js`).
+13. 사용자 명시 사내 프로젝트에 풀 결합 + 첫 실 task 1개로 사이클.
+14. 추가 사내 프로젝트 동일 절차.
+15. 사내 LLM endpoint 를 추가 provider 로 (`runners/internal.js`).
 
 ### P4 — 안 해도 되는 것 (의도적 거절)
 - OMC 매직 키워드 자동 활성 (사용자 룰 충돌)

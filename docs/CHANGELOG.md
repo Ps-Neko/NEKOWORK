@@ -6,7 +6,7 @@
 
 ### Week 5 후보 (docs/AUDIT.md 우선순위 P0~P2)
 - P0: Anthropic SDK 1회 실 호출 검증 (사용자 API 키 동의)
-- P0: 사내 PoC 비파괴 결합 (iljin-rag-poc 부터)
+- P0: 사내 PoC 비파괴 결합 (사용자 명시 시점에 디렉터리 결정)
 - P0: GitHub push + Actions 실 동작 검증
 - P1: scripts/{sync-claude-md, repair, build-cursor, build-gemini, build-opencode}.js
 - P1: rules/{common, typescript, python} 내용 작성
@@ -71,7 +71,7 @@
   - plan 결과 vs 기존 파일 비교 → 충돌 severity 분류
   - 실 변경 없음 (--apply 옵션 미존재)
 - 단위 테스트 5/5 PASS
-- 실 시뮬: iljin-rag-poc (medium 충돌 2건), cad-api-bridge (충돌 0건)
+- 실 시뮬: 익명 디렉터리 dry-run (충돌 패턴 0/2건 케이스 검증)
 
 ### Added (Day 13)
 - `claude.js` / `codex.js` 의 `extractJson`, `_buildSystem`, `_buildUserMessage`, `_buildPrompt` export
@@ -113,7 +113,7 @@
 ### Added (Day 9-10)
 - `.github/workflows/harness-review.yml` — PR 자동 7단계 + 핸드오프 PR 코멘트 + 아티팩트 업로드
 - `.github/workflows/harness-validate.yml` — push 시 매니페스트 + 24개 단위 테스트
-- `docs/PORTING.md` — 사내 PoC (iljin-rag-poc / cad-api-bridge / solidedge-mcp) 30분 이식 가이드
+- `docs/PORTING.md` — 사내 PoC 30분 이식 가이드 (일반 절차)
 
 ### Tests
 - `tests/unit/severity.test.js` — 10 케이스

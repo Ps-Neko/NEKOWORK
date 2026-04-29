@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // PoC 이식 시뮬레이터. PORTING.md 의 30분 절차를 dry-run 으로 검증.
 //
-// 입력: --target <대상 디렉터리>  (예: D:/claude/iljin-rag-poc)
+// 입력: --target <대상 디렉터리>  (사용자가 지정한 사내 프로젝트 경로)
 //       --profile <name>           (기본: research)
 //
 // 출력: 대상 디렉터리에 어떤 파일이 새로 들어갈지 / 어떤 파일이 보존되는지 / 충돌 가능성 리포트.
@@ -39,8 +39,8 @@ HARNESS PoC 이식 시뮬레이터 (dry-run only).
   node scripts/portability/simulate-port.js --target <dir> [--profile <name>] [--verbose] [--json]
 
 예:
-  node scripts/portability/simulate-port.js --target D:/claude/iljin-rag-poc --profile research
-  node scripts/portability/simulate-port.js --target D:/claude/cad-api-bridge --profile developer
+  node scripts/portability/simulate-port.js --target <대상 경로> --profile developer
+  node scripts/portability/simulate-port.js --target <대상 경로> --profile research
 `);
 }
 

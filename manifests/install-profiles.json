@@ -38,7 +38,7 @@
       }
     },
     "research": {
-      "description": "core + 사내 RAG / Context7 / Exa 결합. iljin-rag-poc 같은 PoC 환경.",
+      "description": "core + 사내 RAG / Context7 / Exa 결합. 사내 RAG PoC 환경용.",
       "modules": [
         "rules-core",
         "agents-core",
