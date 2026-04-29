@@ -13,6 +13,10 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
+import { classifyCategory, classifySeverity, severityCounts, deriveVerdict, riskLevel } from '../scripts/lib/severity.js';
+import { decide as routeDecide } from '../scripts/lib/router.js';
+import { record as costRecord, list as costList, summarize as costSummarize } from '../scripts/lib/costs.js';
+
 const ROOT = process.env.HARNESS_ROOT || process.cwd();
 const SESSION_ID = process.env.HARNESS_SESSION_ID || 'default';
 const SESSION_DIR = path.join(ROOT, '.harness', 'state', 'sessions', SESSION_ID);
@@ -91,6 +95,52 @@ const TOOLS = [
       required: ['stage', 'agent', 'decided', 'files'],
     },
   },
+  {
+    name: 'severity_classify',
+    description: '이슈 한 건 또는 이슈 배열의 severity / category 자동 분류. 명시값이 있으면 그대로, 없으면 휴리스틱.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        issues: { type: 'array', description: 'issue 객체 배열' },
+        files: { type: 'array', items: { type: 'string' } },
+        task: { type: 'string' },
+      },
+      required: ['issues'],
+    },
+  },
+  {
+    name: 'route_decide',
+    description: '단계 + task + files + eco_mode 입력 → 라우팅 결정 (agent/model/provider) 출력. routing.jsonl 에 트레이스 가능.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        stage: { type: 'string' },
+        task: { type: 'string' },
+        files: { type: 'array', items: { type: 'string' } },
+        eco_mode: { type: 'boolean' },
+        risk_level: { enum: ['low', 'medium', 'high', 'critical'] },
+        trace: { type: 'boolean', description: '결정을 routing.jsonl 에 기록' },
+      },
+      required: ['stage'],
+    },
+  },
+  {
+    name: 'cost_record',
+    description: '도구 호출 1건의 비용을 ~/.harness/costs.jsonl 에 기록. agent / stage / model / tokens / duration / 추정 USD.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        agent: { type: 'string' },
+        stage: { type: 'string' },
+        provider: { type: 'string' },
+        model: { type: 'string' },
+        input_tokens: { type: 'integer' },
+        output_tokens: { type: 'integer' },
+        duration_ms: { type: 'integer' },
+      },
+      required: ['agent', 'stage', 'model'],
+    },
+  },
 ];
 
 const server = new Server(
@@ -132,6 +182,52 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       fs.appendFileSync(file, line);
       audit('notepad_append', { file, bytes: line.length });
       return { content: [{ type: 'text', text: 'OK' }] };
+    }
+
+    if (name === 'severity_classify') {
+      const enriched = (args.issues || []).map((i) => ({
+        ...i,
+        category: classifyCategory(i),
+        severity: classifySeverity(i),
+      }));
+      const counts = severityCounts(enriched);
+      const verdict = deriveVerdict(enriched);
+      const risk = riskLevel(args.files || [], args.task || '');
+      audit('severity_classify', { count: enriched.length, verdict, risk });
+      return { content: [{ type: 'text', text: JSON.stringify({ issues: enriched, counts, verdict, risk_level: risk }, null, 2) }] };
+    }
+
+    if (name === 'route_decide') {
+      const decision = routeDecide({
+        stage: args.stage,
+        task: args.task,
+        files: args.files,
+        ecoMode: args.eco_mode,
+        riskLevel: args.risk_level,
+        harnessRoot: ROOT,
+      });
+      if (args.trace) {
+        const { trace } = await import('../scripts/lib/router.js');
+        trace(SESSION_DIR, decision, { stage: args.stage, task: args.task });
+      }
+      audit('route_decide', { stage: args.stage, agent: decision.agent, model: decision.model });
+      return { content: [{ type: 'text', text: JSON.stringify(decision, null, 2) }] };
+    }
+
+    if (name === 'cost_record') {
+      const row = costRecord({
+        ts: new Date().toISOString(),
+        session: SESSION_ID,
+        stage: args.stage,
+        agent: args.agent,
+        provider: args.provider,
+        model: args.model,
+        input_tokens: args.input_tokens,
+        output_tokens: args.output_tokens,
+        duration_ms: args.duration_ms,
+      });
+      audit('cost_record', { model: row.model, usd: row.estimate_usd });
+      return { content: [{ type: 'text', text: JSON.stringify(row, null, 2) }] };
     }
 
     if (name === 'handoff_write') {
