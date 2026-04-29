@@ -85,7 +85,7 @@ HARNESS 는 **하나의 매니페스트(`agent.yaml`)** 와 **5개 정규 카탈
 │   ↓ scripts/build-cursor.js   → .cursor/                             │
 │   ↓ scripts/build-gemini.js   → .gemini/                             │
 │   ↓ scripts/build-opencode.js → .opencode/                           │
-│  + bridge/mcp-server.cjs (MCP 단일 게이트웨이)                       │
+│  + bridge/mcp-server.js (MCP 단일 게이트웨이)                       │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -373,7 +373,7 @@ harness/
 │   │   └── check-markers.js
 │   └── lib/                    ← router, severity, costs, runners
 ├── bridge/
-│   └── mcp-server.cjs          ← MCP 단일 게이트웨이
+│   └── mcp-server.js          ← MCP 단일 게이트웨이
 ├── runtime/                    ← Rust 골격 (별도 컴파일)
 ├── docs/
 │   ├── ARCHITECTURE.md         ← 본 문서
@@ -416,7 +416,7 @@ hooks:
   active: [gateguard-fact-force, quality-gate, pre-bash-dispatcher, persistent-mode]
 
 mcp:
-  gateway: bridge/mcp-server.cjs
+  gateway: bridge/mcp-server.js
   external_servers:
     - { name: github,   pin: "@modelcontextprotocol/server-github@2025.4.8" }
     - { name: context7, pin: "@upstash/context7-mcp@2.1.4" }
@@ -448,7 +448,7 @@ routing:
 ```json
 {
   "mcpServers": {
-    "harness": { "command": "node", "args": ["bridge/mcp-server.cjs"] },
+    "harness": { "command": "node", "args": ["bridge/mcp-server.js"] },
     "github":  { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-github@2025.4.8"] }
   }
 }

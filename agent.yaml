@@ -43,7 +43,7 @@ hooks:
     - persistent-mode
 
 mcp:
-  gateway: bridge/mcp-server.cjs
+  gateway: bridge/mcp-server.js
   external_servers:
     - name: github
       pin: "@modelcontextprotocol/server-github@2025.4.8"
@@ -127,6 +127,47 @@ security:
   audit_log_path: .harness/audit
   secret_redaction: true
   fact_forcing_default: true
+
+auth:
+  # 3계층 인증 모델. 상세는 docs/AUTH-MIGRATION.md.
+  mode: delegated-first
+  token_store:
+    kind: encrypted-file
+    path: ~/.harness/oauth
+  providers:
+    # 계층 1: LLM provider — CLI 세션에 위임 (구독자 OAuth 보호)
+    anthropic:
+      flow: delegated_cli_auth
+      command: claude
+      auth_check: "claude /status"
+      disallow_env_keys: [ANTHROPIC_API_KEY]
+    openai:
+      flow: delegated_cli_auth
+      command: codex
+      auth_check: "codex auth status"
+      disallow_env_keys: [OPENAI_API_KEY]
+    google:
+      flow: delegated_cli_auth
+      command: gemini
+      auth_check: "gcloud auth list"
+      disallow_env_keys: [GEMINI_API_KEY, GOOGLE_API_KEY]
+    # 계층 2: NEKOWORK이 직접 OAuth 관리
+    github:
+      flow: oauth_device
+      scopes: [repo, workflow]
+      client_id_env: HARNESS_GITHUB_CLIENT_ID
+    # 계층 3: vault (위임/OAuth 둘 다 불가)
+    context7:
+      flow: api_key_vault
+      vault_key: CONTEXT7_API_KEY
+    exa:
+      flow: api_key_vault
+      vault_key: EXA_API_KEY
+  policy:
+    block_subscription_override: true
+    require_human_approval_for_scope_escalation: true
+    redact_tokens_in_audit: true
+    deny_static_api_keys_in_repo: true
 
 routing:
   # 단계별 routing 표는 skills/claude-led-codex-review/SKILL.md 가 정전(canon).

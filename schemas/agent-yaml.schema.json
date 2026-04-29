@@ -107,6 +107,51 @@
       "additionalProperties": true
     },
 
+    "auth": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "enum": ["delegated-first", "oauth-first", "vault-only"] },
+        "token_store": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "enum": ["encrypted-file", "os-keychain"] },
+            "path": { "type": "string" },
+            "fallback": { "enum": ["encrypted-file", "os-keychain"] }
+          }
+        },
+        "providers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["flow"],
+            "additionalProperties": false,
+            "properties": {
+              "flow": { "enum": ["delegated_cli_auth", "oauth_device", "oauth_pkce", "api_key_vault"] },
+              "command": { "type": "string" },
+              "auth_check": { "type": "string" },
+              "disallow_env_keys": { "type": "array", "items": { "type": "string" } },
+              "scopes": { "type": "array", "items": { "type": "string" } },
+              "client_id_env": { "type": "string" },
+              "vault_key": { "type": "string" },
+              "fallback": { "enum": ["delegated_cli_auth", "oauth_device", "oauth_pkce", "api_key_vault"] }
+            }
+          }
+        },
+        "policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "block_subscription_override": { "type": "boolean" },
+            "require_human_approval_for_scope_escalation": { "type": "boolean" },
+            "redact_tokens_in_audit": { "type": "boolean" },
+            "deny_static_api_keys_in_repo": { "type": "boolean" }
+          }
+        }
+      }
+    },
+
     "routing": {
       "type": "object",
       "additionalProperties": true
