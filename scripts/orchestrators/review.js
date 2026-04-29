@@ -11,6 +11,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { dispatch } from '../agents/dispatch.js';
+import { record as instinctRecord } from '../lib/instincts.js';
 
 const STAGE_INDEX = {
   ideate: '01', plan: '02', implement: '03', 'self-review': '04',
@@ -45,6 +46,29 @@ export async function reviewCycle(opts) {
     fs.writeFileSync(path.join(sessionDir, 'handoffs', `${nn}-${h.stage}.md`), renderHandoff(h));
     fs.writeFileSync(path.join(sessionDir, 'handoffs', `${nn}-${h.stage}.json`), JSON.stringify(h, null, 2));
     handoffs.push(h);
+    // 인스팅트 자동 누적
+    try {
+      // 이슈 패턴: severity + category + 파일 prefix
+      for (const i of (h.issues || [])) {
+        instinctRecord({
+          kind: 'issue-pattern',
+          key: `${i.severity || '?'}/${i.category || '?'}/${(i.file || '').split('/')[0] || '_'}`,
+          summary: `${i.severity}/${i.category} in ${i.file || '?'}: ${i.summary || ''}`.slice(0, 200),
+          evidence: { sessionId, stage: h.stage, file: i.file, summary: i.summary },
+          scope: 'global',
+        });
+      }
+      // verdict 흐름
+      if (h.verdict) {
+        instinctRecord({
+          kind: 'fix-flow',
+          key: `${h.stage}→${h.verdict}@round${h.round || 1}`,
+          summary: `${h.stage} round ${h.round || 1} → ${h.verdict}`,
+          evidence: { sessionId, stage: h.stage, verdict: h.verdict, round: h.round || 1 },
+          scope: 'global',
+        });
+      }
+    } catch { /* instinct 실패는 review 자체를 막지 않음 */ }
   };
 
   // ---- 1. ideate ----

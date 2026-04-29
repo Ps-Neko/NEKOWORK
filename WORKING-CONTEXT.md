@@ -66,3 +66,11 @@
   - Day 8: skills/ralph/SKILL.md + scripts/orchestrators/ralph.js (PRD AC 누적 PASS) + scripts/daemon/wait.js (start/stop/status). 명시 옵트인만 (자동 키워드 활성 OFF).
   - Day 9-10: .github/workflows/{harness-review,harness-validate}.yml + docs/PORTING.md (사내 PoC 이식 가이드).
   - 단위 테스트 24/24 PASS. 83 파일. 풀체인 동작 (review / ralph / costs / sessions / wait).
+- 2026-04-29 **Week 3 완료 (Day 11~15)**.
+  - Day 11: instincts 시스템 (record/list/promote/prune) + orchestrator 자동 누적 + CLI + 11/11 테스트.
+  - Day 12: simulate-port.js (iljin-rag-poc, cad-api-bridge dry-run 실증) + 5/5 테스트.
+  - Day 13: claude/codex extractJson + buildPrompt export + 12/12 테스트.
+  - Day 14-15: CHANGELOG Week 3, WORKING-CONTEXT 갱신, 최종 회귀.
+  - 누적: 4 커밋, ~92 파일, ~10,500 LOC, 단위 테스트 52/52 PASS.
+- 2026-04-29 **세션 종료**.
+  - Week 4 후보: 실 LLM 호출 검증, 사내 PoC 실 이식, GitHub push, Rust runtime, 인스팅트 자동 promote 규칙.

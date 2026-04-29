@@ -99,11 +99,14 @@ function buildUserMessage(a) {
   return lines.join('\n');
 }
 
-function extractJson(text) {
-  // ```json ... ``` 우선
+// 응답 텍스트에서 첫 JSON 객체 추출. 다음 우선순위:
+//   1. ```json ... ``` 펜스 블록
+//   2. raw { ... } 매칭 (escape / string 인식)
+// export 해서 단위 테스트 가능하게.
+export function extractJson(text) {
+  if (typeof text !== 'string') return null;
   const m = text.match(/```json\s*([\s\S]*?)```/i);
   if (m) return m[1].trim();
-  // raw object — 첫 { 부터 매칭되는 } 까지
   const start = text.indexOf('{');
   if (start < 0) return null;
   let depth = 0;
@@ -125,3 +128,5 @@ function extractJson(text) {
   }
   return null;
 }
+
+export { buildSystem as _buildSystem, buildUserMessage as _buildUserMessage };
