@@ -1,0 +1,165 @@
+name: harness-review
+
+# claude-led-codex-review 7단계 풀사이클을 PR 에 자동 적용.
+# - dry-run (mock provider) 디폴트: API 키 / Codex CLI 미설정 환경에서도 동작
+# - secrets.ANTHROPIC_API_KEY 가 있으면 Claude 단계만 live, Codex 는 mock fallback
+# - sensitive path 자동 감지 → --secure
+# - critical 발견 / round ≥ 3 → 워크플로우 실패 + PR 코멘트
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      task:
+        description: '리뷰 task 설명'
+        required: false
+        default: ''
+      secure:
+        description: '단계 6 codex-challenge 강제'
+        required: false
+        default: 'auto'
+        type: choice
+        options: [auto, on, off]
+      live:
+        description: '실 LLM 호출 (시크릿 필요)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      HARNESS_HOOK_GATEGUARD: '1'
+      HARNESS_HOOK_QUALITY_GATE: '1'
+      HARNESS_HOOK_PRE_BASH: '0'           # CI 에서는 bash 게이트 사용 안 함
+      HARNESS_HOOK_PERSISTENT_MODE: '0'    # CI 에서는 영속 모드 OFF
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: npm install
+        run: npm ci --no-audit --no-fund
+
+      - name: Validate catalog
+        run: |
+          node scripts/install-plan.js --profile core --verbose
+          node scripts/ci/catalog.js
+          node scripts/ci/check-markers.js
+
+      - name: Compute task / secure / live
+        id: opts
+        run: |
+          TASK="${{ github.event.inputs.task }}"
+          if [ -z "$TASK" ] && [ -n "${{ github.event.pull_request.title }}" ]; then
+            TASK="${{ github.event.pull_request.title }}"
+          fi
+          if [ -z "$TASK" ]; then
+            TASK="자동: ${{ github.event_name }} ${{ github.ref }}"
+          fi
+          echo "task=$TASK" >> "$GITHUB_OUTPUT"
+
+          SECURE="${{ github.event.inputs.secure || 'auto' }}"
+          SECURE_FLAG=""
+          if [ "$SECURE" = "on" ]; then SECURE_FLAG="--secure"; fi
+          # auto: orchestrator 가 sensitive path 자동 감지
+          echo "secure_flag=$SECURE_FLAG" >> "$GITHUB_OUTPUT"
+
+          LIVE="${{ github.event.inputs.live || 'false' }}"
+          LIVE_FLAG=""
+          if [ "$LIVE" = "true" ] && [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+            LIVE_FLAG="--live"
+          fi
+          echo "live_flag=$LIVE_FLAG" >> "$GITHUB_OUTPUT"
+
+      - name: Run review
+        id: review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          set +e
+          node scripts/cli.js review "${{ steps.opts.outputs.task }}" \
+            ${{ steps.opts.outputs.secure_flag }} \
+            ${{ steps.opts.outputs.live_flag }} \
+            --no-ship \
+            --session "ci-${{ github.run_id }}-${{ github.run_attempt }}"
+          CODE=$?
+          echo "exit=$CODE" >> "$GITHUB_OUTPUT"
+          # exit 3 = HUMAN_GATE
+          # 그 외 0 외 코드는 일반 실패
+          if [ "$CODE" = "0" ]; then echo "verdict=approve" >> "$GITHUB_OUTPUT";
+          elif [ "$CODE" = "3" ]; then echo "verdict=human_gate" >> "$GITHUB_OUTPUT";
+          else echo "verdict=error" >> "$GITHUB_OUTPUT"; fi
+          exit 0
+
+      - name: Collect handoffs
+        if: always()
+        run: |
+          SESSION_DIR=".harness/state/sessions/ci-${{ github.run_id }}-${{ github.run_attempt }}"
+          if [ -d "$SESSION_DIR/handoffs" ]; then
+            echo "## Handoffs"
+            ls "$SESSION_DIR/handoffs"
+            echo ""
+            for f in "$SESSION_DIR"/handoffs/*.md; do
+              echo "----"
+              cat "$f"
+            done > /tmp/handoffs.md
+          fi
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harness-handoffs-${{ github.run_id }}
+          path: .harness/state/sessions/ci-${{ github.run_id }}-*/
+          retention-days: 14
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const sessionDir = `.harness/state/sessions/ci-${context.runId}-${context.runAttempt}`;
+            let body = `### HARNESS review (${{ steps.review.outputs.verdict }})\n\n`;
+            body += `세션: \`ci-${context.runId}-${context.runAttempt}\`\n`;
+            body += `exit: \`${{ steps.review.outputs.exit }}\`\n\n`;
+            try {
+              const handoffs = fs.readdirSync(`${sessionDir}/handoffs`).filter(f => f.endsWith('.md')).sort();
+              body += `핸드오프 ${handoffs.length}개:\n`;
+              for (const f of handoffs) body += `- \`${f}\`\n`;
+              const last = handoffs.filter(f => f.includes('codex-review') || f.includes('codex-challenge')).pop();
+              if (last) {
+                const text = fs.readFileSync(`${sessionDir}/handoffs/${last}`, 'utf8');
+                body += `\n<details><summary>${last}</summary>\n\n${text}\n</details>\n`;
+              }
+            } catch (e) { body += `(핸드오프 디렉터리 없음: ${e.message})\n`; }
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
+
+      - name: Fail on human gate / error
+        if: steps.review.outputs.verdict != 'approve'
+        run: |
+          echo "review verdict: ${{ steps.review.outputs.verdict }}"
+          exit 1
