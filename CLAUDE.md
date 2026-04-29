@@ -9,11 +9,12 @@
 ## 자동 갱신 영역
 
 <!-- HARNESS:START version=0.0.1 -->
+<!-- 이 영역은 scripts/sync-claude-md.js 가 자동 갱신한다. 직접 편집 금지. -->
 
 ## 카탈로그 요약
 
 - agents: 11
-- skills: 5
+- skills: 6
 - commands: 1 (legacy compat)
 - hooks: 4 (gateguard-fact-force, quality-gate, pre-bash-dispatcher, persistent-mode)
 - profiles: core, developer, security, research, full
@@ -21,19 +22,19 @@
 
 ## 에이전트 → 모델 매트릭스
 
-| Agent | Provider | Model | Tools |
+| Agent | Provider | Model | Sandbox |
 |---|---|---|---|
 | architect | claude | opus | read-only |
 | planner | claude | opus | read-only |
-| executor | claude | sonnet | full |
+| executor | claude | sonnet | workspace-write |
 | code-reviewer | claude | opus | read-only |
-| codex-reviewer | codex | gpt-5-codex | read-only, no-net |
-| codex-challenger | codex | gpt-5-codex | read-only, no-net |
+| codex-reviewer | codex | gpt-5-codex | read-only |
+| codex-challenger | codex | gpt-5-codex | read-only |
 | security-reviewer | claude | opus | read-only |
-| debugger | claude | sonnet | full |
-| test-engineer | claude | sonnet | full |
+| debugger | claude | sonnet | workspace-write |
+| test-engineer | claude | sonnet | workspace-write |
 | research | gemini | gemini-2.5-pro | read-only |
-| doc-writer | claude | haiku | full |
+| doc-writer | claude | haiku | workspace-write |
 
 ## 핵심 명령어
 
@@ -52,7 +53,7 @@ harness costs --since=7d
 
 - 세션: `.harness/state/sessions/<id>/{prd.json,progress.txt,notepad.md,handoffs/}`
 - 프로젝트: `.harness/project-memory.json` + `WORKING-CONTEXT.md`
-- 글로벌: `~/.harness/instincts/` + `~/.harness/costs.jsonl`
+- 글로벌: `~/.harness/instincts/` + `.harness/costs.jsonl`
 
 ## 매직 키워드 → 스킬 (명시 옵트인만)
 

@@ -5,30 +5,36 @@
 
 ## Purpose
 
-(현재 스프린트의 목적 1~3줄)
+P1 회수 후 잡티 제거 + 거버넌스 정합. 외부 의존 영역 (API 키 / GitHub push / Rust / Codex CLI) 은 사용자 동의 시점까지 보류.
 
 ## Current Truth
 
-- 위치 / 브랜치
-- 활성 모듈 / PRD ID
-- 외부 의존성 (API 키 / CLI / submodule)
+- 위치: `D:\claude\harness\` · 브랜치: `main`
+- 버전: `0.0.2` (2026-04-29 P1 회수 릴리스)
+- 카탈로그: 11 agents · 5 skills (+1 ralph) · 5 hooks · 6 modules · 5 profiles
+- 5 빌더 모두 동작 (claude / codex / cursor / gemini / opencode) + codemaps 보너스
+- 단일 / 통합 / e2e 합 73/73 PASS
+- 외부 의존성: 옵션 — `ANTHROPIC_API_KEY` (--live), `codex` / `gemini` 바이너리, rustup
 
 ## Current Constraints
 
-- 시간 / 비용 / 호환성 제약
-- 알려진 마찰
+- 사용자 룰: "확인 후 실행" — git push / API 키 사용은 명시 동의 후만
+- Windows 환경 마찰: tmux 미사용, Node 22+ glob 미지원 (`tests/<dir>/*.test.js` 명시 필요)
+- 사내 PoC 두 디렉터리 (`iljin-rag-poc`, `cad-api-bridge`) 는 메모리 등록된 제외 대상
+- 인접 LLM endpoint / 사내 GitLab 등 사내 임팩트는 사용자 명시 시점에 결정
 
 ## Active Queues
 
 ### In Progress
--
+- 2.5시간 잡티 제거 배치 (CHANGELOG / WORKING-CONTEXT / Validator 경고 / RUNBOOK·PORTING / Security Bar)
 
 ### Next
--
+- AUDIT P0 외부 검증 (사용자 동의 후): API live 1회, GitHub push, Actions 실 동작
+- AUDIT P2 외부 의존: Rust 컴파일, Codex/Gemini CLI live, npm publish 결정
 
 ## Open PR Classification
 
-(없음 — 또는 #N: <한 줄>)
+(없음 — 레포 미 push)
 
 ## Interfaces
 
@@ -42,4 +48,5 @@
 
 ## Latest Execution Notes
 
-- (yyyy-mm-dd, 한 줄): ...
+- 2026-04-29: P1 회수 세션 완료 (`docs/dev-log/2026-04-29-p1-recovery.md`). 빈 디렉터리 6 → 0, 미구현 스크립트 9 → 0, ARCHITECTURE 528줄, 73 테스트.
+- 2026-04-29: 잡티 제거 배치 진행 중 — 본 파일 갱신 + Validator 경고 정합 + RUNBOOK/PORTING/Security Bar 보완.

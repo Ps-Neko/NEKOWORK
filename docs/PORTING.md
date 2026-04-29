@@ -85,7 +85,12 @@ rules/<project-id>/
 node .harness-tool/scripts/install-apply.js --profile research
 ```
 
-산출: 프로젝트 루트에 `.claude/`, `.codex/` 빌드 + `.harness/install-state.json` 영속.
+산출: 프로젝트 루트에 5 하네스 디렉터리 (`.claude/` · `.codex/` · `.cursor/` · `.gemini/` · `.opencode/`) + `.harness/install-state.json` 영속 (source/target sha256 기록).
+
+특정 하네스만 필요하면:
+```bash
+node .harness-tool/scripts/install-apply.js --harness claude
+```
 
 ### Step 5 — 첫 review (mock)
 
@@ -108,13 +113,22 @@ node .harness-tool/scripts/cli.js review \
 
 ## 4. CI/CD 결합
 
+### 검증 한 줄 (어떤 CI 에든)
+
+```bash
+npm run lint && npm test && \
+  node .harness-tool/scripts/repair.js --check && \
+  node .harness-tool/scripts/sync-claude-md.js --check && \
+  node .harness-tool/scripts/build-codemaps.js --check
+```
+
 ### GitHub Actions
 
 `harness/.github/workflows/harness-review.yml` 을 사내 프로젝트의 `.github/workflows/` 로 복사. 시크릿 `ANTHROPIC_API_KEY` 추가 시 `--live` 자동 활성. 없으면 mock 으로 풀사이클만 검증.
 
 ### 사내 GitLab / 기타
 
-`scripts/cli.js review --no-ship --session "ci-${CI_JOB_ID}"` 한 줄로 어떤 CI 에든 결합 가능.
+`scripts/cli.js review --no-ship --session "ci-${CI_JOB_ID}"` 한 줄로 어떤 CI 에든 결합 가능. 결과는 `.harness/state/sessions/<id>/handoffs/` 에 떨어지므로 아티팩트 업로드만 추가하면 PR 코멘트 / 알림과 동등한 효과.
 
 ## 5. 문제 해결
 
@@ -127,6 +141,19 @@ node .harness-tool/scripts/cli.js review \
 
 ## 6. 버전 / 호환성
 
-- HARNESS 0.0.x (alpha): 인터페이스 변경 가능. CHANGELOG 확인.
-- pin: 사내 PoC 는 SemVer 핀 (`@0.0.x`) 권장. `@latest` 금지 (RULES.md).
+- HARNESS 0.0.2 (alpha): 인터페이스 변경 가능. CHANGELOG 확인.
+- pin: 사내 PoC 는 SemVer 핀 (`@0.0.2` 등) 권장. `@latest` 금지 (RULES.md).
 - 깨지는 변경은 `MAJOR` 증가 + CHANGELOG 의 BREAKING 섹션.
+
+## 7. 결합 후 정합성 체크리스트
+
+```bash
+# 매니페스트 변경 후 매번
+node .harness-tool/scripts/sync-claude-md.js   # 마커 영역 갱신
+node .harness-tool/scripts/repair.js           # sha256 비교 + 누락 재빌드
+node .harness-tool/scripts/build-codemaps.js   # docs/CODEMAPS 갱신
+npm run lint                                   # 4 validator 통과
+npm test                                       # 73 케이스
+```
+
+CI 한 줄은 §4 참조.
