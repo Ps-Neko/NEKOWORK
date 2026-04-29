@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.dev/schemas/install-components.schema.json",
+  "title": "Install Components",
+  "type": "object",
+  "required": ["version", "components"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "components": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["type"],
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "enum": ["rule", "rule_set", "agent", "skill", "command", "hook", "platform"]
+          },
+          "source": { "type": "string" },
+          "target": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          },
+          "marker_managed": { "type": "boolean" },
+          "event": {
+            "enum": [
+              "PreToolUse",
+              "PostToolUse",
+              "PreCompact",
+              "Stop",
+              "SessionStart",
+              "SessionEnd",
+              "UserPromptSubmit",
+              "PostToolUseFailure"
+            ]
+          },
+          "matcher": { "type": "string" },
+          "builder": { "type": "string" },
+          "output_dir": { "type": "string" }
+        }
+      }
+    }
+  }
+}

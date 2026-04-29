@@ -1,0 +1,90 @@
+{
+  "$schema": "../schemas/install-modules.schema.json",
+  "version": "0.0.1",
+  "modules": {
+    "rules-core": {
+      "description": "거버넌스 4계층 (SOUL/RULES/CLAUDE/AGENTS) + 공통/언어별 룰",
+      "components": [
+        "rules:soul",
+        "rules:rules",
+        "rules:claude",
+        "rules:agents",
+        "rules:working-context",
+        "rules:review",
+        "rules:common",
+        "rules:typescript",
+        "rules:python"
+      ],
+      "level": 3,
+      "required": true
+    },
+    "agents-core": {
+      "description": "11개 핵심 에이전트 카탈로그 (Claude + Codex + Gemini)",
+      "components": [
+        "agent:architect",
+        "agent:planner",
+        "agent:executor",
+        "agent:code-reviewer",
+        "agent:codex-reviewer",
+        "agent:codex-challenger",
+        "agent:security-reviewer",
+        "agent:debugger",
+        "agent:test-engineer",
+        "agent:research",
+        "agent:doc-writer"
+      ],
+      "level": 3,
+      "required": true
+    },
+    "hooks-runtime": {
+      "description": "PreToolUse / PostToolUse / Stop 훅 4종 + 디스패처",
+      "components": [
+        "hook:gateguard-fact-force",
+        "hook:quality-gate",
+        "hook:pre-bash-dispatcher",
+        "hook:persistent-mode"
+      ],
+      "level": 2,
+      "required": true,
+      "env_toggles": {
+        "HARNESS_HOOK_GATEGUARD": "1",
+        "HARNESS_HOOK_QUALITY_GATE": "1",
+        "HARNESS_HOOK_PRE_BASH": "1",
+        "HARNESS_HOOK_PERSISTENT_MODE": "1"
+      }
+    },
+    "platform-configs": {
+      "description": "Claude Code / Codex CLI 등 하네스별 빌드 출력 위치 정의",
+      "components": [
+        "platform:claude",
+        "platform:codex"
+      ],
+      "level": 2,
+      "required": true,
+      "depends_on": ["agents-core", "hooks-runtime"]
+    },
+    "workflow-quality": {
+      "description": "TDD + 품질 게이트 워크플로우 스킬",
+      "components": [
+        "skill:tdd-workflow",
+        "skill:plan-eng-review",
+        "skill:review",
+        "skill:ship"
+      ],
+      "level": 2,
+      "required": false
+    },
+    "codex-loop": {
+      "description": "claude-led-codex-review 7단계 풀사이클 + Codex 검증 루프",
+      "components": [
+        "skill:claude-led-codex-review",
+        "agent:codex-reviewer",
+        "agent:codex-challenger",
+        "command:claude-led-codex-review"
+      ],
+      "level": 3,
+      "required": false,
+      "depends_on": ["agents-core", "workflow-quality"]
+    }
+  }
+}

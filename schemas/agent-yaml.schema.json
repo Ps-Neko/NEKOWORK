@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.dev/schemas/agent-yaml.schema.json",
+  "title": "agent.yaml (gitagent/0.1.0)",
+  "description": "단일 매니페스트. ECC gitagent 스펙 차용 + HARNESS 확장.",
+  "type": "object",
+  "required": ["spec_version", "name", "version", "description"],
+  "additionalProperties": false,
+  "properties": {
+    "spec_version": { "type": "string", "const": "gitagent/0.1.0" },
+    "name": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-z0-9.-]+)?$" },
+    "description": { "type": "string", "minLength": 10 },
+    "license": { "type": "string" },
+    "homepage": { "type": "string", "format": "uri" },
+    "authors": { "type": "array", "items": { "type": "string" } },
+
+    "agents": { "type": "array", "items": { "type": "string" } },
+    "skills": { "type": "array", "items": { "type": "string" } },
+    "commands": { "type": "array", "items": { "type": "string" } },
+
+    "hooks": {
+      "type": "object",
+      "required": ["file"],
+      "additionalProperties": false,
+      "properties": {
+        "file": { "type": "string" },
+        "toggles_env_prefix": { "type": "string" },
+        "active": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "mcp": {
+      "type": "object",
+      "required": ["gateway"],
+      "additionalProperties": false,
+      "properties": {
+        "gateway": { "type": "string" },
+        "external_servers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string" },
+              "pin": { "type": "string" },
+              "type": { "enum": ["stdio", "http"] },
+              "url": { "type": "string", "format": "uri" }
+            }
+          }
+        }
+      }
+    },
+
+    "harnesses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "output_dir", "builder"],
+        "additionalProperties": true,
+        "properties": {
+          "name": { "type": "string" },
+          "output_dir": { "type": "string" },
+          "builder": { "type": "string" },
+          "config_format": { "enum": ["json", "toml", "yaml", "summary"] },
+          "plugin_manifest": { "type": "string" },
+          "event_adapter": { "enum": ["required", "optional", "none"] },
+          "output_format": { "type": "string" }
+        }
+      }
+    },
+
+    "profiles": {
+      "type": "object",
+      "required": ["default", "available"],
+      "additionalProperties": false,
+      "properties": {
+        "default": { "type": "string" },
+        "available": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "modules": { "type": "array", "items": { "type": "string" } },
+
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "prepack": { "type": "array", "items": { "type": "string" } },
+        "post_install": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "catalog_validators": { "type": "array", "items": { "type": "string" } },
+        "marker_check": { "type": "string" },
+        "required_coverage_pct": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+
+    "security": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "routing": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "state": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "tags": { "type": "array", "items": { "type": "string" } }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "../schemas/install-profiles.schema.json",
+  "version": "0.0.1",
+  "profiles": {
+    "core": {
+      "description": "최소 필수: 룰, 에이전트, 훅 런타임, 플랫폼 설정. claude-led-codex-review 풀사이클 동작 가능.",
+      "modules": [
+        "rules-core",
+        "agents-core",
+        "hooks-runtime",
+        "platform-configs"
+      ]
+    },
+    "developer": {
+      "description": "core + 품질 게이트 + Codex 검증 루프. 일상 개발용 기본 프로파일.",
+      "modules": [
+        "rules-core",
+        "agents-core",
+        "hooks-runtime",
+        "platform-configs",
+        "workflow-quality",
+        "codex-loop"
+      ]
+    },
+    "security": {
+      "description": "core + Codex 검증 강제. auth/crypto/payment 영역 작업용. --secure 디폴트.",
+      "modules": [
+        "rules-core",
+        "agents-core",
+        "hooks-runtime",
+        "platform-configs",
+        "codex-loop"
+      ],
+      "defaults": {
+        "review_mode": "secure",
+        "human_gate_on_critical": true,
+        "outbound_network": "deny"
+      }
+    },
+    "research": {
+      "description": "core + 사내 RAG / Context7 / Exa 결합. iljin-rag-poc 같은 PoC 환경.",
+      "modules": [
+        "rules-core",
+        "agents-core",
+        "hooks-runtime",
+        "platform-configs",
+        "workflow-quality"
+      ],
+      "post_install_note": "Day 1 MVP 에는 rag-bridge 모듈 미포함. Q3 확장 예정."
+    },
+    "full": {
+      "description": "현재 정의된 모든 모듈 (Day 1 = 6개). 향후 확장 시 자동 포함.",
+      "modules": [
+        "rules-core",
+        "agents-core",
+        "hooks-runtime",
+        "platform-configs",
+        "workflow-quality",
+        "codex-loop"
+      ]
+    }
+  }
+}

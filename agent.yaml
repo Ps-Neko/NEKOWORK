@@ -1,0 +1,151 @@
+spec_version: gitagent/0.1.0
+name: harness
+version: 0.0.1
+description: "HARNESS — Hybrid Agent Runtime with Native Evaluation, Skills, and Security"
+license: MIT
+homepage: https://github.com/iljin/harness
+authors:
+  - "ILJIN <mmjs1220@gmail.com>"
+
+# 정규 카탈로그 (진실 원본). 하네스별 디렉터리는 빌드 산출물.
+
+agents:
+  - architect
+  - planner
+  - executor
+  - code-reviewer
+  - codex-reviewer
+  - codex-challenger
+  - security-reviewer
+  - debugger
+  - test-engineer
+  - research
+  - doc-writer
+
+skills:
+  - claude-led-codex-review
+  - plan-eng-review
+  - tdd-workflow
+  - review
+  - ship
+
+commands:
+  # legacy compat (slash entry). 신규 추가 금지.
+  - claude-led-codex-review
+
+hooks:
+  file: hooks/hooks.json
+  toggles_env_prefix: HARNESS_HOOK_
+  active:
+    - gateguard-fact-force
+    - quality-gate
+    - pre-bash-dispatcher
+    - persistent-mode
+
+mcp:
+  gateway: bridge/mcp-server.cjs
+  external_servers:
+    - name: github
+      pin: "@modelcontextprotocol/server-github@2025.4.8"
+    - name: context7
+      pin: "@upstash/context7-mcp@2.1.4"
+    - name: exa
+      type: http
+      url: https://mcp.exa.ai/mcp
+    - name: memory
+      pin: "@modelcontextprotocol/server-memory@2026.1.26"
+
+harnesses:
+  # 빌드 산출물 매트릭스. 각 하네스는 scripts/build-<name>.js 가 생성.
+  - name: claude
+    output_dir: .claude
+    builder: scripts/build-claude.js
+    plugin_manifest: .claude-plugin/plugin.json
+  - name: codex
+    output_dir: .codex
+    builder: scripts/build-codex.js
+    config_format: toml
+  - name: cursor
+    output_dir: .cursor
+    builder: scripts/build-cursor.js
+    event_adapter: required   # before/after camelCase
+  - name: gemini
+    output_dir: .gemini
+    builder: scripts/build-gemini.js
+    output_format: summary    # 요약 + 스킬 포인터만
+  - name: opencode
+    output_dir: .opencode
+    builder: scripts/build-opencode.js
+    config_format: json
+
+profiles:
+  default: developer
+  available:
+    - core
+    - developer
+    - security
+    - research
+    - full
+
+modules:
+  # Day 1 MVP: 6개. 나머지 14개는 점진 확장.
+  - rules-core
+  - agents-core
+  - hooks-runtime
+  - platform-configs
+  - workflow-quality
+  - codex-loop
+
+build:
+  prepack:
+    - scripts/build-claude.js
+    - scripts/build-codex.js
+    - scripts/build-cursor.js
+    - scripts/build-gemini.js
+    - scripts/build-opencode.js
+    - scripts/sync-claude-md.js
+  post_install:
+    - scripts/repair.js
+
+verification:
+  catalog_validators:
+    - scripts/ci/validate-agents.js
+    - scripts/ci/validate-skills.js
+    - scripts/ci/validate-hooks.js
+    - scripts/ci/validate-manifests.js
+  marker_check: scripts/ci/check-markers.js
+  required_coverage_pct: 80
+
+security:
+  mcp_pin_required: true
+  outbound_network_default: deny
+  approval_required_for:
+    - unsandboxed_shell
+    - egress
+    - deploy
+    - off_repo_write
+  audit_log_path: .harness/audit
+  secret_redaction: true
+  fact_forcing_default: true
+
+routing:
+  # 단계별 routing 표는 skills/claude-led-codex-review/SKILL.md 가 정전(canon).
+  eco_mode_floor: sonnet
+  human_gate_triggers:
+    severity: critical
+    round: 3
+    blast_radius: 20
+
+state:
+  session_dir: .harness/state/sessions
+  project_memory: .harness/project-memory.json
+  audit_dir: .harness/audit
+  costs: .harness/costs.jsonl
+  global_instincts: ~/.harness/instincts
+
+tags:
+  - claude-code
+  - codex-cli
+  - multi-agent
+  - hybrid-review
+  - korean

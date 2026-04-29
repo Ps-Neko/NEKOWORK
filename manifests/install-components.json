@@ -1,0 +1,180 @@
+{
+  "$schema": "../schemas/install-components.schema.json",
+  "version": "0.0.1",
+  "components": {
+    "rules:soul": {
+      "type": "rule",
+      "source": "SOUL.md",
+      "target": { "claude": "SOUL.md", "codex": "SOUL.md" }
+    },
+    "rules:rules": {
+      "type": "rule",
+      "source": "RULES.md",
+      "target": { "claude": "RULES.md", "codex": "RULES.md" }
+    },
+    "rules:claude": {
+      "type": "rule",
+      "source": "CLAUDE.md",
+      "target": { "claude": "CLAUDE.md" },
+      "marker_managed": true
+    },
+    "rules:agents": {
+      "type": "rule",
+      "source": "AGENTS.md",
+      "target": { "claude": "AGENTS.md", "codex": "AGENTS.md", "cursor": "AGENTS.md" },
+      "marker_managed": true
+    },
+    "rules:working-context": {
+      "type": "rule",
+      "source": "WORKING-CONTEXT.md",
+      "target": { "claude": "WORKING-CONTEXT.md" }
+    },
+    "rules:review": {
+      "type": "rule",
+      "source": "REVIEW.md",
+      "target": { "claude": "REVIEW.md", "codex": "REVIEW.md" }
+    },
+    "rules:common": {
+      "type": "rule_set",
+      "source": "rules/common/",
+      "target": { "claude": "rules/common/" }
+    },
+    "rules:typescript": {
+      "type": "rule_set",
+      "source": "rules/typescript/",
+      "target": { "claude": "rules/typescript/" }
+    },
+    "rules:python": {
+      "type": "rule_set",
+      "source": "rules/python/",
+      "target": { "claude": "rules/python/" }
+    },
+
+    "agent:architect": {
+      "type": "agent",
+      "source": "agents/architect.md",
+      "target": { "claude": ".claude/agents/architect.md" }
+    },
+    "agent:planner": {
+      "type": "agent",
+      "source": "agents/planner.md",
+      "target": { "claude": ".claude/agents/planner.md" }
+    },
+    "agent:executor": {
+      "type": "agent",
+      "source": "agents/executor.md",
+      "target": { "claude": ".claude/agents/executor.md" }
+    },
+    "agent:code-reviewer": {
+      "type": "agent",
+      "source": "agents/code-reviewer.md",
+      "target": { "claude": ".claude/agents/code-reviewer.md" }
+    },
+    "agent:codex-reviewer": {
+      "type": "agent",
+      "source": "agents/codex-reviewer.md",
+      "target": { "codex": ".codex/agents/codex-reviewer.toml" }
+    },
+    "agent:codex-challenger": {
+      "type": "agent",
+      "source": "agents/codex-challenger.md",
+      "target": { "codex": ".codex/agents/codex-challenger.toml" }
+    },
+    "agent:security-reviewer": {
+      "type": "agent",
+      "source": "agents/security-reviewer.md",
+      "target": { "claude": ".claude/agents/security-reviewer.md" }
+    },
+    "agent:debugger": {
+      "type": "agent",
+      "source": "agents/debugger.md",
+      "target": { "claude": ".claude/agents/debugger.md" }
+    },
+    "agent:test-engineer": {
+      "type": "agent",
+      "source": "agents/test-engineer.md",
+      "target": { "claude": ".claude/agents/test-engineer.md" }
+    },
+    "agent:research": {
+      "type": "agent",
+      "source": "agents/research.md",
+      "target": { "claude": ".claude/agents/research.md", "gemini": ".gemini/agents/research.md" }
+    },
+    "agent:doc-writer": {
+      "type": "agent",
+      "source": "agents/doc-writer.md",
+      "target": { "claude": ".claude/agents/doc-writer.md" }
+    },
+
+    "skill:claude-led-codex-review": {
+      "type": "skill",
+      "source": "skills/claude-led-codex-review/",
+      "target": { "claude": ".claude/skills/claude-led-codex-review/" }
+    },
+    "skill:plan-eng-review": {
+      "type": "skill",
+      "source": "skills/plan-eng-review/",
+      "target": { "claude": ".claude/skills/plan-eng-review/" }
+    },
+    "skill:tdd-workflow": {
+      "type": "skill",
+      "source": "skills/tdd-workflow/",
+      "target": { "claude": ".claude/skills/tdd-workflow/" }
+    },
+    "skill:review": {
+      "type": "skill",
+      "source": "skills/review/",
+      "target": { "claude": ".claude/skills/review/" }
+    },
+    "skill:ship": {
+      "type": "skill",
+      "source": "skills/ship/",
+      "target": { "claude": ".claude/skills/ship/" }
+    },
+
+    "command:claude-led-codex-review": {
+      "type": "command",
+      "source": "commands/claude-led-codex-review.md",
+      "target": { "claude": ".claude/commands/claude-led-codex-review.md" }
+    },
+
+    "hook:gateguard-fact-force": {
+      "type": "hook",
+      "source": "hooks/scripts/gateguard-fact-force.js",
+      "target": { "claude": ".claude/hooks/gateguard-fact-force.js" },
+      "event": "PreToolUse",
+      "matcher": "Edit|Write"
+    },
+    "hook:quality-gate": {
+      "type": "hook",
+      "source": "hooks/scripts/quality-gate.js",
+      "target": { "claude": ".claude/hooks/quality-gate.js" },
+      "event": "PostToolUse",
+      "matcher": "Edit|Write"
+    },
+    "hook:pre-bash-dispatcher": {
+      "type": "hook",
+      "source": "hooks/scripts/pre-bash-dispatcher.js",
+      "target": { "claude": ".claude/hooks/pre-bash-dispatcher.js" },
+      "event": "PreToolUse",
+      "matcher": "Bash"
+    },
+    "hook:persistent-mode": {
+      "type": "hook",
+      "source": "hooks/scripts/persistent-mode.mjs",
+      "target": { "claude": ".claude/hooks/persistent-mode.mjs" },
+      "event": "Stop"
+    },
+
+    "platform:claude": {
+      "type": "platform",
+      "builder": "scripts/build-claude.js",
+      "output_dir": ".claude"
+    },
+    "platform:codex": {
+      "type": "platform",
+      "builder": "scripts/build-codex.js",
+      "output_dir": ".codex"
+    }
+  }
+}

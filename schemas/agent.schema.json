@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.dev/schemas/agent.schema.json",
+  "title": "Agent Frontmatter Schema",
+  "description": "agents/<name>.md frontmatter 검증",
+  "type": "object",
+  "required": ["name", "description", "provider", "model", "level"],
+  "additionalProperties": false,
+  "properties": {
+    "name": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "description": { "type": "string", "minLength": 10, "maxLength": 280 },
+    "provider": { "enum": ["claude", "codex", "gemini", "auto"] },
+    "model": {
+      "type": "string",
+      "examples": ["opus", "sonnet", "haiku", "gpt-5-codex", "gemini-2.5-pro"]
+    },
+    "level": { "type": "integer", "minimum": 0, "maximum": 3 },
+    "disallowedTools": {
+      "type": "array",
+      "items": { "enum": ["Read", "Write", "Edit", "Bash", "Network", "MCP"] },
+      "uniqueItems": true
+    },
+    "trigger": { "type": "array", "items": { "type": "string" } },
+    "hand_off_to": { "type": "array", "items": { "type": "string" } },
+    "fact_forcing": { "type": "boolean" },
+    "sandbox": { "enum": ["read-only", "workspace-write", "danger"] },
+    "network_access": { "type": "boolean" },
+    "hand_off_input": { "type": "array", "items": { "type": "string" } },
+    "hand_off_output": { "type": "string" },
+    "output_schema": { "type": "string" }
+  }
+}

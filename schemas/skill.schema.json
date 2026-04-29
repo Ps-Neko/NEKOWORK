@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.dev/schemas/skill.schema.json",
+  "title": "Skill Frontmatter Schema",
+  "description": "skills/<name>/SKILL.md frontmatter 검증",
+  "type": "object",
+  "required": ["name", "description", "origin", "level"],
+  "additionalProperties": false,
+  "properties": {
+    "name": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "description": { "type": "string", "minLength": 10, "maxLength": 280 },
+    "origin": { "type": "string", "examples": ["harness-core", "ECC", "OMC", "user"] },
+    "level": { "type": "integer", "minimum": 0, "maximum": 3 },
+    "prerequisites": { "type": "array", "items": { "type": "string" } },
+    "conflicts": { "type": "array", "items": { "type": "string" } },
+    "auto_inject_keywords": { "type": "array", "items": { "type": "string" } },
+    "tags": { "type": "array", "items": { "type": "string" } }
+  }
+}

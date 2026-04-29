@@ -1,0 +1,61 @@
+{
+  "name": "@harness/cli",
+  "version": "0.0.1",
+  "description": "HARNESS — Hybrid Agent Runtime with Native Evaluation, Skills, and Security",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "bin": {
+    "harness": "./scripts/cli.js"
+  },
+  "files": [
+    "agent.yaml",
+    "agents/",
+    "skills/",
+    "commands/",
+    "hooks/",
+    "rules/",
+    "manifests/",
+    "schemas/",
+    "scripts/",
+    "bridge/",
+    "docs/",
+    "SOUL.md",
+    "RULES.md",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "WORKING-CONTEXT.md",
+    "REVIEW.md"
+  ],
+  "scripts": {
+    "build": "echo 'build: harness-specific projection scripts run via prepack' && exit 0",
+    "build:claude": "node scripts/build-claude.js",
+    "build:codex": "node scripts/build-codex.js",
+    "build:cursor": "node scripts/build-cursor.js",
+    "build:gemini": "node scripts/build-gemini.js",
+    "lint": "echo 'lint: TODO Day 5'",
+    "test": "echo 'test: TODO Day 2'",
+    "test:catalog": "node scripts/ci/catalog.js",
+    "validate:agents": "node scripts/ci/validate-agents.js",
+    "validate:skills": "node scripts/ci/validate-skills.js",
+    "validate:hooks": "node scripts/ci/validate-hooks.js",
+    "validate:manifests": "node scripts/ci/validate-manifests.js",
+    "validate:all": "npm run validate:agents && npm run validate:skills && npm run validate:hooks && npm run validate:manifests",
+    "install:plan": "node scripts/install-plan.js",
+    "install:apply": "node scripts/install-apply.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "yaml": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

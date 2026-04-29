@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "harness": {
+      "command": "node",
+      "args": ["${HARNESS_ROOT:-.}/bridge/mcp-server.js"],
+      "env": {
+        "HARNESS_ROOT": "${HARNESS_ROOT:-.}",
+        "HARNESS_SESSION_ID": "${HARNESS_SESSION_ID:-default}"
+      }
+    }
+  }
+}

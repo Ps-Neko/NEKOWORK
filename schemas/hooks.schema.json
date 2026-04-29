@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.dev/schemas/hooks.schema.json",
+  "title": "Hooks Definition Schema",
+  "description": "hooks/hooks.json 단일 정의 파일 검증",
+  "type": "object",
+  "required": ["version"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+" },
+    "PreToolUse": { "type": "array", "items": { "$ref": "#/$defs/HookEntry" } },
+    "PostToolUse": { "type": "array", "items": { "$ref": "#/$defs/HookEntry" } },
+    "PreCompact": { "type": "array", "items": { "$ref": "#/$defs/HookEntry" } },
+    "Stop": { "type": "array", "items": { "$ref": "#/$defs/HookEntry" } },
+    "SessionStart": { "type": "array", "items": { "$ref": "#/$defs/HookEntry" } },
+    "SessionEnd": { "type": "array", "items": { "$ref": "#/$defs/HookEntry" } },
+    "UserPromptSubmit": { "type": "array", "items": { "$ref": "#/$defs/HookEntry" } },
+    "PostToolUseFailure": { "type": "array", "items": { "$ref": "#/$defs/HookEntry" } }
+  },
+  "$defs": {
+    "HookEntry": {
+      "type": "object",
+      "required": ["hook"],
+      "additionalProperties": false,
+      "properties": {
+        "hook": { "type": "string", "pattern": "^scripts/.*\\.(js|mjs|cjs|sh)$" },
+        "matcher": { "type": "string" },
+        "timeout_ms": { "type": "integer", "minimum": 100, "maximum": 60000 },
+        "env_toggle": { "type": "string", "pattern": "^HARNESS_HOOK_[A-Z_]+$" },
+        "comment": { "type": "string" }
+      }
+    }
+  }
+}
