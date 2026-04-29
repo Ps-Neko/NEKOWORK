@@ -1,8 +1,9 @@
 // Codex runner: OpenAI Codex CLI 를 subprocess 로 호출.
 // 환경: codex 바이너리 필요. 없으면 throw.
 //
-// 호출 패턴:
-//   codex --profile review --sandbox-mode read-only --no-network < prompt.md
+// 호출 패턴 (codex 0.124.0+ 비대화형 검증):
+//   codex exec --sandbox read-only [--profile <name>] < prompt
+// stdin 으로 prompt 전달, stdout 의 `codex` 라벨 다음 JSON 객체를 응답으로 사용.
 //
 // Codex 는 Claude 컨텍스트를 받지 않는다. 입력은:
 //   - system prompt (codex-reviewer 페르소나)
@@ -22,12 +23,21 @@ export async function runCodex(args) {
     throw new Error('codex CLI 미설치. https://github.com/openai/codex 또는 --provider=mock 사용.');
   }
 
-  const profile = args.stage === 'codex-challenge' ? 'challenge' : 'review';
+  const stage = args.stage === 'codex-challenge' ? 'challenge' : 'review';
   const promptText = buildPrompt(args);
 
+  // codex 0.124.0+ 비대화형 모드: `codex exec` + 명시적 sandbox.
   // 인증·CLI 마찰을 줄이기 위해 stdin 으로 직접 prompt 전달.
-  // Codex CLI 가 비대화형 모드를 지원해야 함. 이 부분은 실 환경에서 검증 필요.
-  const cliArgs = ['--profile', profile];
+  const cliArgs = ['exec', '--sandbox', 'read-only'];
+
+  // profile 은 사용자의 `~/.codex/config.toml` 의존이므로 환경변수로 옵션화.
+  // stage 별 분리: HARNESS_CODEX_PROFILE_REVIEW / HARNESS_CODEX_PROFILE_CHALLENGE.
+  // 또는 공통: HARNESS_CODEX_PROFILE.
+  const profile = process.env[`HARNESS_CODEX_PROFILE_${stage.toUpperCase()}`]
+    || process.env.HARNESS_CODEX_PROFILE;
+  if (profile) {
+    cliArgs.push('--profile', profile);
+  }
   if (process.env.HARNESS_CODEX_EXTRA_ARGS) {
     cliArgs.push(...process.env.HARNESS_CODEX_EXTRA_ARGS.split(' '));
   }
