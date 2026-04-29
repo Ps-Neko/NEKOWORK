@@ -50,3 +50,4 @@ P1 회수 후 잡티 제거 + 거버넌스 정합. 외부 의존 영역 (API 키
 
 - 2026-04-29: P1 회수 세션 완료 (`docs/dev-log/2026-04-29-p1-recovery.md`). 빈 디렉터리 6 → 0, 미구현 스크립트 9 → 0, ARCHITECTURE 528줄, 73 테스트.
 - 2026-04-29: 잡티 제거 배치 진행 중 — 본 파일 갱신 + Validator 경고 정합 + RUNBOOK/PORTING/Security Bar 보완.
+- 2026-04-30: **auth migration 완료**. PR #1-#3 (3계층 인증 + GitHub OAuth + OS keychain) main 머지 (`60e9de9` → `7c4f2c8`, +4 commits, rebase merge). PR #2/#3 은 phase-1 옛 SHA 포함으로 force-push 1회씩(`--onto origin/main bf72841`/`b2b1bce` + `--force-with-lease`). Smoke 3/4 PASS (#1 `claude /status` Claude Max, #2 override 차단 3 케이스, #4 keychain Windows Credential Manager). #3 GitHub OAuth Device Flow 는 OAuth App 미등록으로 사용자 자율 보류 — 실제 GitHub automation 사용 시점에 수행. PR #4 (codex 0.125+ 호환) 는 본 작업과 무관 OPEN 잔존.
