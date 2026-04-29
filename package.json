@@ -64,7 +64,8 @@
     "validate:manifests": "node scripts/ci/validate-manifests.js",
     "validate:all": "npm run validate:agents && npm run validate:skills && npm run validate:hooks && npm run validate:manifests",
     "install:plan": "node scripts/install-plan.js",
-    "install:apply": "node scripts/install-apply.js"
+    "install:apply": "node scripts/install-apply.js",
+    "verify:codex": "node scripts/verify/codex-live.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
