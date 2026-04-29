@@ -5,15 +5,17 @@
 
 import { remove, audit } from '../lib/token-vault.js';
 
-const ok = remove('github');
-audit('auth.token_revoked', { provider: 'github', local_only: true });
+(async () => {
+  const ok = await remove('github');
+  audit('auth.token_revoked', { provider: 'github', local_only: true });
 
-if (ok) {
-  process.stdout.write('✓ 로컬 vault 에서 GitHub token 삭제됨.\n');
-  process.stdout.write('  GitHub 측에서도 폐기하려면:\n');
-  process.stdout.write('  https://github.com/settings/applications → 해당 OAuth App → Revoke\n');
-  process.exit(0);
-} else {
-  process.stdout.write('GitHub token 이 vault 에 없습니다.\n');
-  process.exit(1);
-}
+  if (ok) {
+    process.stdout.write('✓ 로컬 vault 에서 GitHub token 삭제됨.\n');
+    process.stdout.write('  GitHub 측에서도 폐기하려면:\n');
+    process.stdout.write('  https://github.com/settings/applications → 해당 OAuth App → Revoke\n');
+    process.exit(0);
+  } else {
+    process.stdout.write('GitHub token 이 vault 에 없습니다.\n');
+    process.exit(1);
+  }
+})();

@@ -132,7 +132,8 @@ auth:
   # 3계층 인증 모델. 상세는 docs/AUTH-MIGRATION.md.
   mode: delegated-first
   token_store:
-    kind: encrypted-file
+    kind: os-keychain
+    fallback: encrypted-file
     path: ~/.harness/oauth
   providers:
     # 계층 1: LLM provider — CLI 세션에 위임 (구독자 OAuth 보호)

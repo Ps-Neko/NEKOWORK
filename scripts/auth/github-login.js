@@ -61,7 +61,7 @@ async function poll(deviceCode, intervalSec) {
     process.stdout.write('\n브라우저에서 위 URL 을 열고 코드를 입력하세요. 완료될 때까지 폴링합니다...\n\n');
 
     const tok = await poll(dev.device_code, dev.interval || 5);
-    const file = save('github', {
+    const file = await save('github', {
       access_token: tok.access_token,
       token_type: tok.token_type || 'bearer',
       scope: tok.scope,
