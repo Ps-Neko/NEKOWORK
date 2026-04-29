@@ -93,8 +93,8 @@ function tick() {
       console.log(`[wait] ${s}: HUMAN_GATE — skip`);
       continue;
     }
-    console.log(`[wait] ${s}: wakeup 발견 → 재개 stub (Day 9 에 실 ralph 재호출 wiring)`);
-    // Day 8 stub: wakeup 만 정리. 실 재개는 Day 9 GitHub Actions 통합 때 같이.
+    console.log(`[wait] ${s}: wakeup 발견 → 재개 stub (실 ralph 재호출 wiring 미연결)`);
+    // wakeup 파일만 정리. 실 재개는 GitHub Actions 통합 또는 외부 트리거에 위임.
     try { fs.unlinkSync(wakeup); } catch {}
   }
 }

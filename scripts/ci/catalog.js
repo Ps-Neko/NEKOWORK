@@ -22,27 +22,27 @@ const manifest = YAML.parse(fs.readFileSync(path.join(ROOT, 'agent.yaml'), 'utf8
 // 1. agents/<name>.md 가 모두 존재하는가?
 for (const a of manifest.agents || []) {
   if (!exists(`agents/${a}.md`)) {
-    warnings.push(`agent file missing: agents/${a}.md  (Day 2 에 작성 예정)`);
+    warnings.push(`agent file missing: agents/${a}.md`);
   }
 }
 
 // 2. skills/<name>/SKILL.md 존재?
 for (const s of manifest.skills || []) {
   if (!exists(`skills/${s}/SKILL.md`)) {
-    warnings.push(`skill file missing: skills/${s}/SKILL.md  (Day 2 에 작성 예정)`);
+    warnings.push(`skill file missing: skills/${s}/SKILL.md`);
   }
 }
 
 // 3. commands/<name>.md 존재?
 for (const c of manifest.commands || []) {
   if (!exists(`commands/${c}.md`)) {
-    warnings.push(`command file missing: commands/${c}.md  (Day 2 에 작성 예정)`);
+    warnings.push(`command file missing: commands/${c}.md`);
   }
 }
 
 // 4. hooks/hooks.json 존재?
 if (manifest.hooks?.file && !exists(manifest.hooks.file)) {
-  warnings.push(`hooks file missing: ${manifest.hooks.file}  (Day 3 에 작성 예정)`);
+  warnings.push(`hooks file missing: ${manifest.hooks.file}`);
 }
 
 // 5. 모듈 ↔ 컴포넌트 일관성

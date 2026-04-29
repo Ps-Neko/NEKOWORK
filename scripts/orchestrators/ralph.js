@@ -63,7 +63,7 @@ export async function ralphLoop(opts) {
 
     // ralph sessionDir 의 prd.json 을 진실 원본으로 사용. 첫 iter 에 review 결과에서 복사,
     // 이후 iter 마다 passes:false 한 건을 true 로 (mock 모드).
-    // live 모드에서는 executor 가 ralph prd.json 을 직접 갱신해야 함 (Day 9 wiring).
+    // live 모드에서는 executor 가 ralph prd.json 을 직접 갱신해야 함 (live wiring 미연결).
     const ralphPrd = path.join(sessionDir, 'prd.json');
     if (!fs.existsSync(ralphPrd)) {
       const reviewPrd = path.join(result.sessionDir, 'prd.json');
