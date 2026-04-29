@@ -10,7 +10,33 @@
 - Bash (Windows 는 git-bash 또는 WSL2)
 - (옵션) Codex CLI: `npm i -g @openai/codex`
 - (옵션) Gemini CLI
-- (옵션) `ANTHROPIC_API_KEY` 환경 변수 (`harness review --live` 용)
+
+### 0.1 LLM 인증 (구독 OAuth 위임)
+
+자세한 정책은 `docs/AUTH-MIGRATION.md`. 요약:
+
+```bash
+claude login                            # Claude Pro / Max 구독 OAuth
+codex auth login                        # ChatGPT 구독 또는 API key
+gcloud auth application-default login   # Gemini / Vertex
+```
+
+> ⚠️ `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GEMINI_API_KEY` / `GOOGLE_API_KEY`
+> 가 환경에 set 되어 있으면 구독 OAuth 세션이 무시되어 종량제 과금으로
+> 빠질 수 있습니다. `pre-bash-dispatcher` 가 자동 차단 — `unset <KEY>` 또는
+> `HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1` 로 명시 옵트아웃.
+
+### 0.2 GitHub 인증 (선택)
+
+```bash
+# OAuth App 등록 (한 번만, https://github.com/settings/developers)
+export HARNESS_GITHUB_CLIENT_ID=<your_client_id>
+npm run auth:github:login        # device flow → ~/.harness/oauth/github.json
+npm run auth:github:status       # 검증
+npm run auth:github:logout       # 폐기
+```
+
+CI 등 OAuth 가 어려운 환경은 `GITHUB_TOKEN` PAT fallback.
 
 ## 1. 초기 설치 (개발자 입장)
 
@@ -83,7 +109,7 @@ harness review "<task>"                       # 1~7 단계 자동
 harness review "<task>" --secure              # codex-challenge 강제
 harness review "<task>" --fast                # ideate / challenge 스킵
 harness review "<task>" --no-ship             # ship 단계 생략
-harness review "<task>" --live                # 실 LLM 호출 (API 키 필요)
+harness review "<task>" --live                # 실 LLM 호출 (claude/codex/gcloud 로그인 세션 사용, §0.1)
 
 # 단독 단계
 harness plan "<task>"                         # 1·2 만
@@ -193,6 +219,6 @@ node scripts/demo-review.js "<task>" demo-local --no-ship
 - 5 빌더 모두 동작 + codemaps
 - 73/73 테스트 PASS (56 unit + 10 integration + 7 e2e)
 - 자체 완결 가능 영역 정합 100%
-- 외부 의존 영역 (API 키 / GitHub push / Rust 컴파일) 은 사용자 동의 시점까지 보류
+- 외부 의존 영역 (LLM 구독 OAuth / GitHub OAuth 또는 push / Rust 컴파일) 은 사용자 동의 시점까지 보류
 
 다음 우선순위는 `docs/AUDIT.md §5` 참조.
