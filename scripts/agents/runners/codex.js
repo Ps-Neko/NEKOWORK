@@ -43,7 +43,14 @@ export async function runCodex(args) {
   }
 
   const stdout = await spawnAndCollect(codexBin, cliArgs, promptText);
-  const json = extractJson(stdout);
+  // codex CLI 0.125+ stdout: "user\n<prompt echo>\n\ncodex\n<응답>".
+  // echo 된 user prompt 에 ```json``` 펜스가 있으면 extractJson 이 오매칭하므로,
+  // "codex" 라벨 (단독 줄) 이후만 파싱한다.
+  const labelMatch = stdout.match(/(^|\n)codex\r?\n/);
+  const cleaned = labelMatch
+    ? stdout.slice(labelMatch.index + labelMatch[0].length)
+    : stdout;
+  const json = extractJson(cleaned);
   if (!json) {
     throw new Error('Codex 응답에서 JSON 을 찾지 못함. raw:\n' + stdout.slice(0, 500));
   }

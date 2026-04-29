@@ -26,7 +26,7 @@ node scripts/install-plan.js --profile core      # 설치 dry-run
 
 ```bash
 # CLI 설치
-npm install -g codex
+npm install -g @openai/codex
 
 # 인증 (택1)
 codex login                                       # ChatGPT 인증 (구독 필요, 토큰 무과금)
@@ -38,6 +38,9 @@ npm run verify:codex
 ```
 
 호환 버전: codex CLI ≥ 0.124.0. `codex exec --sandbox read-only` 비대화형 호출 사용.
+
+> ℹ️ codex CLI 0.125.0 기준 stdout 형식이 `user\n<prompt echo>\n\ncodex\n<응답>` 으로 변경됨.
+> `scripts/agents/runners/codex.js` 의 `runCodex` 가 `\ncodex\n` 라벨 이후만 파싱하도록 처리.
 
 ### 2. Anthropic SDK live (Claude 단계 활성화)
 
