@@ -4,22 +4,48 @@
 
 ## [Unreleased]
 
-### Week 5: GitHub 공개 준비
-- 개인정보 / 1인 환경 가정 제거: `agent.yaml` authors / homepage 익명화, `package.json` 에 `keywords`/`repository` placeholder 추가, `scripts/build-claude.js` 의 plugin.json 빌더에서 hardcoded author 제거
-- 외부 컨트리뷰터 인프라: LICENSE (MIT), CONTRIBUTING.md, SECURITY.md (위협 모델 + 보안 보고 채널), CODE_OF_CONDUCT.md, .gitattributes (LF 통일 → CRLF 워닝 0)
-- README.md 외부 사용자 관점 재작성 (영문 메인 + 한국어 보조 dual)
-- 거버넌스 문서 일반화: "한국어 응답 강제" → "프로젝트 디폴트 한국어, 외부 영어 PR 환영", "사용자 글로벌 룰 우선" → "사용자 환경의 글로벌 룰 (있을 경우) 우선"
-- `WORKING-CONTEXT.md` 일반 템플릿화. 1인 작업 누적 로그는 `docs/dev-log/` 로 이동 후 `.gitignore`
-- stub 메시지 정리: `install-plan.js` / `install-apply.js` 의 "Day 5 이후" 흔적 제거
+### 다음 후보 (`docs/AUDIT.md §5` + `docs/dev-log/2026-04-29-p1-recovery.md §6` 참조)
+- **P0** (사용자 동의): Anthropic SDK live 1회, GitHub push + Actions 실 동작, 사내 PoC 결합
+- **P2** (외부 의존): Rust runtime 컴파일, Codex CLI / Gemini CLI live 검증, npm publish 결정
+- **P3** (사내 임팩트, 사용자 명시 시): 사내 풀 결합, `runners/internal.js` 사내 LLM, 사내 GitLab CI 가이드
 
-### Week 5 후보 (docs/AUDIT.md 우선순위 P0~P2)
-- P0: Anthropic SDK 1회 실 호출 검증 (사용자 API 키 동의)
-- P0: 사내 PoC 비파괴 결합 (사용자 명시 시점에 디렉터리 결정)
-- P0: GitHub push + Actions 실 동작 검증
-- P1: scripts/{sync-claude-md, repair, build-cursor, build-gemini, build-opencode}.js
-- P1: rules/{common, typescript, python} 내용 작성
-- P1: stub 메시지 정리
-- P2: integration / e2e 테스트, ARCHITECTURE 풀 18절, Rust runtime 컴파일 검증, codemap 자동화
+## [0.0.2] — 2026-04-29
+
+> P1 회수 + 일부 P2. AUDIT 의 자체 완결 가능 영역 100% 정합 + 빈 디렉터리 0 + 미구현 스크립트 0.
+
+### Added
+- `scripts/sync-claude-md.js` — `<!-- HARNESS:START version=X -->`/`<!-- HARNESS:END -->` 사이를 카탈로그/매니페스트로 자동 갱신. `--check` / `--dry-run` / `--verbose` 모드.
+- `scripts/repair.js` — `install-state.json` 의 `targets[].sha256` 비교, 누락/변조 하네스만 재빌드. `--check` / `--harness <name>` / `--force` 모드.
+- `scripts/build-cursor.js` — `.cursor/rules/{agents,skills}/*.mdc` (alwaysApply, globs) + `.cursorrules` + camelCase 이벤트 (`beforeTool`/`afterTool`/...) `hooks.json`.
+- `scripts/build-gemini.js` — Progressive Disclosure 형: `GEMINI.md` (요약 + 스킬 description 만) + `settings.json` (provider_filter=gemini).
+- `scripts/build-opencode.js` — 단일 `config.json` 으로 agents/skills/hooks/MCP 모두 통합.
+- `scripts/build-codemaps.js` — 9 영역 (`scripts`/`agents`/`skills`/`hooks`/`manifests`/`schemas`/`bridge`/`rules`/`tests`) 자동 codemap 산출 + `docs/CODEMAPS/README.md` 인덱스.
+- `scripts/ci/validate-{agents,skills,hooks,manifests}.js` — 4 validator: ajv + frontmatter 검증 + 카탈로그 정합 + 그래프 무결성. `package.json` `validate:*` 스크립트 실 매핑.
+- `rules/common/{coding-style,testing,security}.md` (3) — 언어 무관 공통 룰.
+- `rules/typescript/{coding-style,testing,security}.md` (3) — TS/JS 확장.
+- `rules/python/{coding-style,testing}.md` (2) — Python 확장.
+- `tests/integration/build-pipeline.test.js` — 격리 sandbox 풀체인 검증 10 케이스.
+- `tests/e2e/review-cycle.test.js` — `demo-review` 7단계 시뮬 + CLI 검증 7 케이스.
+- `docs/ARCHITECTURE.md` — stub 50 줄 → 풀 18절 본문 528 줄. ASCII 다이어그램, 8계층 매트릭스, Codex Loop 상태 머신, 12-item Security Bar, 예시 디렉터리/설정/명령어, 부록 5대원칙·풀사이클 플래그.
+- `docs/dev-log/2026-04-29-p1-recovery.md` — 본 세션 사후 기록 (의사결정·마찰·산출 목록).
+
+### Changed
+- `scripts/install-apply.js`:
+  - `agent.yaml.harnesses[].name` 전부를 빌드 (이전엔 `['claude', 'codex']` 하드코딩).
+  - `source_sha256` 을 placeholder `0`*64 → 카탈로그 입력 (`agent.yaml + agents/ + skills/ + commands/ + hooks/ + manifests/`) 의 실 sha256.
+  - `targets[].sha256` 추가 — 출력 디렉터리의 실 sha256.
+- `package.json` — `lint` / `test` 가 실 명령 매핑 (`catalog + validate:all` / 73 테스트). `test:unit` / `test:integration` / `test:e2e` 분리. `build:codemaps` 추가.
+- `scripts/ci/catalog.js` — 경고 메시지의 "(Day 2 에 작성 예정)" 등 stub 흔적 제거.
+- `scripts/cli.js`, `bridge/mcp-server.js`, `hooks/scripts/pre-bash-dispatcher.js`, `scripts/daemon/wait.js`, `scripts/orchestrators/ralph.js` — "Day N" 코멘트 흔적 정리.
+- `CLAUDE.md` / `.claude/CLAUDE.md` — 자동 영역 마커 정합 + 카탈로그 컨텐츠 갱신.
+- `docs/AUDIT.md` — P1 회수 결과 반영 (§1·2·3·5·7·8). 73 테스트 / 0 빈 디렉터리 / 0 미구현 스크립트 명시.
+
+### Stats
+- 신규 22 파일, 수정 12 파일 (+ 약 2,500 LOC).
+- 단위 테스트: 56 (변동 없음).
+- 통합 테스트: 0 → 10.
+- E2E 테스트: 0 → 7.
+- **전체 테스트: 56/56 → 73/73 PASS**.
 
 ## [0.0.1-week4] — 2026-04-29
 

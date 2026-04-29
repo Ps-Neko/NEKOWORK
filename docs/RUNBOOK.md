@@ -1,13 +1,16 @@
 # RUNBOOK
 
-> 운영자(사람)·자동화·외부 협업자가 동일한 절차로 HARNESS 를 다루기 위한 단일 책자. Day 별 진행 상태와 검증 절차를 누적 기록한다.
+> 운영자(사람) · 자동화 · 외부 협업자가 동일한 절차로 HARNESS 를 다루기 위한 단일 책자.
+> 누적 이력은 `docs/CHANGELOG.md` 와 `docs/dev-log/` 참조.
 
 ## 0. 사전 조건
 
 - Node 22+ (확인: `node -v`)
 - Git
 - Bash (Windows 는 git-bash 또는 WSL2)
-- Codex CLI (Day 5 이후): `npm i -g @openai/codex` 또는 공식 패키지
+- (옵션) Codex CLI: `npm i -g @openai/codex`
+- (옵션) Gemini CLI
+- (옵션) `ANTHROPIC_API_KEY` 환경 변수 (`harness review --live` 용)
 
 ## 1. 초기 설치 (개발자 입장)
 
@@ -15,74 +18,111 @@
 git clone <repo> harness
 cd harness
 npm install
-node scripts/install-plan.js --profile core --verbose
+./install.sh --plan --profile developer       # dry-run, 변경 없음
+./install.sh --apply --profile developer       # 5 빌더 + state 기록
 ```
 
-JSON 으로 받기:
+JSON 출력 (CI / 외부 도구):
 ```bash
 node scripts/install-plan.js --profile developer --json > plan.json
 ```
 
-## 2. 프로파일별 차이 (Day 1 시점)
+특정 하네스만:
+```bash
+./install.sh --apply --harness claude
+```
 
-| 프로파일 | 모듈 수 | 컴포넌트 수 | 용도 |
-|---|---|---|---|
-| core | 4 | 32 | 최소 부팅. claude-led-codex-review 풀사이클 가능 |
-| developer | 6 | 40 | 일상 개발 (디폴트) |
-| security | 6 | 40 | --secure 디폴트, auth/crypto/payment |
-| research | 5 | 36 | 사내 RAG / Context7 / Exa 결합 |
-| full | 6 | 40 | 정의된 모든 모듈 |
+## 2. 프로파일
+
+| 프로파일 | 모듈 | 용도 |
+|---|---|---|
+| core | rules-core, agents-core, hooks-runtime, platform-configs | 최소 부팅 |
+| developer (default) | core + workflow-quality + codex-loop | 일상 개발 |
+| security | core + 보안 강화 (codex-challenge 자동) | 인증 / 결제 / PII |
+| research | core + research agent + Gemini provider | 리서치 / 분석 |
+| full | 전 모듈 | 모두 |
 
 ## 3. 매일 검증
 
 ```bash
-# 카탈로그 무결성
-node scripts/ci/catalog.js
+# 카탈로그 무결성 + 4 validator
+npm run lint                      # catalog.js + validate:all
 
 # 마커 무결성
 node scripts/ci/check-markers.js
 
-# (Day 5 이후) 모든 검증
-npm run validate:all
+# 자동 영역 sync 정합
+node scripts/sync-claude-md.js --check
+
+# 빌드 산출물 sha256 정합
+node scripts/repair.js --check
+
+# 코드맵 최신 여부
+node scripts/build-codemaps.js --check
+
+# 테스트 (단위 + 통합 + e2e)
+npm test                          # 73 케이스 ~3.4 s
+```
+
+CI 한 줄:
+```bash
+npm run lint && npm test && node scripts/repair.js --check && node scripts/sync-claude-md.js --check && node scripts/build-codemaps.js --check
 ```
 
 ## 4. CLI 사용
 
 ```bash
-node scripts/cli.js install --plan --profile developer
-node scripts/cli.js validate
-node scripts/cli.js version
+# 설치 / 검증
+harness install --plan --profile developer
+harness install --apply --profile developer
+harness validate
+harness version
 
-# 또는 trampoline
-./install.sh --plan --profile core
+# 풀체인 리뷰
+harness review "<task>"                       # 1~7 단계 자동
+harness review "<task>" --secure              # codex-challenge 강제
+harness review "<task>" --fast                # ideate / challenge 스킵
+harness review "<task>" --no-ship             # ship 단계 생략
+harness review "<task>" --live                # 실 LLM 호출 (API 키 필요)
+
+# 단독 단계
+harness plan "<task>"                         # 1·2 만
+# self-review / codex-review 단독은 미구현 — review 풀사이클 사용
+
+# 영속 / ralph (명시 옵트인)
+harness ralph "<task>" [--max-iter 5]
+harness wait {start|stop|status}
+
+# 운영
+harness sessions
+harness costs --since=7d
+harness instincts {list|get <id>|promote <id>|prune|ready}
 ```
 
-## 5. Day 1 산출 검증 결과 (2026-04-29)
+## 5. 빌더 / repair / sync 사이클
 
-### 동작 확인
-- [x] 디렉터리 골격 17개 + git init
-- [x] 거버넌스 6 (SOUL/RULES/CLAUDE/AGENTS/WORKING-CONTEXT/REVIEW)
-- [x] agent.yaml (gitagent/0.1.0) — 검증 통과
-- [x] manifests 3종 — 검증 통과
-- [x] JSON Schema 10개 (요청 9개 + routing 보너스)
-- [x] install.sh / install.ps1 트램폴린
-- [x] install-plan.js dry-run — 5 프로파일 모두 동작
-- [x] CI: catalog.js + check-markers.js
-- [x] cli.js 진입점
+매니페스트 (`agent.yaml` 또는 `agents/`, `skills/`, `hooks/hooks.json`, `manifests/`) 변경 시:
 
-### 카탈로그 카운트
-- agents 선언 11 (파일 0, Day 2 작성)
-- skills 선언 5 (파일 0, Day 2 작성)
-- commands 선언 1 (파일 0, Day 2 작성)
-- modules 6 / components 32 / profiles 5
-- catalog.js 통과 (warnings 18 = 예상된 결손)
+```bash
+# 1. 매니페스트 수정 후
+npm run lint                                  # 검증
 
-### 알려진 결손 (Day 2/3)
-- agents/<name>.md 11개 frontmatter + 본문
-- skills/claude-led-codex-review/SKILL.md + 단계별 stage-*.md
-- commands/claude-led-codex-review.md (legacy compat)
-- hooks/hooks.json + 4개 훅 stub
-- bridge/mcp-server.cjs (Day 4)
+# 2. 산출 갱신
+./install.sh --apply                          # 5 빌더 + sha256 갱신
+node scripts/sync-claude-md.js                # CLAUDE.md 자동 영역 갱신
+node scripts/build-codemaps.js                # codemaps 갱신
+
+# 3. 정합 확인
+node scripts/repair.js --check                # 모든 하네스 정합
+```
+
+특정 하네스의 출력 디렉터리가 손상되면 `repair` 가 sha256 비교로 재빌드:
+
+```bash
+node scripts/repair.js                        # 변경분만 재빌드
+node scripts/repair.js --harness cursor       # 특정 하네스만
+node scripts/repair.js --force                # 전부 재빌드 (sha256 무시)
+```
 
 ## 6. 트러블슈팅
 
@@ -92,94 +132,67 @@ Error: no schema with key or ref "https://json-schema.org/draft/2020-12/schema"
 ```
 → `import Ajv2020 from 'ajv/dist/2020.js'` 사용 (이미 적용됨).
 
-### Windows 에서 install.sh 동작 안 함
-→ git-bash 또는 WSL2 필요. 또는 `pwsh ./install.ps1 --plan --profile core`.
+### `node --test tests/unit/` (디렉터리) 가 동작 안 함
+→ Node 22+ 의 `node --test` 는 디렉터리 글로빙 미지원. `tests/unit/*.test.js` 명시 또는 `npm test` 사용.
+
+### Windows 에서 `install.sh` 동작 안 함
+→ git-bash 또는 WSL2 필요. 또는 `pwsh ./install.ps1 --apply --profile developer`.
+
+### tsc 가 PATH 에서 못 잡힘 (Windows)
+→ `quality-gate` 의 `which()` 가 cwd 부터 부모 탐색. 임시 `.ts` 는 프로젝트 안에 두기.
+
+### CRLF / LF 워닝
+→ `.gitattributes` 가 LF 강제. 기존 워킹 트리에 CRLF 가 있으면 `git add --renormalize .` 한 번.
 
 ### npm install 실패
 → Node 22+ 인지 확인 (`node -v`), 회사 프록시 환경이면 `.npmrc` 에 registry 설정.
 
-## 7. 진행 상태 (Week 1 완료, 2026-04-29)
+### MCP `notifications/initialized` timeout
+→ smoke test 시 명시 (현재 OK). 외부 MCP 클라이언트가 호출하는 경우 확인.
 
-### Day 1 완료
-- 디렉터리 17 + 거버넌스 6 + agent.yaml + manifests 3 + schemas 10 + install plan stub.
+## 7. CI / GitHub Actions
 
-### Day 2 완료
-- agents/<name>.md 11개 (architect, planner, executor, code-reviewer, codex-reviewer, codex-challenger, security-reviewer, debugger, test-engineer, research, doc-writer).
-- skills/<name>/SKILL.md 5개 (claude-led-codex-review, plan-eng-review, tdd-workflow, review, ship).
-- commands/claude-led-codex-review.md (legacy compat).
-- catalog.js 경고 0건.
+레포 push 후 자동 동작:
 
-### Day 3 완료
-- hooks/hooks.json + 4훅 stub (gateguard, config-protection, pre-bash-dispatcher, persistent-mode, quality-gate).
-- scripts/build-claude.js : 11+5+1+5 = 22 카탈로그 항목 + `.claude-plugin/plugin.json` 생성.
-- scripts/build-codex.js : Codex provider agent 2개 → TOML, config.toml 생성.
+| 워크플로우 | 트리거 | 동작 |
+|---|---|---|
+| `.github/workflows/harness-validate.yml` | push, PR | catalog + validate:all + 단위 테스트 |
+| `.github/workflows/harness-review.yml` | PR | 풀 7단계 자동 + 핸드오프 PR 코멘트 + 아티팩트 업로드 |
 
-### Day 4 완료
-- bridge/mcp-server.js (MCP SDK 1.29 기반 단일 게이트웨이, 4도구).
-- .mcp.json (단일 서버 등록).
-- scripts/install-apply.js : plan → 빌드 → state 기록 → 마커 검증 풀체인.
-- MCP smoke test 4도구 모두 PASS.
-
-### Day 5 완료
-- gateguard-fact-force.js 실 구현 : importer / public API / schema 정적 추출 + 답변 강제.
-- quality-gate.js 실 구현 : tsc --noEmit / ruff / py_compile / node --check 다중 검증, 차단(exit 2).
-- demo-review.js : 7단계 풀사이클 시뮬레이션, 7개 핸드오프 + round 카운터 + fix loop + --secure 자동 활성.
-
-## 8. Week 1 데모 결과
-
-```
-node scripts/demo-review.js "JWT 검증 미들웨어 추가" demo-week1 --secure
-
-[1] ideate           ✓
-[2] plan             ✓ → prd.json (AC-001/002/003)
-[3] implement TDD    ✓
-[4] self-review r=1  → high 1 발견, verdict approve_with_fixes
-[3a] fix-loop        → executor 재호출, round 2
-[4] self-review r=2  → verdict approve
-[5] codex-review     → medium 1 추가 발견, approve_with_fixes
-[6] codex-challenge  → auth 영역 자동 활성, info 1, approve
-[7] ship (no-push)   → CHANGELOG 갱신, PR 초안
-
-handoffs/01..07 7개 모두 작성. prd.json 영속.
+레포 미 push 상태에서 로컬로 흉내내기:
+```bash
+node scripts/demo-review.js "<task>" demo-local --no-ship
 ```
 
-### gateguard 실 동작
-```
-첫 호출  : 사실 노트 생성, exit 2 (차단)
-답변 후  : exit 0 (통과)
-```
+## 8. 사내 / 외부 프로젝트 이식
 
-### quality-gate 실 동작
-```
-good .ts : tsc OK, exit 0
-bad .ts  : tsc FAIL "Expression expected", exit 2 (차단)
-```
+`docs/PORTING.md` 참조. 요약:
 
-## 9. 다음 단계 (Week 2)
-
-### Day 6
-- harness review CLI 명령 (실 LLM 호출 wiring) — Claude SDK + Codex CLI subprocess 연동.
-- Stage Routing 표 → 실 에이전트 dispatch.
-- 모든 단계가 디스크 핸드오프 / MCP gateway 거치도록.
-
-### Day 7
-- bridge/mcp-server.js 도구 추가 (severity_classify, route_decide, cost_record).
-- routing.jsonl 트레이스 누적.
-- harness costs --since=7d.
-
-### Day 8
-- ScheduleWakeup 결합 영속 데몬 (harness wait --start).
-- ralph 모드 ($ralph 키워드는 명시 옵트인만, 자동 활성 안 함).
-
-### Day 9~10
-- GitHub Actions 통합 (.github/workflows/harness-review.yml).
-- 사내 PoC 이식 가이드 (일반 절차).
-
-## 8. 배포 / 이식
-
-사내 다른 프로젝트에 동일 골격 이식 시 (사용자 지정 디렉터리):
-
-1. 해당 프로젝트 루트에 `harness/` 를 git submodule 또는 npm dep 으로 결합.
-2. `node node_modules/@harness/cli/scripts/install-plan.js --profile research`.
-3. 프로젝트별 룰은 `rules/<project-name>/` 로 추가 (common 위에 오버라이드).
+1. 대상 프로젝트 루트에 `.harness-tool/` 으로 결합 (submodule 또는 npm dep).
+2. `node .harness-tool/scripts/install-plan.js --profile research`.
+3. 프로젝트별 룰은 `rules/<project>/` 로 추가 (common 위에 오버라이드).
 4. CLAUDE.md 의 `<!-- HARNESS:START -->` 마커 영역만 자동 갱신, 사용자 영역 보존.
+5. `node scripts/portability/simulate-port.js <target>` 으로 dry-run 가능.
+
+## 9. 배포 (publish)
+
+현재 `private: true` (npm publish 막힘). 공개 시:
+
+1. `package.json` 의 `repository.url` 의 `<owner>` 를 실 GitHub 조직으로.
+2. `private: true` → 제거 또는 `false`.
+3. `npm version patch|minor|major` 로 SemVer 업.
+4. `npm publish --access public`.
+5. `docs/CHANGELOG.md` 갱신.
+
+## 10. 진행 상태
+
+상세 이력은 `docs/CHANGELOG.md` 와 `docs/dev-log/` 참조. 현재 상태 요약:
+
+- 버전: 0.0.2 (2026-04-29 P1 회수)
+- 카탈로그: 11 agents · 6 skills · 5 hooks · 6 modules · 5 profiles
+- 5 빌더 모두 동작 + codemaps
+- 73/73 테스트 PASS (56 unit + 10 integration + 7 e2e)
+- 자체 완결 가능 영역 정합 100%
+- 외부 의존 영역 (API 키 / GitHub push / Rust 컴파일) 은 사용자 동의 시점까지 보류
+
+다음 우선순위는 `docs/AUDIT.md §5` 참조.

@@ -1,6 +1,7 @@
 # AUDIT — Week 1~4 통합 검토
 
-> 작성일: 2026-04-29
+> 최초 작성: 2026-04-29 (Week 1~4 마감)
+> 갱신: 2026-04-29 P1 회수 세션 (`docs/dev-log/2026-04-29-week1-4.md` 의 "P1 회수" 절 참조)
 > 목적: 18절 설계 문서 / MVP 정의 / 8계층 아키텍처 vs 실 구현 매핑. 빠진 항목 · 부채 · 다음 세션 우선순위.
 
 ## 1. 18절 설계 문서 매핑
@@ -8,12 +9,12 @@
 | 절 | 항목 | 상태 | 위치 / 비고 |
 |---|---|---|---|
 | 1 | Executive Summary | OK | `README.md`, `docs/CHANGELOG.md` |
-| 2 | 레퍼런스 역설계 요약 | 부분 | `docs/ARCHITECTURE.md` (stub). 풀 18절 본문 미작성 |
-| 3 | 통합 아키텍처 개요 | 부분 | ARCHITECTURE stub. ASCII 다이어그램 미작성 |
+| 2 | 레퍼런스 역설계 요약 | OK | `docs/ARCHITECTURE.md` 풀 18절 본문 작성 (528 줄) |
+| 3 | 통합 아키텍처 개요 | OK | ARCHITECTURE §3 ASCII 다이어그램 + §4 8계층 매트릭스 |
 | 4 | 계층별 컴포넌트 설계 | OK | (아래 §2 매트릭스 참조) |
 | 5 | 데이터/컨텍스트 흐름 | OK | review.js 풀체인 동작, routing.jsonl, costs.jsonl |
 | 6 | Agent 라우팅 전략 | OK | `scripts/lib/router.js` + Stage Routing 표 |
-| 7 | Skill/Hook/Rule 구조 | 부분 | hook 5 OK. rule 디렉터리 빈 (§3 부채) |
+| 7 | Skill/Hook/Rule 구조 | OK | hook 5, rule 디렉터리 8 파일 (common 3 + ts 3 + py 2) |
 | 8 | Codex Review Loop | OK | `scripts/orchestrators/review.js`, fix-loop / round / HUMAN_GATE |
 | 9 | Memory & Learning | OK | session + project + instincts 3-tier |
 | 10 | Security & Governance | 부분 | gateguard / config-protection / audit / MCP 핀 OK. 12-item 풀 매핑 미문서화 |
@@ -33,51 +34,52 @@
 | 1 Interface | 부분 | CLI ✓, slash command ✓, NL Router(매직 키워드) **OFF (의도)** — 사용자 룰 우선. IDE plugin / GitHub PR trigger ✓ (Actions). |
 | 2 Orchestration | 부분 | planner ✓, router ✓, **team mgr ×** (tmux 미구현, ralph 만), parallel ctrl × (직렬 실행), persistent ✓, cost ✓ |
 | 3 Agent | OK | 11/11 |
-| 4 Skill & Rule | 부분 | 6/6 skill + 거버넌스 4 + ralph. **rule 디렉터리 비어있음** (common/ts/py 모두 0 파일) |
+| 4 Skill & Rule | OK | 6/6 skill + 거버넌스 4 + ralph. **rule 디렉터리 8 파일** (common 3 + ts 3 + py 2) |
 | 5 Memory & Learning | OK | session(prd/handoffs/notepad/round) + project-memory(stub) + instincts (record/list/promote/prune/ready) |
 | 6 Verification | OK | quality-gate ✓, self-review ✓, codex-review ✓, codex-challenge ✓, fix-loop ✓, severity matrix ✓, human gate ✓ |
 | 7 Security & Governance | 부분 | gateguard / config-protection / audit jsonl / MCP 핀 / sandbox 프로파일 ✓. **OIDC / dead-man switch / supply chain 스캔 미구현** |
-| 8 Integration | 부분 | claude / codex builder ✓, GH Actions ✓, MCP 단일 게이트웨이 ✓. **cursor / gemini / opencode builder ×** |
+| 8 Integration | OK | 5/5 builder (claude / codex / cursor / gemini / opencode), GH Actions ✓, MCP 단일 게이트웨이 ✓ |
 
 ## 3. 빠진 항목 / 부채 (구체)
 
-### 3.1 빈 디렉터리 (placeholder)
+### 3.1 빈 디렉터리 (placeholder) — **2026-04-29 P1 회수 세션에서 모두 채움**
 ```
-docs/CODEMAPS/         (codemap 자동 생성 미구현)
-rules/common/          (공통 룰 미작성)
-rules/typescript/      (TS 룰 미작성)
-rules/python/          (Python 룰 미작성)
-tests/e2e/             (e2e 테스트 미작성)
-tests/integration/     (통합 테스트 미작성)
+docs/CODEMAPS/         ✓ build-codemaps.js 생성기 + 9 영역 자동 산출
+rules/common/          ✓ coding-style / testing / security
+rules/typescript/      ✓ coding-style / testing / security
+rules/python/          ✓ coding-style / testing
+tests/e2e/             ✓ review-cycle.test.js (7 케이스)
+tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 ```
 
-### 3.2 package.json 에 명시됐지만 미구현 스크립트
-| 스크립트 | 상태 | 영향 |
+### 3.2 package.json 에 명시됐지만 미구현 스크립트 — **2026-04-29 P1 회수 세션에서 모두 구현**
+| 스크립트 | 상태 | 비고 |
 |---|---|---|
-| `scripts/ci/validate-agents.js` | MISSING | `npm run validate:agents` 실패. catalog.js 가 일부 대체. |
-| `scripts/ci/validate-skills.js` | MISSING | 동상 |
-| `scripts/ci/validate-hooks.js` | MISSING | 동상 |
-| `scripts/ci/validate-manifests.js` | MISSING | 동상 |
-| `scripts/build-cursor.js` | MISSING | `.cursor/` 빌드 안 됨. agent.yaml 에 명시. |
-| `scripts/build-gemini.js` | MISSING | `.gemini/` 빌드 안 됨 |
-| `scripts/build-opencode.js` | MISSING | `.opencode/` 빌드 안 됨 |
-| `scripts/sync-claude-md.js` | MISSING | 마커 자동 갱신 미구현. check-markers 만 있음. |
-| `scripts/repair.js` | MISSING | install repair 미구현. agent.yaml `post_install` 명시. |
+| `scripts/ci/validate-agents.js` | ✓ | ajv + frontmatter 검증 + 카탈로그 정합 |
+| `scripts/ci/validate-skills.js` | ✓ | 동일 |
+| `scripts/ci/validate-hooks.js` | ✓ | hooks.json schema + 스크립트 존재 검증 |
+| `scripts/ci/validate-manifests.js` | ✓ | 4 schema + 그래프 무결성 |
+| `scripts/build-cursor.js` | ✓ | `.cursor/rules/*.mdc` + camelCase 이벤트 |
+| `scripts/build-gemini.js` | ✓ | summary GEMINI.md + settings.json |
+| `scripts/build-opencode.js` | ✓ | 단일 config.json |
+| `scripts/sync-claude-md.js` | ✓ | 마커 자동 갱신 + version 주입 + --check |
+| `scripts/repair.js` | ✓ | install-state sha256 비교 + 변경분 재빌드 |
+| `scripts/build-codemaps.js` | ✓ | (보너스) 디렉터리 트리 + export 추출 |
 
 ### 3.3 검증 안 된 컴포넌트
-| 항목 | 이유 |
-|---|---|
-| Anthropic SDK live 호출 | API 키 미보유 환경 |
-| Codex CLI live 호출 | codex 바이너리 미설치 |
-| Gemini CLI live 호출 | gemini 바이너리 미설치 |
-| Rust runtime 컴파일 | rustup 미설치 |
-| GitHub Actions 실 동작 | 레포 미 push |
-| 사내 PoC 실 이식 | 외부 디렉터리 변경 보류 |
-| install-apply 의 sha256 | placeholder (`0`*64) — Day 4 stub 그대로 |
+| 항목 | 이유 | 변경 |
+|---|---|---|
+| Anthropic SDK live 호출 | API 키 미보유 환경 | 동일 |
+| Codex CLI live 호출 | codex 바이너리 미설치 | 동일 |
+| Gemini CLI live 호출 | gemini 바이너리 미설치 | 동일 |
+| Rust runtime 컴파일 | rustup 미설치 | 동일 |
+| GitHub Actions 실 동작 | 레포 미 push | 동일 |
+| 사내 PoC 실 이식 | 외부 디렉터리 변경 보류 | 동일 |
+| ~~install-apply 의 sha256 placeholder~~ | ~~Day 4 stub~~ | **2026-04-29 회수**: source_sha256 + targets[].sha256 모두 실값 |
 
-### 3.4 stub 메시지 흔적
-- `scripts/install-plan.js`: NOTE "Day 5 이후" — 사실 Day 4 부터 apply 동작. 메시지 갱신 필요.
-- `scripts/install-apply.js`: 첫 줄 "Day 5 이후 구현" — 실제 Day 4 부터 풀체인. 메시지 잔존.
+### 3.4 stub 메시지 흔적 — **2026-04-29 회수**
+- `scripts/cli.js`, `bridge/mcp-server.js`, `hooks/scripts/pre-bash-dispatcher.js`, `scripts/daemon/wait.js`, `scripts/orchestrators/ralph.js`, `scripts/ci/catalog.js` — "Day N" 흔적 모두 정리.
+- `package.json`: `lint` / `test` 가 실 명령으로 매핑 (catalog + validate:all / 73 테스트 러닝).
 
 ### 3.5 OMC / ECC 차용 안 한 것 (의도적)
 | 패턴 | 이유 |
@@ -102,33 +104,43 @@ tests/integration/     (통합 테스트 미작성)
 
 ## 5. 다음 세션 우선순위 (권장 순서)
 
+> 2026-04-29 P1 회수 세션 후 갱신. P1 / P2(부분) 완료, 잔존은 외부 의존이 큰 항목들.
+
 ### P0 — 사용자 환경 동의 후 즉시 가치
 1. **Anthropic SDK 1회 실 호출** — `harness review --live --no-ship "간단 변경"` 한 번. 비용 ~$0.10. live runner 의 실 응답 파싱 검증.
-2. **사내 PoC 비파괴 결합** — 사용자가 지정하는 사내 프로젝트에 `.harness-tool/` 결합. 첫 review 동작 확인. (디렉터리는 사용자 명시 시점에 결정)
-3. **GitHub 레포 push** — Actions 자동 동작 검증, PR 코멘트 실 등록.
+2. **사내 PoC 비파괴 결합** — 사용자가 지정하는 사내 프로젝트에 `.harness-tool/` 결합. 첫 review 동작 확인. (메모리 등록된 두 디렉터리는 제외).
+3. **GitHub 레포 push** — Actions 자동 동작 검증, PR 코멘트 실 등록. README + agent.yaml + package.json 의 `<owner>` 4곳 채워야 함.
 
-### P1 — 자체 완결 (다음 세션 1~2시간)
-4. **`scripts/sync-claude-md.js` 구현** — 마커 자동 갱신. CHANGELOG version 주입.
-5. **`scripts/repair.js` 구현** — `harness repair` (install state 의 sha256 비교, 변경 파일만 재빌드).
-6. **rules/{common, typescript, python}/ 내용** — `coding-style.md`, `testing.md` 최소 1편씩.
-7. **build-cursor / build-gemini / build-opencode** — 각 80~120줄 추정. 단순 투영.
-8. **stub 메시지 정리** — install-plan.js / install-apply.js 의 "Day 5 이후" 흔적 제거.
+### P1 — 자체 완결 — **2026-04-29 모두 완료**
+- ~~sync-claude-md~~ ✓
+- ~~repair~~ ✓
+- ~~rules 콘텐츠~~ ✓
+- ~~build-cursor / gemini / opencode~~ ✓
+- ~~validate-* 4개~~ ✓
+- ~~ARCHITECTURE 18절 풀 본문~~ ✓
+- ~~stub 메시지 정리~~ ✓
+- ~~install-apply sha256 실값화~~ ✓
+- ~~integration / e2e 테스트~~ ✓
+- ~~codemap 자동 생성~~ ✓
 
-### P2 — 검증 / 확장 (다음 세션 2~4시간)
-9. **integration / e2e 테스트** — 실제 review 풀체인 + `.harness/state/sessions/<id>/` 검증, demo-review.js 를 e2e 화.
-10. **ARCHITECTURE.md 풀 18절 본문** — 한 번에 작성.
-11. **Rust runtime 컴파일 검증** — rustup 설치 + `cargo build --release` + smoke (init / status / ipc ping).
-12. **codemap 자동 생성** — `docs/CODEMAPS/<area>.md` 스크립트.
+### P2 — 검증 / 확장 (외부 의존)
+1. **Rust runtime 컴파일 검증** — rustup 설치 + `cargo build --release` + smoke (init / status / ipc ping).
+2. **Codex CLI / Gemini CLI live 검증** — 바이너리 설치 후 풀사이클 1회.
+3. **GitHub Actions 실 동작** — push 후 PR 코멘트 자동 검증.
+4. **npm publish 결정** — `private: true` 유지 vs 공개.
 
 ### P3 — 사내 임팩트 (사용자 요청 시)
-13. 사용자 명시 사내 프로젝트에 풀 결합 + 첫 실 task 1개로 사이클.
-14. 추가 사내 프로젝트 동일 절차.
-15. 사내 LLM endpoint 를 추가 provider 로 (`runners/internal.js`).
+1. 사용자 명시 사내 프로젝트에 풀 결합 + 첫 실 task 1개로 사이클.
+2. 추가 사내 프로젝트 동일 절차.
+3. 사내 LLM endpoint 를 추가 provider 로 (`runners/internal.js`).
+4. 사내 GitLab / 기타 CI 가이드 (`.gitlab-ci.yml` 예시).
 
 ### P4 — 안 해도 되는 것 (의도적 거절)
 - OMC 매직 키워드 자동 활성 (사용자 룰 충돌)
 - ECC 184 풀 스킬 카탈로그 (점진 확장)
 - tmux team 런타임 (Windows 마찰, ralph 가 대체)
+- ECC `pyproject.toml` LLM monorepo (별도 레포 분리)
+- OMC `bridge/cli.cjs` 3.2MB 단일 번들 (디버깅 / 모듈성)
 
 ## 6. 발견된 마찰 (다음 세션에 회수)
 
@@ -156,11 +168,22 @@ tests/integration/     (통합 테스트 미작성)
 | Provider runners | 4 (mock/claude/codex/gemini) |
 | MCP 도구 | 7 |
 | CLI verbs | 10 (install / validate / review / plan / ralph / wait / sessions / costs / instincts / version) |
-| 단위 테스트 | **52/52 PASS** (orchestrator 5 + severity 10 + router 6 + costs 3 + instincts 15 + portability 5 + runners-extract 12 — 56 으로 정정) |
+| 단위 테스트 | **56/56 PASS** (orchestrator 5 + severity 10 + router 6 + costs 3 + instincts 15 + portability 5 + runners-extract 12) |
+| 통합 테스트 | **10/10 PASS** (build pipeline + state 영속 + repair detection + sync-claude-md + codemaps + validate:all + check-markers) |
+| E2E 테스트 | **7/7 PASS** (demo-review 7단계 + 5필드 무결성 + --secure + round 카운터 + CLI version/help) |
+| 전체 테스트 | **73/73 PASS** |
 | GitHub Actions | 2 |
 
 ## 8. 결론
 
-**MVP 100% + 인스팅트 + 사내 이식 시뮬 + Rust 골격까지 도달.** 의도적 비채택 항목과 환경 동의 필요 검증 외에 부채는 §3 의 빈 디렉터리 6개 + 미구현 스크립트 9개 + stub 메시지 2건. 다음 세션 P1 우선순위로 1~2시간이면 99% 정합성 달성.
+**MVP 100% + 인스팅트 + 사내 이식 시뮬 + Rust 골격 + P1 회수 완료.**
 
-가장 큰 미수렴 영역은 **실 환경 검증 3종** (API 키 / Codex CLI / GitHub push) — 사용자 동의 시점에 즉시 가능.
+2026-04-29 P1 회수 세션 결과:
+- 빈 디렉터리 6개 → 0개
+- 미구현 스크립트 9개 → 0개 (보너스 build-codemaps 1개 추가)
+- stub 메시지 흔적 → 정리
+- install-apply sha256 placeholder → 실값
+- 테스트 52 → 73 (integration + e2e 추가)
+- ARCHITECTURE 풀 18절 본문 528줄
+
+잔존 부채는 **외부 의존이 큰 검증 4종** (API 키 / Codex CLI / Gemini CLI / GitHub push) + **Rust 컴파일** + **사내 임팩트 (사용자 명시 시점)**. 자체 완결 가능한 영역은 **99% 정합성 도달**.
