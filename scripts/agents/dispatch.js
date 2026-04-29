@@ -9,6 +9,9 @@ import { runMock } from './runners/mock.js';
 import { runClaude } from './runners/claude.js';
 import { runCodex } from './runners/codex.js';
 import { runGemini } from './runners/gemini.js';
+import { decide as routeDecide, trace as routeTrace } from '../lib/router.js';
+import { record as costRecord } from '../lib/costs.js';
+import { riskLevel } from '../lib/severity.js';
 
 const RUNNERS = {
   mock: runMock,
@@ -44,6 +47,23 @@ export async function dispatch(opts) {
   const runner = RUNNERS[provider];
   if (!runner) throw new Error(`알 수 없는 provider: ${provider}`);
 
+  // routing trace
+  if (opts.sessionDir) {
+    try {
+      const decision = routeDecide({
+        stage: opts.stage,
+        task: opts.task,
+        files: opts.context?.files || [],
+        ecoMode: !!process.env.HARNESS_ECO,
+        riskLevel: riskLevel(opts.context?.files || [], opts.task || ''),
+        harnessRoot: root,
+      });
+      decision.provider = provider;
+      decision.model = fm.model;
+      routeTrace(opts.sessionDir, decision, { stage: opts.stage, task: opts.task });
+    } catch { /* trace 실패는 dispatch 자체를 막지 않음 */ }
+  }
+
   const startTs = Date.now();
   const result = await runner({
     agent: fm.name,
@@ -59,7 +79,28 @@ export async function dispatch(opts) {
   });
   const durMs = Date.now() - startTs;
 
-  // 표준화 + 메타데이터 부착
+  // cost record (mock 도 0 으로 기록 — 호출 카운트 가시성)
+  try {
+    costRecord({
+      session: opts.sessionId || 'default',
+      stage: opts.stage,
+      agent: fm.name,
+      provider,
+      model: fm.model,
+      input_tokens: result.usage?.input_tokens || 0,
+      output_tokens: result.usage?.output_tokens || 0,
+      duration_ms: durMs,
+    });
+  } catch { /* 비용 기록 실패는 무시 */ }
+
+  // 표준화 + 메타데이터 부착. result 의 비표준 필드(예: prdSeed)도 통과시킨다.
+  const standardKeys = new Set([
+    'decided','rejected','risks','files','remaining','issues','verdict','confidence','usage',
+  ]);
+  const passthrough = {};
+  for (const [k, v] of Object.entries(result || {})) {
+    if (!standardKeys.has(k)) passthrough[k] = v;
+  }
   return {
     stage: opts.stage,
     agent: fm.name,
@@ -76,6 +117,7 @@ export async function dispatch(opts) {
     issues: result.issues ?? [],
     verdict: result.verdict,
     confidence: result.confidence ?? null,
+    ...passthrough,
   };
 }
 

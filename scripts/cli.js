@@ -39,9 +39,16 @@ Day 6 시점 옵션:
   --live      실 LLM 호출 (ANTHROPIC_API_KEY + codex CLI 필요)
   (기본)      mock provider — API 키 / CLI 없이 풀사이클 검증
 
+영속 / ralph (Day 8)
+  ralph "<task>" [--max-iter 5] [--secure] [--live]
+                                         PRD AC 가 모두 passes 될 때까지 반복
+  wait start                             영속 데몬 시작 (background)
+  wait stop                              데몬 정지
+  wait status                            데몬 상태
+
 세션 / 비용
   sessions                               목록
-  costs --since=7d                       (Day 7 이후)
+  costs --since=7d [--rows] [--json]     비용 합산 (Day 7)
 
 기타
   validate, version, help
@@ -69,6 +76,9 @@ function parseReviewArgs(argv) {
     else if (a === '--fast') opts.fast = true;
     else if (a === '--no-ship') opts.noShip = true;
     else if (a === '--session') opts.sessionId = argv[++i];
+    else if (a === '--max-iter') { opts.maxIter = Number(argv[++i]); }
+    else if (a.startsWith('--max-iter=')) { opts.maxIter = Number(a.slice('--max-iter='.length)); }
+    else if (a.startsWith('--')) { /* 알 수 없는 플래그 무시 */ }
     else if (!opts.task) opts.task = a;
     else opts.task += ' ' + a;
   }
@@ -92,6 +102,23 @@ function parseReviewArgs(argv) {
       await dynamicReview(opts);
       break;
     }
+    case 'ralph': {
+      const opts = parseReviewArgs(rest);
+      const i = rest.indexOf('--max-iter');
+      if (i >= 0 && rest[i + 1]) opts.maxIter = Number(rest[i + 1]);
+      else for (const a of rest) if (a.startsWith('--max-iter=')) opts.maxIter = Number(a.slice('--max-iter='.length));
+      if (!opts.task) { console.error('--task 필요. 예: harness ralph "기능 X" --max-iter 5'); process.exit(2); }
+      const { ralphLoop } = await import('./orchestrators/ralph.js');
+      const r = await ralphLoop({ ...opts, harnessRoot: ROOT });
+      console.log('=== ralph 종료 ===');
+      console.log(JSON.stringify(r, null, 2));
+      if (r.reason === 'human_gate') process.exit(3);
+      break;
+    }
+    case 'wait': {
+      run('daemon/wait.js', rest.length ? rest : ['status']);
+      break;
+    }
     case 'plan': {
       const opts = parseReviewArgs(rest);
       opts.fast = false;          // ideate + plan 둘 다 보고 싶을 때
@@ -106,6 +133,23 @@ function parseReviewArgs(argv) {
     case 'codex-review':
       console.error(`${verb} 단독 호출은 Day 7 에 분리 구현. 지금은 'review' 풀사이클을 쓰세요.`);
       process.exit(2);
+    case 'costs': {
+      const since = (() => {
+        const i = rest.indexOf('--since');
+        if (i >= 0 && rest[i + 1]) return rest[i + 1];
+        for (const a of rest) if (a.startsWith('--since=')) return a.slice('--since='.length);
+        return '7d';
+      })();
+      const { list, summarize } = await import('./lib/costs.js');
+      const rows = list({ since });
+      const sum = summarize(rows);
+      console.log(`since=${since}, rows=${sum.rows}, total=$${sum.total_usd}`);
+      console.log('by_provider:', JSON.stringify(sum.by_provider));
+      console.log('by_model   :', JSON.stringify(sum.by_model));
+      if (rest.includes('--json')) console.log(JSON.stringify({ since, summary: sum, rows }, null, 2));
+      else if (rest.includes('--rows')) for (const r of rows.slice(-20)) console.log('  ' + JSON.stringify(r));
+      break;
+    }
     case 'sessions': {
       const dir = path.join(ROOT, '.harness', 'state', 'sessions');
       if (!fs.existsSync(dir)) { console.log('(세션 없음)'); break; }

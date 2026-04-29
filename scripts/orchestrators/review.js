@@ -74,7 +74,7 @@ export async function reviewCycle(opts) {
   // ---- 3. implement ----
   log('3 implement');
   const h3 = await runWithFallback({
-    agent: 'executor', stage: 'implement', task: opts.task, live, root,
+    agent: 'executor', stage: 'implement', task: opts.task, live, root, sessionDir, sessionId,
     context: { prd, acCount: prd?.acceptance?.length || 3 },
   });
   writeHandoff(h3);
@@ -87,7 +87,7 @@ export async function reviewCycle(opts) {
     reviewRound++;
     log(`4 self-review (round ${reviewRound})`);
     const hSelf = await runWithFallback({
-      agent: 'code-reviewer', stage: 'self-review', task: opts.task, live, root,
+      agent: 'code-reviewer', stage: 'self-review', task: opts.task, live, root, sessionDir, sessionId,
       context: { round: reviewRound, prd, priorHandoffs: handoffs.slice(-3), diff: opts.diff || '' },
     });
     hSelf.round = reviewRound;
@@ -103,7 +103,7 @@ export async function reviewCycle(opts) {
     if (lastVerdict === 'block' || lastVerdict === 'approve_with_fixes') {
       log(`fix-loop: executor round ${reviewRound + 1}`);
       const hFix = await runWithFallback({
-        agent: 'executor', stage: 'implement', task: opts.task, live, root,
+        agent: 'executor', stage: 'implement', task: opts.task, live, root, sessionDir, sessionId,
         context: { prd, round: reviewRound + 1, issues: hSelf.issues },
       });
       hFix.round = reviewRound + 1;
@@ -116,7 +116,7 @@ export async function reviewCycle(opts) {
   // ---- 5. codex-review ----
   log('5 codex-review');
   const h5 = await runWithFallback({
-    agent: 'codex-reviewer', stage: 'codex-review', task: opts.task, live, root,
+    agent: 'codex-reviewer', stage: 'codex-review', task: opts.task, live, root, sessionDir, sessionId,
     context: { round: 1, prd, priorHandoffs: handoffs.slice(-3), diff: opts.diff || '' },
   });
   writeHandoff(h5);
@@ -129,7 +129,7 @@ export async function reviewCycle(opts) {
   if (wantChallenge) {
     log(`6 codex-challenge (${secureRequested ? '--secure' : 'sensitive 자동'})`);
     const h6 = await runWithFallback({
-      agent: 'codex-challenger', stage: 'codex-challenge', task: opts.task, live, root,
+      agent: 'codex-challenger', stage: 'codex-challenge', task: opts.task, live, root, sessionDir, sessionId,
       context: { round: 1, prd, priorHandoffs: handoffs.slice(-3), diff: opts.diff || '' },
     });
     writeHandoff(h6);
@@ -146,7 +146,7 @@ export async function reviewCycle(opts) {
   } else {
     log('7 ship');
     const h7 = await runWithFallback({
-      agent: 'doc-writer', stage: 'ship', task: opts.task, live, root,
+      agent: 'doc-writer', stage: 'ship', task: opts.task, live, root, sessionDir, sessionId,
       context: { prd, priorHandoffs: handoffs },
     });
     writeHandoff(h7);
@@ -165,15 +165,15 @@ export async function reviewCycle(opts) {
 
 // ----------------
 
-async function runWithFallback({ agent, stage, task, live, root, context }) {
+async function runWithFallback({ agent, stage, task, live, root, context, sessionDir, sessionId }) {
   try {
-    return await dispatch({ agent, stage, task, live, harnessRoot: root, context });
+    return await dispatch({ agent, stage, task, live, harnessRoot: root, context, sessionDir, sessionId });
   } catch (e) {
     if (live) {
       console.error(`[review] ${agent}/${stage} live 실패 → mock 폴백: ${e.message}`);
       return await dispatch({
         agent, stage, task, live: false, harnessRoot: root, context,
-        providerOverride: 'mock',
+        providerOverride: 'mock', sessionDir, sessionId,
       });
     }
     throw e;

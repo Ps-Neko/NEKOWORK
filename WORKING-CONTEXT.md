@@ -61,3 +61,8 @@
   - sensitive path 자동 감지 (auth/crypto/payment/jwt 등) → 단계 6 자동 활성.
   - round 한도 + critical 발견 → HUMAN_GATE 자동.
   - node --test 5/5 PASS. harness review CLI 데모 OK.
+- 2026-04-29 **Week 2 완료**.
+  - Day 7: lib/{severity,router,costs}.js + MCP 3 신규 도구 (severity_classify, route_decide, cost_record) + harness costs CLI + routing.jsonl 자동 적층.
+  - Day 8: skills/ralph/SKILL.md + scripts/orchestrators/ralph.js (PRD AC 누적 PASS) + scripts/daemon/wait.js (start/stop/status). 명시 옵트인만 (자동 키워드 활성 OFF).
+  - Day 9-10: .github/workflows/{harness-review,harness-validate}.yml + docs/PORTING.md (사내 PoC 이식 가이드).
+  - 단위 테스트 24/24 PASS. 83 파일. 풀체인 동작 (review / ralph / costs / sessions / wait).
