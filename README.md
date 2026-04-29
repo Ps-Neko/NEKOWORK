@@ -38,6 +38,7 @@ node scripts/cli.js review "<task>" --no-ship    # 7단계 풀사이클 dry-run 
 
 ## 문서
 
+- [docs/SETUP.md](docs/SETUP.md) — 외부 컨트리뷰터 / 다른 머신 셋업 (P2 외부 의존 절차)
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — 통합 설계 (18절)
 - [docs/CHANGELOG.md](docs/CHANGELOG.md) — 버전 이력
 - [docs/AUDIT.md](docs/AUDIT.md) — 부채 / 우선순위
