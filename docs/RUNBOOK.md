@@ -173,11 +173,11 @@ bad .ts  : tsc FAIL "Expression expected", exit 2 (차단)
 
 ### Day 9~10
 - GitHub Actions 통합 (.github/workflows/harness-review.yml).
-- 사내 PoC (iljin-rag-poc, cad-api-bridge, solidedge-mcp) 이식 가이드.
+- 사내 PoC 이식 가이드 (일반 절차).
 
 ## 8. 배포 / 이식
 
-사내 다른 프로젝트(`iljin-rag-poc`, `cad-api-bridge`, `solidedge-mcp`)에 동일 골격 이식 시:
+사내 다른 프로젝트에 동일 골격 이식 시 (사용자 지정 디렉터리):
 
 1. 해당 프로젝트 루트에 `harness/` 를 git submodule 또는 npm dep 으로 결합.
 2. `node node_modules/@harness/cli/scripts/install-plan.js --profile research`.

@@ -1,6 +1,6 @@
 # PORTING — 사내 PoC에 HARNESS 이식하기
 
-> 대상: `iljin-rag-poc`, `cad-api-bridge`, `solidedge-mcp` 등 사내 프로젝트.
+> 대상: 사내 프로젝트 (구체 디렉터리는 사용자 명시 시점에 지정).
 > 목적: HARNESS 의 7단계 풀사이클 + 매니페스트 + 인스톨러를 30분 안에 사내 프로젝트에 결합.
 
 ## 0. 기본 가정
@@ -14,7 +14,7 @@
 ### A. Submodule (가장 단순, 사내 격리 환경 권장)
 
 ```bash
-cd D:/claude/iljin-rag-poc
+cd D:/claude/<프로젝트>
 git submodule add ../harness .harness-tool
 echo ".harness-tool/" >> .gitignore   # tool 자체는 커밋 안 함
 ```
@@ -50,11 +50,11 @@ harness install --plan --profile research --harness claude
 
 ### Step 1 — 프로필 선택
 
-| PoC | 권장 프로필 | 이유 |
+| PoC 유형 | 권장 프로필 | 이유 |
 |---|---|---|
-| iljin-rag-poc | research | Context7 / Exa / 사내 RAG 결합. codex-loop 옵션. |
-| cad-api-bridge | developer | AutoCAD COM 자동화. 일반 개발 + Codex 검증. |
-| solidedge-mcp | developer + security | MCP 서버 자체. 외부 입력 sanitization 중요. |
+| RAG / 사내 검색 | research | Context7 / Exa 결합. codex-loop 옵션. |
+| CAD / 자동화 | developer | COM / API 자동화. 일반 개발 + Codex 검증. |
+| MCP 서버 | developer + security | 외부 입력 sanitization 중요. |
 
 ### Step 2 — 매니페스트 dry-run
 
@@ -91,23 +91,19 @@ node .harness-tool/scripts/install-apply.js --profile research
 
 ```bash
 node .harness-tool/scripts/cli.js review \
-  "사내 첫 풀사이클 검증" --no-ship --session iljin-first
+  "사내 첫 풀사이클 검증" --no-ship --session port-first
 ```
 
-7개 핸드오프가 `.harness/state/sessions/iljin-first/handoffs/` 에 떨어지면 결합 OK.
+7개 핸드오프가 `.harness/state/sessions/port-first/handoffs/` 에 떨어지면 결합 OK.
 
 ## 3. 사내 PoC 별 주의사항
 
-### iljin-rag-poc
-- RAG 응답 검증을 `gateguard-fact-force` 와 결합. 응답 content 에 대한 importer / API 시그니처 확인을 hook 단계에서 강제.
-- `agents/research.md` 의 provider 를 `gemini` → 사내 LLM 으로 교체 (frontmatter 의 `provider` 만 변경).
+### CAD / 자동화 유형 PoC
+- COM / 외부 시스템 호출은 사용자 룰 "확인 후 실행" 으로. `harness review --no-ship` 로 끝내고 실 호출은 사람이 트리거.
+- 보안 디렉터리 자동 감지 패턴 확장은 `scripts/orchestrators/review.js` 의 `SENSITIVE_PATTERNS` 만 추가.
 
-### cad-api-bridge
-- AutoCAD COM 호출 / PDF 출력은 사용자 룰 "확인 후 실행" 으로. `harness review --no-ship` 로 끝내고 실 호출은 사람이 트리거.
-- 보안 디렉터리 자동 감지 패턴에 `cad/` 또는 `autocad/` 추가하려면 `scripts/orchestrators/review.js` 의 `SENSITIVE_PATTERNS` 만 확장.
-
-### solidedge-mcp
-- MCP 서버 자체이므로 `bridge/mcp-server.js` 의 패턴 차용 가능. `severity_classify` / `route_decide` / `cost_record` 도구를 SE MCP 에 추가하면 통합 거버넌스.
+### MCP 서버 유형 PoC
+- `bridge/mcp-server.js` 패턴 차용 가능. `severity_classify` / `route_decide` / `cost_record` 도구 추가 시 통합 거버넌스.
 - `--secure` 디폴트 켜기: `harness review` alias 를 `--secure` 포함으로 정의.
 
 ## 4. CI/CD 결합

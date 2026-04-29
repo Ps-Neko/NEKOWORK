@@ -10,7 +10,7 @@
 ## Current Truth
 
 - Day 1 진행 중. 위치: `D:\claude\harness\`.
-- 인접 사내 프로젝트: `D:\claude\cad-api-bridge`, `D:\claude\iljin-rag-poc`.
+- 인접 사내 프로젝트는 다루지 않는다 (사용자 룰).
 - 기술 스택: Node 22 + TypeScript strict, 추후 Rust(runtime/) TUI.
 - 한국어 응답 강제. 사용자 글로벌 룰 우선.
 
@@ -68,7 +68,7 @@
   - 단위 테스트 24/24 PASS. 83 파일. 풀체인 동작 (review / ralph / costs / sessions / wait).
 - 2026-04-29 **Week 3 완료 (Day 11~15)**.
   - Day 11: instincts 시스템 (record/list/promote/prune) + orchestrator 자동 누적 + CLI + 11/11 테스트.
-  - Day 12: simulate-port.js (iljin-rag-poc, cad-api-bridge dry-run 실증) + 5/5 테스트.
+  - Day 12: simulate-port.js + 5/5 테스트 (외부 디렉터리 인용 제거).
   - Day 13: claude/codex extractJson + buildPrompt export + 12/12 테스트.
   - Day 14-15: CHANGELOG Week 3, WORKING-CONTEXT 갱신, 최종 회귀.
   - 누적: 4 커밋, ~92 파일, ~10,500 LOC, 단위 테스트 52/52 PASS.
