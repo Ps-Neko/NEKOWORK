@@ -105,6 +105,64 @@ export function promote(id) {
   return inst;
 }
 
+/**
+ * 자동 promote 후보 판정.
+ * 기준 (모두 만족):
+ *   1. confidence >= 1.0 (count >= threshold)
+ *   2. last_seen 이 maxStaleDays 이내
+ *   3. evidence 다양성 점수 >= minDiversity (서로 다른 sessionId 비율)
+ *   4. 아직 promoted 안 됨
+ *
+ * 출력: { ready: [...], blocked: [...with reason] }
+ * 실 promote 는 사용자 명시 호출 (사용자 룰: 확인 후 실행).
+ */
+export function ready({
+  maxStaleDays = 14,
+  minDiversity = 0.5,
+  kind,
+  scope,
+} = {}) {
+  const now = Date.now();
+  const all = list({ kind, scope });
+  const result = { ready: [], blocked: [] };
+  for (const inst of all) {
+    if (inst.promoted) {
+      result.blocked.push({ id: inst.id, key: inst.key, reason: 'already_promoted' });
+      continue;
+    }
+    if (inst.confidence < 1) {
+      result.blocked.push({ id: inst.id, key: inst.key, reason: `confidence ${inst.confidence.toFixed(2)} < 1` });
+      continue;
+    }
+    const ageDays = (now - new Date(inst.last_seen).getTime()) / 86_400_000;
+    if (ageDays > maxStaleDays) {
+      result.blocked.push({ id: inst.id, key: inst.key, reason: `stale ${ageDays.toFixed(1)}d > ${maxStaleDays}` });
+      continue;
+    }
+    const diversity = computeDiversity(inst);
+    if (diversity < minDiversity) {
+      result.blocked.push({ id: inst.id, key: inst.key, reason: `diversity ${diversity.toFixed(2)} < ${minDiversity}` });
+      continue;
+    }
+    result.ready.push({
+      id: inst.id, key: inst.key, kind: inst.kind, count: inst.count,
+      diversity: Number(diversity.toFixed(2)),
+      last_seen: inst.last_seen, summary: inst.summary,
+    });
+  }
+  return result;
+}
+
+/** evidence 의 sessionId 다양성 = 고유 session 수 / 총 evidence 수. 0 ~ 1. */
+function computeDiversity(inst) {
+  const ev = inst.evidence || [];
+  if (ev.length === 0) return 0;
+  const sessions = new Set();
+  for (const e of ev) if (e.sessionId) sessions.add(e.sessionId);
+  if (sessions.size === 0) return 0;
+  return sessions.size / ev.length;
+}
+
 export function prune({ olderDays = PRUNE_DAYS, dryRun = false } = {}) {
   const d = dir();
   if (!fs.existsSync(d)) return { removed: [], kept: 0 };

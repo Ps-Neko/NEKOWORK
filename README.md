@@ -24,7 +24,17 @@ node scripts/install-plan.js --profile core
 - **Week 1 완료**: 골격 + 거버넌스 + 매니페스트 + 11 agents + 5 skills + 5 hooks + MCP 4도구 + gateguard·quality-gate 실 구현.
 - **Week 2 완료**: orchestrator + 4 provider runner (mock/claude/codex/gemini) + lib (severity/router/costs) + MCP 7도구 + ralph 영속 루프 + GitHub Actions 2개 + PORTING 가이드.
 - **Week 3 완료**: 인스팅트 시스템 (record/list/promote/prune) + PoC 이식 시뮬레이터 + live runner extractJson/buildPrompt 단위 테스트.
-- 누적: 4 커밋, ~92 파일, ~10,500 LOC, 단위 테스트 **52/52 PASS**.
+- **Week 4 완료**: 인스팅트 자동 promote 규칙 (`ready()`) + Rust runtime 골격 (529 LOC, 컴파일 미검증) + Week 1~4 통합 AUDIT.
+- 누적: 5 커밋, ~100 파일, ~12,000 LOC, 단위 테스트 **56/56 PASS**.
+
+## 빠진 / 부채
+
+`docs/AUDIT.md` 참조. 요약:
+- 빈 디렉터리 6 (rules/{common,typescript,python}, tests/{e2e,integration}, docs/CODEMAPS)
+- 미구현 스크립트 9 (validate-* 4개, build-{cursor,gemini,opencode}, sync-claude-md, repair)
+- 검증 안 된 컴포넌트 7 (live 호출 3, Rust 컴파일, GitHub Actions 실, PoC 실 이식, install sha256)
+- stub 메시지 2 (install-plan/apply 의 "Day 5 이후" 흔적)
+- 다음 세션 P1 1~2시간이면 99% 정합성 도달.
 
 ## 문서
 

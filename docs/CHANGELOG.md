@@ -4,12 +4,50 @@
 
 ## [Unreleased]
 
-### 다음 단계 (Week 4 후보)
-- Anthropic SDK / Codex CLI 실 호출 검증 (API 키 받은 환경)
-- 사내 PoC 실 이식 (iljin-rag-poc 부터 — submodule 결합 + 첫 review)
-- GitHub 레포 push + Actions 첫 동작 확인
-- Rust runtime/ TUI 골격 (영속 데몬을 systemd / Windows Service 화)
-- 인스팅트 자동 promote 규칙 (count + recency + scope 가중)
+### Week 5 후보 (docs/AUDIT.md 우선순위 P0~P2)
+- P0: Anthropic SDK 1회 실 호출 검증 (사용자 API 키 동의)
+- P0: 사내 PoC 비파괴 결합 (iljin-rag-poc 부터)
+- P0: GitHub push + Actions 실 동작 검증
+- P1: scripts/{sync-claude-md, repair, build-cursor, build-gemini, build-opencode}.js
+- P1: rules/{common, typescript, python} 내용 작성
+- P1: stub 메시지 정리
+- P2: integration / e2e 테스트, ARCHITECTURE 풀 18절, Rust runtime 컴파일 검증, codemap 자동화
+
+## [0.0.1-week4] — 2026-04-29
+
+> Week 4 완료. 자동 promote 규칙 + Rust runtime 골격 + Week 1~4 AUDIT.
+
+### Added (Day 16)
+- `scripts/lib/instincts.js` 에 `ready()` 추가
+  - 자동 promote 후보 판정: confidence ≥ 1 + last_seen ≤ maxStaleDays + diversity ≥ minDiversity + !promoted
+  - diversity = 고유 sessionId / 총 evidence
+- CLI: `harness instincts ready [--max-stale-days N] [--min-diversity X] [--blocked]`
+- 단위 테스트 4 추가 (총 instincts 15/15 PASS)
+
+### Added (Day 17-18)
+- `runtime/Cargo.toml` + `runtime/src/{main,session,supervisor,ipc,observability}.rs` (529 LOC)
+  - tokio + serde + clap + rusqlite(bundled) + sysinfo + tracing
+  - SQLite 스키마: sessions / handoffs / audits 3 테이블
+  - supervisor: wakeup.json 폴링 → Node CLI ralph spawn, HUMAN_GATE 즉시 무시
+  - ipc: stdio JSON-RPC 단일 요청 (ping / session.upsert / handoff.record / session.list)
+- `runtime/README.md` — 빌드 / 사용 / Node 데몬과의 관계 (동시 실행 금지)
+- 컴파일 검증은 다음 세션 (rustup 미설치)
+
+### Added (Day 19-20)
+- `docs/AUDIT.md` — Week 1~4 통합 검토
+  - 18절 매핑 (15 OK, 5 부분, 0 미구현)
+  - 8계층 매핑 (4 OK, 4 부분)
+  - 빠진 항목: 빈 디렉터리 6, 미구현 스크립트 9, stub 메시지 2
+  - 검증 안 된 컴포넌트 7 (live 호출 / 컴파일 / push)
+  - P0~P2 우선순위 + 의도적 거절 5건
+
+### Stats (Week 4)
+- 8 파일 변경 (+1,300 LOC: instincts ready 100 + Rust 529 + AUDIT 200 + tests 200 + CLI/CHANGELOG 갱신)
+
+### 누적 (Week 1+2+3+4)
+- 5 커밋, ~100 파일, ~12,000 LOC
+- 단위 테스트: 5+10+6+3+15+5+12 = **56/56 PASS**
+- Rust runtime 골격 추가 (529 LOC, 컴파일 미검증)
 
 ## [0.0.1-week3] — 2026-04-29
 

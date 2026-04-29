@@ -72,5 +72,10 @@
   - Day 13: claude/codex extractJson + buildPrompt export + 12/12 테스트.
   - Day 14-15: CHANGELOG Week 3, WORKING-CONTEXT 갱신, 최종 회귀.
   - 누적: 4 커밋, ~92 파일, ~10,500 LOC, 단위 테스트 52/52 PASS.
-- 2026-04-29 **세션 종료**.
-  - Week 4 후보: 실 LLM 호출 검증, 사내 PoC 실 이식, GitHub push, Rust runtime, 인스팅트 자동 promote 규칙.
+- 2026-04-29 **Week 4 완료 (Day 16~20)**.
+  - Day 16: instincts.ready() + CLI + 4 신규 단위 테스트 (15/15 PASS).
+  - Day 17-18: Rust runtime 골격 — Cargo.toml + 5 .rs 파일 (529 LOC, 컴파일은 rustup 설치 후).
+  - Day 19: 사용자 D 선택 — 외부 환경 변경 보류, AUDIT 집중.
+  - Day 20: docs/AUDIT.md — Week 1~4 통합 검토 (18절 매핑, 8계층 매핑, 빠진 항목 / 부채 / P0~P3 우선순위).
+  - 누적: 5 커밋 예정, ~100 파일, ~12,000 LOC, 단위 테스트 56/56 PASS.
+- **세션 종료**. 다음 세션 P0: 실 LLM 호출 / PoC 결합 / GitHub push (사용자 명시 동의 시).

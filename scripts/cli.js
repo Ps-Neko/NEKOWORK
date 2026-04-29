@@ -51,6 +51,8 @@ Day 6 시점 옵션:
   costs --since=7d [--rows] [--json]     비용 합산
   instincts list [--kind <k>] [--min-confidence <n>] [--json]
   instincts show <id>
+  instincts ready [--max-stale-days N] [--min-diversity X] [--blocked]
+                                         자동 promote 후보 (사용자가 confirm 필요)
   instincts promote <id>                 신뢰도 1.0 도달 시만
   instincts prune [--older-days N] [--dry-run]
 
@@ -168,6 +170,31 @@ function parseReviewArgs(argv) {
         const inst = iGet(id);
         if (!inst) { console.error('없음'); process.exit(1); }
         console.log(JSON.stringify(inst, null, 2));
+      } else if (sub === 'ready') {
+        const { ready: iReady } = await import('./lib/instincts.js');
+        const maxStaleArg = (() => {
+          const i = rest.indexOf('--max-stale-days');
+          if (i >= 0) return Number(rest[i + 1]);
+          for (const a of rest) if (a.startsWith('--max-stale-days=')) return Number(a.slice('--max-stale-days='.length));
+          return 14;
+        })();
+        const minDivArg = (() => {
+          const i = rest.indexOf('--min-diversity');
+          if (i >= 0) return Number(rest[i + 1]);
+          for (const a of rest) if (a.startsWith('--min-diversity=')) return Number(a.slice('--min-diversity='.length));
+          return 0.5;
+        })();
+        const r = iReady({ maxStaleDays: maxStaleArg, minDiversity: minDivArg });
+        if (rest.includes('--json')) console.log(JSON.stringify(r, null, 2));
+        else {
+          console.log(`자동 promote 후보 ${r.ready.length}건  (max-stale-days=${maxStaleArg}, min-diversity=${minDivArg})`);
+          for (const x of r.ready) console.log(`  ✓ ${x.id}  ${x.kind.padEnd(15)} count=${x.count} div=${x.diversity}  ${x.key}`);
+          if (rest.includes('--blocked')) {
+            console.log(`\n차단 ${r.blocked.length}건:`);
+            for (const x of r.blocked) console.log(`  ✗ ${x.id}  ${x.reason}  ${x.key}`);
+          }
+          console.log(`\n실 promote 는 'harness instincts promote <id>' 명시 호출 (사용자 룰).`);
+        }
       } else if (sub === 'promote') {
         const id = rest[1];
         if (!id) { console.error('id 필요'); process.exit(2); }
