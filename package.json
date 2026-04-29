@@ -65,7 +65,10 @@
     "validate:all": "npm run validate:agents && npm run validate:skills && npm run validate:hooks && npm run validate:manifests",
     "install:plan": "node scripts/install-plan.js",
     "install:apply": "node scripts/install-apply.js",
-    "verify:codex": "node scripts/verify/codex-live.js"
+    "verify:codex": "node scripts/verify/codex-live.js",
+    "auth:github:login": "node scripts/auth/github-login.js",
+    "auth:github:status": "node scripts/auth/github-status.js",
+    "auth:github:logout": "node scripts/auth/github-logout.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
