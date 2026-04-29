@@ -11,7 +11,7 @@ tags: [persistent, loop]
 
 # ralph
 
-PRD 의 acceptance criteria 가 모두 PASS 될 때까지 review 사이클을 자동 반복. 사용자 글로벌 룰("자동 활성 금지")을 지키기 위해 매직 키워드 감지는 **하지 않는다**. 명시 호출만:
+PRD 의 acceptance criteria 가 모두 PASS 될 때까지 review 사이클을 자동 반복. 매직 키워드 감지는 **하지 않는다** (사용자 환경의 "자동 활성 금지" 류 룰을 우회하지 않기 위함). 명시 호출만:
 
 ```bash
 harness ralph --task "기능 X" [--max-iter 10] [--secure] [--live]

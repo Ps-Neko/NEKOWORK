@@ -84,8 +84,6 @@ const plugin = {
   name: 'harness',
   version: pkg.version,
   description: pkg.description,
-  homepage: 'https://github.com/iljin/harness',
-  authors: [pkg.author || 'ILJIN'],
   components: {
     agents: agents,
     skills: skills,
@@ -93,6 +91,9 @@ const plugin = {
     hooks: hookScripts,
   },
 };
+// homepage / authors 는 publish 전에 외부 레포 정보로 채울 것 (env 변수 또는 package.json 활용 권장)
+if (process.env.HARNESS_HOMEPAGE) plugin.homepage = process.env.HARNESS_HOMEPAGE;
+if (pkg.author) plugin.authors = Array.isArray(pkg.author) ? pkg.author : [pkg.author];
 fs.writeFileSync(path.join(pluginDir, 'plugin.json'), JSON.stringify(plugin, null, 2));
 console.log('  plugin.json: OK');
 

@@ -1,0 +1,37 @@
+# 모든 텍스트 파일은 LF 로 통일. CRLF/LF 워닝 제거 + 외부 컨트리뷰터 호환.
+* text=auto eol=lf
+
+# 명시적 텍스트
+*.md       text eol=lf
+*.json     text eol=lf
+*.yaml     text eol=lf
+*.yml      text eol=lf
+*.toml     text eol=lf
+*.js       text eol=lf
+*.mjs      text eol=lf
+*.cjs      text eol=lf
+*.ts       text eol=lf
+*.rs       text eol=lf
+*.sh       text eol=lf
+*.py       text eol=lf
+
+# Windows 전용
+*.ps1      text eol=crlf
+*.bat      text eol=crlf
+*.cmd      text eol=crlf
+
+# 바이너리
+*.png      binary
+*.jpg      binary
+*.jpeg     binary
+*.gif      binary
+*.ico      binary
+*.pdf      binary
+*.zip      binary
+*.gz       binary
+*.tar      binary
+
+# GitHub linguist 분류 보정
+docs/**     linguist-documentation
+runtime/**  linguist-language=Rust
+schemas/**  linguist-language=JSON

@@ -11,7 +11,7 @@ tags: [workflow, review, codex, primary]
 
 # claude-led-codex-review
 
-Claude 가 구현하고 Codex 가 의심하는 7단계 풀사이클. **HARNESS 의 정전 워크플로우.** 사용자 글로벌 룰("확인 후 실행") 우선이라 자동 활성 키워드는 비워두고 명시 호출만 받는다.
+Claude 가 구현하고 Codex 가 의심하는 7단계 풀사이클. **HARNESS 의 정전 워크플로우.** 자동 활성 키워드는 비워두고 명시 호출만 받는다 (사용자 환경의 "확인 후 실행" 류 룰을 우회하지 않기 위함).
 
 ## 호출
 

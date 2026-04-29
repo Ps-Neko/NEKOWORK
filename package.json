@@ -2,8 +2,23 @@
   "name": "@harness/cli",
   "version": "0.0.1",
   "description": "HARNESS — Hybrid Agent Runtime with Native Evaluation, Skills, and Security",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "codex",
+    "ai-agent",
+    "code-review",
+    "second-opinion",
+    "mcp",
+    "harness",
+    "multi-agent"
+  ],
   "license": "MIT",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/<owner>/harness.git"
+  },
   "type": "module",
   "engines": {
     "node": ">=22.0.0"

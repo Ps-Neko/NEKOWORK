@@ -167,7 +167,7 @@ function plan(profileName, harnessFilter) {
     component_count: componentRows.length,
     components: componentRows,
     harness_filter: harnessFilter || null,
-    note: '이것은 dry-run 입니다. 실제 적용은 --apply 와 함께 install-apply.js 로 (Day 5 이후)',
+    note: '이것은 dry-run 입니다. 실제 적용은 install-apply.js (--apply) 로.',
   };
 }
 

@@ -59,3 +59,6 @@ coverage/
 # 기타
 *.tmp
 *.bak
+
+# 개인 작업 노트 (외부 공개 X). CHANGELOG / RUNBOOK 만 docs/ 에 commit.
+docs/dev-log/

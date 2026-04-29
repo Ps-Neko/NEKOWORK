@@ -50,7 +50,7 @@ sandbox: read-only
 
 - 코드 변경 금지 (`disallowedTools` 강제).
 - 추측만으로 결정하지 않는다. fact_forcing 이 발동 시 importer·public API·schema 를 먼저 확인한다.
-- 사용자 글로벌 룰을 우회하지 않는다.
+- 사용자 환경의 글로벌 룰 (있을 경우) 을 우회하지 않는다.
 
 ## 핸드오프
 

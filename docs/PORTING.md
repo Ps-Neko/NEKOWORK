@@ -7,15 +7,15 @@
 
 - 사내 프로젝트는 자체 코드 / 의존성을 가지고 있다. HARNESS 는 **개발 워크플로우 도구**로만 결합한다.
 - 사내 프로젝트의 `CLAUDE.md` / `AGENTS.md` 가 이미 있으면 보존한다 (마커 영역만 자동 갱신).
-- 사용자 글로벌 룰(`C:/Users/ILJIN/.claude/CLAUDE.md`) 우선이라 자동 push / 자동 키워드 활성은 OFF.
+- 사용자 환경에 글로벌 룰(`~/.claude/CLAUDE.md` 등) 이 있으면 그쪽 우선. 자동 push / 자동 키워드 활성은 디폴트 OFF.
 
 ## 1. 결합 방식 3가지
 
-### A. Submodule (가장 단순, 사내 격리 환경 권장)
+### A. Submodule (가장 단순, 격리 환경 권장)
 
 ```bash
-cd D:/claude/<프로젝트>
-git submodule add ../harness .harness-tool
+cd <대상 프로젝트>
+git submodule add <harness 저장소 URL> .harness-tool
 echo ".harness-tool/" >> .gitignore   # tool 자체는 커밋 안 함
 ```
 
@@ -24,25 +24,25 @@ echo ".harness-tool/" >> .gitignore   # tool 자체는 커밋 안 함
 node .harness-tool/scripts/cli.js review "<task>"
 ```
 
-### B. npm dep (사내 npm registry 가 있을 때)
+### B. npm dep
 
 ```bash
-npm i --save-dev @iljin/harness@0.0.x
+npm i --save-dev @harness/cli
 ```
 
 `package.json`:
 ```json
 {
   "scripts": {
-    "harness": "node node_modules/@iljin/harness/scripts/cli.js"
+    "harness": "node node_modules/@harness/cli/scripts/cli.js"
   }
 }
 ```
 
-### C. 글로벌 설치 (개발자별)
+### C. 글로벌 설치
 
 ```bash
-npm i -g @iljin/harness
+npm i -g @harness/cli
 harness install --plan --profile research --harness claude
 ```
 
@@ -66,18 +66,18 @@ node .harness-tool/scripts/install-plan.js \
 
 산출 plan.json 검토. 사내 정책에 맞지 않는 컴포넌트가 있으면 **모듈 단위로 제외**하거나 사내 모듈로 오버라이드.
 
-### Step 3 — 사내 룰 오버라이드
+### Step 3 — 프로젝트 룰 오버라이드
 
-`harness/rules/iljin/` (또는 프로젝트별 rules) 디렉터리 추가:
+`harness/rules/<project-id>/` 디렉터리 추가 (프로젝트별 컨벤션):
 
 ```
-rules/iljin/
-├── coding-style.md       # 사내 컨벤션
-├── security.md           # 사내 보안 정책
-└── data-handling.md      # 사내 데이터 분류 / 마스킹
+rules/<project-id>/
+├── coding-style.md       # 컨벤션
+├── security.md           # 보안 정책
+└── data-handling.md      # 데이터 분류 / 마스킹
 ```
 
-`agent.yaml` 의 modules 에 `rules-iljin` 추가, `manifests/install-modules.json` / `install-components.json` 에 매핑 추가.
+`agent.yaml` 의 modules 에 `rules-<project-id>` 추가, `manifests/install-modules.json` / `install-components.json` 에 매핑 추가.
 
 ### Step 4 — apply
 
@@ -91,7 +91,7 @@ node .harness-tool/scripts/install-apply.js --profile research
 
 ```bash
 node .harness-tool/scripts/cli.js review \
-  "사내 첫 풀사이클 검증" --no-ship --session port-first
+  "첫 풀사이클 검증" --no-ship --session port-first
 ```
 
 7개 핸드오프가 `.harness/state/sessions/port-first/handoffs/` 에 떨어지면 결합 OK.

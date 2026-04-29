@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// HARNESS install --apply : 실제 적용.
-// Day 4 구현: build-claude.js + build-codex.js 호출 + .mcp.json 등록 검증 + state 기록.
+// HARNESS install --apply : plan 단계 검증 → harness 별 빌드 (claude / codex) → install-state 기록 → 마커 검증.
+// 멱등(idempotent). 실패 시 롤백은 git checkout 으로.
 
 import fs from 'node:fs';
 import path from 'node:path';
