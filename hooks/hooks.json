@@ -1,0 +1,44 @@
+{
+  "$schema": "../schemas/hooks.schema.json",
+  "version": "0.0.1",
+  "PreToolUse": [
+    {
+      "matcher": "Bash",
+      "hook": "scripts/pre-bash-dispatcher.js",
+      "timeout_ms": 5000,
+      "env_toggle": "HARNESS_HOOK_PRE_BASH",
+      "comment": "block-no-verify, dev-server-block, commit-quality, push-reminder"
+    },
+    {
+      "matcher": "Edit|Write",
+      "hook": "scripts/gateguard-fact-force.js",
+      "timeout_ms": 8000,
+      "env_toggle": "HARNESS_HOOK_GATEGUARD",
+      "comment": "Edit/Write 직전 importer/API/schema 사실 조사 강제"
+    },
+    {
+      "matcher": "Edit|Write",
+      "hook": "scripts/config-protection.js",
+      "timeout_ms": 1000,
+      "env_toggle": "HARNESS_HOOK_GATEGUARD",
+      "comment": ".env / *.pem / secret 파일 접근 차단"
+    }
+  ],
+  "PostToolUse": [
+    {
+      "matcher": "Edit|Write",
+      "hook": "scripts/quality-gate.js",
+      "timeout_ms": 30000,
+      "env_toggle": "HARNESS_HOOK_QUALITY_GATE",
+      "comment": "포맷·린트·타입체크. 실패 시 다음 도구 호출 차단"
+    }
+  ],
+  "Stop": [
+    {
+      "hook": "scripts/persistent-mode.mjs",
+      "timeout_ms": 5000,
+      "env_toggle": "HARNESS_HOOK_PERSISTENT_MODE",
+      "comment": "active 모드 검사, 영속 재개 신호 drop"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.dev/schemas/routing.schema.json",
+  "title": "Agent Routing Decision Trace",
+  "description": ".harness/state/sessions/<id>/routing.jsonl 의 한 줄 형식",
+  "type": "object",
+  "required": ["timestamp", "stage", "input_summary", "decision"],
+  "additionalProperties": false,
+  "properties": {
+    "timestamp": { "type": "string", "format": "date-time" },
+    "stage": {
+      "enum": ["ideate", "plan", "implement", "self-review", "codex-review", "codex-challenge", "ship"]
+    },
+    "input_summary": { "type": "string", "maxLength": 280 },
+    "decision": {
+      "type": "object",
+      "required": ["agent", "model", "provider"],
+      "additionalProperties": false,
+      "properties": {
+        "agent": { "type": "string" },
+        "model": { "type": "string" },
+        "provider": { "enum": ["claude", "codex", "gemini", "auto"] },
+        "rationale": { "type": "string" }
+      }
+    },
+    "alternatives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["agent", "model"],
+        "properties": {
+          "agent": { "type": "string" },
+          "model": { "type": "string" },
+          "rejected_because": { "type": "string" }
+        }
+      }
+    },
+    "eco_mode": { "type": "boolean" },
+    "risk_level": { "enum": ["low", "medium", "high", "critical"] },
+    "blast_radius": { "type": "integer" }
+  }
+}

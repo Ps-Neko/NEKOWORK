@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.dev/schemas/install-state.schema.json",
+  "title": "Install State",
+  "description": "현재 설치된 컴포넌트 상태를 영속 저장. ~/.harness/install-state.json",
+  "type": "object",
+  "required": ["version", "harness_version", "profile", "installed_at", "components"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "harness_version": { "type": "string" },
+    "profile": { "type": "string" },
+    "installed_at": { "type": "string", "format": "date-time" },
+    "last_updated": { "type": "string", "format": "date-time" },
+    "components": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["installed_at", "source_sha256", "targets"],
+        "additionalProperties": false,
+        "properties": {
+          "installed_at": { "type": "string", "format": "date-time" },
+          "source_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "targets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["harness", "path"],
+              "additionalProperties": false,
+              "properties": {
+                "harness": { "type": "string" },
+                "path": { "type": "string" },
+                "sha256": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
