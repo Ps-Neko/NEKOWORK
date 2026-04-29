@@ -113,7 +113,8 @@ function which(bin) {
   return null;
 }
 
-function extractJson(text) {
+export function extractJson(text) {
+  if (typeof text !== 'string') return null;
   const m = text.match(/```json\s*([\s\S]*?)```/i);
   if (m) return m[1].trim();
   const start = text.indexOf('{');
@@ -136,3 +137,5 @@ function extractJson(text) {
   }
   return null;
 }
+
+export { buildPrompt as _buildPrompt };

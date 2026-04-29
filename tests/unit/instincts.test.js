@@ -1,0 +1,85 @@
+import { strict as assert } from 'node:assert';
+import { test } from 'node:test';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+
+const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-inst-'));
+process.env.HARNESS_HOME = TMP;
+process.env.HARNESS_INSTINCT_PROMOTE_THRESHOLD = '3';
+
+const { record, list, get, promote, prune } = await import('../../scripts/lib/instincts.js');
+
+test('record: 첫 호출 → count=1, confidence=1/3', () => {
+  const r = record({ kind: 'routing', key: 'auth→security-reviewer', summary: '인증 코드 → security-reviewer escalate' });
+  assert.equal(r.count, 1);
+  assert.ok(Math.abs(r.confidence - 1/3) < 0.001);
+});
+
+test('record: 같은 패턴 두 번 → count=2', () => {
+  const r = record({ kind: 'routing', key: 'auth→security-reviewer' });
+  assert.equal(r.count, 2);
+});
+
+test('record: 임계 도달 → confidence=1', () => {
+  const r = record({ kind: 'routing', key: 'auth→security-reviewer' });
+  assert.equal(r.count, 3);
+  assert.equal(r.confidence, 1);
+});
+
+test('list: kind 필터', () => {
+  record({ kind: 'issue-pattern', key: 'sql-injection-login', summary: 'login query 에 injection 가능' });
+  const r = list({ kind: 'routing' });
+  assert.ok(r.length >= 1);
+  assert.ok(r.every(i => i.kind === 'routing'));
+});
+
+test('list: minConfidence', () => {
+  const r = list({ minConfidence: 1 });
+  assert.ok(r.length >= 1);
+  assert.ok(r.every(i => i.confidence >= 1));
+});
+
+test('promote: 임계 미만이면 거절', () => {
+  // sql-injection-login 은 count=1 → confidence < 1
+  const all = list({ kind: 'issue-pattern' });
+  const target = all.find(i => i.key === 'sql-injection-login');
+  assert.ok(target);
+  assert.throws(() => promote(target.id), /confidence/);
+});
+
+test('promote: 임계 도달 → promoted=true', () => {
+  const all = list({ kind: 'routing', minConfidence: 1 });
+  assert.ok(all.length >= 1);
+  const id = all[0].id;
+  const r = promote(id);
+  assert.equal(r.promoted, true);
+  assert.ok(r.promoted_at);
+});
+
+test('prune: dry-run 은 파일 안 지움', () => {
+  const beforeCount = fs.readdirSync(path.join(TMP, 'instincts')).filter(f => f.endsWith('.json')).length;
+  prune({ olderDays: 0, dryRun: true });
+  const afterCount = fs.readdirSync(path.join(TMP, 'instincts')).filter(f => f.endsWith('.json')).length;
+  assert.equal(beforeCount, afterCount);
+});
+
+test('prune: olderDays=0 + 미승격 + confidence<1 → 제거', () => {
+  // sql-injection-login 만 해당.
+  const result = prune({ olderDays: 0, dryRun: false });
+  assert.ok(result.removed.length >= 1, 'removed should include sql-injection-login');
+});
+
+test('get: 존재하지 않는 id → null', () => {
+  assert.equal(get('deadbeef0000'), null);
+});
+
+test('evidence 누적은 최대 20개', () => {
+  for (let i = 0; i < 25; i++) {
+    record({ kind: 'fix-flow', key: 'long-evidence', evidence: { round: i } });
+  }
+  const all = list({ kind: 'fix-flow' });
+  const target = all.find(i => i.key === 'long-evidence');
+  assert.ok(target);
+  assert.ok(target.evidence.length <= 20);
+});

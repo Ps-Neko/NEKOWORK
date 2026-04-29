@@ -19,11 +19,12 @@ Claude Code · Codex CLI · Gemini CLI 를 단일 매니페스트로 통합하�
 node scripts/install-plan.js --profile core
 ```
 
-## 상태
+## 상태 (2026-04-29 기준)
 
-- **Day 1**: 골격, 매니페스트, 스키마, plan stub. `harness install --plan` dry-run 동작.
-- **Week 1 종료 목표**: gateguard-fact-force + quality-gate 훅, 단일 MCP 게이트웨이.
-- **Week 2 종료 목표**: claude-led-codex-review 7단계 풀사이클 자동화.
+- **Week 1 완료**: 골격 + 거버넌스 + 매니페스트 + 11 agents + 5 skills + 5 hooks + MCP 4도구 + gateguard·quality-gate 실 구현.
+- **Week 2 완료**: orchestrator + 4 provider runner (mock/claude/codex/gemini) + lib (severity/router/costs) + MCP 7도구 + ralph 영속 루프 + GitHub Actions 2개 + PORTING 가이드.
+- **Week 3 완료**: 인스팅트 시스템 (record/list/promote/prune) + PoC 이식 시뮬레이터 + live runner extractJson/buildPrompt 단위 테스트.
+- 누적: 4 커밋, ~92 파일, ~10,500 LOC, 단위 테스트 **52/52 PASS**.
 
 ## 문서
 

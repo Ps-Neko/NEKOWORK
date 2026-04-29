@@ -46,9 +46,13 @@ Day 6 시점 옵션:
   wait stop                              데몬 정지
   wait status                            데몬 상태
 
-세션 / 비용
+세션 / 비용 / 인스팅트
   sessions                               목록
-  costs --since=7d [--rows] [--json]     비용 합산 (Day 7)
+  costs --since=7d [--rows] [--json]     비용 합산
+  instincts list [--kind <k>] [--min-confidence <n>] [--json]
+  instincts show <id>
+  instincts promote <id>                 신뢰도 1.0 도달 시만
+  instincts prune [--older-days N] [--dry-run]
 
 기타
   validate, version, help
@@ -133,6 +137,59 @@ function parseReviewArgs(argv) {
     case 'codex-review':
       console.error(`${verb} 단독 호출은 Day 7 에 분리 구현. 지금은 'review' 풀사이클을 쓰세요.`);
       process.exit(2);
+    case 'instincts': {
+      const sub = rest[0] || 'list';
+      const { list: iList, get: iGet, promote: iPromote, prune: iPrune } = await import('./lib/instincts.js');
+      if (sub === 'list') {
+        const minConfArg = (() => {
+          const i = rest.indexOf('--min-confidence');
+          if (i >= 0) return Number(rest[i + 1]);
+          for (const a of rest) if (a.startsWith('--min-confidence=')) return Number(a.slice('--min-confidence='.length));
+          return 0;
+        })();
+        const kindArg = (() => {
+          const i = rest.indexOf('--kind');
+          if (i >= 0) return rest[i + 1];
+          for (const a of rest) if (a.startsWith('--kind=')) return a.slice('--kind='.length);
+          return undefined;
+        })();
+        const rows = iList({ kind: kindArg, minConfidence: minConfArg });
+        if (rest.includes('--json')) console.log(JSON.stringify(rows, null, 2));
+        else {
+          console.log(`총 ${rows.length}건 (kind=${kindArg || 'any'}, min-confidence=${minConfArg})`);
+          for (const r of rows) {
+            const mark = r.promoted ? '[PROMOTED]' : (r.confidence >= 1 ? '[READY]' : '');
+            console.log(`  ${r.id}  ${r.kind.padEnd(15)} count=${String(r.count).padStart(3)} conf=${r.confidence.toFixed(2)} ${mark} ${r.key}`);
+          }
+        }
+      } else if (sub === 'show') {
+        const id = rest[1];
+        if (!id) { console.error('id 필요'); process.exit(2); }
+        const inst = iGet(id);
+        if (!inst) { console.error('없음'); process.exit(1); }
+        console.log(JSON.stringify(inst, null, 2));
+      } else if (sub === 'promote') {
+        const id = rest[1];
+        if (!id) { console.error('id 필요'); process.exit(2); }
+        const r = iPromote(id);
+        console.log(`promoted: ${r.id} (${r.key})`);
+      } else if (sub === 'prune') {
+        const dryRun = rest.includes('--dry-run');
+        const olderArg = (() => {
+          const i = rest.indexOf('--older-days');
+          if (i >= 0) return Number(rest[i + 1]);
+          for (const a of rest) if (a.startsWith('--older-days=')) return Number(a.slice('--older-days='.length));
+          return undefined;
+        })();
+        const r = iPrune({ olderDays: olderArg, dryRun });
+        console.log(`removed=${r.removed.length}, kept=${r.kept}, dry_run=${r.dry_run}`);
+        if (rest.includes('--rows')) for (const x of r.removed) console.log(`  - ${x.id} ${x.kind} ${x.key}`);
+      } else {
+        console.error(`알 수 없는 subverb: ${sub}. list | show <id> | promote <id> | prune`);
+        process.exit(2);
+      }
+      break;
+    }
     case 'costs': {
       const since = (() => {
         const i = rest.indexOf('--since');

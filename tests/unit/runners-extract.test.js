@@ -1,0 +1,103 @@
+// live runner 의 JSON 추출 / prompt 빌더 단위 테스트.
+// Anthropic SDK / codex CLI 미설치 환경에서도 동작 (실 호출 없음).
+
+import { strict as assert } from 'node:assert';
+import { test } from 'node:test';
+import { extractJson as extractClaude, _buildSystem, _buildUserMessage } from '../../scripts/agents/runners/claude.js';
+import { extractJson as extractCodex, _buildPrompt } from '../../scripts/agents/runners/codex.js';
+
+test('extractJson: ```json 펜스 블록', () => {
+  const text = 'before\n```json\n{"verdict":"approve","issues":[]}\n```\nafter';
+  assert.equal(extractClaude(text), '{"verdict":"approve","issues":[]}');
+});
+
+test('extractJson: raw { ... } 첫 매칭', () => {
+  const text = 'noise { "a": 1, "b": "{nested}" } trailing';
+  const json = extractClaude(text);
+  assert.equal(json, '{ "a": 1, "b": "{nested}" }');
+});
+
+test('extractJson: 중첩 객체 깊이 처리', () => {
+  const text = '{"outer":{"inner":{"deep":1}},"x":2}';
+  const json = extractClaude(text);
+  assert.equal(json, text);
+  assert.deepEqual(JSON.parse(json), { outer: { inner: { deep: 1 } }, x: 2 });
+});
+
+test('extractJson: 문자열 안 } 무시', () => {
+  const text = '{"msg":"oops}","n":1}';
+  const json = extractClaude(text);
+  assert.equal(JSON.parse(json).n, 1);
+});
+
+test('extractJson: escape 시 다음 문자 그대로', () => {
+  const text = '{"q":"he said \\"hi\\" } not closed","ok":true}';
+  const json = extractClaude(text);
+  assert.equal(JSON.parse(json).ok, true);
+});
+
+test('extractJson: JSON 없음 → null', () => {
+  assert.equal(extractClaude('no json here'), null);
+  assert.equal(extractClaude(''), null);
+  assert.equal(extractClaude(null), null);
+});
+
+test('claude buildSystem: agent 본문 / sandbox / disallowedTools 포함', () => {
+  const s = _buildSystem({
+    agent: 'code-reviewer', stage: 'self-review',
+    sandbox: 'read-only', disallowedTools: ['Write', 'Edit'],
+    promptBody: 'You are a careful reviewer.',
+  });
+  assert.match(s, /code-reviewer/);
+  assert.match(s, /self-review/);
+  assert.match(s, /read-only/);
+  assert.match(s, /Write, Edit/);
+  assert.match(s, /careful reviewer/);
+});
+
+test('claude buildUserMessage: PRD / diff / priorHandoffs 포함', () => {
+  const u = _buildUserMessage({
+    task: 'JWT 추가',
+    context: {
+      prd: { acceptance: [{ id: 'AC-001' }] },
+      diff: 'diff --git a/x b/x\n+console.log()',
+      priorHandoffs: [{ stage: 'plan', decided: 'AC 3개', files: ['x'], verdict: 'approve' }],
+      round: 2,
+    },
+  });
+  assert.match(u, /JWT 추가/);
+  assert.match(u, /AC-001/);
+  assert.match(u, /console.log/);
+  assert.match(u, /Round 2/);
+  assert.match(u, /Decided: AC 3개/);
+});
+
+test('codex extractJson: 펜스 + raw 모두 동일', () => {
+  const t = '{"verdict":"block","issues":[{"severity":"critical"}]}';
+  assert.equal(extractCodex(t), t);
+  assert.equal(extractCodex('```json\n' + t + '\n```'), t);
+});
+
+test('codex buildPrompt: stage 별 system 프롬프트 분기', () => {
+  const review = _buildPrompt({ stage: 'codex-review', context: { diff: 'x' } });
+  assert.match(review, /시니어 리뷰어/);
+  const challenge = _buildPrompt({ stage: 'codex-challenge', context: { diff: 'x' } });
+  assert.match(challenge, /적대적/);
+});
+
+test('codex buildPrompt: PRD 포함', () => {
+  const p = _buildPrompt({
+    stage: 'codex-review',
+    context: { prd: { task: 'X' }, priorHandoffs: [{ stage: 'self-review', decided: 'OK', files: [], verdict: 'approve' }] },
+  });
+  assert.match(p, /## PRD/);
+  assert.match(p, /Verdict: approve/);
+});
+
+test('큰 diff 는 30000자에서 잘림 (codex)', () => {
+  const huge = 'x'.repeat(50000);
+  const p = _buildPrompt({ stage: 'codex-review', context: { diff: huge } });
+  // diff 영역만 측정 — 전체 prompt 길이는 30000 + 헤더로 컴팩트
+  assert.ok(p.length < huge.length);
+  assert.ok(p.length < 35000);
+});
