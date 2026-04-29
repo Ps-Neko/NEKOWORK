@@ -246,8 +246,34 @@ v1은 `0600` 권한 파일. **OS keychain(macOS Keychain / Windows Credential Ma
 
 CI는 사용자 세션이 없으므로 모든 provider를 vault 경로로 처리. GitHub Actions의 `GITHUB_TOKEN`은 자동 발급되어 단명, OAuth flow와 동등 취급. Anthropic/OpenAI는 secret으로 주입하되 `HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1` 명시.
 
-## 8. 변경 이력
+## 8. Post-merge smoke checklist
+
+본 마이그레이션의 **사용자 정의 acceptance criteria**. PR #1-#3 모두 머지된 후 사용자 환경에서 직접 실행. **4개 모두 통과 시 마이그레이션 성공**으로 간주.
+
+```bash
+# 1. Claude 구독 OAuth 세션 살아있는지
+claude /status
+
+# 2. subscription override 가드 동작 — 차단되어야 함
+export ANTHROPIC_API_KEY=dummy
+harness review "<task>"
+# 기대: pre-bash-dispatcher 가
+#   "구독 보호: ... ANTHROPIC_API_KEY 가 환경에 설정되어 있습니다 ..."
+# 메시지로 차단 (exit 2)
+
+# 3. GitHub OAuth Device Flow — 사전: HARNESS_GITHUB_CLIENT_ID 설정
+npm run auth:github:login
+npm run auth:github:status                # backend / scope / 유효성 확인
+
+# 4. OS keychain 종단 검증
+HARNESS_KEYCHAIN_SMOKE=1 npm run test:keychain
+```
+
+PR #4 (codex 0.125+ 호환) 는 본 smoke 와 무관 — 별도 검증 (`npm run verify:codex`).
+
+## 9. 변경 이력
 
 | 일자 | Phase | 비고 |
 |---|---|---|
 | 2026-04-29 | 1-5 | 본 문서 작성. 5개 PR 단위 진행 예정. |
+| 2026-04-30 | 1-3 | 4-stack PR (#1-#3 auth + #4 codex 호환) CI 통과. §8 acceptance criteria 추가. |
