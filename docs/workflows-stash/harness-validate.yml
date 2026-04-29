@@ -1,0 +1,44 @@
+name: harness-validate
+
+# 매 push / PR 마다 매니페스트·카탈로그·테스트 빠른 검증. 5분 이내 완료 목표.
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci --no-audit --no-fund
+
+      - name: 매니페스트·카탈로그 검증
+        run: |
+          node scripts/install-plan.js --profile core --verbose
+          node scripts/install-plan.js --profile developer
+          node scripts/install-plan.js --profile security
+          node scripts/install-plan.js --profile research
+          node scripts/install-plan.js --profile full
+          node scripts/ci/catalog.js
+          node scripts/ci/check-markers.js
+
+      - name: 단위 테스트
+        run: |
+          node --test tests/unit/severity.test.js \
+                       tests/unit/router.test.js \
+                       tests/unit/costs.test.js \
+                       tests/unit/orchestrator.test.js
+
+      - name: 빌드 산출물
+        run: |
+          node scripts/build-claude.js
+          node scripts/build-codex.js
