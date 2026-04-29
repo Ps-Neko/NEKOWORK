@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Week 5: GitHub 공개 준비
+- 개인정보 / 1인 환경 가정 제거: `agent.yaml` authors / homepage 익명화, `package.json` 에 `keywords`/`repository` placeholder 추가, `scripts/build-claude.js` 의 plugin.json 빌더에서 hardcoded author 제거
+- 외부 컨트리뷰터 인프라: LICENSE (MIT), CONTRIBUTING.md, SECURITY.md (위협 모델 + 보안 보고 채널), CODE_OF_CONDUCT.md, .gitattributes (LF 통일 → CRLF 워닝 0)
+- README.md 외부 사용자 관점 재작성 (영문 메인 + 한국어 보조 dual)
+- 거버넌스 문서 일반화: "한국어 응답 강제" → "프로젝트 디폴트 한국어, 외부 영어 PR 환영", "사용자 글로벌 룰 우선" → "사용자 환경의 글로벌 룰 (있을 경우) 우선"
+- `WORKING-CONTEXT.md` 일반 템플릿화. 1인 작업 누적 로그는 `docs/dev-log/` 로 이동 후 `.gitignore`
+- stub 메시지 정리: `install-plan.js` / `install-apply.js` 의 "Day 5 이후" 흔적 제거
+
 ### Week 5 후보 (docs/AUDIT.md 우선순위 P0~P2)
 - P0: Anthropic SDK 1회 실 호출 검증 (사용자 API 키 동의)
 - P0: 사내 PoC 비파괴 결합 (사용자 명시 시점에 디렉터리 결정)

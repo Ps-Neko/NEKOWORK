@@ -10,7 +10,7 @@ tags: [release, pr]
 
 # ship
 
-claude-led-codex-review 단계 7. 사용자 룰("git push 사용자 확인") 우선이라 자동 push 안 함.
+claude-led-codex-review 단계 7. 자동 push 는 하지 않는다 (사용자 / CI 환경에서 명시 트리거).
 
 ## 사전 조건 (모두 PASS 필요)
 
@@ -30,7 +30,7 @@ claude-led-codex-review 단계 7. 사용자 룰("git push 사용자 확인") 우
 2. doc-writer 가 `docs/CHANGELOG.md` 갱신 (`feat / fix / ...` 접두사).
 3. doc-writer 가 `WORKING-CONTEXT.md` 의 "Latest Execution Notes" 갱신.
 4. git-master (Day 6 이후) 가 브랜치 생성 + 핸드오프 7개 첨부 + PR 초안 등록.
-5. **자동 머지 / push 금지** — 사용자 룰 우선.
+5. **자동 머지 / push 금지** — 사용자 또는 CI 가 명시 트리거.
 6. `handoffs/07-ship.md` 작성.
 
 ## 출력

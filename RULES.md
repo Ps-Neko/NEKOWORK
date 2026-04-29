@@ -4,43 +4,47 @@
 
 ## Must Always
 
-- 모든 응답·산출물은 한국어로 작성한다.
+- 프로젝트 디폴트 자연어는 한국어. 외부 컨트리뷰터는 영어도 가능.
 - 모든 자동 수정은 quality-gate → self-review → codex-review 순서로 검증한다.
 - 모든 도구 호출은 `.harness/audit/<date>.jsonl` 에 기록한다.
 - 모든 MCP 서버는 SemVer 핀(`@x.y.z`)으로 명시한다. `@latest` 금지.
 - `Edit` / `Write` 직전 `gateguard-fact-force` 가 사실 조사를 강제한다.
 - 핸드오프는 5필드(Decided / Rejected / Risks / Files / Remaining)를 지킨다.
 - 커밋 메시지는 `feat / fix / docs / refactor / test / chore / perf / ci` 접두사를 쓴다.
-- 80% 이상 테스트 커버리지를 유지한다.
+- 80% 이상 테스트 커버리지를 유지한다 (`tests/unit/` 단위 / `tests/integration/` 통합).
 
 ## Must Never
 
-- 사용자 글로벌 룰을 우회하지 않는다 (`C:\Users\ILJIN\.claude\CLAUDE.md` 우선).
+- 사용자 환경의 글로벌 룰 (각 사용자의 `~/.claude/CLAUDE.md` 등) 을 우회하지 않는다 — 외부 룰이 있으면 그쪽이 우선.
 - `git push --force`, `git reset --hard`, `rm -rf` 를 자동 실행하지 않는다.
 - `--no-verify` 로 hook 을 건너뛰지 않는다.
-- secret 을 코드에 하드코딩하지 않는다.
+- secret 을 코드에 하드코딩하지 않는다 (config-protection hook 으로도 차단됨).
 - Codex 와 Claude 의 컨텍스트를 직접 공유하지 않는다 (핸드오프 문서로만).
 - severity ≥ HIGH 또는 round ≥ 3 발견 시 사람 승인 없이 머지하지 않는다.
-- 184개 스킬을 한꺼번에 카탈로그에 넣지 않는다 (progressive 확장).
+- 한꺼번에 수백 개의 스킬을 카탈로그에 넣지 않는다 (progressive 확장 — `docs/AUDIT.md` §6).
 
 ## Format Specs
 
 ### Agent
 - 위치: `agents/<name>.md`
 - frontmatter 필수: `name, description, model, level, provider, disallowedTools`
+- schema: `schemas/agent.schema.json`
 
 ### Skill
 - 위치: `skills/<name>/SKILL.md`
 - frontmatter 필수: `name, description, origin, level`
+- schema: `schemas/skill.schema.json`
 
 ### Hook
 - 위치: `hooks/hooks.json` (단일 정의) + `hooks/scripts/*.{js,mjs}`
 - ENV 토글 필수 (`HARNESS_HOOK_<NAME>=1`)
+- schema: `schemas/hooks.schema.json`
 
 ### Handoff
 - 위치: `.harness/state/sessions/<id>/handoffs/<NN>-<stage>.md`
 - 5필드 고정: Decided / Rejected / Risks / Files / Remaining
 - 10~20줄 한도
+- JSON 부속: `schemas/handoff.schema.json`
 
 ## 변경 절차
 
