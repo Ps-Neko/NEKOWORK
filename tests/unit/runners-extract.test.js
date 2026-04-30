@@ -4,7 +4,7 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 import { extractJson as extractClaude, _buildSystem, _buildUserMessage } from '../../scripts/agents/runners/claude.js';
-import { extractJson as extractCodex, _buildPrompt } from '../../scripts/agents/runners/codex.js';
+import { extractJson as extractCodex, _buildPrompt, _normalizeHandoff } from '../../scripts/agents/runners/codex.js';
 
 test('extractJson: ```json 펜스 블록', () => {
   const text = 'before\n```json\n{"verdict":"approve","issues":[]}\n```\nafter';
@@ -100,4 +100,24 @@ test('큰 diff 는 30000자에서 잘림 (codex)', () => {
   // diff 영역만 측정 — 전체 prompt 길이는 30000 + 헤더로 컴팩트
   assert.ok(p.length < huge.length);
   assert.ok(p.length < 35000);
+});
+
+test('codex normalizeHandoff: PascalCase live 응답을 handoff schema 로 정규화', () => {
+  const h = _normalizeHandoff({
+    Decided: 'request_changes',
+    Rejected: 'self-review approve',
+    Risks: [
+      { severity: 'critical', file: 'auth/login.js', issue: 'Plaintext password is written to logs.' },
+      { severity: 'high', file: 'auth/login.js', issue: 'Unparameterized SQL query.' },
+    ],
+    Files: ['auth/login.js'],
+    Remaining: 'Fix before shipping.',
+  });
+  assert.equal(h.decided, 'request_changes');
+  assert.equal(h.rejected, 'self-review approve');
+  assert.deepEqual(h.files, ['auth/login.js']);
+  assert.equal(h.issues.length, 2);
+  assert.equal(h.issues[0].severity, 'critical');
+  assert.equal(h.issues[0].category, 'security');
+  assert.equal(h.verdict, 'block');
 });

@@ -44,7 +44,7 @@ try {
 
   const issues = result.issues || [];
   const verdict = result.verdict;
-  const validVerdicts = ['approve', 'fix', 'gate', 'block'];
+  const validVerdicts = ['approve', 'approve_with_fixes', 'block'];
   if (!validVerdicts.includes(verdict)) {
     throw new Error(`unexpected verdict: ${verdict} (expected one of: ${validVerdicts.join(', ')})`);
   }

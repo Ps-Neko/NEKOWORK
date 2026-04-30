@@ -13,17 +13,20 @@
 - `scripts/lib/keychain.js` — `@napi-rs/keyring` wrapper (Windows Credential Manager / macOS Keychain / Linux Secret Service 통일 API).
 - `tests/unit/token-vault.test.js`, `tests/optional/keychain-smoke.test.js` (`HARNESS_KEYCHAIN_SMOKE=1` 게이트).
 - `docs/AUTH-MIGRATION.md` — 정책 / 단계별 마이그레이션 / 사용자 가이드 / 보안 노트 / smoke checklist (§8).
+- `scripts/agents/runners/codex.js` — Codex CLI 0.125 live 응답의 PascalCase handoff(`Decided`/`Risks`/`Files`)를 내부 schema(`decided`/`issues`/`files`/`verdict`)로 정규화.
 
 ### Changed (Auth migration)
 - `.env.example` — LLM API key 슬롯 제거, `HARNESS_GITHUB_CLIENT_ID` 신설, `GITHUB_TOKEN` 은 fallback 격하, Context7/Exa 는 vault 권장 안내.
 - `docs/RUNBOOK.md` — §0/§4/§10 인증 안내를 OAuth 위임 기반으로 갱신.
 - `docs/ARCHITECTURE.md` — auth 섹션 정합.
+- README / AUDIT / RUNBOOK / SETUP / PORTING — 현재 로컬 테스트 현황을 83/83 PASS (66 unit + 10 integration + 7 e2e) 로 정합화하고, mock 기준 MVP와 live 미검증 영역을 분리 표기.
 
 ### Smoke (acceptance criteria, 2026-04-30)
 - ✅ #1 `claude /status` — Login: **Claude Max account**, API Key 미사용.
 - ✅ #2 `pre-bash-dispatcher` 차단 — 3 케이스 (차단 exit 2 / 통과 exit 0 / 옵트아웃 exit 0).
 - ⏸ #3 GitHub OAuth Device Flow — OAuth App 미등록, 실제 GitHub automation 사용 시점에 수행 결정.
 - ✅ #4 OS keychain (Windows Credential Manager) — set/get/remove 사이클 9.4ms.
+- ✅ Codex CLI live smoke — `codex-cli 0.125.0`, `node scripts/verify/codex-live.js` PASS (`verdict=block`, issues=2). Live 응답의 PascalCase handoff 정규화 추가.
 
 ### 머지 흔적
 - main: `60e9de9` → `7c4f2c8` (+4 commits, rebase merge).
@@ -34,7 +37,7 @@
 
 ### 다음 후보 (`docs/AUDIT.md §5` + `docs/dev-log/2026-04-29-p1-recovery.md §6` 참조)
 - **P0** (사용자 동의): Anthropic SDK live 1회, ~~GitHub push + Actions 실 동작~~ (auth migration 머지로 수행됨), 사내 PoC 결합
-- **P2** (외부 의존): Rust runtime 컴파일, Codex CLI / Gemini CLI live 검증, npm publish 결정
+- **P2** (외부 의존): Rust runtime 컴파일, Gemini CLI live 검증, npm publish 결정
 - **P3** (사내 임팩트, 사용자 명시 시): 사내 풀 결합, `runners/internal.js` 사내 LLM, 사내 GitLab CI 가이드
 - **Auth**: smoke #3 (GitHub OAuth Device Flow) — OAuth App 등록 후 `HARNESS_GITHUB_CLIENT_ID` 설정 → `npm run auth:github:login` 실연.
 
@@ -63,7 +66,7 @@
   - `agent.yaml.harnesses[].name` 전부를 빌드 (이전엔 `['claude', 'codex']` 하드코딩).
   - `source_sha256` 을 placeholder `0`*64 → 카탈로그 입력 (`agent.yaml + agents/ + skills/ + commands/ + hooks/ + manifests/`) 의 실 sha256.
   - `targets[].sha256` 추가 — 출력 디렉터리의 실 sha256.
-- `package.json` — `lint` / `test` 가 실 명령 매핑 (`catalog + validate:all` / 73 테스트). `test:unit` / `test:integration` / `test:e2e` 분리. `build:codemaps` 추가.
+- `package.json` — `lint` / `test` 가 실 명령 매핑 (`catalog + validate:all` / 73 테스트, auth migration 이후 82 테스트, Codex 정규화 이후 83 테스트). `test:unit` / `test:integration` / `test:e2e` 분리. `build:codemaps` 추가.
 - `scripts/ci/catalog.js` — 경고 메시지의 "(Day 2 에 작성 예정)" 등 stub 흔적 제거.
 - `scripts/cli.js`, `bridge/mcp-server.js`, `hooks/scripts/pre-bash-dispatcher.js`, `scripts/daemon/wait.js`, `scripts/orchestrators/ralph.js` — "Day N" 코멘트 흔적 정리.
 - `CLAUDE.md` / `.claude/CLAUDE.md` — 자동 영역 마커 정합 + 카탈로그 컨텐츠 갱신.
