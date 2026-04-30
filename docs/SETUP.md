@@ -14,7 +14,7 @@
 git clone https://github.com/Ps-Neko/NEKOWORK.git harness
 cd harness
 npm ci
-npm test                                          # 83/83 PASS 기대
+npm test                                          # 84/84 PASS 기대
 node scripts/install-plan.js --profile core      # 설치 dry-run
 ```
 
@@ -42,14 +42,17 @@ npm run verify:codex
 > ℹ️ codex CLI 0.125.0 기준 stdout 형식이 `user\n<prompt echo>\n\ncodex\n<응답>` 으로 변경됨.
 > `scripts/agents/runners/codex.js` 의 `runCodex` 가 `\ncodex\n` 라벨 이후만 파싱하도록 처리.
 
-### 2. Anthropic SDK live (Claude 단계 활성화)
+### 2. Claude Code CLI live (Claude 단계 활성화, API key 비권장 기본값)
 
 ```bash
-export ANTHROPIC_API_KEY="sk-ant-..."
+claude auth status                               # authMethod=claude.ai 확인
+npm run verify:claude                            # 구독 OAuth 세션으로 1회 smoke
 node scripts/cli.js review "<task>" --live --no-ship
 ```
 
-비용: 1회 풀사이클 약 ~$0.10 (PRD 사이즈 의존). 키 미설정 시 자동 mock 폴백.
+기본 runner 는 `claude -p` 를 호출하므로 Claude Pro/Max 구독 세션을 사용한다.
+`ANTHROPIC_API_KEY` 는 기본 경로에 필요 없다. SDK/API-key 경로가 꼭 필요할 때만
+`HARNESS_CLAUDE_RUNNER=sdk` 와 `ANTHROPIC_API_KEY` 를 명시한다.
 
 ### 3. Gemini CLI live (research agent)
 
@@ -75,7 +78,8 @@ cargo build --release
 ### 5. GitHub Actions live (PR 자동 7단계 리뷰)
 
 ```bash
-# 레포 secret 등록 (관리자만)
+# GitHub-hosted Actions 에서 direct Anthropic API 를 쓰려면 별도 secret 이 필요.
+# 로컬/자체 runner 에서는 Claude Code CLI 로그인 세션을 권장.
 gh secret set ANTHROPIC_API_KEY -R <owner>/<repo>
 ```
 

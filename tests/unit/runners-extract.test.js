@@ -1,9 +1,15 @@
 // live runner 의 JSON 추출 / prompt 빌더 단위 테스트.
-// Anthropic SDK / codex CLI 미설치 환경에서도 동작 (실 호출 없음).
+// Claude/Codex live runner 파싱 테스트. 실 LLM 호출 없음.
 
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
-import { extractJson as extractClaude, _buildSystem, _buildUserMessage } from '../../scripts/agents/runners/claude.js';
+import {
+  extractJson as extractClaude,
+  _buildSystem,
+  _buildUserMessage,
+  _parseCliJson,
+  _normalizeCliUsage,
+} from '../../scripts/agents/runners/claude.js';
 import { extractJson as extractCodex, _buildPrompt, _normalizeHandoff } from '../../scripts/agents/runners/codex.js';
 
 test('extractJson: ```json 펜스 블록', () => {
@@ -70,6 +76,23 @@ test('claude buildUserMessage: PRD / diff / priorHandoffs 포함', () => {
   assert.match(u, /console.log/);
   assert.match(u, /Round 2/);
   assert.match(u, /Decided: AC 3개/);
+});
+
+test('claude CLI wrapper: result JSON 과 usage 를 파싱', () => {
+  const wrapper = _parseCliJson(JSON.stringify({
+    type: 'result',
+    result: '{"decided":"OK","files":["a.js"],"verdict":"approve"}',
+    usage: {
+      input_tokens: 1,
+      output_tokens: 2,
+      iterations: [{ input_tokens: 3, output_tokens: 4 }],
+    },
+  }));
+  assert.equal(wrapper.result, '{"decided":"OK","files":["a.js"],"verdict":"approve"}');
+
+  const usage = _normalizeCliUsage(wrapper.usage);
+  assert.equal(usage.input_tokens, 3);
+  assert.equal(usage.output_tokens, 4);
 });
 
 test('codex extractJson: 펜스 + raw 모두 동일', () => {
