@@ -14,7 +14,7 @@
 git clone https://github.com/Ps-Neko/NEKOWORK.git harness
 cd harness
 npm ci
-npm test                                          # 73/73 PASS 기대
+npm test                                          # 83/83 PASS 기대
 node scripts/install-plan.js --profile core      # 설치 dry-run
 ```
 

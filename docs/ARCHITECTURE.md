@@ -309,9 +309,9 @@ node scripts/sync-claude-md.js  → CLAUDE.md 마커 영역 갱신
 2. ✓ `gateguard-fact-force` 활성, Edit 전 사실 조사 강제
 3. ✓ critical 자동 fix → re-review 1회 루프
 4. ✓ `.harness/state/sessions/<id>/` 영속, 핸드오프 7개 파일
-5. ✓ 80% 커버리지 게이트 (단위 테스트 56/56 PASS)
+5. ✓ 80% 커버리지 게이트 (현재 로컬 test suite 83/83 PASS)
 
-**MVP 100% 충족.** PR 코멘트는 Actions 가 mock 동작 — 실 push 후 검증은 P0.
+**MVP 100% 충족.** 단 이는 mock provider + 로컬 검증 기준이다. PR 코멘트는 Actions 가 mock 동작 — 실 push 후 live 검증은 P0.
 
 ## 13. 확장 로드맵
 
