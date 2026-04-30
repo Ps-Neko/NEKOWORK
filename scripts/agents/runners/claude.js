@@ -1,32 +1,37 @@
-// Claude runner: Anthropic SDK 직접 호출.
-// 환경 변수 필요: ANTHROPIC_API_KEY.
-// 미보유 시 throw → 오케스트레이터가 mock 으로 fallback (메시지와 함께).
-//
-// 모델은 agent frontmatter 의 model 필드 (opus / sonnet / haiku) 를
-// 실제 모델 ID 로 매핑.
+// Claude runner.
+// Default live mode uses the local Claude Code CLI subscription/OAuth session.
+// Set HARNESS_CLAUDE_RUNNER=sdk to opt into Anthropic SDK/API-key mode.
+
+import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const MODEL_MAP = {
-  opus:   'claude-opus-4-7',
+  opus: 'claude-opus-4-7',
   sonnet: 'claude-sonnet-4-6',
-  haiku:  'claude-haiku-4-5-20251001',
+  haiku: 'claude-haiku-4-5-20251001',
 };
 
 export async function runClaude(args) {
+  const runner = (process.env.HARNESS_CLAUDE_RUNNER || 'cli').toLowerCase();
+  if (runner === 'sdk') return runClaudeSdk(args);
+  return runClaudeCli(args);
+}
+
+async function runClaudeSdk(args) {
   if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error('ANTHROPIC_API_KEY 미설정. --live 모드는 API 키 필요. 또는 --provider=mock 사용.');
+    throw new Error('ANTHROPIC_API_KEY is required when HARNESS_CLAUDE_RUNNER=sdk. Use Claude Code CLI login for the default runner.');
   }
 
-  // SDK 동적 import (의존성 미설치 환경에서도 mock fallback 가능하도록).
   let Anthropic;
   try {
     ({ default: Anthropic } = await import('@anthropic-ai/sdk'));
   } catch {
-    throw new Error('@anthropic-ai/sdk 미설치. npm i @anthropic-ai/sdk 후 다시 시도.');
+    throw new Error('@anthropic-ai/sdk is not installed. Install it or use the default Claude Code CLI runner.');
   }
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const modelId = MODEL_MAP[args.model] || args.model;
-
   const systemPrompt = buildSystem(args);
   const userPrompt = buildUserMessage(args);
 
@@ -37,19 +42,50 @@ export async function runClaude(args) {
     messages: [{ role: 'user', content: userPrompt }],
   });
 
-  // 본문 텍스트 추출
   const text = resp.content.map(b => (b.type === 'text' ? b.text : '')).join('').trim();
-
-  // JSON 첫 블록 추출 (```json ... ``` 또는 raw JSON)
   const jsonText = extractJson(text);
   if (!jsonText) {
-    throw new Error('Claude 응답에서 JSON 을 찾지 못함. raw:\n' + text.slice(0, 500));
+    throw new Error('Claude SDK response did not contain JSON. raw:\n' + text.slice(0, 500));
   }
 
   let parsed;
   try { parsed = JSON.parse(jsonText); }
-  catch (e) { throw new Error('Claude 응답 JSON 파싱 실패: ' + e.message); }
+  catch (e) { throw new Error('Claude SDK response JSON parse failed: ' + e.message); }
 
+  return parsed;
+}
+
+async function runClaudeCli(args) {
+  const claudeBin = which('claude');
+  if (!claudeBin) {
+    throw new Error('claude CLI is not installed. Install/login to Claude Code, or explicitly use HARNESS_CLAUDE_RUNNER=sdk with ANTHROPIC_API_KEY.');
+  }
+
+  const systemPrompt = buildSystem(args);
+  const userPrompt = buildUserMessage(args);
+  const modelId = MODEL_MAP[args.model] || args.model;
+  const cliArgs = [
+    '-p',
+    '--output-format', 'json',
+    '--no-session-persistence',
+    '--tools', '',
+    '--model', modelId,
+    '--system-prompt', systemPrompt,
+  ];
+
+  const stdout = await spawnAndCollect(claudeBin, cliArgs, userPrompt);
+  const wrapper = parseCliJson(stdout);
+  const text = typeof wrapper?.result === 'string' ? wrapper.result : stdout;
+  const jsonText = extractJson(text);
+  if (!jsonText) {
+    throw new Error('Claude CLI response did not contain JSON. raw:\n' + text.slice(0, 500));
+  }
+
+  let parsed;
+  try { parsed = JSON.parse(jsonText); }
+  catch (e) { throw new Error('Claude CLI response JSON parse failed: ' + e.message); }
+
+  if (wrapper?.usage) parsed.usage = normalizeCliUsage(wrapper.usage);
   return parsed;
 }
 
@@ -69,7 +105,7 @@ ${a.promptBody}`;
 function buildUserMessage(a) {
   const lines = [];
   lines.push('## Task');
-  lines.push(a.task || '(없음)');
+  lines.push(a.task || '(none)');
   lines.push('');
   if (a.context?.prd) {
     lines.push('## PRD');
@@ -84,7 +120,7 @@ function buildUserMessage(a) {
     lines.push('```');
   }
   if (a.context?.priorHandoffs?.length) {
-    lines.push('## 이전 단계 핸드오프 (요약)');
+    lines.push('## Prior handoffs');
     for (const h of a.context.priorHandoffs) {
       lines.push(`### ${h.stage}`);
       lines.push(`Decided: ${h.decided}`);
@@ -94,15 +130,11 @@ function buildUserMessage(a) {
     }
   }
   if (a.context?.round && a.context.round > 1) {
-    lines.push(`## Round ${a.context.round} — 이전 round 의 issues 를 고려하라.`);
+    lines.push(`## Round ${a.context.round}: consider unresolved issues from earlier rounds.`);
   }
   return lines.join('\n');
 }
 
-// 응답 텍스트에서 첫 JSON 객체 추출. 다음 우선순위:
-//   1. ```json ... ``` 펜스 블록
-//   2. raw { ... } 매칭 (escape / string 인식)
-// export 해서 단위 테스트 가능하게.
 export function extractJson(text) {
   if (typeof text !== 'string') return null;
   const m = text.match(/```json\s*([\s\S]*?)```/i);
@@ -129,4 +161,75 @@ export function extractJson(text) {
   return null;
 }
 
-export { buildSystem as _buildSystem, buildUserMessage as _buildUserMessage };
+function spawnAndCollect(bin, args, stdin) {
+  return new Promise((resolve, reject) => {
+    const child = spawnClaudeProcess(bin, args);
+    let out = '', err = '';
+    const timeout = setTimeout(() => {
+      try { child.kill(); } catch {}
+      reject(new Error('claude timeout'));
+    }, Number(process.env.HARNESS_CLAUDE_TIMEOUT_S || 180) * 1000);
+    child.stdout.on('data', (d) => (out += d.toString()));
+    child.stderr.on('data', (d) => (err += d.toString()));
+    child.on('error', (err) => {
+      clearTimeout(timeout);
+      reject(err);
+    });
+    child.on('close', (code) => {
+      clearTimeout(timeout);
+      if (code !== 0) reject(new Error(`claude exit ${code}\nstderr:\n${err}`));
+      else resolve(out);
+    });
+    child.stdin.end(stdin);
+  });
+}
+
+function spawnClaudeProcess(bin, args) {
+  const isWinShim = process.platform === 'win32' && /\.(cmd|bat)$/i.test(bin);
+  if (!isWinShim) {
+    return spawn(bin, args, { stdio: ['pipe', 'pipe', 'pipe'] });
+  }
+
+  const comspec = process.env.ComSpec || 'cmd.exe';
+  return spawn(comspec, ['/d', '/c', bin, ...args], { stdio: ['pipe', 'pipe', 'pipe'] });
+}
+
+function which(bin) {
+  const sep = process.platform === 'win32' ? ';' : ':';
+  const exts = process.platform === 'win32'
+    ? (process.env.PATHEXT || '.EXE;.CMD;.BAT').split(';').map(e => e.toLowerCase())
+    : [''];
+  for (const dir of (process.env.PATH || '').split(sep)) {
+    if (!dir) continue;
+    for (const x of exts) {
+      const full = path.join(dir, bin + x);
+      if (fs.existsSync(full)) return full;
+    }
+  }
+  return null;
+}
+
+function parseCliJson(stdout) {
+  const text = String(stdout || '').trim();
+  if (!text) return null;
+  try { return JSON.parse(text); }
+  catch { return null; }
+}
+
+function normalizeCliUsage(usage) {
+  const last = Array.isArray(usage.iterations) ? usage.iterations.at(-1) : null;
+  return {
+    input_tokens: Number(last?.input_tokens ?? usage.input_tokens ?? 0),
+    output_tokens: Number(last?.output_tokens ?? usage.output_tokens ?? 0),
+    cache_creation_input_tokens: Number(last?.cache_creation_input_tokens ?? usage.cache_creation_input_tokens ?? 0),
+    cache_read_input_tokens: Number(last?.cache_read_input_tokens ?? usage.cache_read_input_tokens ?? 0),
+    total_cost_usd: Number(usage.total_cost_usd ?? 0),
+  };
+}
+
+export {
+  buildSystem as _buildSystem,
+  buildUserMessage as _buildUserMessage,
+  parseCliJson as _parseCliJson,
+  normalizeCliUsage as _normalizeCliUsage,
+};

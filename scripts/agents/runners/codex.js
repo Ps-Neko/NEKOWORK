@@ -100,18 +100,22 @@ function spawnAndCollect(bin, args, stdin) {
   return new Promise((resolve, reject) => {
     const child = spawnCodexProcess(bin, args);
     let out = '', err = '';
+    const timeout = setTimeout(() => {
+      try { child.kill(); } catch {}
+      reject(new Error('codex timeout'));
+    }, Number(process.env.HARNESS_CODEX_TIMEOUT_S || 180) * 1000);
     child.stdout.on('data', (d) => (out += d.toString()));
     child.stderr.on('data', (d) => (err += d.toString()));
-    child.on('error', reject);
+    child.on('error', (err) => {
+      clearTimeout(timeout);
+      reject(err);
+    });
     child.on('close', (code) => {
+      clearTimeout(timeout);
       if (code !== 0) reject(new Error(`codex exit ${code}\nstderr:\n${err}`));
       else resolve(out);
     });
     child.stdin.end(stdin);
-    setTimeout(() => {
-      try { child.kill(); } catch {}
-      reject(new Error('codex timeout'));
-    }, Number(process.env.HARNESS_CODEX_TIMEOUT_S || 180) * 1000);
   });
 }
 

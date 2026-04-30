@@ -14,15 +14,18 @@
 - `tests/unit/token-vault.test.js`, `tests/optional/keychain-smoke.test.js` (`HARNESS_KEYCHAIN_SMOKE=1` 게이트).
 - `docs/AUTH-MIGRATION.md` — 정책 / 단계별 마이그레이션 / 사용자 가이드 / 보안 노트 / smoke checklist (§8).
 - `scripts/agents/runners/codex.js` — Codex CLI 0.125 live 응답의 PascalCase handoff(`Decided`/`Risks`/`Files`)를 내부 schema(`decided`/`issues`/`files`/`verdict`)로 정규화.
+- `scripts/verify/claude-live.js` / `npm run verify:claude` — Claude Code CLI 구독 OAuth 세션 기반 live smoke. API key 없이 runner 파싱 검증.
 
 ### Changed (Auth migration)
 - `.env.example` — LLM API key 슬롯 제거, `HARNESS_GITHUB_CLIENT_ID` 신설, `GITHUB_TOKEN` 은 fallback 격하, Context7/Exa 는 vault 권장 안내.
 - `docs/RUNBOOK.md` — §0/§4/§10 인증 안내를 OAuth 위임 기반으로 갱신.
 - `docs/ARCHITECTURE.md` — auth 섹션 정합.
-- README / AUDIT / RUNBOOK / SETUP / PORTING — 현재 로컬 테스트 현황을 83/83 PASS (66 unit + 10 integration + 7 e2e) 로 정합화하고, mock 기준 MVP와 live 미검증 영역을 분리 표기.
+- README / AUDIT / RUNBOOK / SETUP / PORTING — 현재 로컬 테스트 현황을 84/84 PASS (67 unit + 10 integration + 7 e2e) 로 정합화하고, mock 기준 MVP와 live 미검증 영역을 분리 표기.
+- `scripts/agents/runners/claude.js` — 기본 live runner 를 Anthropic SDK/API-key 에서 Claude Code CLI(`claude -p`) 위임으로 전환. SDK 경로는 `HARNESS_CLAUDE_RUNNER=sdk` 명시 시에만 사용.
 
 ### Smoke (acceptance criteria, 2026-04-30)
 - ✅ #1 `claude /status` — Login: **Claude Max account**, API Key 미사용.
+- ✅ Claude Code CLI live smoke — `claude 2.1.123`, `npm run verify:claude` PASS (`verdict=approve`, API key 미사용).
 - ✅ #2 `pre-bash-dispatcher` 차단 — 3 케이스 (차단 exit 2 / 통과 exit 0 / 옵트아웃 exit 0).
 - ⏸ #3 GitHub OAuth Device Flow — OAuth App 미등록, 실제 GitHub automation 사용 시점에 수행 결정.
 - ✅ #4 OS keychain (Windows Credential Manager) — set/get/remove 사이클 9.4ms.
@@ -36,7 +39,7 @@
 - PR #4 (`phase-4-codex-compat`) 는 본 작업과 무관 OPEN 잔존.
 
 ### 다음 후보 (`docs/AUDIT.md §5` + `docs/dev-log/2026-04-29-p1-recovery.md §6` 참조)
-- **P0** (사용자 동의): Anthropic SDK live 1회, ~~GitHub push + Actions 실 동작~~ (auth migration 머지로 수행됨), 사내 PoC 결합
+- **P0** (사용자 동의): Claude Code CLI live 축소 풀사이클, ~~GitHub push + Actions 실 동작~~ (auth migration 머지로 수행됨), 사내 PoC 결합
 - **P2** (외부 의존): Rust runtime 컴파일, Gemini CLI live 검증, npm publish 결정
 - **P3** (사내 임팩트, 사용자 명시 시): 사내 풀 결합, `runners/internal.js` 사내 LLM, 사내 GitLab CI 가이드
 - **Auth**: smoke #3 (GitHub OAuth Device Flow) — OAuth App 등록 후 `HARNESS_GITHUB_CLIENT_ID` 설정 → `npm run auth:github:login` 실연.
@@ -200,7 +203,7 @@
 - `scripts/agents/dispatch.js` — agent.md frontmatter 읽고 provider runner 위임
 - `scripts/agents/runners/{mock,claude,codex,gemini}.js` — 4 provider runner
   - mock (default, dry-run): 결정론적 응답
-  - claude: Anthropic SDK, ANTHROPIC_API_KEY 필요
+  - claude: Claude Code CLI delegated auth 기본, SDK/API-key 는 명시 opt-in
   - codex: subprocess + JSON 파싱, sandbox=read-only/no-net 강제
   - gemini: subprocess
 - `scripts/orchestrators/review.js` — 7단계 Stage Routing

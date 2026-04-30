@@ -309,7 +309,7 @@ node scripts/sync-claude-md.js  → CLAUDE.md 마커 영역 갱신
 2. ✓ `gateguard-fact-force` 활성, Edit 전 사실 조사 강제
 3. ✓ critical 자동 fix → re-review 1회 루프
 4. ✓ `.harness/state/sessions/<id>/` 영속, 핸드오프 7개 파일
-5. ✓ 80% 커버리지 게이트 (현재 로컬 test suite 83/83 PASS)
+5. ✓ 80% 커버리지 게이트 (현재 로컬 test suite 84/84 PASS)
 
 **MVP 100% 충족.** 단 이는 mock provider + 로컬 검증 기준이다. PR 코멘트는 Actions 가 mock 동작 — 실 push 후 live 검증은 P0.
 
@@ -317,7 +317,7 @@ node scripts/sync-claude-md.js  → CLAUDE.md 마커 영역 갱신
 
 | 시점 | 항목 | 비고 |
 |---|---|---|
-| P0 (사용자 동의) | Anthropic SDK live 1회, GitHub push, 사내 PoC 비파괴 결합 | API 키 / 네트워크 필요 |
+| P0 (사용자 동의) | Claude Code CLI live 축소 풀사이클, GitHub push, 사내 PoC 비파괴 결합 | 구독 OAuth / 네트워크 필요 |
 | P1 (1~2시간) | sync-claude-md, repair, build-cursor/gemini/opencode, validate-* 4개, rules 채우기 | 본 세션에서 모두 완료 |
 | P2 (2~4시간) | integration / e2e 테스트, ARCHITECTURE 풀 본문, Rust runtime 컴파일, codemap 자동 생성 | 본 세션 후반 |
 | P3 (사용자 명시 시) | 사내 풀 결합, 추가 사내 프로젝트, 사내 LLM provider | 외부 임팩트 |
