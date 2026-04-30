@@ -42,6 +42,7 @@ jobs:
       HARNESS_HOOK_QUALITY_GATE: '1'
       HARNESS_HOOK_PRE_BASH: '0'           # CI 에서는 bash 게이트 사용 안 함
       HARNESS_HOOK_PERSISTENT_MODE: '0'    # CI 에서는 영속 모드 OFF
+      HARNESS_CI_SESSION_ID: ci-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Checkout (full history)
@@ -99,7 +100,7 @@ jobs:
             ${{ steps.opts.outputs.secure_flag }} \
             ${{ steps.opts.outputs.live_flag }} \
             --no-ship \
-            --session "ci-${{ github.run_id }}-${{ github.run_attempt }}"
+            --session "$HARNESS_CI_SESSION_ID"
           CODE=$?
           echo "exit=$CODE" >> "$GITHUB_OUTPUT"
           # exit 3 = HUMAN_GATE
@@ -112,7 +113,7 @@ jobs:
       - name: Collect handoffs
         if: always()
         run: |
-          SESSION_DIR=".harness/state/sessions/ci-${{ github.run_id }}-${{ github.run_attempt }}"
+          SESSION_DIR=".harness/state/sessions/$HARNESS_CI_SESSION_ID"
           if [ -d "$SESSION_DIR/handoffs" ]; then
             echo "## Handoffs"
             ls "$SESSION_DIR/handoffs"
@@ -127,8 +128,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: harness-handoffs-${{ github.run_id }}
-          path: .harness/state/sessions/ci-${{ github.run_id }}-*/
+          name: harness-handoffs-${{ env.HARNESS_CI_SESSION_ID }}
+          path: .harness/state/sessions/${{ env.HARNESS_CI_SESSION_ID }}/
           retention-days: 14
 
       - name: Comment on PR
@@ -137,13 +138,14 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const sessionDir = `.harness/state/sessions/ci-${context.runId}-${context.runAttempt}`;
+            const sessionId = process.env.HARNESS_CI_SESSION_ID;
+            const sessionDir = `.harness/state/sessions/${sessionId}`;
             let body = `### HARNESS review (${{ steps.review.outputs.verdict }})\n\n`;
-            body += `세션: \`ci-${context.runId}-${context.runAttempt}\`\n`;
+            body += `session: \`${sessionId}\`\n`;
             body += `exit: \`${{ steps.review.outputs.exit }}\`\n\n`;
             try {
               const handoffs = fs.readdirSync(`${sessionDir}/handoffs`).filter(f => f.endsWith('.md')).sort();
-              body += `핸드오프 ${handoffs.length}개:\n`;
+              body += `handoffs: ${handoffs.length}\n`;
               for (const f of handoffs) body += `- \`${f}\`\n`;
               const last = handoffs.filter(f => f.includes('codex-review') || f.includes('codex-challenge')).pop();
               if (last) {

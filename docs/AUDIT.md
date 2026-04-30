@@ -1,7 +1,7 @@
 # AUDIT — Week 1~4 통합 검토
 
 > 최초 작성: 2026-04-29 (Week 1~4 마감)
-> 갱신: 2026-04-29 P1 회수 세션 (`docs/dev-log/2026-04-29-week1-4.md` 의 "P1 회수" 절 참조)
+> 갱신: 2026-04-30 상태 정합 세션 (테스트 83/83, auth migration + Codex live smoke 반영)
 > 목적: 18절 설계 문서 / MVP 정의 / 8계층 아키텍처 vs 실 구현 매핑. 빠진 항목 · 부채 · 다음 세션 우선순위.
 
 ## 1. 18절 설계 문서 매핑
@@ -70,16 +70,20 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 | 항목 | 이유 | 변경 |
 |---|---|---|
 | Anthropic SDK live 호출 | API 키 미보유 환경 | 동일 |
-| Codex CLI live 호출 | codex 바이너리 미설치 | 동일 |
 | Gemini CLI live 호출 | gemini 바이너리 미설치 | 동일 |
 | Rust runtime 컴파일 | rustup 미설치 | 동일 |
 | GitHub Actions 실 동작 | 레포 미 push | 동일 |
 | 사내 PoC 실 이식 | 외부 디렉터리 변경 보류 | 동일 |
 | ~~install-apply 의 sha256 placeholder~~ | ~~Day 4 stub~~ | **2026-04-29 회수**: source_sha256 + targets[].sha256 모두 실값 |
 
+### 3.3.1 새로 검증된 외부 컴포넌트
+| 항목 | 결과 | 근거 |
+|---|---|---|
+| Codex CLI live 호출 | **PASS** | 2026-04-30 `codex-cli 0.125.0`, `node scripts/verify/codex-live.js` → verdict=`block`, issues=2 |
+
 ### 3.4 stub 메시지 흔적 — **2026-04-29 회수**
 - `scripts/cli.js`, `bridge/mcp-server.js`, `hooks/scripts/pre-bash-dispatcher.js`, `scripts/daemon/wait.js`, `scripts/orchestrators/ralph.js`, `scripts/ci/catalog.js` — "Day N" 흔적 모두 정리.
-- `package.json`: `lint` / `test` 가 실 명령으로 매핑 (catalog + validate:all / 73 테스트 러닝).
+- `package.json`: `lint` / `test` 가 실 명령으로 매핑 (catalog + validate:all / 83 테스트 러닝).
 
 ### 3.5 OMC / ECC 차용 안 한 것 (의도적)
 | 패턴 | 이유 |
@@ -98,9 +102,9 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 2. ✓ `gateguard-fact-force` 활성, Edit 전 사실 조사 강제
 3. ✓ critical 자동 fix → re-review 1회 루프
 4. ✓ `.harness/state/sessions/<id>/` 영속, 핸드오프 7개 파일
-5. ✓ 80% 커버리지 게이트 — 단위 테스트 52/52 PASS (proxy)
+5. ✓ 80% 커버리지 게이트 — 로컬 test suite 83/83 PASS (proxy)
 
-**MVP 100% 충족.** 단 PR 코멘트는 Actions 가 mock 으로만 동작 (실 push 후 검증 필요).
+**MVP 100% 충족.** 단 이는 mock provider + 로컬 검증 기준이다. PR 코멘트 / live LLM / 외부 CLI 는 실 push 및 인증 환경에서 별도 검증 필요.
 
 ## 5. 다음 세션 우선순위 (권장 순서)
 
@@ -125,7 +129,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 
 ### P2 — 검증 / 확장 (외부 의존)
 1. **Rust runtime 컴파일 검증** — rustup 설치 + `cargo build --release` + smoke (init / status / ipc ping).
-2. **Codex CLI / Gemini CLI live 검증** — 바이너리 설치 후 풀사이클 1회.
+2. **Gemini CLI live 검증** — 바이너리 설치 후 research / review 보조 경로 1회.
 3. **GitHub Actions 실 동작** — push 후 PR 코멘트 자동 검증.
 4. **npm publish 결정** — `private: true` 유지 vs 공개.
 
@@ -166,24 +170,25 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 | Hooks | 5 |
 | Schemas | 10 |
 | Provider runners | 4 (mock/claude/codex/gemini) |
+| Codex CLI live smoke | **PASS** (`codex-cli 0.125.0`, 2026-04-30) |
 | MCP 도구 | 7 |
 | CLI verbs | 10 (install / validate / review / plan / ralph / wait / sessions / costs / instincts / version) |
-| 단위 테스트 | **56/56 PASS** (orchestrator 5 + severity 10 + router 6 + costs 3 + instincts 15 + portability 5 + runners-extract 12) |
+| 단위 테스트 | **66/66 PASS** (기존 56 + auth/token-vault/keychain 9 + Codex live 응답 정규화 1) |
 | 통합 테스트 | **10/10 PASS** (build pipeline + state 영속 + repair detection + sync-claude-md + codemaps + validate:all + check-markers) |
 | E2E 테스트 | **7/7 PASS** (demo-review 7단계 + 5필드 무결성 + --secure + round 카운터 + CLI version/help) |
-| 전체 테스트 | **73/73 PASS** |
+| 전체 테스트 | **83/83 PASS** |
 | GitHub Actions | 2 |
 
 ## 8. 결론
 
-**MVP 100% + 인스팅트 + 사내 이식 시뮬 + Rust 골격 + P1 회수 완료.**
+**MVP 100% + 인스팅트 + 사내 이식 시뮬 + Rust 골격 + P1 회수 + auth migration 로컬 검증 완료.**
 
 2026-04-29 P1 회수 세션 결과:
 - 빈 디렉터리 6개 → 0개
 - 미구현 스크립트 9개 → 0개 (보너스 build-codemaps 1개 추가)
 - stub 메시지 흔적 → 정리
 - install-apply sha256 placeholder → 실값
-- 테스트 52 → 73 (integration + e2e 추가)
+- 테스트 52 → 73 (integration + e2e 추가) → 82 (auth migration 단위 테스트 추가) → 83 (Codex live 응답 정규화)
 - ARCHITECTURE 풀 18절 본문 528줄
 
-잔존 부채는 **외부 의존이 큰 검증 4종** (API 키 / Codex CLI / Gemini CLI / GitHub push) + **Rust 컴파일** + **사내 임팩트 (사용자 명시 시점)**. 자체 완결 가능한 영역은 **99% 정합성 도달**.
+잔존 부채는 **외부 의존이 큰 검증 3종** (Anthropic API/SDK 또는 delegated live / Gemini CLI / GitHub push) + **Rust 컴파일** + **사내 임팩트 (사용자 명시 시점)**. 자체 완결 가능한 영역은 **mock/로컬 기준 100% 정합성 도달**, Codex CLI live smoke 는 통과.
