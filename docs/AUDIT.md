@@ -1,7 +1,7 @@
 # AUDIT — Week 1~4 통합 검토
 
 > 최초 작성: 2026-04-29 (Week 1~4 마감)
-> 갱신: 2026-04-30 상태 정합 세션 (테스트 83/83, auth migration + Codex live smoke 반영)
+> 갱신: 2026-04-30 상태 정합 세션 (테스트 84/84, auth migration + Claude/Codex live smoke 반영)
 > 목적: 18절 설계 문서 / MVP 정의 / 8계층 아키텍처 vs 실 구현 매핑. 빠진 항목 · 부채 · 다음 세션 우선순위.
 
 ## 1. 18절 설계 문서 매핑
@@ -69,7 +69,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 ### 3.3 검증 안 된 컴포넌트
 | 항목 | 이유 | 변경 |
 |---|---|---|
-| Anthropic SDK live 호출 | API 키 미보유 환경 | 동일 |
+| Claude Code CLI live 호출 | **PASS** | 2026-04-30 `claude 2.1.123`, `npm run verify:claude` → verdict=`approve`, API key 미사용 |
 | Gemini CLI live 호출 | gemini 바이너리 미설치 | 동일 |
 | Rust runtime 컴파일 | rustup 미설치 | 동일 |
 | GitHub Actions 실 동작 | 레포 미 push | 동일 |
@@ -102,16 +102,16 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 2. ✓ `gateguard-fact-force` 활성, Edit 전 사실 조사 강제
 3. ✓ critical 자동 fix → re-review 1회 루프
 4. ✓ `.harness/state/sessions/<id>/` 영속, 핸드오프 7개 파일
-5. ✓ 80% 커버리지 게이트 — 로컬 test suite 83/83 PASS (proxy)
+5. ✓ 80% 커버리지 게이트 — 로컬 test suite 84/84 PASS (proxy)
 
-**MVP 100% 충족.** 단 이는 mock provider + 로컬 검증 기준이다. PR 코멘트 / live LLM / 외부 CLI 는 실 push 및 인증 환경에서 별도 검증 필요.
+**MVP 100% 충족.** 단 이는 mock provider + 로컬 검증 기준이다. Claude/Codex live smoke 와 PR 코멘트는 통과했으며, Gemini/Rust/사내 PoC 는 별도 검증 필요.
 
 ## 5. 다음 세션 우선순위 (권장 순서)
 
 > 2026-04-29 P1 회수 세션 후 갱신. P1 / P2(부분) 완료, 잔존은 외부 의존이 큰 항목들.
 
 ### P0 — 사용자 환경 동의 후 즉시 가치
-1. **Anthropic SDK 1회 실 호출** — `harness review --live --no-ship "간단 변경"` 한 번. 비용 ~$0.10. live runner 의 실 응답 파싱 검증.
+1. **Claude Code CLI live 풀사이클 축소 검증** — `harness review --live --no-ship --fast "간단 변경"` 한 번. 기본값은 구독 OAuth 세션이며 API key 불필요.
 2. **사내 PoC 비파괴 결합** — 사용자가 지정하는 사내 프로젝트에 `.harness-tool/` 결합. 첫 review 동작 확인. (메모리 등록된 두 디렉터리는 제외).
 3. **GitHub 레포 push** — Actions 자동 동작 검증, PR 코멘트 실 등록. README + agent.yaml + package.json 의 `<owner>` 4곳 채워야 함.
 
@@ -170,13 +170,14 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 | Hooks | 5 |
 | Schemas | 10 |
 | Provider runners | 4 (mock/claude/codex/gemini) |
+| Claude Code CLI live smoke | **PASS** (`claude 2.1.123`, `npm run verify:claude`, 2026-04-30) |
 | Codex CLI live smoke | **PASS** (`codex-cli 0.125.0`, 2026-04-30) |
 | MCP 도구 | 7 |
 | CLI verbs | 10 (install / validate / review / plan / ralph / wait / sessions / costs / instincts / version) |
-| 단위 테스트 | **66/66 PASS** (기존 56 + auth/token-vault/keychain 9 + Codex live 응답 정규화 1) |
+| 단위 테스트 | **67/67 PASS** (기존 56 + auth/token-vault/keychain 9 + Codex live 응답 정규화 1 + Claude CLI wrapper 1) |
 | 통합 테스트 | **10/10 PASS** (build pipeline + state 영속 + repair detection + sync-claude-md + codemaps + validate:all + check-markers) |
 | E2E 테스트 | **7/7 PASS** (demo-review 7단계 + 5필드 무결성 + --secure + round 카운터 + CLI version/help) |
-| 전체 테스트 | **83/83 PASS** |
+| 전체 테스트 | **84/84 PASS** |
 | GitHub Actions | 2 |
 
 ## 8. 결론
@@ -188,7 +189,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 - 미구현 스크립트 9개 → 0개 (보너스 build-codemaps 1개 추가)
 - stub 메시지 흔적 → 정리
 - install-apply sha256 placeholder → 실값
-- 테스트 52 → 73 (integration + e2e 추가) → 82 (auth migration 단위 테스트 추가) → 83 (Codex live 응답 정규화)
+- 테스트 52 → 73 (integration + e2e 추가) → 82 (auth migration 단위 테스트 추가) → 83 (Codex live 응답 정규화) → 84 (Claude CLI wrapper)
 - ARCHITECTURE 풀 18절 본문 528줄
 
-잔존 부채는 **외부 의존이 큰 검증 3종** (Anthropic API/SDK 또는 delegated live / Gemini CLI / GitHub push) + **Rust 컴파일** + **사내 임팩트 (사용자 명시 시점)**. 자체 완결 가능한 영역은 **mock/로컬 기준 100% 정합성 도달**, Codex CLI live smoke 는 통과.
+잔존 부채는 **외부 의존이 큰 검증 2종** (Gemini CLI / GitHub OAuth 또는 Actions direct live) + **Rust 컴파일** + **사내 임팩트 (사용자 명시 시점)**. 자체 완결 가능한 영역은 **mock/로컬 기준 100% 정합성 도달**, Claude/Codex CLI live smoke 는 통과.
