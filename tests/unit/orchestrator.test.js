@@ -1,5 +1,5 @@
 // review 오케스트레이터 단위 테스트. mock provider 로 결정론적.
-// vitest 가 PATH 에 없으면 직접 node 로 실행 (간이 assert).
+// node:test based orchestrator checks.
 
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
@@ -70,6 +70,30 @@ test('핸드오프 파일이 디스크에 잘 떨어진다', async () => {
     const json = md.replace(/\.md$/, '.json');
     assert.ok(fs.existsSync(md), `${md} exists`);
     assert.ok(fs.existsSync(json), `${json} exists`);
+  }
+});
+
+test('live provider 실패는 기본적으로 mock fallback 하지 않는다', async () => {
+  const oldPath = process.env.PATH;
+  const oldFallback = process.env.HARNESS_LIVE_ALLOW_MOCK_FALLBACK;
+  process.env.PATH = '';
+  delete process.env.HARNESS_LIVE_ALLOW_MOCK_FALLBACK;
+  try {
+    await assert.rejects(
+      () => reviewCycle({
+        task: 'live 실패 검증',
+        sessionId: 'unit-live-no-fallback',
+        harnessRoot: ROOT,
+        live: true,
+        fast: true,
+        noShip: true,
+      }),
+      /planner\/plan live 실패/
+    );
+  } finally {
+    process.env.PATH = oldPath;
+    if (oldFallback === undefined) delete process.env.HARNESS_LIVE_ALLOW_MOCK_FALLBACK;
+    else process.env.HARNESS_LIVE_ALLOW_MOCK_FALLBACK = oldFallback;
   }
 });
 

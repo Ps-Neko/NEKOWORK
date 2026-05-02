@@ -4,7 +4,7 @@
 
 [![harness-validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
-Claude Code · Codex CLI · Gemini CLI 를 단일 매니페스트로 통합하는 차세대 AI 개발 에이전트 하네스. ECC(everything-claude-code) 의 매니페스트·인스톨러 골격 위에 OMC(oh-my-claudecode) 의 멀티 에이전트·영속 실행 런타임을 얹고, claude-led-codex-review 7단계 풀사이클을 디폴트 검증 루프로 박았다.
+Claude Code · Codex CLI · Cursor · Gemini CLI · OpenCode 를 단일 매니페스트로 통합하는 차세대 AI 개발 에이전트 하네스. ECC(everything-claude-code) 의 매니페스트·인스톨러 골격 위에 OMC(oh-my-claudecode) 의 멀티 에이전트·영속 실행 런타임을 얹고, claude-led-codex-review 7단계 풀사이클을 디폴트 검증 루프로 박았다.
 
 ## 5대 원칙
 
@@ -18,24 +18,24 @@ Claude Code · Codex CLI · Gemini CLI 를 단일 매니페스트로 통합하�
 
 ```bash
 node scripts/install-plan.js --profile core      # 설치 dry-run
-npm test                                          # 84 테스트 (67 unit + 10 integration + 7 e2e)
+npm test                                          # 99 테스트 (82 unit + 10 integration + 7 e2e)
 node scripts/cli.js review "<task>" --no-ship    # 7단계 풀사이클 dry-run (mock provider)
 ```
 
-## 상태 (2026-04-30 기준, v0.0.2)
+## 상태 (2026-05-02 기준, v0.0.2)
 
-- **0.0.1** (Week 1~4): 골격·거버넌스·매니페스트·11 agents·5 skills·5 hooks·MCP 7 도구·orchestrator·4 provider runner·인스팅트·Rust runtime 골격(529 LOC, 컴파일 미검증)·GitHub Actions 2개. ~12,000 LOC.
-- **0.0.2** (P1 회수 + auth migration): 빈 디렉터리 0, 미구현 스크립트 0 (validate-* 4개 / build-{cursor,gemini,opencode} / sync-claude-md / repair / build-codemaps), 인증 정책/토큰 vault/keychain + Codex live 응답 정규화 + Claude CLI 구독 세션 live 단위 테스트 추가. 단위 67 + 통합 10 + E2E 7 = **84/84 PASS**. 누적 ~14,500 LOC.
-- **다음**: P2 외부 의존 — Rust 컴파일 / Gemini CLI live / GitHub Actions 실 PR / npm publish.
+- **0.0.1** (Week 1~4): 골격·거버넌스·매니페스트·11 agents·5 skills·5 hooks·MCP 7 도구·orchestrator·4 provider runner·인스팅트·Rust runtime 골격·GitHub Actions 2개. ~12,000 LOC.
+- **0.0.2** (P1 회수): 빈 디렉터리 0, 미구현 스크립트 0 (validate-* 4개 / build-{cursor,gemini,opencode} / sync-claude-md / repair / build-codemaps), 통합 테스트 10·E2E 테스트 7 신규. 단위 56 + 통합 10 + E2E 7 = **73/73 PASS**. 누적 ~14,500 LOC.
+- **local-first auth 포팅**: Claude 기본 live runner 를 Claude Code CLI 세션으로 전환. Claude/Codex/Gemini CLI 호출 직전 long-lived API key 환경변수는 기본 차단, 명시 opt-in 시에만 SDK/API-key 경로 사용. Provider 공통 core 유틸(`cli-resolver`, `subprocess`, `json-extractor`) 분리. Claude/Codex/Gemini handoff-mode 실행 전후 git mutation guard 추가. 단위 82 + 통합 10 + E2E 7 = **99/99 PASS**.
+- **다음**: P2 외부 의존 — Gemini CLI 설치 후 live smoke / npm publish / origin/main 통합 PR.
 
 ## 빠진 / 부채
 
 `docs/AUDIT.md` 참조. 0.0.2 P1 회수 결과:
 
 - 빈 디렉터리 **0**, 미구현 스크립트 **0**, stub 메시지 **0**.
-- 자체 완결 영역 100% 정합 (mock provider + 로컬 catalog/build/test 기준).
-- 외부 의존 잔존 4건: Rust 컴파일 / Gemini CLI live / GitHub Actions 실 PR / 사내 PoC 결합.
-- Codex CLI 0.125 live smoke 는 2026-04-30 로컬에서 통과.
+- 자체 완결 영역 100% 정합.
+- 외부 의존 잔존 3건: Gemini CLI 설치 후 live smoke / npm publish 결정 / 사내 PoC 결합.
 
 ## 문서
 

@@ -1,5 +1,5 @@
 // live runner 의 JSON 추출 / prompt 빌더 단위 테스트.
-// Claude/Codex live runner 파싱 테스트. 실 LLM 호출 없음.
+// Claude/Codex CLI 미설치 환경에서도 동작 (실 호출 없음).
 
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
@@ -11,6 +11,7 @@ import {
   _normalizeCliUsage,
 } from '../../scripts/agents/runners/claude.js';
 import { extractJson as extractCodex, _buildPrompt, _normalizeHandoff } from '../../scripts/agents/runners/codex.js';
+import { _buildPrompt as _buildGeminiPrompt } from '../../scripts/agents/runners/gemini.js';
 
 test('extractJson: ```json 펜스 블록', () => {
   const text = 'before\n```json\n{"verdict":"approve","issues":[]}\n```\nafter';
@@ -59,6 +60,8 @@ test('claude buildSystem: agent 본문 / sandbox / disallowedTools 포함', () =
   assert.match(s, /read-only/);
   assert.match(s, /Write, Edit/);
   assert.match(s, /careful reviewer/);
+  assert.match(s, /Non-interactive handoff mode/);
+  assert.match(s, /do not call tools/);
 });
 
 test('claude buildUserMessage: PRD / diff / priorHandoffs 포함', () => {
@@ -143,4 +146,19 @@ test('codex normalizeHandoff: PascalCase live 응답을 handoff schema 로 정�
   assert.equal(h.issues[0].severity, 'critical');
   assert.equal(h.issues[0].category, 'security');
   assert.equal(h.verdict, 'block');
+});
+
+test('gemini buildPrompt includes handoff mode and agent body', () => {
+  const p = _buildGeminiPrompt({
+    agent: 'research',
+    stage: 'ideate',
+    task: 'smoke',
+    sandbox: 'read-only',
+    promptBody: 'Return only JSON.',
+    context: { prd: { task: 'x' } },
+  });
+  assert.match(p, /HARNESS agent "research"/);
+  assert.match(p, /Non-interactive handoff mode/);
+  assert.match(p, /Return only JSON/);
+  assert.match(p, /## PRD/);
 });

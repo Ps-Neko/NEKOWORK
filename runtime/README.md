@@ -1,52 +1,60 @@
-# HARNESS Rust runtime
+# HARNESS Rust Runtime
 
-> 영속 supervisor + IPC. Node CLI 의 `harness wait` 데몬을 보강하거나 대체.
+Persistent supervisor + IPC bridge for HARNESS. It complements the Node `harness wait` loop with SQLite-backed state, wakeup polling, and stdio JSON-RPC.
 
-## 빌드
+## Build
 
-```bash
-# rustup 미설치 시 먼저:
-#   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh    (Linux/Mac)
-#   winget install Rustlang.Rustup                                   (Windows)
+Windows prerequisites:
+
+```powershell
+winget install --id Rustlang.Rustup -e
+winget install --id Microsoft.VisualStudio.2022.BuildTools -e `
+  --override "--wait --quiet --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --norestart"
+```
+
+Build:
+
+```powershell
+$env:PATH = "$env:USERPROFILE\.cargo\bin;$env:PATH"
 cargo build --release
 ```
 
-산출: `target/release/harness-runtime` (Linux/Mac) 또는 `harness-runtime.exe` (Windows).
+Output: `target/release/harness-runtime.exe` on Windows, `target/release/harness-runtime` on Linux/macOS.
 
-## 사용
+## Smoke
 
-```bash
-# 1. 세션 SQLite 초기화 (idempotent)
-./target/release/harness-runtime init
+Verified on Windows on 2026-05-02:
 
-# 2. 영속 데몬 시작
-./target/release/harness-runtime daemon --foreground --poll-ms 5000
-
-# 3. 상태
-./target/release/harness-runtime status
-
-# 4. IPC (단일 요청)
-echo '{"id":1,"method":"ping"}' | ./target/release/harness-runtime ipc
-echo '{"id":2,"method":"session.upsert","params":{"id":"s1","mode":"review","task":"x"}}' | ./target/release/harness-runtime ipc
-echo '{"id":3,"method":"session.list"}' | ./target/release/harness-runtime ipc
+```powershell
+runtime\target\release\harness-runtime.exe --help
+runtime\target\release\harness-runtime.exe init
+runtime\target\release\harness-runtime.exe status
+$json = '{"id":1,"method":"ping"}'
+$json | runtime\target\release\harness-runtime.exe ipc
 ```
 
-## 책임
+Expected ping response:
 
-- **session.rs**: SQLite (`.harness/runtime.sqlite`) — sessions / handoffs / audits 3 테이블. 컴팩션과 무관.
-- **supervisor.rs**: `.harness/state/sessions/<id>/wakeup.json` 폴링 → `node scripts/cli.js ralph` 로 spawn → wait. HUMAN_GATE 시 즉시 무시.
-- **ipc.rs**: stdio JSON-RPC, 단일 요청 처리. Node CLI 가 위임용으로 호출 가능.
-- **observability.rs**: tracing + status 출력.
+```json
+{"id":1,"result":{"pong":true}}
+```
 
-## Node 측 데몬과의 관계
+PowerShell pipeline input can include a UTF BOM, so the IPC parser ignores a leading BOM.
 
-- Node `scripts/daemon/wait.js` — JS 단순 폴링, 의존성 0, Node 22+ 어디서나.
-- Rust `harness-runtime daemon` — SQLite 영속 + 정확한 supervisor + 좀비 정리. 사내 / 장기 운영용.
+## Commands
 
-둘은 같은 디스크 영역(`.harness/state/sessions`, `.harness/state/sessions/*/wakeup.json`)을 공유한다.
-**동시 실행 금지** — 한 머신에 한 데몬만 띄운다.
+```powershell
+runtime\target\release\harness-runtime.exe init
+runtime\target\release\harness-runtime.exe daemon --foreground --poll-ms 5000
+runtime\target\release\harness-runtime.exe status
+'{"id":1,"method":"ping"}' | runtime\target\release\harness-runtime.exe ipc
+```
 
-## 빌드 검증 미완료
+## Responsibilities
 
-이 디렉터리는 골격만 작성됐다. `cargo build` 컴파일 검증은 다음 세션 (rustup 설치 후) 으로 미룬다.
-TypeScript / Node 측은 단위 테스트 50+ PASS 로 검증됨.
+- `session.rs`: SQLite `.harness/runtime.sqlite` with `sessions`, `handoffs`, and `audits`.
+- `supervisor.rs`: polls `.harness/state/sessions/<id>/wakeup.json`, spawns `node scripts/cli.js ralph`, ignores sessions at `HUMAN_GATE`.
+- `ipc.rs`: single-request stdio JSON-RPC for Node/Rust handoff.
+- `observability.rs`: tracing and status output.
+
+Do not run the Node daemon and Rust supervisor at the same time against the same workspace.
