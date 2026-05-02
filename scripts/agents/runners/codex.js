@@ -15,6 +15,7 @@
 
 import { assertDelegatedCliAuth } from '../../core/auth-guard.js';
 import { resolveCli } from '../../core/cli-resolver.js';
+import { withGitMutationGuard } from '../../core/git-mutation-guard.js';
 import { extractJson } from '../../core/json-extractor.js';
 import { spawnAndCollect } from '../../core/subprocess.js';
 import { classifyCategory, classifySeverity, deriveVerdict } from '../../lib/severity.js';
@@ -46,10 +47,16 @@ export async function runCodex(args) {
     cliArgs.push(...process.env.HARNESS_CODEX_EXTRA_ARGS.split(' '));
   }
 
-  const stdout = await spawnAndCollect(codexBin, cliArgs, promptText, {
-    label: 'codex',
-    timeoutMs: Number(process.env.HARNESS_CODEX_TIMEOUT_S || 180) * 1000,
-  });
+  const cwd = args.harnessRoot || process.cwd();
+  const stdout = await withGitMutationGuard(
+    cwd,
+    () => spawnAndCollect(codexBin, cliArgs, promptText, {
+      label: 'codex',
+      timeoutMs: Number(process.env.HARNESS_CODEX_TIMEOUT_S || 180) * 1000,
+      cwd,
+    }),
+    { label: 'codex', allowEnvKey: 'HARNESS_CODEX_ALLOW_WORKSPACE_MUTATION' },
+  );
   // codex CLI 0.125+ stdout: "user\n<prompt echo>\n\ncodex\n<응답>".
   // echo 된 user prompt 에 ```json``` 펜스가 있으면 extractJson 이 오매칭하므로,
   // "codex" 라벨 (단독 줄) 이후만 파싱한다.

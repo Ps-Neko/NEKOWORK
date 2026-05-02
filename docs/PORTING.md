@@ -153,7 +153,7 @@ node .harness-tool/scripts/sync-claude-md.js   # 마커 영역 갱신
 node .harness-tool/scripts/repair.js           # sha256 비교 + 누락 재빌드
 node .harness-tool/scripts/build-codemaps.js   # docs/CODEMAPS 갱신
 npm run lint                                   # 4 validator 통과
-npm test                                       # 93 케이스
+npm test                                       # 98 케이스
 ```
 
 CI 한 줄은 §4 참조.

@@ -28,6 +28,7 @@ scripts/
 ├── core/
 │   ├── auth-guard.js
 │   ├── cli-resolver.js
+│   ├── git-mutation-guard.js
 │   ├── json-extractor.js
 │   └── subprocess.js
 ├── daemon/
@@ -88,6 +89,7 @@ scripts/
 | `cli.js` | _(none)_ | HARNESS CLI 진입점. 10 verb: install / validate / review / plan / self-review / codex-review / ralph / wait / sessions / co |
 | `core/auth-guard.js` | ` BLOCKED_ENV `, `assertDelegatedCliAuth` |  |
 | `core/cli-resolver.js` | `resolveCli` |  |
+| `core/git-mutation-guard.js` | `readGitStatus`, `withGitMutationGuard` |  |
 | `core/json-extractor.js` | `extractJson`, `parseJsonObject` |  |
 | `core/subprocess.js` | `spawnAndCollect` |  |
 | `daemon/wait.js` | _(none)_ | `harness wait --start` 영속 데몬. 동작:   - .harness/state/sessions/*/wakeup.json 폴링 (10초 간격).   - 발견 시 해당 세션의 ralph 또는 review |

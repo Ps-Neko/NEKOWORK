@@ -36,6 +36,17 @@ test('subprocess collector passes stdin and captures stdout', async () => {
   assert.equal(stdout, 'hello');
 });
 
+test('subprocess collector can run in an explicit cwd', async () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-subprocess-cwd-'));
+  const stdout = await spawnAndCollect(
+    process.execPath,
+    ['-e', 'process.stdout.write(process.cwd())'],
+    '',
+    { label: 'node-cwd-smoke', timeoutMs: 5000, cwd: tmp }
+  );
+  assert.equal(path.resolve(stdout), path.resolve(tmp));
+});
+
 test('subprocess collector rejects nonzero exit with stderr', async () => {
   await assert.rejects(
     () => spawnAndCollect(

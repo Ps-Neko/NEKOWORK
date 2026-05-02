@@ -5,7 +5,7 @@ export function spawnAndCollect(bin, args, stdin, options = {}) {
   const timeoutMs = Number(options.timeoutMs || 180000);
 
   return new Promise((resolve, reject) => {
-    const child = spawnProcess(bin, args);
+    const child = spawnProcess(bin, args, options);
     let out = '';
     let err = '';
     let done = false;
@@ -33,21 +33,27 @@ export function spawnAndCollect(bin, args, stdin, options = {}) {
   });
 }
 
-function spawnProcess(bin, args) {
+function spawnProcess(bin, args, options = {}) {
+  const spawnOptions = {
+    stdio: ['pipe', 'pipe', 'pipe'],
+    cwd: options.cwd,
+    env: options.env,
+  };
+
   if (process.platform !== 'win32') {
-    return spawn(bin, args, { stdio: ['pipe', 'pipe', 'pipe'] });
+    return spawn(bin, args, spawnOptions);
   }
 
   if (/\.(cmd|bat)$/i.test(bin)) {
     const comspec = process.env.ComSpec || 'cmd.exe';
-    return spawn(comspec, ['/d', '/c', bin, ...args], { stdio: ['pipe', 'pipe', 'pipe'] });
+    return spawn(comspec, ['/d', '/c', bin, ...args], spawnOptions);
   }
 
   if (/\.ps1$/i.test(bin)) {
     return spawn('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', bin, ...args], {
-      stdio: ['pipe', 'pipe', 'pipe'],
+      ...spawnOptions,
     });
   }
 
-  return spawn(bin, args, { stdio: ['pipe', 'pipe', 'pipe'] });
+  return spawn(bin, args, spawnOptions);
 }

@@ -7,13 +7,15 @@
 ### Added (Local-first runner/auth port, 2026-05-02)
 - `scripts/core/auth-guard.js` — Claude/Codex/Gemini CLI 호출 직전 long-lived API key 환경변수 차단. `HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1` 명시 옵트아웃.
 - `scripts/core/{cli-resolver,json-extractor,subprocess}.js` — provider runner 공통 CLI 탐색, JSON 추출, subprocess 수집 유틸.
+- `scripts/core/git-mutation-guard.js` — read-only review runner 실행 전후 git 상태 비교로 workspace mutation 감지.
 - `scripts/verify/claude-live.js` + `npm run verify:claude` — Claude Code CLI 구독/OAuth 세션 smoke.
-- `tests/unit/auth-guard.test.js`, `tests/unit/core-utils.test.js` — delegated CLI auth guard 와 core runner utility 단위 테스트.
+- `tests/unit/auth-guard.test.js`, `tests/unit/core-utils.test.js`, `tests/unit/git-mutation-guard.test.js` — delegated CLI auth guard, core runner utility, workspace mutation guard 단위 테스트.
 - `@anthropic-ai/sdk` optional dependency — `HARNESS_CLAUDE_RUNNER=sdk` 명시 opt-in 경로 지원.
 
 ### Changed (Local-first runner/auth port)
 - `scripts/agents/runners/claude.js` — 기본 live runner 를 Anthropic SDK/API-key 에서 Claude Code CLI(`claude -p`) 위임으로 전환. SDK 경로는 `HARNESS_CLAUDE_RUNNER=sdk` 명시 시에만 사용.
 - `scripts/agents/runners/codex.js`, `scripts/agents/runners/gemini.js` — 공통 auth guard 적용.
+- `scripts/agents/runners/codex.js` — `codex exec --sandbox read-only` 를 `harnessRoot` cwd 에서 실행하고, 전후 git mutation guard 로 sandbox 우회를 감지.
 - `scripts/agents/runners/{claude,codex,gemini}.js` — 중복 `which` / subprocess / JSON 추출 로직을 `scripts/core/` 로 이동.
 - `scripts/orchestrators/review.js` — live provider 실패 시 기본 mock fallback 제거. fallback 은 `HARNESS_LIVE_ALLOW_MOCK_FALLBACK=1` 명시 opt-in 으로만 허용.
 - `scripts/cli.js`, `docs/SETUP.md`, `docs/RUNBOOK.md`, `docs/PORTING.md` — `--live` 설명을 local CLI auth first 로 갱신.

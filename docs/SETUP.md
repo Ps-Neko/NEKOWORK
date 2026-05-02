@@ -39,6 +39,7 @@ npm run verify:codex
 ```
 
 호환 버전: codex CLI ≥ 0.124.0. `codex exec --sandbox read-only` 비대화형 호출 사용.
+`read-only` sandbox 는 단독 보안 경계로 보지 않는다. `runCodex` 는 실행 전후 `git status --porcelain` 을 비교해 작업공간 변조를 차단하며, 의도한 변조 실험일 때만 `HARNESS_CODEX_ALLOW_WORKSPACE_MUTATION=1` 로 우회한다.
 기본 경로에서는 `OPENAI_API_KEY` 가 설정되어 있으면 차단한다. ChatGPT 로그인 세션을 쓰려면
 `unset OPENAI_API_KEY` 후 실행한다.
 

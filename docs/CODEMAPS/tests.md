@@ -17,6 +17,7 @@ tests/
     ├── auth-guard.test.js
     ├── core-utils.test.js
     ├── costs.test.js
+    ├── git-mutation-guard.test.js
     ├── instincts.test.js
     ├── orchestrator.test.js
     ├── portability.test.js
@@ -36,6 +37,7 @@ tests/
 | `unit/auth-guard.test.js` | _(none)_ |  |
 | `unit/core-utils.test.js` | _(none)_ |  |
 | `unit/costs.test.js` | _(none)_ |  |
+| `unit/git-mutation-guard.test.js` | _(none)_ |  |
 | `unit/instincts.test.js` | _(none)_ |  |
 | `unit/orchestrator.test.js` | _(none)_ | review 오케스트레이터 단위 테스트. mock provider 로 결정론적. vitest 가 PATH 에 없으면 직접 node 로 실행 (간이 assert). |
 | `unit/portability.test.js` | _(none)_ |  |
