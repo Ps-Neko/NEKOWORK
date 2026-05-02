@@ -26,7 +26,7 @@ PostToolUse 훅이 매 Edit / Write 후 다음을 실행:
 - TypeScript: `tsc --noEmit`
 - Python: `ruff check . && mypy`
 - 포맷: prettier / black 자동
-- 테스트: 변경 파일의 unit 테스트만 (`vitest related <files>` 또는 `pytest --picked`)
+- 테스트: 변경 파일의 unit 테스트만 (`node --test tests/unit/*.test.js` 또는 `pytest --picked`)
 
 실패 시 다음 도구 호출 차단.
 

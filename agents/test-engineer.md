@@ -26,8 +26,8 @@ sandbox: workspace-write
 
 | 종류 | 위치 | 도구 |
 |---|---|---|
-| Unit | `tests/unit/` | vitest |
-| Integration | `tests/integration/` | vitest + 실 DB(컨테이너) |
+| Unit | `tests/unit/` | node:test |
+| Integration | `tests/integration/` | node:test + 실 DB(컨테이너) |
 | E2E | `tests/e2e/` | playwright |
 
 ## 금지

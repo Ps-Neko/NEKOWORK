@@ -3,8 +3,6 @@
 
 import { runClaude } from '../agents/runners/claude.js';
 
-delete process.env.ANTHROPIC_API_KEY;
-
 const result = await runClaude({
   agent: 'claude-live-smoke',
   stage: 'plan',

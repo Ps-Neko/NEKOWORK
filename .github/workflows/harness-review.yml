@@ -2,7 +2,7 @@ name: harness-review
 
 # claude-led-codex-review 7단계 풀사이클을 PR 에 자동 적용.
 # - dry-run (mock provider) 디폴트: API 키 / Codex CLI 미설정 환경에서도 동작
-# - secrets.ANTHROPIC_API_KEY 가 있으면 Claude 단계만 live, Codex 는 mock fallback
+# - live 는 self-hosted CLI 세션 또는 HARNESS_CLAUDE_RUNNER=sdk + secret opt-in 일 때만 사용
 # - sensitive path 자동 감지 → --secure
 # - critical 발견 / round ≥ 3 → 워크플로우 실패 + PR 코멘트
 
@@ -94,6 +94,7 @@ jobs:
         id: review
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          HARNESS_CLAUDE_RUNNER: ${{ steps.opts.outputs.live_flag && 'sdk' || '' }}
         run: |
           set +e
           node scripts/cli.js review "${{ steps.opts.outputs.task }}" \

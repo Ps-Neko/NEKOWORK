@@ -94,4 +94,4 @@ function rename(user: Readonly<User>, name: string): User {
 - 포매터: Prettier. PostToolUse hook 으로 자동.
 - 린터: ESLint (`@typescript-eslint`).
 - 타입 체크: `tsc --noEmit` PR 게이트.
-- 테스트: vitest (이 프로젝트의 devDependency).
+- 테스트: node:test (repo default). Vitest 는 프로젝트별 필요 시 opt-in.

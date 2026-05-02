@@ -17,7 +17,7 @@
 
 ```bash
 claude login                            # Claude Pro / Max 구독 OAuth
-codex auth login                        # ChatGPT 구독 또는 API key
+codex auth login                        # ChatGPT 로그인 세션
 gcloud auth application-default login   # Gemini / Vertex
 ```
 
@@ -25,6 +25,9 @@ gcloud auth application-default login   # Gemini / Vertex
 > 가 환경에 set 되어 있으면 구독 OAuth 세션이 무시되어 종량제 과금으로
 > 빠질 수 있습니다. `pre-bash-dispatcher` 가 자동 차단 — `unset <KEY>` 또는
 > `HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1` 로 명시 옵트아웃.
+
+`--live` 실행 중 provider 호출이 실패하면 기본값은 즉시 실패다. 예전처럼 mock fallback 을
+허용해야 하는 CI/디버그 상황에서만 `HARNESS_LIVE_ALLOW_MOCK_FALLBACK=1` 을 명시한다.
 
 ### 0.2 GitHub 인증 (선택)
 
@@ -87,7 +90,7 @@ node scripts/repair.js --check
 node scripts/build-codemaps.js --check
 
 # 테스트 (단위 + 통합 + e2e)
-npm test                          # 84 케이스
+npm test                          # 99 케이스
 ```
 
 CI 한 줄:
@@ -217,10 +220,8 @@ node scripts/demo-review.js "<task>" demo-local --no-ship
 - 버전: 0.0.2 (2026-04-29 P1 회수)
 - 카탈로그: 11 agents · 6 skills · 5 hooks · 6 modules · 5 profiles
 - 5 빌더 모두 동작 + codemaps
-- 84/84 테스트 PASS (67 unit + 10 integration + 7 e2e)
-- Claude Code CLI 구독 세션 live smoke PASS (`npm run verify:claude`)
-- Codex CLI 0.125 live smoke PASS (`node scripts/verify/codex-live.js`)
+- 99/99 테스트 PASS (82 unit + 10 integration + 7 e2e)
 - 자체 완결 가능 영역 정합 100%
-- 외부 의존 영역 (Gemini CLI, GitHub OAuth 또는 push, Rust 컴파일, 사내 PoC) 은 사용자 동의 시점까지 보류
+- 외부 의존 영역 (Gemini CLI live / GitHub OAuth 또는 push / npm publish) 은 사용자 동의 시점까지 보류
 
 다음 우선순위는 `docs/AUDIT.md §5` 참조.

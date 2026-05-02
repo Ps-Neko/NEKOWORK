@@ -173,7 +173,7 @@ harness review "<task>"                   # claude CLI 통해 자동 위임
 ### 5.2 Codex CLI 사용자
 
 ```bash
-codex auth login                          # ChatGPT 구독 OAuth 또는 API key
+codex auth login                          # ChatGPT 로그인 세션
 unset OPENAI_API_KEY                      # 구독 사용 시
 harness codex-review
 ```

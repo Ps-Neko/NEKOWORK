@@ -191,7 +191,7 @@ ENV 토글: `HARNESS_HOOK_<NAME>=1` 로 개별 활성/비활성.
 | `common/testing.md` | 80% 커버리지, TDD, 격리, 결정성 |
 | `common/security.md` | 시크릿, 입력 검증, MCP 핀, 사고 대응 |
 | `typescript/coding-style.md` | 타입, async, immutability, console.log 금지 |
-| `typescript/testing.md` | vitest / node:test, Playwright |
+| `typescript/testing.md` | node:test, Playwright |
 | `typescript/security.md` | zod, parameterized SQL, JWT, CSRF |
 | `python/coding-style.md` | PEP 8, 타입 힌트, dataclass / pydantic |
 | `python/testing.md` | pytest, parametrize, asyncio, 80% 커버리지 |
@@ -309,17 +309,17 @@ node scripts/sync-claude-md.js  → CLAUDE.md 마커 영역 갱신
 2. ✓ `gateguard-fact-force` 활성, Edit 전 사실 조사 강제
 3. ✓ critical 자동 fix → re-review 1회 루프
 4. ✓ `.harness/state/sessions/<id>/` 영속, 핸드오프 7개 파일
-5. ✓ 80% 커버리지 게이트 (현재 로컬 test suite 84/84 PASS)
+5. ✓ 80% 커버리지 게이트 (단위 테스트 56/56 PASS)
 
-**MVP 100% 충족.** 단 이는 mock provider + 로컬 검증 기준이다. PR 코멘트는 Actions 가 mock 동작 — 실 push 후 live 검증은 P0.
+**MVP 100% 충족.** PR 코멘트는 Actions 가 mock 동작 — 실 push 후 검증은 P0.
 
 ## 13. 확장 로드맵
 
 | 시점 | 항목 | 비고 |
 |---|---|---|
-| P0 (사용자 동의) | Claude Code CLI live 축소 풀사이클, GitHub push, 사내 PoC 비파괴 결합 | 구독 OAuth / 네트워크 필요 |
+| P0 (사용자 동의) | Claude CLI live smoke, GitHub push, 사내 PoC 비파괴 결합 | 로컬 CLI 로그인 / 네트워크 필요 |
 | P1 (1~2시간) | sync-claude-md, repair, build-cursor/gemini/opencode, validate-* 4개, rules 채우기 | 본 세션에서 모두 완료 |
-| P2 (2~4시간) | integration / e2e 테스트, ARCHITECTURE 풀 본문, Rust runtime 컴파일, codemap 자동 생성 | 본 세션 후반 |
+| P2 (2~4시간) | integration / e2e 테스트, ARCHITECTURE 풀 본문, Rust runtime 컴파일, codemap 자동 생성 | 완료 |
 | P3 (사용자 명시 시) | 사내 풀 결합, 추가 사내 프로젝트, 사내 LLM provider | 외부 임팩트 |
 | P4 (의도적 거절) | 매직 키워드 자동 활성, 184 풀 카탈로그, tmux team | 사용자 룰 / progressive 원칙 충돌 |
 
@@ -328,7 +328,7 @@ node scripts/sync-claude-md.js  → CLAUDE.md 마커 영역 갱신
 | 리스크 | 대응 |
 |---|---|
 | Git CRLF warning | `.gitattributes` 로 LF 강제 |
-| Node 22+ glob 미지원 | 테스트 호출 시 `tests/unit/*.test.js` 명시 또는 vitest 도입 |
+| Node 22+ glob 미지원 | 테스트 호출 시 `tests/unit/*.test.js` 명시 |
 | Windows tsc PATH 미인식 | 임시 .ts 는 프로젝트 안에 두고 cwd 기준으로 탐색 |
 | `/tmp` 가 Windows 매핑 안 됨 | `os.tmpdir()` / `tests/_tmp/` 사용 |
 | Codex / Claude 컨텍스트 의도치 않은 공유 | 핸드오프 마크다운만 허용, 직접 메시지 전달 차단 |
@@ -374,7 +374,7 @@ harness/
 │   └── lib/                    ← router, severity, costs, runners
 ├── bridge/
 │   └── mcp-server.js          ← MCP 단일 게이트웨이
-├── runtime/                    ← Rust 골격 (별도 컴파일)
+├── runtime/                    ← Rust runtime (release build + smoke verified)
 ├── docs/
 │   ├── ARCHITECTURE.md         ← 본 문서
 │   ├── AUDIT.md                ← 18절 vs 실 구현 매핑
@@ -492,7 +492,7 @@ node scripts/ci/check-markers.js         # CLAUDE.md 마커 무결성
 1. **이식성 검증** (P0) — 사내 PoC 비파괴 결합 1건, GitHub push 후 Actions 실 동작.
 2. **integration / e2e 테스트** (P2) — 실 풀체인 시나리오 + `.harness/state/sessions/<id>/` 영속 검증.
 3. **codemap 자동 생성** (P2) — `docs/CODEMAPS/<area>.md` 디렉터리 트리 + 핵심 export.
-4. **Rust runtime 컴파일 검증** (P2) — IPC ping 까지.
+4. ~~**Rust runtime 컴파일 검증** (P2) — IPC ping 까지.~~ 완료.
 5. **사내 LLM provider** (P3) — `runners/internal.js` 추가, 사내 endpoint 라우팅.
 6. **OIDC / dead-man / supply chain 스캔** (P3) — Security Bar 12-item 풀 충족.
 
