@@ -68,26 +68,21 @@ async function runClaudeCli(args) {
   const systemPrompt = buildSystem(args);
   const userPrompt = buildUserMessage(args);
   const modelId = process.env.HARNESS_CLAUDE_MODEL || args.model || 'sonnet';
-  const cliArgs = [
-    '-p',
-    '--output-format', 'json',
-    '--no-session-persistence',
-    '--tools', '',
-    '--permission-mode', 'plan',
-    '--model', modelId,
-    '--system-prompt', systemPrompt,
-  ];
+  const cliArgs = buildCliArgs(args, modelId, systemPrompt);
 
   const cwd = args.harnessRoot || process.cwd();
-  const stdout = await withGitMutationGuard(
+  const run = () => spawnAndCollect(claudeBin, cliArgs, userPrompt, {
+    label: 'claude',
+    timeoutMs: Number(process.env.HARNESS_CLAUDE_TIMEOUT_S || 180) * 1000,
     cwd,
-    () => spawnAndCollect(claudeBin, cliArgs, userPrompt, {
-      label: 'claude',
-      timeoutMs: Number(process.env.HARNESS_CLAUDE_TIMEOUT_S || 180) * 1000,
+  });
+  const stdout = args.executionMode === 'workspace-write'
+    ? await run()
+    : await withGitMutationGuard(
       cwd,
-    }),
-    { label: 'claude', allowEnvKey: 'HARNESS_CLAUDE_ALLOW_WORKSPACE_MUTATION' },
-  );
+      run,
+      { label: 'claude', allowEnvKey: 'HARNESS_CLAUDE_ALLOW_WORKSPACE_MUTATION' },
+    );
   const wrapper = parseCliJson(stdout);
   const text = typeof wrapper?.result === 'string' ? wrapper.result : stdout;
   const jsonText = extractJson(text);
@@ -103,6 +98,27 @@ async function runClaudeCli(args) {
   return parsed;
 }
 
+function buildCliArgs(a, modelId, systemPrompt) {
+  const args = [
+    '-p',
+    '--output-format', 'json',
+    '--no-session-persistence',
+    '--model', modelId,
+    '--system-prompt', systemPrompt,
+  ];
+
+  if (a.executionMode === 'workspace-write') {
+    args.push(
+      '--permission-mode', process.env.HARNESS_CLAUDE_EXEC_PERMISSION_MODE || 'acceptEdits',
+      '--allowedTools', process.env.HARNESS_CLAUDE_EXEC_TOOLS || 'Edit Write MultiEdit',
+    );
+  } else {
+    args.push('--tools', '', '--permission-mode', 'plan');
+  }
+
+  return args;
+}
+
 function buildSystem(a) {
   const tools = a.disallowedTools?.length
     ? `\nDisallowed tools: ${a.disallowedTools.join(', ')}`
@@ -111,8 +127,9 @@ function buildSystem(a) {
 Sandbox: ${a.sandbox || 'workspace-write'}.
 Output rules: respond with ONE JSON object conforming to schemas/handoff.schema.json.
 No prose outside JSON. Korean for natural-language fields.
-Non-interactive handoff mode: do not call tools, edit files, run shell commands, wait for approvals, or make commits.
-If the agent body asks you to implement, test, or commit, summarize the intended change and evidence in JSON only.
+${a.executionMode === 'workspace-write'
+    ? 'Workspace-write execution mode: edit files in this isolated git worktree if needed, but do not commit or push. Finish by returning the JSON handoff with changed files and evidence.'
+    : 'Non-interactive handoff mode: do not call tools, edit files, run shell commands, wait for approvals, or make commits. If the agent body asks you to implement, test, or commit, summarize the intended change and evidence in JSON only.'}
 Keep the JSON concise so the CLI can finish promptly.
 
 Agent body:
@@ -172,6 +189,7 @@ function normalizeCliUsage(usage) {
 
 export {
   buildSystem as _buildSystem,
+  buildCliArgs as _buildCliArgs,
   buildUserMessage as _buildUserMessage,
   extractJson,
   parseCliJson as _parseCliJson,

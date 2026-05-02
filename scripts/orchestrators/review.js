@@ -11,6 +11,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { dispatch } from '../agents/dispatch.js';
+import { applyExecutionDiff, withExecutionWorkspace } from '../core/execution-workspace.js';
 import { record as instinctRecord } from '../lib/instincts.js';
 
 const STAGE_INDEX = {
@@ -90,6 +91,7 @@ export async function reviewCycle(opts) {
     fs.writeFileSync(path.join(sessionDir, 'prd.json'), JSON.stringify(h2.prdSeed, null, 2));
   }
   const prd = readPrd(sessionDir);
+  let currentDiff = opts.diff || '';
 
   // sensitive path 감지
   const sensitiveHit = (h2.files || []).some(f => SENSITIVE_PATTERNS.some(re => re.test(f))) ||
@@ -97,22 +99,24 @@ export async function reviewCycle(opts) {
 
   // ---- 3. implement ----
   log('3 implement');
-  const h3 = await runWithFallback({
+  const impl3 = await runImplementStage({
     agent: 'executor', stage: 'implement', task: opts.task, live, root, sessionDir, sessionId,
     context: { prd, acCount: prd?.acceptance?.length || 3 },
   });
+  const h3 = impl3.handoff;
+  if (impl3.diff) currentDiff = impl3.diff;
   writeHandoff(h3);
 
   // ---- 4. self-review (round loop) ----
   let reviewRound = 0;
   let lastVerdict = null;
-  const allFiles = [...(h3.files || [])];
+  const allFiles = [...(h3.files || []), ...(impl3.files || [])];
   while (true) {
     reviewRound++;
     log(`4 self-review (round ${reviewRound})`);
     const hSelf = await runWithFallback({
       agent: 'code-reviewer', stage: 'self-review', task: opts.task, live, root, sessionDir, sessionId,
-      context: { round: reviewRound, prd, priorHandoffs: handoffs.slice(-3), diff: opts.diff || '' },
+      context: { round: reviewRound, prd, priorHandoffs: handoffs.slice(-3), diff: currentDiff },
     });
     hSelf.round = reviewRound;
     writeHandoff(hSelf);
@@ -126,11 +130,14 @@ export async function reviewCycle(opts) {
     if (lastVerdict === 'approve') break;
     if (lastVerdict === 'block' || lastVerdict === 'approve_with_fixes') {
       log(`fix-loop: executor round ${reviewRound + 1}`);
-      const hFix = await runWithFallback({
+      const implFix = await runImplementStage({
         agent: 'executor', stage: 'implement', task: opts.task, live, root, sessionDir, sessionId,
-        context: { prd, round: reviewRound + 1, issues: hSelf.issues },
+        context: { prd, round: reviewRound + 1, issues: hSelf.issues, diff: currentDiff },
       });
+      const hFix = implFix.handoff;
       hFix.round = reviewRound + 1;
+      if (implFix.diff) currentDiff = implFix.diff;
+      allFiles.push(...(hFix.files || []), ...(implFix.files || []));
       writeHandoff(hFix);
       continue;
     }
@@ -141,7 +148,7 @@ export async function reviewCycle(opts) {
   log('5 codex-review');
   const h5 = await runWithFallback({
     agent: 'codex-reviewer', stage: 'codex-review', task: opts.task, live, root, sessionDir, sessionId,
-    context: { round: 1, prd, priorHandoffs: handoffs.slice(-3), diff: opts.diff || '' },
+    context: { round: 1, prd, priorHandoffs: handoffs.slice(-3), diff: currentDiff },
   });
   writeHandoff(h5);
   if (hasCritical(h5.issues)) {
@@ -154,7 +161,7 @@ export async function reviewCycle(opts) {
     log(`6 codex-challenge (${secureRequested ? '--secure' : 'sensitive 자동'})`);
     const h6 = await runWithFallback({
       agent: 'codex-challenger', stage: 'codex-challenge', task: opts.task, live, root, sessionDir, sessionId,
-      context: { round: 1, prd, priorHandoffs: handoffs.slice(-3), diff: opts.diff || '' },
+      context: { round: 1, prd, priorHandoffs: handoffs.slice(-3), diff: currentDiff },
     });
     writeHandoff(h6);
     if (hasCritical(h6.issues)) {
@@ -162,6 +169,17 @@ export async function reviewCycle(opts) {
     }
   } else {
     log(`6 codex-challenge skipped${fast ? ' (--fast)' : ' (sensitive 미감지, --secure 미지정)'}`);
+  }
+
+  if (live && currentDiff.trim()) {
+    try {
+      const applied = applyExecutionDiff(root, currentDiff);
+      if (applied) {
+        fs.writeFileSync(path.join(sessionDir, 'APPLIED_DIFF'), `applied_at: ${new Date().toISOString()}\n`);
+      }
+    } catch (e) {
+      return humanGate(sessionDir, `live executor diff apply failed: ${e.message}`, sessionId, handoffs);
+    }
   }
 
   // ---- 7. ship ----
@@ -189,9 +207,9 @@ export async function reviewCycle(opts) {
 
 // ----------------
 
-async function runWithFallback({ agent, stage, task, live, root, context, sessionDir, sessionId }) {
+async function runWithFallback({ agent, stage, task, live, root, context, sessionDir, sessionId, executionMode }) {
   try {
-    return await dispatch({ agent, stage, task, live, harnessRoot: root, context, sessionDir, sessionId });
+    return await dispatch({ agent, stage, task, live, harnessRoot: root, context, sessionDir, sessionId, executionMode });
   } catch (e) {
     if (live) {
       if (process.env.HARNESS_LIVE_ALLOW_MOCK_FALLBACK !== '1') {
@@ -200,11 +218,42 @@ async function runWithFallback({ agent, stage, task, live, root, context, sessio
       console.error(`[review] ${agent}/${stage} live 실패 → mock 폴백(HARNESS_LIVE_ALLOW_MOCK_FALLBACK=1): ${e.message}`);
       return await dispatch({
         agent, stage, task, live: false, harnessRoot: root, context,
-        providerOverride: 'mock', sessionDir, sessionId,
+        providerOverride: 'mock', sessionDir, sessionId, executionMode,
       });
     }
     throw e;
   }
+}
+
+async function runImplementStage({ agent, stage, task, live, root, context, sessionDir, sessionId }) {
+  if (!live) {
+    const handoff = await runWithFallback({ agent, stage, task, live, root, context, sessionDir, sessionId });
+    return { handoff, diff: null, files: [] };
+  }
+
+  const round = context?.round || 1;
+  const execution = await withExecutionWorkspace(
+    root,
+    sessionDir,
+    async (workspaceRoot) => runWithFallback({
+      agent,
+      stage,
+      task,
+      live,
+      root: workspaceRoot,
+      context,
+      sessionDir,
+      sessionId,
+      executionMode: 'workspace-write',
+    }),
+    { sessionId, stage, round, baseDiff: context?.diff || '' },
+  );
+
+  const handoff = execution.result;
+  handoff.files = dedupe([...(handoff.files || []), ...execution.files]);
+  if (execution.diffPath) handoff.diffPath = execution.diffPath;
+  if (execution.worktreeRoot) handoff.executionWorkspace = execution.worktreeRoot;
+  return { handoff, diff: execution.diff, files: execution.files };
 }
 
 function readPrd(sessionDir) {

@@ -71,7 +71,8 @@
     "auth:github:login": "node scripts/auth/github-login.js",
     "auth:github:status": "node scripts/auth/github-status.js",
     "auth:github:logout": "node scripts/auth/github-logout.js",
-    "test:keychain": "node --test tests/optional/keychain-smoke.test.js"
+    "test:keychain": "node --test tests/optional/keychain-smoke.test.js",
+    "auth:github:import-gh": "node scripts/auth/github-import-gh.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

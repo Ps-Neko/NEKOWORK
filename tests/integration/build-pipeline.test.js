@@ -57,6 +57,24 @@ test('install plan: 매니페스트 검증 + 컴포넌트 표 출력', () => {
   assert.match(r.stdout, /modules \(/);
 });
 
+test('install plan: selective module/component/target filters', () => {
+  const r = run('scripts/install-plan.js', [
+    '--profile', 'core',
+    '--target', 'claude',
+    '--module', 'codex-loop',
+    '--component', 'agent:research',
+    '--without-component', 'hook:persistent-mode',
+    '--json',
+  ]);
+  assert.equal(r.status, 0, `selective plan failed: ${r.stderr}`);
+  const plan = JSON.parse(r.stdout);
+  assert.equal(plan.harness_filter, 'claude');
+  assert.ok(plan.modules.includes('codex-loop'));
+  assert.ok(plan.selected_components.includes('agent:research'));
+  assert.ok(plan.components.every(c => c.harness === 'claude' || c.harness === '(builder)'));
+  assert.ok(!plan.components.some(c => c.component === 'hook:persistent-mode'));
+});
+
 test('install apply: 5개 빌더 모두 실행 + state 기록', () => {
   const r = run('scripts/install-apply.js', ['--profile', 'developer']);
   assert.equal(r.status, 0, `apply failed: ${r.stderr}\n${r.stdout}`);

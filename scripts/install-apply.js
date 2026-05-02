@@ -12,11 +12,24 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 
 function parseArgs(argv) {
-  const args = { profile: null, harness: null, force: false, dryRun: false };
+  const args = {
+    profile: null,
+    harness: null,
+    force: false,
+    dryRun: false,
+    modules: [],
+    withoutModules: [],
+    components: [],
+    withoutComponents: [],
+  };
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--profile') args.profile = argv[++i];
-    else if (a === '--harness') args.harness = argv[++i];
+    else if (a === '--harness' || a === '--target') args.harness = argv[++i];
+    else if (a === '--module' || a === '--with-module') args.modules.push(argv[++i]);
+    else if (a === '--without-module') args.withoutModules.push(argv[++i]);
+    else if (a === '--component' || a === '--with-component') args.components.push(argv[++i]);
+    else if (a === '--without-component') args.withoutComponents.push(argv[++i]);
     else if (a === '--force') args.force = true;
     else if (a === '--dry-run') args.dryRun = true;
     else if (a === '--help' || a === '-h') { printHelp(); process.exit(0); }
@@ -131,7 +144,7 @@ async function main() {
   console.log('=> plan 단계');
   const planResult = spawnSync(
     process.execPath,
-    [path.join(__dirname, 'install-plan.js'), ...(args.profile ? ['--profile', args.profile] : []), ...(args.harness ? ['--harness', args.harness] : [])],
+    [path.join(__dirname, 'install-plan.js'), ...planArgs(args)],
     { stdio: 'inherit' },
   );
   if (planResult.status !== 0) {
@@ -180,6 +193,17 @@ async function main() {
 
   console.log('');
   console.log('apply 완료.');
+}
+
+function planArgs(args) {
+  return [
+    ...(args.profile ? ['--profile', args.profile] : []),
+    ...(args.harness ? ['--target', args.harness] : []),
+    ...args.modules.flatMap(v => ['--module', v]),
+    ...args.withoutModules.flatMap(v => ['--without-module', v]),
+    ...args.components.flatMap(v => ['--component', v]),
+    ...args.withoutComponents.flatMap(v => ['--without-component', v]),
+  ];
 }
 
 main().catch((e) => {

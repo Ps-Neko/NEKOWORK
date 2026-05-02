@@ -23,7 +23,8 @@ function help() {
 harness <verb> [args]
 
 설치 / 검증
-  install --plan [--profile <name>]      매니페스트 dry-run
+  install --plan [--profile <name>] [--target <name>] [--module <id>] [--component <id>]
+                                         매니페스트 selective dry-run
   install --apply [--profile <name>]     실제 적용 (.claude/, .codex/ 빌드 + state 기록)
   validate                               카탈로그 + 마커 검증
   version
@@ -43,6 +44,8 @@ harness <verb> [args]
 영속 / ralph
   ralph "<task>" [--max-iter 5] [--secure] [--live]
                                          PRD AC 가 모두 passes 될 때까지 반복
+  team-lite "<task>" [--live] [--session <id>]
+                                         OMC-style staged team pipeline
   wait start                             영속 데몬 시작 (background)
   wait stop                              데몬 정지
   wait status                            데몬 상태
@@ -120,6 +123,18 @@ function parseReviewArgs(argv) {
       console.log('=== ralph 종료 ===');
       console.log(JSON.stringify(r, null, 2));
       if (r.reason === 'human_gate') process.exit(3);
+      break;
+    }
+    case 'team-lite': {
+      const opts = parseReviewArgs(rest);
+      if (!opts.task) { console.error('task required. ex: harness team-lite "refactor auth guard"'); process.exit(2); }
+      const { teamLiteCycle } = await import('./orchestrators/team-lite.js');
+      const r = await teamLiteCycle({ ...opts, harnessRoot: ROOT });
+      console.log('=== team-lite done ===');
+      console.log('  session  : ' + r.sessionId);
+      console.log('  tasks    : ' + r.tasks.map(t => `${t.id}:${t.status}`).join(', '));
+      console.log('  handoffs : ' + r.handoffs.length);
+      console.log('  verdict  : ' + r.verdict);
       break;
     }
     case 'wait': {
