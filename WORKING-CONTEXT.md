@@ -9,7 +9,7 @@ P1 회수 후 잡티 제거 + 거버넌스 정합. 외부 의존 영역 (API 키
 
 ## Current Truth
 
-- 위치: `D:\claude\harness\` · 브랜치: `main`
+- 위치: `C:/Users/Mun/harness/` · 브랜치: `main`
 - 버전: `0.0.2` (2026-04-29 P1 회수 릴리스)
 - 카탈로그: 11 agents · 5 skills (+1 ralph) · 5 hooks · 6 modules · 5 profiles
 - 5 빌더 모두 동작 (claude / codex / cursor / gemini / opencode) + codemaps 보너스
