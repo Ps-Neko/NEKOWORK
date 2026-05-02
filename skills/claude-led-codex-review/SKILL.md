@@ -68,8 +68,12 @@ harness review "<task>" --no-codex         # 단계 5 스킵 (Codex CLI 미설�
 ## --secure 자동 활성 조건
 
 - 사용자 명시 플래그
-- 변경에 다음 디렉터리 / 파일 포함:
-  - `auth/`, `crypto/`, `payment/`, `session/`, `permission/`, `oauth/`, `jwt`, `password`, `secret`
+- 변경에 다음 보안 카테고리 키워드 포함 (단어 경계 매칭, 대소문자 무시):
+  - 인증·세션·시크릿: `auth`, `crypto`, `payment`, `session`, `permission`, `oauth`, `jwt`, `password`, `secret`
+  - 자격증명·토큰: `token`, `apikey`, `api-key`, `api_key`
+  - 인증서·전송보안: `cert`, `tls`, `ssl`, `mtls`
+  - 웹 보안: `csrf`, `cors`, `xss`
+  - 외부 검증: `webhook`
 - 단계 5 verdict = block 후 round = 2 진입 시
 
 ## Fast 모드
