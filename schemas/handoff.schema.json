@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://harness.dev/schemas/handoff.schema.json",
+  "$id": "https://raw.githubusercontent.com/Ps-Neko/NEKOWORK/main/schemas/handoff.schema.json",
   "title": "Handoff JSON",
   "description": "단계 간 구조화된 핸드오프. 마크다운 5필드와 별도로 JSON 첨부 가능.",
   "type": "object",

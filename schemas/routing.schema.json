@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://harness.dev/schemas/routing.schema.json",
+  "$id": "https://raw.githubusercontent.com/Ps-Neko/NEKOWORK/main/schemas/routing.schema.json",
   "title": "Agent Routing Decision Trace",
   "description": ".harness/state/sessions/<id>/routing.jsonl 의 한 줄 형식",
   "type": "object",

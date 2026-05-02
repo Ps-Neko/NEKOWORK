@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://harness.dev/schemas/agent-yaml.schema.json",
+  "$id": "https://raw.githubusercontent.com/Ps-Neko/NEKOWORK/main/schemas/agent-yaml.schema.json",
   "title": "agent.yaml (gitagent/0.1.0)",
   "description": "단일 매니페스트. ECC gitagent 스펙 차용 + HARNESS 확장.",
   "type": "object",

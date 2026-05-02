@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://harness.dev/schemas/install-profiles.schema.json",
+  "$id": "https://raw.githubusercontent.com/Ps-Neko/NEKOWORK/main/schemas/install-profiles.schema.json",
   "title": "Install Profiles",
   "type": "object",
   "required": ["version", "profiles"],
