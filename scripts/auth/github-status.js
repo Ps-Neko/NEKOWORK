@@ -24,7 +24,8 @@ async function verify(tok) {
   const tok = await load('github');
   if (!tok) {
     process.stdout.write('GitHub: 미인증 (`npm run auth:github:login` 필요).\n');
-    process.exit(1);
+    process.exitCode = 1;
+    return;
   }
 
   process.stdout.write('GitHub 인증 상태:\n');
@@ -37,9 +38,9 @@ async function verify(tok) {
   if (v.ok) {
     process.stdout.write(`  user     : ${v.login}\n`);
     process.stdout.write(`  유효      : ✓\n`);
-    process.exit(0);
+    process.exitCode = 0;
   } else {
     process.stdout.write(`  유효      : ✗ (${v.status || v.error})\n`);
-    process.exit(2);
+    process.exitCode = 2;
   }
 })();

@@ -76,6 +76,7 @@ export async function dispatch(opts) {
     promptBody: body,
     context: opts.context || {},
     harnessRoot: root,
+    executionMode: opts.executionMode,
   });
   const durMs = Date.now() - startTs;
 

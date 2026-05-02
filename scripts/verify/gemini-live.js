@@ -4,7 +4,9 @@
 import { runGemini } from '../agents/runners/gemini.js';
 
 const started = Date.now();
-const result = await runGemini({
+let result;
+try {
+  result = await runGemini({
   agent: 'gemini-live-smoke',
   stage: 'ideate',
   task: [
@@ -20,7 +22,19 @@ const result = await runGemini({
     '{"decided":"Gemini CLI smoke passed","rejected":"","risks":"","files":["GEMINI_SMOKE.md"],"remaining":"","issues":[],"verdict":"approve","confidence":0.9}',
   ].join('\n'),
   context: {},
-});
+  });
+} catch (e) {
+  const msg = String(e?.message || e);
+  if (/Auth method|GEMINI_API_KEY|GOOGLE_GENAI_USE/i.test(msg)) {
+    console.error([
+      'Gemini CLI is installed, but headless auth is not configured.',
+      'Run interactive `gemini` once and choose Login with Google, or configure Vertex/ADC auth for headless mode.',
+      'HARNESS still blocks GEMINI_API_KEY/GOOGLE_API_KEY by default; use delegated Google/Gemini auth unless you explicitly opt into API-key billing.',
+    ].join('\n'));
+    process.exit(2);
+  }
+  throw e;
+}
 
 const ok = result?.verdict === 'approve'
   && Array.isArray(result.files)
