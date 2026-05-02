@@ -49,6 +49,16 @@ harness review "<task>" --no-codex         # 단계 5 스킵 (Codex CLI 미설�
 | 6 codex-challenge | codex-challenger | — | --secure 또는 critical 발견 |
 | 7 ship | doc-writer, git-master | — | 모든 게이트 PASS |
 
+## 단계 5+6 병렬 실행
+
+`codex-review` 와 `codex-challenge` 는 같은 입력(`prd` / `priorHandoffs` / `diff`)을 받고 컨텍스트가 독립이라
+orchestrator 가 `Promise.all` 로 동시 호출한다. codex CLI 호출 시간(풀사이클의 가장 큰 비용)을
+1회 비용으로 단축.
+
+- 직렬 의미 동일: stage 5 critical 시 stage 6 결과는 폐기 (humanGate 즉시 return)
+- `--fast` 또는 sensitive 미감지 + `--secure` 미지정이면 stage 6 자체 스킵 (병렬 안 함)
+- 코드: `scripts/orchestrators/review.js` 의 5+6 블록
+
 ## Verdict 처리 + Fix Loop
 
 각 단계의 핸드오프는 `verdict: block | approve_with_fixes | approve` 와 issues 배열을 갖는다.
