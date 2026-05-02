@@ -4,6 +4,32 @@
 
 ## [Unreleased]
 
+### Added (Local-first runner/auth port, 2026-05-02)
+- `scripts/core/auth-guard.js` — Claude/Codex/Gemini CLI 호출 직전 long-lived API key 환경변수 차단. `HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1` 명시 옵트아웃.
+- `scripts/core/{cli-resolver,json-extractor,subprocess}.js` — provider runner 공통 CLI 탐색, JSON 추출, subprocess 수집 유틸.
+- `scripts/core/git-mutation-guard.js` — read-only / handoff-mode runner 실행 전후 git 상태 비교로 workspace mutation 감지.
+- `scripts/verify/claude-live.js` + `npm run verify:claude` — Claude Code CLI 구독/OAuth 세션 smoke.
+- `scripts/verify/gemini-live.js` + `npm run verify:gemini` — Gemini CLI local auth smoke.
+- `runtime/Cargo.lock` — Rust binary runtime dependency lockfile committed after successful build verification.
+- `tests/unit/auth-guard.test.js`, `tests/unit/core-utils.test.js`, `tests/unit/git-mutation-guard.test.js` — delegated CLI auth guard, core runner utility, workspace mutation guard 단위 테스트.
+- `@anthropic-ai/sdk` optional dependency — `HARNESS_CLAUDE_RUNNER=sdk` 명시 opt-in 경로 지원.
+
+### Changed (Local-first runner/auth port)
+- `scripts/agents/runners/claude.js` — 기본 live runner 를 Anthropic SDK/API-key 에서 Claude Code CLI(`claude -p`) 위임으로 전환. SDK 경로는 `HARNESS_CLAUDE_RUNNER=sdk` 명시 시에만 사용.
+- `scripts/agents/runners/claude.js` — CLI 실행을 non-interactive handoff mode 로 명시하고 `--permission-mode plan` + git mutation guard 를 적용. 의도한 쓰기 실험은 `HARNESS_CLAUDE_ALLOW_WORKSPACE_MUTATION=1`.
+- `scripts/agents/runners/codex.js`, `scripts/agents/runners/gemini.js` — 공통 auth guard 적용.
+- `scripts/agents/runners/codex.js` — `codex exec --sandbox read-only` 를 `harnessRoot` cwd 에서 실행하고, 전후 git mutation guard 로 sandbox 우회를 감지.
+- `scripts/agents/runners/gemini.js` — prompt body 포함, non-interactive handoff mode 명시, git mutation guard 적용.
+- `scripts/agents/runners/{claude,codex,gemini}.js` — 중복 `which` / subprocess / JSON 추출 로직을 `scripts/core/` 로 이동.
+- `scripts/core/subprocess.js` — Windows timeout 시 `.cmd` shim 하위 프로세스까지 `taskkill /t` 로 정리.
+- `package.json` — unused `vitest` devDependency 제거. Repo 기본 테스트 러너를 `node:test` 로 문서화하고 npm audit 0 vulnerabilities 로 정리.
+- `runtime/Cargo.toml` — add missing `ctrlc` dependency and enable `clap/env` feature.
+- `runtime/src/ipc.rs` — ignore leading UTF BOM in PowerShell pipeline input.
+- `runtime/README.md` — replace skeleton note with Windows build and smoke instructions.
+- `scripts/orchestrators/review.js` — live provider 실패 시 기본 mock fallback 제거. fallback 은 `HARNESS_LIVE_ALLOW_MOCK_FALLBACK=1` 명시 opt-in 으로만 허용.
+- `scripts/cli.js`, `docs/SETUP.md`, `docs/RUNBOOK.md`, `docs/PORTING.md` — `--live` 설명을 local CLI auth first 로 갱신.
+- `scripts/agents/runners/codex.js` — PascalCase live 응답과 `Risks` 배열을 handoff schema 로 정규화.
+
 ### Added (Auth migration, 2026-04-30 머지)
 - `agent.yaml#auth` — 3계층 인증 모델 (`delegated_cli_auth` / `oauth_device` / `api_key_vault`) + 정책 (`block_subscription_override`, `redact_tokens_in_audit`, `deny_static_api_keys_in_repo`).
 - `schemas/agent-yaml.schema.json` — `auth` 섹션 스키마 검증.
@@ -13,23 +39,17 @@
 - `scripts/lib/keychain.js` — `@napi-rs/keyring` wrapper (Windows Credential Manager / macOS Keychain / Linux Secret Service 통일 API).
 - `tests/unit/token-vault.test.js`, `tests/optional/keychain-smoke.test.js` (`HARNESS_KEYCHAIN_SMOKE=1` 게이트).
 - `docs/AUTH-MIGRATION.md` — 정책 / 단계별 마이그레이션 / 사용자 가이드 / 보안 노트 / smoke checklist (§8).
-- `scripts/agents/runners/codex.js` — Codex CLI 0.125 live 응답의 PascalCase handoff(`Decided`/`Risks`/`Files`)를 내부 schema(`decided`/`issues`/`files`/`verdict`)로 정규화.
-- `scripts/verify/claude-live.js` / `npm run verify:claude` — Claude Code CLI 구독 OAuth 세션 기반 live smoke. API key 없이 runner 파싱 검증.
 
 ### Changed (Auth migration)
 - `.env.example` — LLM API key 슬롯 제거, `HARNESS_GITHUB_CLIENT_ID` 신설, `GITHUB_TOKEN` 은 fallback 격하, Context7/Exa 는 vault 권장 안내.
 - `docs/RUNBOOK.md` — §0/§4/§10 인증 안내를 OAuth 위임 기반으로 갱신.
 - `docs/ARCHITECTURE.md` — auth 섹션 정합.
-- README / AUDIT / RUNBOOK / SETUP / PORTING — 현재 로컬 테스트 현황을 84/84 PASS (67 unit + 10 integration + 7 e2e) 로 정합화하고, mock 기준 MVP와 live 미검증 영역을 분리 표기.
-- `scripts/agents/runners/claude.js` — 기본 live runner 를 Anthropic SDK/API-key 에서 Claude Code CLI(`claude -p`) 위임으로 전환. SDK 경로는 `HARNESS_CLAUDE_RUNNER=sdk` 명시 시에만 사용.
 
 ### Smoke (acceptance criteria, 2026-04-30)
 - ✅ #1 `claude /status` — Login: **Claude Max account**, API Key 미사용.
-- ✅ Claude Code CLI live smoke — `claude 2.1.123`, `npm run verify:claude` PASS (`verdict=approve`, API key 미사용).
 - ✅ #2 `pre-bash-dispatcher` 차단 — 3 케이스 (차단 exit 2 / 통과 exit 0 / 옵트아웃 exit 0).
 - ⏸ #3 GitHub OAuth Device Flow — OAuth App 미등록, 실제 GitHub automation 사용 시점에 수행 결정.
 - ✅ #4 OS keychain (Windows Credential Manager) — set/get/remove 사이클 9.4ms.
-- ✅ Codex CLI live smoke — `codex-cli 0.125.0`, `node scripts/verify/codex-live.js` PASS (`verdict=block`, issues=2). Live 응답의 PascalCase handoff 정규화 추가.
 
 ### 머지 흔적
 - main: `60e9de9` → `7c4f2c8` (+4 commits, rebase merge).
@@ -39,8 +59,8 @@
 - PR #4 (`phase-4-codex-compat`) 는 본 작업과 무관 OPEN 잔존.
 
 ### 다음 후보 (`docs/AUDIT.md §5` + `docs/dev-log/2026-04-29-p1-recovery.md §6` 참조)
-- **P0** (사용자 동의): Claude Code CLI live 축소 풀사이클, ~~GitHub push + Actions 실 동작~~ (auth migration 머지로 수행됨), 사내 PoC 결합
-- **P2** (외부 의존): Rust runtime 컴파일, Gemini CLI live 검증, npm publish 결정
+- **P0** (사용자 동의): Claude CLI live smoke, ~~GitHub push + Actions 실 동작~~ (auth migration 머지로 수행됨), 사내 PoC 결합
+- **P2** (외부 의존): Gemini CLI 설치 후 live 검증, npm publish 결정, origin/main 통합 PR
 - **P3** (사내 임팩트, 사용자 명시 시): 사내 풀 결합, `runners/internal.js` 사내 LLM, 사내 GitLab CI 가이드
 - **Auth**: smoke #3 (GitHub OAuth Device Flow) — OAuth App 등록 후 `HARNESS_GITHUB_CLIENT_ID` 설정 → `npm run auth:github:login` 실연.
 
@@ -69,7 +89,7 @@
   - `agent.yaml.harnesses[].name` 전부를 빌드 (이전엔 `['claude', 'codex']` 하드코딩).
   - `source_sha256` 을 placeholder `0`*64 → 카탈로그 입력 (`agent.yaml + agents/ + skills/ + commands/ + hooks/ + manifests/`) 의 실 sha256.
   - `targets[].sha256` 추가 — 출력 디렉터리의 실 sha256.
-- `package.json` — `lint` / `test` 가 실 명령 매핑 (`catalog + validate:all` / 73 테스트, auth migration 이후 82 테스트, Codex 정규화 이후 83 테스트). `test:unit` / `test:integration` / `test:e2e` 분리. `build:codemaps` 추가.
+- `package.json` — `lint` / `test` 가 실 명령 매핑 (`catalog + validate:all` / 73 테스트). `test:unit` / `test:integration` / `test:e2e` 분리. `build:codemaps` 추가.
 - `scripts/ci/catalog.js` — 경고 메시지의 "(Day 2 에 작성 예정)" 등 stub 흔적 제거.
 - `scripts/cli.js`, `bridge/mcp-server.js`, `hooks/scripts/pre-bash-dispatcher.js`, `scripts/daemon/wait.js`, `scripts/orchestrators/ralph.js` — "Day N" 코멘트 흔적 정리.
 - `CLAUDE.md` / `.claude/CLAUDE.md` — 자동 영역 마커 정합 + 카탈로그 컨텐츠 갱신.
@@ -100,7 +120,7 @@
   - supervisor: wakeup.json 폴링 → Node CLI ralph spawn, HUMAN_GATE 즉시 무시
   - ipc: stdio JSON-RPC 단일 요청 (ping / session.upsert / handoff.record / session.list)
 - `runtime/README.md` — 빌드 / 사용 / Node 데몬과의 관계 (동시 실행 금지)
-- 컴파일 검증은 다음 세션 (rustup 미설치)
+- 컴파일 검증은 2026-05-02 완료 (`cargo build --release`, help/init/status/ipc ping).
 
 ### Added (Day 19-20)
 - `docs/AUDIT.md` — Week 1~4 통합 검토
@@ -116,7 +136,7 @@
 ### 누적 (Week 1+2+3+4)
 - 5 커밋, ~100 파일, ~12,000 LOC
 - 단위 테스트: 5+10+6+3+15+5+12 = **56/56 PASS**
-- Rust runtime 골격 추가 (529 LOC, 컴파일 미검증)
+- Rust runtime 골격 추가 (529 LOC, 2026-05-02 컴파일 검증 완료)
 
 ## [0.0.1-week3] — 2026-04-29
 
@@ -203,7 +223,7 @@
 - `scripts/agents/dispatch.js` — agent.md frontmatter 읽고 provider runner 위임
 - `scripts/agents/runners/{mock,claude,codex,gemini}.js` — 4 provider runner
   - mock (default, dry-run): 결정론적 응답
-  - claude: Claude Code CLI delegated auth 기본, SDK/API-key 는 명시 opt-in
+  - claude: 기본은 Claude Code CLI 세션, SDK/API-key 는 HARNESS_CLAUDE_RUNNER=sdk opt-in
   - codex: subprocess + JSON 파싱, sandbox=read-only/no-net 강제
   - gemini: subprocess
 - `scripts/orchestrators/review.js` — 7단계 Stage Routing
@@ -293,5 +313,5 @@ harness version
 
 ### 의존성
 - Node 22+ (테스트는 24.14.0)
-- npm packages: ajv, ajv-formats, yaml, @modelcontextprotocol/sdk, vitest, typescript, @types/node
-- 옵션: ANTHROPIC_API_KEY (--live), codex CLI (Codex provider live), gemini CLI (Gemini provider live)
+- npm packages: ajv, ajv-formats, yaml, @modelcontextprotocol/sdk, typescript, @types/node, optional @anthropic-ai/sdk
+- 옵션: Claude/Codex/Gemini CLI 세션 (`--live`), HARNESS_CLAUDE_RUNNER=sdk + ANTHROPIC_API_KEY (CI/API-key opt-in)

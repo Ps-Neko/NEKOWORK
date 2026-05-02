@@ -13,13 +13,17 @@
 //
 // 출력: stdout 의 JSON. 5필드 + issues + verdict.
 
-import { spawn } from 'node:child_process';
-import path from 'node:path';
-import fs from 'node:fs';
+import { assertDelegatedCliAuth } from '../../core/auth-guard.js';
+import { resolveCli } from '../../core/cli-resolver.js';
+import { withGitMutationGuard } from '../../core/git-mutation-guard.js';
+import { extractJson } from '../../core/json-extractor.js';
+import { spawnAndCollect } from '../../core/subprocess.js';
 import { classifyCategory, classifySeverity, deriveVerdict } from '../../lib/severity.js';
 
 export async function runCodex(args) {
-  const codexBin = which('codex');
+  assertDelegatedCliAuth('codex');
+
+  const codexBin = resolveCli('codex');
   if (!codexBin) {
     throw new Error('codex CLI 미설치. https://github.com/openai/codex 또는 --provider=mock 사용.');
   }
@@ -43,7 +47,16 @@ export async function runCodex(args) {
     cliArgs.push(...process.env.HARNESS_CODEX_EXTRA_ARGS.split(' '));
   }
 
-  const stdout = await spawnAndCollect(codexBin, cliArgs, promptText);
+  const cwd = args.harnessRoot || process.cwd();
+  const stdout = await withGitMutationGuard(
+    cwd,
+    () => spawnAndCollect(codexBin, cliArgs, promptText, {
+      label: 'codex',
+      timeoutMs: Number(process.env.HARNESS_CODEX_TIMEOUT_S || 180) * 1000,
+      cwd,
+    }),
+    { label: 'codex', allowEnvKey: 'HARNESS_CODEX_ALLOW_WORKSPACE_MUTATION' },
+  );
   // codex CLI 0.125+ stdout: "user\n<prompt echo>\n\ncodex\n<응답>".
   // echo 된 user prompt 에 ```json``` 펜스가 있으면 extractJson 이 오매칭하므로,
   // "codex" 라벨 (단독 줄) 이후만 파싱한다.
@@ -94,79 +107,6 @@ function buildPrompt(a) {
     lines.push('```');
   }
   return lines.join('\n');
-}
-
-function spawnAndCollect(bin, args, stdin) {
-  return new Promise((resolve, reject) => {
-    const child = spawnCodexProcess(bin, args);
-    let out = '', err = '';
-    const timeout = setTimeout(() => {
-      try { child.kill(); } catch {}
-      reject(new Error('codex timeout'));
-    }, Number(process.env.HARNESS_CODEX_TIMEOUT_S || 180) * 1000);
-    child.stdout.on('data', (d) => (out += d.toString()));
-    child.stderr.on('data', (d) => (err += d.toString()));
-    child.on('error', (err) => {
-      clearTimeout(timeout);
-      reject(err);
-    });
-    child.on('close', (code) => {
-      clearTimeout(timeout);
-      if (code !== 0) reject(new Error(`codex exit ${code}\nstderr:\n${err}`));
-      else resolve(out);
-    });
-    child.stdin.end(stdin);
-  });
-}
-
-function spawnCodexProcess(bin, args) {
-  const isWinShim = process.platform === 'win32' && /\.(cmd|bat)$/i.test(bin);
-  if (!isWinShim) {
-    return spawn(bin, args, { stdio: ['pipe', 'pipe', 'pipe'] });
-  }
-
-  const comspec = process.env.ComSpec || 'cmd.exe';
-  return spawn(comspec, ['/d', '/c', bin, ...args], { stdio: ['pipe', 'pipe', 'pipe'] });
-}
-
-function which(bin) {
-  const sep = process.platform === 'win32' ? ';' : ':';
-  const exts = process.platform === 'win32'
-    ? (process.env.PATHEXT || '.EXE;.CMD;.BAT').split(';').map(e => e.toLowerCase())
-    : [''];
-  for (const dir of (process.env.PATH || '').split(sep)) {
-    if (!dir) continue;
-    for (const x of exts) {
-      const full = path.join(dir, bin + x);
-      if (fs.existsSync(full)) return full;
-    }
-  }
-  return null;
-}
-
-export function extractJson(text) {
-  if (typeof text !== 'string') return null;
-  const m = text.match(/```json\s*([\s\S]*?)```/i);
-  if (m) return m[1].trim();
-  const start = text.indexOf('{');
-  if (start < 0) return null;
-  let depth = 0, inStr = false, esc = false;
-  for (let i = start; i < text.length; i++) {
-    const c = text[i];
-    if (inStr) {
-      if (esc) esc = false;
-      else if (c === '\\') esc = true;
-      else if (c === '"') inStr = false;
-      continue;
-    }
-    if (c === '"') { inStr = true; continue; }
-    if (c === '{') depth++;
-    else if (c === '}') {
-      depth--;
-      if (depth === 0) return text.slice(start, i + 1);
-    }
-  }
-  return null;
 }
 
 function normalizeHandoff(raw) {
@@ -241,4 +181,4 @@ function normalizeVerdict(verdict, issues, decided) {
   return deriveVerdict(issues);
 }
 
-export { buildPrompt as _buildPrompt, normalizeHandoff as _normalizeHandoff };
+export { buildPrompt as _buildPrompt, extractJson, normalizeHandoff as _normalizeHandoff };

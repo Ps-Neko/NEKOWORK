@@ -67,6 +67,7 @@
     "install:apply": "node scripts/install-apply.js",
     "verify:claude": "node scripts/verify/claude-live.js",
     "verify:codex": "node scripts/verify/codex-live.js",
+    "verify:gemini": "node scripts/verify/gemini-live.js",
     "auth:github:login": "node scripts/auth/github-login.js",
     "auth:github:status": "node scripts/auth/github-status.js",
     "auth:github:logout": "node scripts/auth/github-logout.js",
@@ -81,7 +82,9 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
-    "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "typescript": "^5.7.2"
+  },
+  "optionalDependencies": {
+    "@anthropic-ai/sdk": "^0.92.0"
   }
 }

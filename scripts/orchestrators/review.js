@@ -194,7 +194,10 @@ async function runWithFallback({ agent, stage, task, live, root, context, sessio
     return await dispatch({ agent, stage, task, live, harnessRoot: root, context, sessionDir, sessionId });
   } catch (e) {
     if (live) {
-      console.error(`[review] ${agent}/${stage} live 실패 → mock 폴백: ${e.message}`);
+      if (process.env.HARNESS_LIVE_ALLOW_MOCK_FALLBACK !== '1') {
+        throw new Error(`${agent}/${stage} live 실패: ${e.message}`);
+      }
+      console.error(`[review] ${agent}/${stage} live 실패 → mock 폴백(HARNESS_LIVE_ALLOW_MOCK_FALLBACK=1): ${e.message}`);
       return await dispatch({
         agent, stage, task, live: false, harnessRoot: root, context,
         providerOverride: 'mock', sessionDir, sessionId,

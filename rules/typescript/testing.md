@@ -4,7 +4,7 @@
 
 ## 1. 프레임워크
 
-- 단위 / 통합: **vitest** (이미 devDependency).
+- 단위 / 통합: **node:test** (repo default). Vitest 는 필요할 때 프로젝트별 devDependency 로 추가.
 - E2E: **Playwright**.
 - 노드 코어 스크립트(`scripts/`): `node --test` 로 충분.
 
@@ -15,23 +15,23 @@
 - E2E: `tests/e2e/<flow>.spec.ts`.
 - 픽스처: `tests/fixtures/<area>/`.
 
-## 3. vitest 패턴
+## 3. node:test 패턴
 
-```ts
-import { describe, it, expect, beforeEach } from 'vitest';
+```js
+import { test, beforeEach } from 'node:test';
+import assert from 'node:assert/strict';
 
-describe('router', () => {
-  beforeEach(() => { /* reset */ });
-  it('opus 로 critical 라우팅', () => {
-    expect(route({ severity: 'critical' })).toBe('opus');
-  });
+beforeEach(() => { /* reset */ });
+
+test('router: critical routes to opus', () => {
+  assert.equal(route({ severity: 'critical' }), 'opus');
 });
 ```
 
-- `it.each` 로 테이블 케이스.
-- `vi.mock` 으로 모듈 모킹 — 실 구현 import 가 모킹된 모듈을 받도록 hoisting 주의.
+- table case 는 배열 + `for ... of` 로 작성.
+- 모듈 mock 이 꼭 필요하면 테스트 대상의 의존성 주입 경계를 먼저 검토.
 
-## 4. node:test 패턴 (스크립트)
+## 4. node:test 실행
 
 이 레포의 `tests/unit/*.test.js` 는 다음 형태:
 
@@ -50,7 +50,7 @@ test('router: critical → opus', () => {
 ## 5. 모킹
 
 - 외부 의존(SDK, 네트워크) 만 mock. 자체 모듈은 가능한 한 실 구현.
-- `vi.fn()` 은 호출 인자·횟수까지 검증.
+- mock 함수가 필요하면 `node:test` 의 `mock.fn()` 또는 작은 fake 구현을 사용.
 - `nock` / `msw` 로 HTTP 모킹.
 
 ## 6. 비동기 테스트
@@ -67,8 +67,8 @@ test('router: critical → opus', () => {
 
 ## 8. 커버리지
 
-- vitest: `npx vitest run --coverage`.
-- v8 또는 istanbul 백엔드. 라인 80% 이상.
+- Node/V8 coverage: `node --test --experimental-test-coverage tests/unit/*.test.js`.
+- v8 또는 istanbul 기반 라인 80% 이상.
 - `coverage/` 는 `.gitignore`. `lcov.info` 만 CI 아티팩트로.
 
 ## 9. 에이전트 지원

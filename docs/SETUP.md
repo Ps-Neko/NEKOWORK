@@ -14,7 +14,7 @@
 git clone https://github.com/Ps-Neko/NEKOWORK.git harness
 cd harness
 npm ci
-npm test                                          # 84/84 PASS 기대
+npm test                                          # PASS 기대
 node scripts/install-plan.js --profile core      # 설치 dry-run
 ```
 
@@ -28,16 +28,20 @@ node scripts/install-plan.js --profile core      # 설치 dry-run
 # CLI 설치
 npm install -g @openai/codex
 
-# 인증 (택1)
+# 인증
 codex login                                       # ChatGPT 인증 (구독 필요, 토큰 무과금)
-# 또는
-export OPENAI_API_KEY="sk-..."                   # API 키 (토큰 과금)
+# 종량제 API key 사용은 명시 opt-in 때만:
+# export OPENAI_API_KEY="sk-..."
+# export HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1
 
 # 회귀 검증 (~25s, ~15K 토큰)
 npm run verify:codex
 ```
 
 호환 버전: codex CLI ≥ 0.124.0. `codex exec --sandbox read-only` 비대화형 호출 사용.
+`read-only` sandbox 는 단독 보안 경계로 보지 않는다. `runCodex` 는 실행 전후 `git status --porcelain` 을 비교해 작업공간 변조를 차단하며, 의도한 변조 실험일 때만 `HARNESS_CODEX_ALLOW_WORKSPACE_MUTATION=1` 로 우회한다.
+기본 경로에서는 `OPENAI_API_KEY` 가 설정되어 있으면 차단한다. ChatGPT 로그인 세션을 쓰려면
+`unset OPENAI_API_KEY` 후 실행한다.
 
 > ℹ️ codex CLI 0.125.0 기준 stdout 형식이 `user\n<prompt echo>\n\ncodex\n<응답>` 으로 변경됨.
 > `scripts/agents/runners/codex.js` 의 `runCodex` 가 `\ncodex\n` 라벨 이후만 파싱하도록 처리.
@@ -53,21 +57,27 @@ node scripts/cli.js review "<task>" --live --no-ship
 기본 runner 는 `claude -p` 를 호출하므로 Claude Pro/Max 구독 세션을 사용한다.
 `ANTHROPIC_API_KEY` 는 기본 경로에 필요 없다. SDK/API-key 경로가 꼭 필요할 때만
 `HARNESS_CLAUDE_RUNNER=sdk` 와 `ANTHROPIC_API_KEY` 를 명시한다.
+CLI handoff mode 는 실행 전후 git 상태를 비교해 예기치 않은 파일 쓰기를 차단한다.
+의도적으로 Claude CLI 쓰기 실험을 할 때만 `HARNESS_CLAUDE_ALLOW_WORKSPACE_MUTATION=1` 을 사용한다.
 
 ### 3. Gemini CLI live (research agent)
 
 ```bash
-# Google 공식 Gemini CLI 설치 후
-export GEMINI_API_KEY="..."
-# 또는 gcloud auth application-default login
+# Google 공식 Gemini CLI 설치 후 local auth 사용
+gcloud auth application-default login
+# 종량제 API key 사용은 HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1 로 명시 opt-in 할 때만
+npm run verify:gemini
 ```
 
-전용 회귀 검증 스크립트는 미작성 (향후 `npm run verify:gemini` 추가 예정).
+`gemini` CLI 가 PATH 에 없으면 `verify:gemini` 는 명확히 실패한다.
+기본 경로에서 `GEMINI_API_KEY` / `GOOGLE_API_KEY` 가 설정되어 있으면 auth guard 가 차단한다.
 
 ### 4. Rust runtime 컴파일
 
 ```bash
 # rustup 설치 (https://rustup.rs)
+# Windows MSVC target 은 Visual Studio Build Tools C++ workload 필요
+winget install --id Microsoft.VisualStudio.2022.BuildTools -e --override "--wait --quiet --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --norestart"
 cd runtime
 cargo build --release
 ./target/release/harness-runtime --help
@@ -77,11 +87,9 @@ cargo build --release
 
 ### 5. GitHub Actions live (PR 자동 7단계 리뷰)
 
-```bash
-# GitHub-hosted Actions 에서 direct Anthropic API 를 쓰려면 별도 secret 이 필요.
-# 로컬/자체 runner 에서는 Claude Code CLI 로그인 세션을 권장.
-gh secret set ANTHROPIC_API_KEY -R <owner>/<repo>
-```
+GitHub-hosted runner 는 로컬 Claude/Codex 로그인 세션이 없으므로 기본은 mock 이다.
+CI 에서 Claude API secret 으로 live 를 켜려면 `HARNESS_CLAUDE_RUNNER=sdk` 와
+`ANTHROPIC_API_KEY` 를 함께 설정하는 명시 opt-in 경로를 사용한다.
 
 이후 PR 생성 시 `harness-review` workflow 가 7단계 풀사이클 자동 적용 + handoff 아티팩트 업로드 + PR 코멘트.
 

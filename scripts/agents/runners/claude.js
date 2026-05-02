@@ -2,9 +2,11 @@
 // Default live mode uses the local Claude Code CLI subscription/OAuth session.
 // Set HARNESS_CLAUDE_RUNNER=sdk to opt into Anthropic SDK/API-key mode.
 
-import { spawn } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
+import { assertDelegatedCliAuth } from '../../core/auth-guard.js';
+import { resolveCli } from '../../core/cli-resolver.js';
+import { withGitMutationGuard } from '../../core/git-mutation-guard.js';
+import { extractJson } from '../../core/json-extractor.js';
+import { spawnAndCollect } from '../../core/subprocess.js';
 
 const MODEL_MAP = {
   opus: 'claude-opus-4-7',
@@ -56,24 +58,36 @@ async function runClaudeSdk(args) {
 }
 
 async function runClaudeCli(args) {
-  const claudeBin = which('claude');
+  assertDelegatedCliAuth('claude');
+
+  const claudeBin = resolveCli('claude');
   if (!claudeBin) {
     throw new Error('claude CLI is not installed. Install/login to Claude Code, or explicitly use HARNESS_CLAUDE_RUNNER=sdk with ANTHROPIC_API_KEY.');
   }
 
   const systemPrompt = buildSystem(args);
   const userPrompt = buildUserMessage(args);
-  const modelId = MODEL_MAP[args.model] || args.model;
+  const modelId = process.env.HARNESS_CLAUDE_MODEL || args.model || 'sonnet';
   const cliArgs = [
     '-p',
     '--output-format', 'json',
     '--no-session-persistence',
     '--tools', '',
+    '--permission-mode', 'plan',
     '--model', modelId,
     '--system-prompt', systemPrompt,
   ];
 
-  const stdout = await spawnAndCollect(claudeBin, cliArgs, userPrompt);
+  const cwd = args.harnessRoot || process.cwd();
+  const stdout = await withGitMutationGuard(
+    cwd,
+    () => spawnAndCollect(claudeBin, cliArgs, userPrompt, {
+      label: 'claude',
+      timeoutMs: Number(process.env.HARNESS_CLAUDE_TIMEOUT_S || 180) * 1000,
+      cwd,
+    }),
+    { label: 'claude', allowEnvKey: 'HARNESS_CLAUDE_ALLOW_WORKSPACE_MUTATION' },
+  );
   const wrapper = parseCliJson(stdout);
   const text = typeof wrapper?.result === 'string' ? wrapper.result : stdout;
   const jsonText = extractJson(text);
@@ -97,6 +111,9 @@ function buildSystem(a) {
 Sandbox: ${a.sandbox || 'workspace-write'}.
 Output rules: respond with ONE JSON object conforming to schemas/handoff.schema.json.
 No prose outside JSON. Korean for natural-language fields.
+Non-interactive handoff mode: do not call tools, edit files, run shell commands, wait for approvals, or make commits.
+If the agent body asks you to implement, test, or commit, summarize the intended change and evidence in JSON only.
+Keep the JSON concise so the CLI can finish promptly.
 
 Agent body:
 ${a.promptBody}`;
@@ -135,80 +152,6 @@ function buildUserMessage(a) {
   return lines.join('\n');
 }
 
-export function extractJson(text) {
-  if (typeof text !== 'string') return null;
-  const m = text.match(/```json\s*([\s\S]*?)```/i);
-  if (m) return m[1].trim();
-  const start = text.indexOf('{');
-  if (start < 0) return null;
-  let depth = 0;
-  let inStr = false, esc = false;
-  for (let i = start; i < text.length; i++) {
-    const c = text[i];
-    if (inStr) {
-      if (esc) esc = false;
-      else if (c === '\\') esc = true;
-      else if (c === '"') inStr = false;
-      continue;
-    }
-    if (c === '"') { inStr = true; continue; }
-    if (c === '{') depth++;
-    else if (c === '}') {
-      depth--;
-      if (depth === 0) return text.slice(start, i + 1);
-    }
-  }
-  return null;
-}
-
-function spawnAndCollect(bin, args, stdin) {
-  return new Promise((resolve, reject) => {
-    const child = spawnClaudeProcess(bin, args);
-    let out = '', err = '';
-    const timeout = setTimeout(() => {
-      try { child.kill(); } catch {}
-      reject(new Error('claude timeout'));
-    }, Number(process.env.HARNESS_CLAUDE_TIMEOUT_S || 180) * 1000);
-    child.stdout.on('data', (d) => (out += d.toString()));
-    child.stderr.on('data', (d) => (err += d.toString()));
-    child.on('error', (err) => {
-      clearTimeout(timeout);
-      reject(err);
-    });
-    child.on('close', (code) => {
-      clearTimeout(timeout);
-      if (code !== 0) reject(new Error(`claude exit ${code}\nstderr:\n${err}`));
-      else resolve(out);
-    });
-    child.stdin.end(stdin);
-  });
-}
-
-function spawnClaudeProcess(bin, args) {
-  const isWinShim = process.platform === 'win32' && /\.(cmd|bat)$/i.test(bin);
-  if (!isWinShim) {
-    return spawn(bin, args, { stdio: ['pipe', 'pipe', 'pipe'] });
-  }
-
-  const comspec = process.env.ComSpec || 'cmd.exe';
-  return spawn(comspec, ['/d', '/c', bin, ...args], { stdio: ['pipe', 'pipe', 'pipe'] });
-}
-
-function which(bin) {
-  const sep = process.platform === 'win32' ? ';' : ':';
-  const exts = process.platform === 'win32'
-    ? (process.env.PATHEXT || '.EXE;.CMD;.BAT').split(';').map(e => e.toLowerCase())
-    : [''];
-  for (const dir of (process.env.PATH || '').split(sep)) {
-    if (!dir) continue;
-    for (const x of exts) {
-      const full = path.join(dir, bin + x);
-      if (fs.existsSync(full)) return full;
-    }
-  }
-  return null;
-}
-
 function parseCliJson(stdout) {
   const text = String(stdout || '').trim();
   if (!text) return null;
@@ -230,6 +173,7 @@ function normalizeCliUsage(usage) {
 export {
   buildSystem as _buildSystem,
   buildUserMessage as _buildUserMessage,
+  extractJson,
   parseCliJson as _parseCliJson,
   normalizeCliUsage as _normalizeCliUsage,
 };

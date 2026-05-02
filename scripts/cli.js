@@ -36,7 +36,8 @@ harness <verb> [args]
   codex-review                           단계 5 만 (Codex 독립 리뷰)
 
 옵션:
-  --live      실 LLM 호출 (ANTHROPIC_API_KEY + codex CLI 필요)
+  --live      로컬 CLI 세션 호출. Claude는 claude auth login 세션,
+              Codex는 codex 로그인 세션 사용. API KEY 불필요.
   (기본)      mock provider — API 키 / CLI 없이 풀사이클 검증
 
 영속 / ralph
