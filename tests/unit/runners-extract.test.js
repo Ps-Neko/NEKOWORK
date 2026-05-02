@@ -11,6 +11,7 @@ import {
   _normalizeCliUsage,
 } from '../../scripts/agents/runners/claude.js';
 import { extractJson as extractCodex, _buildPrompt, _normalizeHandoff } from '../../scripts/agents/runners/codex.js';
+import { _buildPrompt as _buildGeminiPrompt } from '../../scripts/agents/runners/gemini.js';
 
 test('extractJson: ```json 펜스 블록', () => {
   const text = 'before\n```json\n{"verdict":"approve","issues":[]}\n```\nafter';
@@ -145,4 +146,19 @@ test('codex normalizeHandoff: PascalCase live 응답을 handoff schema 로 정�
   assert.equal(h.issues[0].severity, 'critical');
   assert.equal(h.issues[0].category, 'security');
   assert.equal(h.verdict, 'block');
+});
+
+test('gemini buildPrompt includes handoff mode and agent body', () => {
+  const p = _buildGeminiPrompt({
+    agent: 'research',
+    stage: 'ideate',
+    task: 'smoke',
+    sandbox: 'read-only',
+    promptBody: 'Return only JSON.',
+    context: { prd: { task: 'x' } },
+  });
+  assert.match(p, /HARNESS agent "research"/);
+  assert.match(p, /Non-interactive handoff mode/);
+  assert.match(p, /Return only JSON/);
+  assert.match(p, /## PRD/);
 });

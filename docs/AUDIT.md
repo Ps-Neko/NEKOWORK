@@ -168,10 +168,10 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 | Provider runners | 4 (mock/claude/codex/gemini) |
 | MCP 도구 | 7 |
 | CLI verbs | 10 (install / validate / review / plan / ralph / wait / sessions / costs / instincts / version) |
-| 단위 테스트 | **81/81 PASS** (기존 56 + auth guard / core runner utils / git mutation guard / runner wrapper / codex normalization / live fallback guard / token vault 등) |
+| 단위 테스트 | **82/82 PASS** (기존 56 + auth guard / core runner utils / git mutation guard / runner wrapper / codex/gemini prompt normalization / live fallback guard / token vault 등) |
 | 통합 테스트 | **10/10 PASS** (build pipeline + state 영속 + repair detection + sync-claude-md + codemaps + validate:all + check-markers) |
 | E2E 테스트 | **7/7 PASS** (demo-review 7단계 + 5필드 무결성 + --secure + round 카운터 + CLI version/help) |
-| 전체 테스트 | **98/98 PASS** |
+| 전체 테스트 | **99/99 PASS** |
 | GitHub Actions | 2 |
 
 ## 8. 결론
@@ -184,7 +184,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 - stub 메시지 흔적 → 정리
 - install-apply sha256 placeholder → 실값
 - 테스트 52 → 73 (integration + e2e 추가)
-- local-first auth 포팅 + Codex mutation guard 후 테스트 98/98 PASS
+- local-first auth 포팅 + provider mutation guard 후 테스트 99/99 PASS
 - ARCHITECTURE 풀 18절 본문 528줄
 
-잔존 부채는 **외부 의존이 큰 검증 4종** (Claude/Codex/Gemini CLI live / GitHub push) + **Rust 컴파일** + **사내 임팩트 (사용자 명시 시점)**. 자체 완결 가능한 영역은 **99% 정합성 도달**.
+잔존 부채는 **외부 의존 검증** (Gemini CLI 설치 후 live smoke / GitHub push) + **Rust 컴파일** + **npm publish 결정** + **사내 임팩트 (사용자 명시 시점)**. 자체 완결 가능한 영역은 **99% 정합성 도달**.

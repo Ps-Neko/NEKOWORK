@@ -47,7 +47,8 @@ scripts/
 │   └── simulate-port.js
 ├── verify/
 │   ├── claude-live.js
-│   └── codex-live.js
+│   ├── codex-live.js
+│   └── gemini-live.js
 ├── build-claude.js
 ├── build-codemaps.js
 ├── build-codex.js
@@ -69,7 +70,7 @@ scripts/
 | `agents/dispatch.js` | `dispatch`, `loadAgentFrontmatter` | 에이전트 dispatch. agent.md frontmatter 읽고 provider runner 로 위임. 입력 / 출력은 표준화된 JSON 스키마. 단계 간 컨텍스트는 핸드오프 파일로만. |
 | `agents/runners/claude.js` | `buildSystem`, `buildUserMessage`, `extractJson`, `normalizeCliUsage`, `parseCliJson`, `runClaude` | Claude runner. Default live mode uses the local Claude Code CLI subscription/OAuth session. Set HARNESS_CLAUDE_RUNNER=sd |
 | `agents/runners/codex.js` | `buildPrompt`, `extractJson`, `normalizeHandoff`, `runCodex` | Codex runner: OpenAI Codex CLI 를 subprocess 로 호출. 환경: codex 바이너리 필요. 없으면 throw.  호출 패턴 (codex 0.124.0+ 비대화형 검증):   codex |
-| `agents/runners/gemini.js` | `runGemini` | Gemini runner: Gemini CLI subprocess. 환경: gemini 바이너리 (npm i -g @google/gemini-cli). 미보유 시 throw → 오케스트레이터가 mock fallbac |
+| `agents/runners/gemini.js` | `buildPrompt`, `runGemini` | Gemini runner: calls the local Gemini CLI subprocess. Default auth is delegated to the user's local gemini/gcloud sessio |
 | `agents/runners/mock.js` | `runMock` | Mock runner: LLM 호출 없이 결정론적 응답 생성. 오케스트레이터 단위 테스트와 API 키 / CLI 미설치 환경에서의 dry-run 디폴트.  단계별로 의도된 시나리오를 흉내낸다:   - planner: |
 | `auth/github-login.js` | _(none)_ | GitHub OAuth Device Flow. 사전 조건: HARNESS_GITHUB_CLIENT_ID 환경변수 (사용자가 자기 OAuth App 등록 후 받은 client_id). 자세한 절차는 docs/AUTH- |
 | `auth/github-logout.js` | _(none)_ | GitHub OAuth 로그아웃. 로컬 vault 만 삭제. 주의: device flow 는 client secret 이 없으므로 GitHub 측 revoke API 호출 불가. GitHub 측에서도 폐기하려면 사용 |
@@ -109,4 +110,5 @@ scripts/
 | `sync-claude-md.js` | _(none)_ | CLAUDE.md / .claude/CLAUDE.md 의 HARNESS:START~HARNESS:END 영역을 agent.yaml + package.json + manifests 에서 다시 생성해 갈아낀다. 사용자  |
 | `verify/claude-live.js` | _(none)_ | Claude Code CLI live smoke. Uses the local Claude subscription/OAuth session by default, not ANTHROPIC_API_KEY. |
 | `verify/codex-live.js` | _(none)_ | codex runner 단독 live 검증 (P2-c).  환경: codex CLI (≥0.124) + ChatGPT 로그인 세션. OPENAI_API_KEY 는 기본 차단되며, 종량제 opt-in 때만 HARNES |
+| `verify/gemini-live.js` | _(none)_ | Gemini CLI live smoke. Uses the local Gemini/gcloud session by default, not GEMINI_API_KEY. |
 

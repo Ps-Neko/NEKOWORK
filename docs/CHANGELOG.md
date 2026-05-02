@@ -9,6 +9,7 @@
 - `scripts/core/{cli-resolver,json-extractor,subprocess}.js` — provider runner 공통 CLI 탐색, JSON 추출, subprocess 수집 유틸.
 - `scripts/core/git-mutation-guard.js` — read-only / handoff-mode runner 실행 전후 git 상태 비교로 workspace mutation 감지.
 - `scripts/verify/claude-live.js` + `npm run verify:claude` — Claude Code CLI 구독/OAuth 세션 smoke.
+- `scripts/verify/gemini-live.js` + `npm run verify:gemini` — Gemini CLI local auth smoke.
 - `tests/unit/auth-guard.test.js`, `tests/unit/core-utils.test.js`, `tests/unit/git-mutation-guard.test.js` — delegated CLI auth guard, core runner utility, workspace mutation guard 단위 테스트.
 - `@anthropic-ai/sdk` optional dependency — `HARNESS_CLAUDE_RUNNER=sdk` 명시 opt-in 경로 지원.
 
@@ -17,6 +18,7 @@
 - `scripts/agents/runners/claude.js` — CLI 실행을 non-interactive handoff mode 로 명시하고 `--permission-mode plan` + git mutation guard 를 적용. 의도한 쓰기 실험은 `HARNESS_CLAUDE_ALLOW_WORKSPACE_MUTATION=1`.
 - `scripts/agents/runners/codex.js`, `scripts/agents/runners/gemini.js` — 공통 auth guard 적용.
 - `scripts/agents/runners/codex.js` — `codex exec --sandbox read-only` 를 `harnessRoot` cwd 에서 실행하고, 전후 git mutation guard 로 sandbox 우회를 감지.
+- `scripts/agents/runners/gemini.js` — prompt body 포함, non-interactive handoff mode 명시, git mutation guard 적용.
 - `scripts/agents/runners/{claude,codex,gemini}.js` — 중복 `which` / subprocess / JSON 추출 로직을 `scripts/core/` 로 이동.
 - `scripts/core/subprocess.js` — Windows timeout 시 `.cmd` shim 하위 프로세스까지 `taskkill /t` 로 정리.
 - `scripts/orchestrators/review.js` — live provider 실패 시 기본 mock fallback 제거. fallback 은 `HARNESS_LIVE_ALLOW_MOCK_FALLBACK=1` 명시 opt-in 으로만 허용.
@@ -53,7 +55,7 @@
 
 ### 다음 후보 (`docs/AUDIT.md §5` + `docs/dev-log/2026-04-29-p1-recovery.md §6` 참조)
 - **P0** (사용자 동의): Claude CLI live smoke, ~~GitHub push + Actions 실 동작~~ (auth migration 머지로 수행됨), 사내 PoC 결합
-- **P2** (외부 의존): Rust runtime 컴파일, Codex CLI / Gemini CLI live 검증, npm publish 결정
+- **P2** (외부 의존): Rust runtime 컴파일, Gemini CLI 설치 후 live 검증, npm publish 결정
 - **P3** (사내 임팩트, 사용자 명시 시): 사내 풀 결합, `runners/internal.js` 사내 LLM, 사내 GitLab CI 가이드
 - **Auth**: smoke #3 (GitHub OAuth Device Flow) — OAuth App 등록 후 `HARNESS_GITHUB_CLIENT_ID` 설정 → `npm run auth:github:login` 실연.
 

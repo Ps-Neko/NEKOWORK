@@ -66,9 +66,11 @@ CLI handoff mode 는 실행 전후 git 상태를 비교해 예기치 않은 파�
 # Google 공식 Gemini CLI 설치 후 local auth 사용
 gcloud auth application-default login
 # 종량제 API key 사용은 HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1 로 명시 opt-in 할 때만
+npm run verify:gemini
 ```
 
-전용 회귀 검증 스크립트는 미작성 (향후 `npm run verify:gemini` 추가 예정).
+`gemini` CLI 가 PATH 에 없으면 `verify:gemini` 는 명확히 실패한다.
+기본 경로에서 `GEMINI_API_KEY` / `GOOGLE_API_KEY` 가 설정되어 있으면 auth guard 가 차단한다.
 
 ### 4. Rust runtime 컴파일
 
