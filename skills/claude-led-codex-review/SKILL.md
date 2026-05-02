@@ -20,6 +20,7 @@ harness review "<task>"                    # 전체 사이클
 harness review "<task>" --secure           # + 단계 6 codex-challenge 강제
 harness review "<task>" --fast             # 단계 1·6 스킵
 harness review "<task>" --no-ship          # 단계 7 생략 (리뷰까지만)
+harness review "<task>" --no-codex         # 단계 5 스킵 (Codex CLI 미설치 시 mock)
 ```
 
 또는 슬래시: `/claude-led-codex-review <task> [--flags]`
@@ -91,4 +92,4 @@ harness review "<task>" --no-ship          # 단계 7 생략 (리뷰까지만)
 
 ## 단계별 상세
 
-본 SKILL 디렉터리에 단계별 노트 파일을 두지만, MVP 기준 본문은 다음 세션에 채움. Day 2 시점에는 이 SKILL.md 가 정전 본문.
+본 SKILL.md 가 단계별 상세의 정전(canon). 추가 노트 파일은 단계가 복잡해질 때 점진 추가.

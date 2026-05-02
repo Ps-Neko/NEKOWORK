@@ -144,7 +144,7 @@ const TOOLS = [
 ];
 
 const server = new Server(
-  { name: 'harness', version: '0.0.1' },
+  { name: 'harness', version: '0.0.2' },
   { capabilities: { tools: {} } },
 );
 
