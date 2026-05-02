@@ -109,7 +109,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 ### P0 — 사용자 환경 동의 후 즉시 가치
 1. **Claude CLI live smoke** — `npm run verify:claude` 후 `harness review --live --no-ship "간단 변경"` 한 번. 로컬 Claude Code 구독/OAuth 세션으로 실 응답 파싱 검증.
 2. **사내 PoC 비파괴 결합** — 사용자가 지정하는 사내 프로젝트에 `.harness-tool/` 결합. 첫 review 동작 확인. (메모리 등록된 두 디렉터리는 제외).
-3. **GitHub 레포 push** — Actions 자동 동작 검증, PR 코멘트 실 등록. README + agent.yaml + package.json 의 `<owner>` 4곳 채워야 함.
+3. **GitHub 레포 push 후 Actions 실 동작 검증** — README / agent.yaml / package.json 의 owner 는 `Ps-Neko/NEKOWORK` 로 이미 채워짐 (2026-04 origin 통합 시점). PR 코멘트 자동 등록은 push 후 첫 PR 에서 검증.
 
 ### P1 — 자체 완결 — **2026-04-29 모두 완료**
 - ~~sync-claude-md~~ ✓

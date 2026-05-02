@@ -207,7 +207,7 @@ node scripts/demo-review.js "<task>" demo-local --no-ship
 
 현재 `private: true` (npm publish 막힘). 공개 시:
 
-1. `package.json` 의 `repository.url` 의 `<owner>` 를 실 GitHub 조직으로.
+1. `package.json` 의 `repository.url` 확인 — 현재 `Ps-Neko/NEKOWORK` 로 채워짐. 다른 조직으로 이전 시에만 갱신.
 2. `private: true` → 제거 또는 `false`.
 3. `npm version patch|minor|major` 로 SemVer 업.
 4. `npm publish --access public`.
