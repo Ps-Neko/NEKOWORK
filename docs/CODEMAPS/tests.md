@@ -15,6 +15,7 @@ tests/
 │   └── keychain-smoke.test.js
 └── unit/
     ├── auth-guard.test.js
+    ├── core-utils.test.js
     ├── costs.test.js
     ├── instincts.test.js
     ├── orchestrator.test.js
@@ -33,6 +34,7 @@ tests/
 | `integration/build-pipeline.test.js` | _(none)_ | 통합: install plan → apply → 5개 빌더 산출 → state 영속 → repair 정합 까지의 풀체인. 별도 워크스페이스로 카피해서 실행. 본 레포의 .harness/install-state.jso |
 | `optional/keychain-smoke.test.js` | _(none)_ | 실 OS keychain 종단 검증. 기본 npm test 에서 실행되지 않음 (tests/optional/ 은 패턴에 미포함). 수동 실행: HARNESS_KEYCHAIN_SMOKE=1 npm run test:ke |
 | `unit/auth-guard.test.js` | _(none)_ |  |
+| `unit/core-utils.test.js` | _(none)_ |  |
 | `unit/costs.test.js` | _(none)_ |  |
 | `unit/instincts.test.js` | _(none)_ |  |
 | `unit/orchestrator.test.js` | _(none)_ | review 오케스트레이터 단위 테스트. mock provider 로 결정론적. vitest 가 PATH 에 없으면 직접 node 로 실행 (간이 assert). |
