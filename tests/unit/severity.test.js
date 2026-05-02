@@ -57,3 +57,41 @@ test('severityCounts 합산', () => {
   const c = severityCounts(issues);
   assert.deepEqual(c, { critical: 1, high: 2, medium: 0, low: 1, info: 0 });
 });
+
+test('verdict: high > 5 → block (다수 high 안전망)', () => {
+  const issues = Array.from({ length: 6 }, (_, i) => ({ severity: 'high', summary: `h${i}`, category: 'correctness' }));
+  assert.equal(deriveVerdict(issues), 'block');
+});
+
+test('verdict: high 5 이하 → approve_with_fixes (한도 내)', () => {
+  const issues = Array.from({ length: 5 }, (_, i) => ({ severity: 'high', summary: `h${i}`, category: 'correctness' }));
+  assert.equal(deriveVerdict(issues), 'approve_with_fixes');
+});
+
+test('verdict: confidence < 0.6 → block (codex 모호 응답)', () => {
+  assert.equal(deriveVerdict([], { confidence: 0.5 }), 'block');
+});
+
+test('verdict: confidence >= 0.6 + 이슈 없음 → approve', () => {
+  assert.equal(deriveVerdict([], { confidence: 0.8 }), 'approve');
+});
+
+test('verdict: blast_radius >= 10 + 이슈 1+ → approve_with_fixes (큰 변경 강등)', () => {
+  const issues = [{ severity: 'low', summary: 'x', category: 'docs' }];
+  assert.equal(deriveVerdict(issues, { blastRadius: 12 }), 'approve_with_fixes');
+});
+
+test('verdict: blast_radius >= 10 + 이슈 없음 → approve (issue 없으면 강등 안 함)', () => {
+  assert.equal(deriveVerdict([], { blastRadius: 15 }), 'approve');
+});
+
+test('verdict: 후방 호환 — opts 미전달 시 기존 동작 유지', () => {
+  // opts 없는 호출 → 기존 룰만 적용 (high > 5 트리거 안 함, confidence 무시)
+  const issues = Array.from({ length: 6 }, (_, i) => ({ severity: 'high', summary: `h${i}`, category: 'correctness' }));
+  // 기존 동작: high 6개여도 critical 0 이면 fixes 였음. 새 룰에선 6 > 5 라 block.
+  // 즉 opts 없어도 새 룰 적용됨. 후방 호환은 opts.confidence/blastRadius 미전달이면
+  // 그 부분만 비활성. 본 테스트는 high 한도가 opts 와 무관함을 명시.
+  assert.equal(deriveVerdict(issues), 'block', 'high > 5 룰은 opts 없이도 트리거');
+  // confidence/blastRadius 룰은 opts 필요
+  assert.equal(deriveVerdict([{ severity: 'low', summary: 'x', category: 'docs' }]), 'approve', 'low 만 + opts 없음 → approve');
+});
