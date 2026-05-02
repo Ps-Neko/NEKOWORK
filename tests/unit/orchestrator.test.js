@@ -5,7 +5,7 @@ import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
-import { reviewCycle } from '../../scripts/orchestrators/review.js';
+import { reviewCycle, SENSITIVE_PATTERNS } from '../../scripts/orchestrators/review.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
@@ -94,6 +94,43 @@ test('live provider 실패는 기본적으로 mock fallback 하지 않는다', a
     process.env.PATH = oldPath;
     if (oldFallback === undefined) delete process.env.HARNESS_LIVE_ALLOW_MOCK_FALLBACK;
     else process.env.HARNESS_LIVE_ALLOW_MOCK_FALLBACK = oldFallback;
+  }
+});
+
+test('SENSITIVE_PATTERNS: 21개 보안 카테고리 키워드 모두 자동 감지', () => {
+  const samples = {
+    // 기존 9개
+    'src/auth/login.js': true,
+    'src/crypto/aes.js': true,
+    'src/payment/checkout.js': true,
+    'src/session/store.js': true,
+    'docs/permission-model.md': true,
+    'src/oauth/device-flow.js': true,
+    'lib/jwt-verify.js': true,
+    'config/password-policy.js': true,
+    'config/secret-rotation.js': true,
+    // 신규 12개
+    'src/token/refresh.js': true,
+    'src/apikey/rotate.js': true,
+    'src/api-key/rotate.js': true,
+    'src/api_key/rotate.js': true,
+    'src/cert/issue.js': true,
+    'src/tls/config.js': true,
+    'src/ssl/handshake.js': true,
+    'src/mtls/verify.js': true,
+    'src/csrf/middleware.js': true,
+    'src/cors/policy.js': true,
+    'src/xss/sanitize.js': true,
+    'src/webhook/handler.js': true,
+    // false positive 방어
+    'src/utils.js': false,
+    'src/monkey-patch.js': false,
+    'README.md': false,
+    'src/database/query.js': false,
+  };
+  for (const [filePath, shouldMatch] of Object.entries(samples)) {
+    const hit = SENSITIVE_PATTERNS.some(re => re.test(filePath));
+    assert.equal(hit, shouldMatch, `${filePath}: 기대 ${shouldMatch}, 실제 ${hit}`);
   }
 });
 
