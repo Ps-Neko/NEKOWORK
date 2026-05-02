@@ -80,7 +80,7 @@ const pluginDir = path.join(ROOT, '.claude-plugin');
 ensure(pluginDir);
 const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
 const plugin = {
-  $schema: 'https://harness.dev/schemas/plugin.schema.json',
+  $schema: 'https://raw.githubusercontent.com/Ps-Neko/NEKOWORK/main/schemas/plugin.schema.json',
   name: 'harness',
   version: pkg.version,
   description: pkg.description,
