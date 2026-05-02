@@ -1,6 +1,6 @@
 spec_version: gitagent/0.1.0
 name: harness
-version: 0.0.1
+version: 0.0.2
 description: "HARNESS — Hybrid Agent Runtime with Native Evaluation, Skills, and Security"
 license: MIT
 homepage: https://github.com/Ps-Neko/NEKOWORK
