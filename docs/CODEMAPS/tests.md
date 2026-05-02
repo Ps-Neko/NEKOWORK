@@ -15,6 +15,7 @@ tests/
 │   └── keychain-smoke.test.js
 └── unit/
     ├── auth-guard.test.js
+    ├── codex-isolation.test.js
     ├── core-utils.test.js
     ├── costs.test.js
     ├── execution-workspace.test.js
@@ -37,6 +38,7 @@ tests/
 | `integration/build-pipeline.test.js` | _(none)_ | 통합: install plan → apply → 5개 빌더 산출 → state 영속 → repair 정합 까지의 풀체인. 별도 워크스페이스로 카피해서 실행. 본 레포의 .harness/install-state.jso |
 | `optional/keychain-smoke.test.js` | _(none)_ | 실 OS keychain 종단 검증. 기본 npm test 에서 실행되지 않음 (tests/optional/ 은 패턴에 미포함). 수동 실행: HARNESS_KEYCHAIN_SMOKE=1 npm run test:ke |
 | `unit/auth-guard.test.js` | _(none)_ |  |
+| `unit/codex-isolation.test.js` | _(none)_ | Codex ↔ Claude 컨텍스트 격리 회귀 방어. 원칙 2 "Claude 가 구현, Codex 가 의심" 의 핵심 가치는 컨텍스트 미공유. codex buildPrompt 가 Claude 의 내부 사고/agent |
 | `unit/core-utils.test.js` | _(none)_ |  |
 | `unit/costs.test.js` | _(none)_ |  |
 | `unit/execution-workspace.test.js` | _(none)_ |  |
