@@ -16,8 +16,12 @@
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
+import { assertDelegatedCliAuth } from '../../core/auth-guard.js';
+import { classifyCategory, classifySeverity, deriveVerdict } from '../../lib/severity.js';
 
 export async function runCodex(args) {
+  assertDelegatedCliAuth('codex');
+
   const codexBin = which('codex');
   if (!codexBin) {
     throw new Error('codex CLI 미설치. https://github.com/openai/codex 또는 --provider=mock 사용.');
@@ -54,7 +58,7 @@ export async function runCodex(args) {
   if (!json) {
     throw new Error('Codex 응답에서 JSON 을 찾지 못함. raw:\n' + stdout.slice(0, 500));
   }
-  return JSON.parse(json);
+  return normalizeHandoff(JSON.parse(json));
 }
 
 function buildPrompt(a) {
@@ -97,22 +101,35 @@ function buildPrompt(a) {
 
 function spawnAndCollect(bin, args, stdin) {
   return new Promise((resolve, reject) => {
-    const isWin = process.platform === 'win32';
-    const child = spawn(bin, args, { stdio: ['pipe', 'pipe', 'pipe'], shell: isWin });
+    const child = spawnCodexProcess(bin, args);
     let out = '', err = '';
+    const timeout = setTimeout(() => {
+      try { child.kill(); } catch {}
+      reject(new Error('codex timeout'));
+    }, Number(process.env.HARNESS_CODEX_TIMEOUT_S || 180) * 1000);
     child.stdout.on('data', (d) => (out += d.toString()));
     child.stderr.on('data', (d) => (err += d.toString()));
-    child.on('error', reject);
+    child.on('error', (err) => {
+      clearTimeout(timeout);
+      reject(err);
+    });
     child.on('close', (code) => {
+      clearTimeout(timeout);
       if (code !== 0) reject(new Error(`codex exit ${code}\nstderr:\n${err}`));
       else resolve(out);
     });
     child.stdin.end(stdin);
-    setTimeout(() => {
-      try { child.kill(); } catch {}
-      reject(new Error('codex timeout'));
-    }, Number(process.env.HARNESS_CODEX_TIMEOUT_S || 180) * 1000);
   });
+}
+
+function spawnCodexProcess(bin, args) {
+  const isWinShim = process.platform === 'win32' && /\.(cmd|bat)$/i.test(bin);
+  if (!isWinShim) {
+    return spawn(bin, args, { stdio: ['pipe', 'pipe', 'pipe'] });
+  }
+
+  const comspec = process.env.ComSpec || 'cmd.exe';
+  return spawn(comspec, ['/d', '/c', bin, ...args], { stdio: ['pipe', 'pipe', 'pipe'] });
 }
 
 function which(bin) {
@@ -155,4 +172,76 @@ export function extractJson(text) {
   return null;
 }
 
-export { buildPrompt as _buildPrompt };
+function normalizeHandoff(raw) {
+  if (!raw || typeof raw !== 'object') return raw;
+
+  const pick = (...keys) => {
+    for (const key of keys) {
+      if (raw[key] !== undefined) return raw[key];
+    }
+    return undefined;
+  };
+
+  const rawIssues = pick('issues', 'Issues');
+  const rawRisks = pick('risks', 'Risks');
+  const issueSource = Array.isArray(rawIssues) ? rawIssues : (Array.isArray(rawRisks) ? rawRisks : []);
+  const issues = issueSource.map(normalizeIssue);
+
+  const lower = {
+    decided: stringifyField(pick('decided', 'Decided', 'decision', 'Decision')),
+    rejected: stringifyField(pick('rejected', 'Rejected')),
+    risks: stringifyField(Array.isArray(rawRisks) ? rawRisks.map(r => r.issue || r.summary || r.message || JSON.stringify(r)).join('; ') : rawRisks),
+    files: normalizeFiles(pick('files', 'Files')),
+    remaining: stringifyField(pick('remaining', 'Remaining')),
+    issues,
+    verdict: normalizeVerdict(pick('verdict', 'Verdict'), issues, pick('decided', 'Decided')),
+  };
+
+  if (pick('confidence', 'Confidence') != null) {
+    const n = Number(pick('confidence', 'Confidence'));
+    if (Number.isFinite(n)) lower.confidence = n;
+  }
+
+  return lower;
+}
+
+function normalizeIssue(issue) {
+  const i = issue && typeof issue === 'object' ? issue : { summary: String(issue || '') };
+  const summary = String(i.summary || i.issue || i.message || i.title || '').slice(0, 200) || 'Codex reported an issue';
+  const normalized = {
+    severity: i.severity,
+    category: i.category,
+    file: i.file || i.path,
+    line: Number.isInteger(i.line) ? i.line : undefined,
+    summary,
+    why: i.why || i.issue || i.message,
+    suggested_fix: i.suggested_fix ?? i.fix ?? null,
+  };
+  normalized.category = classifyCategory(normalized);
+  normalized.severity = classifySeverity(normalized);
+  for (const key of Object.keys(normalized)) {
+    if (normalized[key] === undefined) delete normalized[key];
+  }
+  return normalized;
+}
+
+function normalizeFiles(files) {
+  if (!files) return [];
+  if (Array.isArray(files)) return files.map(String);
+  return [String(files)];
+}
+
+function stringifyField(value) {
+  if (value == null) return '';
+  if (typeof value === 'string') return value;
+  return JSON.stringify(value);
+}
+
+function normalizeVerdict(verdict, issues, decided) {
+  const v = String(verdict || '').toLowerCase();
+  if (['block', 'approve_with_fixes', 'approve'].includes(v)) return v;
+  if (['request_changes', 'changes_requested', 'fix', 'gate'].includes(v)) return deriveVerdict(issues.length ? issues : [{ severity: 'high', category: 'correctness', summary: String(decided || 'changes requested') }]);
+  return deriveVerdict(issues);
+}
+
+export { buildPrompt as _buildPrompt, normalizeHandoff as _normalizeHandoff };

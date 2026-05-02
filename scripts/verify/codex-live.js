@@ -1,6 +1,7 @@
 // codex runner 단독 live 검증 (P2-c).
 //
-// 환경: codex CLI (≥0.124) + ChatGPT 로그인 또는 OPENAI_API_KEY.
+// 환경: codex CLI (≥0.124) + ChatGPT 로그인 세션.
+// OPENAI_API_KEY 는 기본 차단되며, 종량제 opt-in 때만 HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1 과 함께 사용.
 // 비용: 1회 호출 약 ~15K 토큰 (ChatGPT 구독 시 무과금).
 //
 // 사용:
@@ -44,7 +45,7 @@ try {
 
   const issues = result.issues || [];
   const verdict = result.verdict;
-  const validVerdicts = ['approve', 'fix', 'gate', 'block'];
+  const validVerdicts = ['approve', 'approve_with_fixes', 'block'];
   if (!validVerdicts.includes(verdict)) {
     throw new Error(`unexpected verdict: ${verdict} (expected one of: ${validVerdicts.join(', ')})`);
   }

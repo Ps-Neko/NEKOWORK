@@ -14,7 +14,7 @@
 git clone https://github.com/Ps-Neko/NEKOWORK.git harness
 cd harness
 npm ci
-npm test                                          # 73/73 PASS 기대
+npm test                                          # PASS 기대
 node scripts/install-plan.js --profile core      # 설치 dry-run
 ```
 
@@ -28,35 +28,41 @@ node scripts/install-plan.js --profile core      # 설치 dry-run
 # CLI 설치
 npm install -g @openai/codex
 
-# 인증 (택1)
+# 인증
 codex login                                       # ChatGPT 인증 (구독 필요, 토큰 무과금)
-# 또는
-export OPENAI_API_KEY="sk-..."                   # API 키 (토큰 과금)
+# 종량제 API key 사용은 명시 opt-in 때만:
+# export OPENAI_API_KEY="sk-..."
+# export HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1
 
 # 회귀 검증 (~25s, ~15K 토큰)
 npm run verify:codex
 ```
 
 호환 버전: codex CLI ≥ 0.124.0. `codex exec --sandbox read-only` 비대화형 호출 사용.
+기본 경로에서는 `OPENAI_API_KEY` 가 설정되어 있으면 차단한다. ChatGPT 로그인 세션을 쓰려면
+`unset OPENAI_API_KEY` 후 실행한다.
 
 > ℹ️ codex CLI 0.125.0 기준 stdout 형식이 `user\n<prompt echo>\n\ncodex\n<응답>` 으로 변경됨.
 > `scripts/agents/runners/codex.js` 의 `runCodex` 가 `\ncodex\n` 라벨 이후만 파싱하도록 처리.
 
-### 2. Anthropic SDK live (Claude 단계 활성화)
+### 2. Claude Code CLI live (Claude 단계 활성화, API key 비권장 기본값)
 
 ```bash
-export ANTHROPIC_API_KEY="sk-ant-..."
+claude auth status                               # authMethod=claude.ai 확인
+npm run verify:claude                            # 구독 OAuth 세션으로 1회 smoke
 node scripts/cli.js review "<task>" --live --no-ship
 ```
 
-비용: 1회 풀사이클 약 ~$0.10 (PRD 사이즈 의존). 키 미설정 시 자동 mock 폴백.
+기본 runner 는 `claude -p` 를 호출하므로 Claude Pro/Max 구독 세션을 사용한다.
+`ANTHROPIC_API_KEY` 는 기본 경로에 필요 없다. SDK/API-key 경로가 꼭 필요할 때만
+`HARNESS_CLAUDE_RUNNER=sdk` 와 `ANTHROPIC_API_KEY` 를 명시한다.
 
 ### 3. Gemini CLI live (research agent)
 
 ```bash
-# Google 공식 Gemini CLI 설치 후
-export GEMINI_API_KEY="..."
-# 또는 gcloud auth application-default login
+# Google 공식 Gemini CLI 설치 후 local auth 사용
+gcloud auth application-default login
+# 종량제 API key 사용은 HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1 로 명시 opt-in 할 때만
 ```
 
 전용 회귀 검증 스크립트는 미작성 (향후 `npm run verify:gemini` 추가 예정).
@@ -74,10 +80,9 @@ cargo build --release
 
 ### 5. GitHub Actions live (PR 자동 7단계 리뷰)
 
-```bash
-# 레포 secret 등록 (관리자만)
-gh secret set ANTHROPIC_API_KEY -R <owner>/<repo>
-```
+GitHub-hosted runner 는 로컬 Claude/Codex 로그인 세션이 없으므로 기본은 mock 이다.
+CI 에서 Claude API secret 으로 live 를 켜려면 `HARNESS_CLAUDE_RUNNER=sdk` 와
+`ANTHROPIC_API_KEY` 를 함께 설정하는 명시 opt-in 경로를 사용한다.
 
 이후 PR 생성 시 `harness-review` workflow 가 7단계 풀사이클 자동 적용 + handoff 아티팩트 업로드 + PR 코멘트.
 

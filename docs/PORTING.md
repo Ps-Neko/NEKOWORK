@@ -124,7 +124,7 @@ npm run lint && npm test && \
 
 ### GitHub Actions
 
-`harness/.github/workflows/harness-review.yml` 을 사내 프로젝트의 `.github/workflows/` 로 복사. 시크릿 `ANTHROPIC_API_KEY` 추가 시 `--live` 자동 활성. 없으면 mock 으로 풀사이클만 검증.
+`harness/.github/workflows/harness-review.yml` 을 사내 프로젝트의 `.github/workflows/` 로 복사. 기본은 mock 풀사이클이다. self-hosted runner 에 Claude/Codex CLI 로그인 세션이 있거나, CI에서 `HARNESS_CLAUDE_RUNNER=sdk` + `ANTHROPIC_API_KEY` 를 명시 opt-in 한 경우에만 `--live` 를 켠다.
 
 ### 사내 GitLab / 기타
 
@@ -153,7 +153,7 @@ node .harness-tool/scripts/sync-claude-md.js   # 마커 영역 갱신
 node .harness-tool/scripts/repair.js           # sha256 비교 + 누락 재빌드
 node .harness-tool/scripts/build-codemaps.js   # docs/CODEMAPS 갱신
 npm run lint                                   # 4 validator 통과
-npm test                                       # 73 케이스
+npm test                                       # 89 케이스
 ```
 
 CI 한 줄은 §4 참조.

@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 
+### Added (Local-first runner/auth port, 2026-05-02)
+- `scripts/core/auth-guard.js` — Claude/Codex/Gemini CLI 호출 직전 long-lived API key 환경변수 차단. `HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1` 명시 옵트아웃.
+- `scripts/verify/claude-live.js` + `npm run verify:claude` — Claude Code CLI 구독/OAuth 세션 smoke.
+- `tests/unit/auth-guard.test.js` — delegated CLI auth guard 단위 테스트.
+- `@anthropic-ai/sdk` optional dependency — `HARNESS_CLAUDE_RUNNER=sdk` 명시 opt-in 경로 지원.
+
+### Changed (Local-first runner/auth port)
+- `scripts/agents/runners/claude.js` — 기본 live runner 를 Anthropic SDK/API-key 에서 Claude Code CLI(`claude -p`) 위임으로 전환. SDK 경로는 `HARNESS_CLAUDE_RUNNER=sdk` 명시 시에만 사용.
+- `scripts/agents/runners/codex.js`, `scripts/agents/runners/gemini.js` — 공통 auth guard 적용.
+- `scripts/orchestrators/review.js` — live provider 실패 시 기본 mock fallback 제거. fallback 은 `HARNESS_LIVE_ALLOW_MOCK_FALLBACK=1` 명시 opt-in 으로만 허용.
+- `scripts/cli.js`, `docs/SETUP.md`, `docs/RUNBOOK.md`, `docs/PORTING.md` — `--live` 설명을 local CLI auth first 로 갱신.
+- `scripts/agents/runners/codex.js` — PascalCase live 응답과 `Risks` 배열을 handoff schema 로 정규화.
+
 ### Added (Auth migration, 2026-04-30 머지)
 - `agent.yaml#auth` — 3계층 인증 모델 (`delegated_cli_auth` / `oauth_device` / `api_key_vault`) + 정책 (`block_subscription_override`, `redact_tokens_in_audit`, `deny_static_api_keys_in_repo`).
 - `schemas/agent-yaml.schema.json` — `auth` 섹션 스키마 검증.
@@ -33,7 +46,7 @@
 - PR #4 (`phase-4-codex-compat`) 는 본 작업과 무관 OPEN 잔존.
 
 ### 다음 후보 (`docs/AUDIT.md §5` + `docs/dev-log/2026-04-29-p1-recovery.md §6` 참조)
-- **P0** (사용자 동의): Anthropic SDK live 1회, ~~GitHub push + Actions 실 동작~~ (auth migration 머지로 수행됨), 사내 PoC 결합
+- **P0** (사용자 동의): Claude CLI live smoke, ~~GitHub push + Actions 실 동작~~ (auth migration 머지로 수행됨), 사내 PoC 결합
 - **P2** (외부 의존): Rust runtime 컴파일, Codex CLI / Gemini CLI live 검증, npm publish 결정
 - **P3** (사내 임팩트, 사용자 명시 시): 사내 풀 결합, `runners/internal.js` 사내 LLM, 사내 GitLab CI 가이드
 - **Auth**: smoke #3 (GitHub OAuth Device Flow) — OAuth App 등록 후 `HARNESS_GITHUB_CLIENT_ID` 설정 → `npm run auth:github:login` 실연.
@@ -197,7 +210,7 @@
 - `scripts/agents/dispatch.js` — agent.md frontmatter 읽고 provider runner 위임
 - `scripts/agents/runners/{mock,claude,codex,gemini}.js` — 4 provider runner
   - mock (default, dry-run): 결정론적 응답
-  - claude: Anthropic SDK, ANTHROPIC_API_KEY 필요
+  - claude: 기본은 Claude Code CLI 세션, SDK/API-key 는 HARNESS_CLAUDE_RUNNER=sdk opt-in
   - codex: subprocess + JSON 파싱, sandbox=read-only/no-net 강제
   - gemini: subprocess
 - `scripts/orchestrators/review.js` — 7단계 Stage Routing
@@ -287,5 +300,5 @@ harness version
 
 ### 의존성
 - Node 22+ (테스트는 24.14.0)
-- npm packages: ajv, ajv-formats, yaml, @modelcontextprotocol/sdk, vitest, typescript, @types/node
-- 옵션: ANTHROPIC_API_KEY (--live), codex CLI (Codex provider live), gemini CLI (Gemini provider live)
+- npm packages: ajv, ajv-formats, yaml, @modelcontextprotocol/sdk, vitest, typescript, @types/node, optional @anthropic-ai/sdk
+- 옵션: Claude/Codex/Gemini CLI 세션 (`--live`), HARNESS_CLAUDE_RUNNER=sdk + ANTHROPIC_API_KEY (CI/API-key opt-in)

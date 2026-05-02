@@ -5,8 +5,11 @@
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
+import { assertDelegatedCliAuth } from '../../core/auth-guard.js';
 
 export async function runGemini(args) {
+  assertDelegatedCliAuth('gemini');
+
   const bin = which('gemini');
   if (!bin) {
     throw new Error('gemini CLI 미설치. npm i -g @google/gemini-cli 후 다시 시도.');

@@ -69,7 +69,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 ### 3.3 검증 안 된 컴포넌트
 | 항목 | 이유 | 변경 |
 |---|---|---|
-| Anthropic SDK live 호출 | API 키 미보유 환경 | 동일 |
+| Claude CLI live 호출 | 로컬 Claude Code 로그인 세션 필요 | 기본 runner 전환됨, smoke 미실행 |
 | Codex CLI live 호출 | codex 바이너리 미설치 | 동일 |
 | Gemini CLI live 호출 | gemini 바이너리 미설치 | 동일 |
 | Rust runtime 컴파일 | rustup 미설치 | 동일 |
@@ -107,7 +107,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 > 2026-04-29 P1 회수 세션 후 갱신. P1 / P2(부분) 완료, 잔존은 외부 의존이 큰 항목들.
 
 ### P0 — 사용자 환경 동의 후 즉시 가치
-1. **Anthropic SDK 1회 실 호출** — `harness review --live --no-ship "간단 변경"` 한 번. 비용 ~$0.10. live runner 의 실 응답 파싱 검증.
+1. **Claude CLI live smoke** — `npm run verify:claude` 후 `harness review --live --no-ship "간단 변경"` 한 번. 로컬 Claude Code 구독/OAuth 세션으로 실 응답 파싱 검증.
 2. **사내 PoC 비파괴 결합** — 사용자가 지정하는 사내 프로젝트에 `.harness-tool/` 결합. 첫 review 동작 확인. (메모리 등록된 두 디렉터리는 제외).
 3. **GitHub 레포 push** — Actions 자동 동작 검증, PR 코멘트 실 등록. README + agent.yaml + package.json 의 `<owner>` 4곳 채워야 함.
 
@@ -168,10 +168,10 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 | Provider runners | 4 (mock/claude/codex/gemini) |
 | MCP 도구 | 7 |
 | CLI verbs | 10 (install / validate / review / plan / ralph / wait / sessions / costs / instincts / version) |
-| 단위 테스트 | **56/56 PASS** (orchestrator 5 + severity 10 + router 6 + costs 3 + instincts 15 + portability 5 + runners-extract 12) |
+| 단위 테스트 | **72/72 PASS** (기존 56 + auth guard / runner wrapper / codex normalization / live fallback guard / token vault 등) |
 | 통합 테스트 | **10/10 PASS** (build pipeline + state 영속 + repair detection + sync-claude-md + codemaps + validate:all + check-markers) |
 | E2E 테스트 | **7/7 PASS** (demo-review 7단계 + 5필드 무결성 + --secure + round 카운터 + CLI version/help) |
-| 전체 테스트 | **73/73 PASS** |
+| 전체 테스트 | **89/89 PASS** |
 | GitHub Actions | 2 |
 
 ## 8. 결론
@@ -184,6 +184,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 - stub 메시지 흔적 → 정리
 - install-apply sha256 placeholder → 실값
 - 테스트 52 → 73 (integration + e2e 추가)
+- local-first auth 포팅 후 테스트 89/89 PASS
 - ARCHITECTURE 풀 18절 본문 528줄
 
-잔존 부채는 **외부 의존이 큰 검증 4종** (API 키 / Codex CLI / Gemini CLI / GitHub push) + **Rust 컴파일** + **사내 임팩트 (사용자 명시 시점)**. 자체 완결 가능한 영역은 **99% 정합성 도달**.
+잔존 부채는 **외부 의존이 큰 검증 4종** (Claude/Codex/Gemini CLI live / GitHub push) + **Rust 컴파일** + **사내 임팩트 (사용자 명시 시점)**. 자체 완결 가능한 영역은 **99% 정합성 도달**.

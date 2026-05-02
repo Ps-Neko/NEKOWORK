@@ -73,6 +73,30 @@ test('핸드오프 파일이 디스크에 잘 떨어진다', async () => {
   }
 });
 
+test('live provider 실패는 기본적으로 mock fallback 하지 않는다', async () => {
+  const oldPath = process.env.PATH;
+  const oldFallback = process.env.HARNESS_LIVE_ALLOW_MOCK_FALLBACK;
+  process.env.PATH = '';
+  delete process.env.HARNESS_LIVE_ALLOW_MOCK_FALLBACK;
+  try {
+    await assert.rejects(
+      () => reviewCycle({
+        task: 'live 실패 검증',
+        sessionId: 'unit-live-no-fallback',
+        harnessRoot: ROOT,
+        live: true,
+        fast: true,
+        noShip: true,
+      }),
+      /planner\/plan live 실패/
+    );
+  } finally {
+    process.env.PATH = oldPath;
+    if (oldFallback === undefined) delete process.env.HARNESS_LIVE_ALLOW_MOCK_FALLBACK;
+    else process.env.HARNESS_LIVE_ALLOW_MOCK_FALLBACK = oldFallback;
+  }
+});
+
 function pad(stage) {
   const map = { ideate: '01', plan: '02', implement: '03', 'self-review': '04', 'codex-review': '05', 'codex-challenge': '06', ship: '07' };
   return map[stage] || '00';
