@@ -122,6 +122,7 @@ export async function dispatch(opts) {
   };
 }
 
+/** agent.md frontmatter 파싱. 파일이 없거나 frontmatter 없으면 null 반환. */
 export function loadAgentFrontmatter(agentName, root = process.cwd()) {
   const f = path.join(root, 'agents', `${agentName}.md`);
   if (!fs.existsSync(f)) return null;

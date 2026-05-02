@@ -73,7 +73,9 @@ async function runClaudeCli(args) {
   const cwd = args.harnessRoot || process.cwd();
   const run = () => spawnAndCollect(claudeBin, cliArgs, userPrompt, {
     label: 'claude',
-    timeoutMs: Number(process.env.HARNESS_CLAUDE_TIMEOUT_S || 180) * 1000,
+    // 풀사이클 stage 3 implement 는 verify smoke(~25s) 보다 응답이 길어
+    // 180s default 로는 timeout 다발. 600s (10분) 로 상향. 환경변수로 추가 조정 가능.
+    timeoutMs: Number(process.env.HARNESS_CLAUDE_TIMEOUT_S || 600) * 1000,
     cwd,
   });
   const stdout = args.executionMode === 'workspace-write'
