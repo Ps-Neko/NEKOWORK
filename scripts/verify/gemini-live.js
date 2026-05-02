@@ -13,7 +13,7 @@ try {
     'Return a minimal HARNESS handoff JSON for a local Gemini CLI smoke test.',
     'Do not browse, do not call tools, and do not modify files.',
   ].join(' '),
-  model: process.env.HARNESS_GEMINI_SMOKE_MODEL || 'gemini-2.5-pro',
+  model: process.env.HARNESS_GEMINI_SMOKE_MODEL || 'gemini-2.5-flash',
   sandbox: 'read-only',
   disallowedTools: ['Write', 'Edit', 'Bash'],
   promptBody: [
@@ -36,7 +36,7 @@ try {
   throw e;
 }
 
-const ok = result?.verdict === 'approve'
+const ok = ['approve', '승인'].includes(result?.verdict)
   && Array.isArray(result.files)
   && result.files.includes('GEMINI_SMOKE.md');
 
