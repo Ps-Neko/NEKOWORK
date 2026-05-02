@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://harness.dev/schemas/hooks.schema.json",
+  "$id": "https://raw.githubusercontent.com/Ps-Neko/NEKOWORK/main/schemas/hooks.schema.json",
   "title": "Hooks Definition Schema",
   "description": "hooks/hooks.json 단일 정의 파일 검증",
   "type": "object",

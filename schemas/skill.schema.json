@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://harness.dev/schemas/skill.schema.json",
+  "$id": "https://raw.githubusercontent.com/Ps-Neko/NEKOWORK/main/schemas/skill.schema.json",
   "title": "Skill Frontmatter Schema",
   "description": "skills/<name>/SKILL.md frontmatter 검증",
   "type": "object",
