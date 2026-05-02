@@ -38,7 +38,7 @@ pub async fn run(root: &Path) -> Result<()> {
     let mut line = String::new();
     let mut handle = stdin.lock();
     handle.read_line(&mut line)?;
-    let line = line.trim();
+    let line = line.trim_start_matches('\u{feff}').trim();
     if line.is_empty() {
         return Ok(());
     }

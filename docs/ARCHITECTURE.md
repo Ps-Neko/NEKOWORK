@@ -319,7 +319,7 @@ node scripts/sync-claude-md.js  → CLAUDE.md 마커 영역 갱신
 |---|---|---|
 | P0 (사용자 동의) | Claude CLI live smoke, GitHub push, 사내 PoC 비파괴 결합 | 로컬 CLI 로그인 / 네트워크 필요 |
 | P1 (1~2시간) | sync-claude-md, repair, build-cursor/gemini/opencode, validate-* 4개, rules 채우기 | 본 세션에서 모두 완료 |
-| P2 (2~4시간) | integration / e2e 테스트, ARCHITECTURE 풀 본문, Rust runtime 컴파일, codemap 자동 생성 | 본 세션 후반 |
+| P2 (2~4시간) | integration / e2e 테스트, ARCHITECTURE 풀 본문, Rust runtime 컴파일, codemap 자동 생성 | 완료 |
 | P3 (사용자 명시 시) | 사내 풀 결합, 추가 사내 프로젝트, 사내 LLM provider | 외부 임팩트 |
 | P4 (의도적 거절) | 매직 키워드 자동 활성, 184 풀 카탈로그, tmux team | 사용자 룰 / progressive 원칙 충돌 |
 
@@ -374,7 +374,7 @@ harness/
 │   └── lib/                    ← router, severity, costs, runners
 ├── bridge/
 │   └── mcp-server.js          ← MCP 단일 게이트웨이
-├── runtime/                    ← Rust 골격 (별도 컴파일)
+├── runtime/                    ← Rust runtime (release build + smoke verified)
 ├── docs/
 │   ├── ARCHITECTURE.md         ← 본 문서
 │   ├── AUDIT.md                ← 18절 vs 실 구현 매핑
@@ -492,7 +492,7 @@ node scripts/ci/check-markers.js         # CLAUDE.md 마커 무결성
 1. **이식성 검증** (P0) — 사내 PoC 비파괴 결합 1건, GitHub push 후 Actions 실 동작.
 2. **integration / e2e 테스트** (P2) — 실 풀체인 시나리오 + `.harness/state/sessions/<id>/` 영속 검증.
 3. **codemap 자동 생성** (P2) — `docs/CODEMAPS/<area>.md` 디렉터리 트리 + 핵심 export.
-4. **Rust runtime 컴파일 검증** (P2) — IPC ping 까지.
+4. ~~**Rust runtime 컴파일 검증** (P2) — IPC ping 까지.~~ 완료.
 5. **사내 LLM provider** (P3) — `runners/internal.js` 추가, 사내 endpoint 라우팅.
 6. **OIDC / dead-man / supply chain 스캔** (P3) — Security Bar 12-item 풀 충족.
 

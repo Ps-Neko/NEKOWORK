@@ -10,6 +10,7 @@
 - `scripts/core/git-mutation-guard.js` — read-only / handoff-mode runner 실행 전후 git 상태 비교로 workspace mutation 감지.
 - `scripts/verify/claude-live.js` + `npm run verify:claude` — Claude Code CLI 구독/OAuth 세션 smoke.
 - `scripts/verify/gemini-live.js` + `npm run verify:gemini` — Gemini CLI local auth smoke.
+- `runtime/Cargo.lock` — Rust binary runtime dependency lockfile committed after successful build verification.
 - `tests/unit/auth-guard.test.js`, `tests/unit/core-utils.test.js`, `tests/unit/git-mutation-guard.test.js` — delegated CLI auth guard, core runner utility, workspace mutation guard 단위 테스트.
 - `@anthropic-ai/sdk` optional dependency — `HARNESS_CLAUDE_RUNNER=sdk` 명시 opt-in 경로 지원.
 
@@ -22,6 +23,9 @@
 - `scripts/agents/runners/{claude,codex,gemini}.js` — 중복 `which` / subprocess / JSON 추출 로직을 `scripts/core/` 로 이동.
 - `scripts/core/subprocess.js` — Windows timeout 시 `.cmd` shim 하위 프로세스까지 `taskkill /t` 로 정리.
 - `package.json` — unused `vitest` devDependency 제거. Repo 기본 테스트 러너를 `node:test` 로 문서화하고 npm audit 0 vulnerabilities 로 정리.
+- `runtime/Cargo.toml` — add missing `ctrlc` dependency and enable `clap/env` feature.
+- `runtime/src/ipc.rs` — ignore leading UTF BOM in PowerShell pipeline input.
+- `runtime/README.md` — replace skeleton note with Windows build and smoke instructions.
 - `scripts/orchestrators/review.js` — live provider 실패 시 기본 mock fallback 제거. fallback 은 `HARNESS_LIVE_ALLOW_MOCK_FALLBACK=1` 명시 opt-in 으로만 허용.
 - `scripts/cli.js`, `docs/SETUP.md`, `docs/RUNBOOK.md`, `docs/PORTING.md` — `--live` 설명을 local CLI auth first 로 갱신.
 - `scripts/agents/runners/codex.js` — PascalCase live 응답과 `Risks` 배열을 handoff schema 로 정규화.
@@ -56,7 +60,7 @@
 
 ### 다음 후보 (`docs/AUDIT.md §5` + `docs/dev-log/2026-04-29-p1-recovery.md §6` 참조)
 - **P0** (사용자 동의): Claude CLI live smoke, ~~GitHub push + Actions 실 동작~~ (auth migration 머지로 수행됨), 사내 PoC 결합
-- **P2** (외부 의존): Rust runtime 컴파일, Gemini CLI 설치 후 live 검증, npm publish 결정
+- **P2** (외부 의존): Gemini CLI 설치 후 live 검증, npm publish 결정, origin/main 통합 PR
 - **P3** (사내 임팩트, 사용자 명시 시): 사내 풀 결합, `runners/internal.js` 사내 LLM, 사내 GitLab CI 가이드
 - **Auth**: smoke #3 (GitHub OAuth Device Flow) — OAuth App 등록 후 `HARNESS_GITHUB_CLIENT_ID` 설정 → `npm run auth:github:login` 실연.
 
@@ -116,7 +120,7 @@
   - supervisor: wakeup.json 폴링 → Node CLI ralph spawn, HUMAN_GATE 즉시 무시
   - ipc: stdio JSON-RPC 단일 요청 (ping / session.upsert / handoff.record / session.list)
 - `runtime/README.md` — 빌드 / 사용 / Node 데몬과의 관계 (동시 실행 금지)
-- 컴파일 검증은 다음 세션 (rustup 미설치)
+- 컴파일 검증은 2026-05-02 완료 (`cargo build --release`, help/init/status/ipc ping).
 
 ### Added (Day 19-20)
 - `docs/AUDIT.md` — Week 1~4 통합 검토
@@ -132,7 +136,7 @@
 ### 누적 (Week 1+2+3+4)
 - 5 커밋, ~100 파일, ~12,000 LOC
 - 단위 테스트: 5+10+6+3+15+5+12 = **56/56 PASS**
-- Rust runtime 골격 추가 (529 LOC, 컴파일 미검증)
+- Rust runtime 골격 추가 (529 LOC, 2026-05-02 컴파일 검증 완료)
 
 ## [0.0.1-week3] — 2026-04-29
 

@@ -76,6 +76,8 @@ npm run verify:gemini
 
 ```bash
 # rustup 설치 (https://rustup.rs)
+# Windows MSVC target 은 Visual Studio Build Tools C++ workload 필요
+winget install --id Microsoft.VisualStudio.2022.BuildTools -e --override "--wait --quiet --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --norestart"
 cd runtime
 cargo build --release
 ./target/release/harness-runtime --help

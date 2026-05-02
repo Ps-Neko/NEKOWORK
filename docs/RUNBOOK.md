@@ -222,6 +222,6 @@ node scripts/demo-review.js "<task>" demo-local --no-ship
 - 5 빌더 모두 동작 + codemaps
 - 99/99 테스트 PASS (82 unit + 10 integration + 7 e2e)
 - 자체 완결 가능 영역 정합 100%
-- 외부 의존 영역 (LLM 구독 OAuth / GitHub OAuth 또는 push / Rust 컴파일) 은 사용자 동의 시점까지 보류
+- 외부 의존 영역 (Gemini CLI live / GitHub OAuth 또는 push / npm publish) 은 사용자 동의 시점까지 보류
 
 다음 우선순위는 `docs/AUDIT.md §5` 참조.

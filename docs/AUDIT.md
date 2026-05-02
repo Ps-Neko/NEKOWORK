@@ -72,7 +72,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 | Claude CLI live 호출 | 로컬 Claude Code 로그인 세션 필요 | 기본 runner 전환됨, smoke 미실행 |
 | Codex CLI live 호출 | codex 바이너리 미설치 | 동일 |
 | Gemini CLI live 호출 | gemini 바이너리 미설치 | 동일 |
-| Rust runtime 컴파일 | rustup 미설치 | 동일 |
+| Rust runtime 컴파일 | OK | 2026-05-02 rustup + VS Build Tools, `cargo build --release`, help/init/status/ipc ping PASS |
 | GitHub Actions 실 동작 | 레포 미 push | 동일 |
 | 사내 PoC 실 이식 | 외부 디렉터리 변경 보류 | 동일 |
 | ~~install-apply 의 sha256 placeholder~~ | ~~Day 4 stub~~ | **2026-04-29 회수**: source_sha256 + targets[].sha256 모두 실값 |
@@ -124,7 +124,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 - ~~codemap 자동 생성~~ ✓
 
 ### P2 — 검증 / 확장 (외부 의존)
-1. **Rust runtime 컴파일 검증** — rustup 설치 + `cargo build --release` + smoke (init / status / ipc ping).
+1. ~~**Rust runtime 컴파일 검증** — rustup 설치 + `cargo build --release` + smoke (init / status / ipc ping).~~ 완료.
 2. **Codex CLI / Gemini CLI live 검증** — 바이너리 설치 후 풀사이클 1회.
 3. **GitHub Actions 실 동작** — push 후 PR 코멘트 자동 검증.
 4. **npm publish 결정** — `private: true` 유지 vs 공개.
@@ -159,7 +159,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 | 디렉터리 | 28+ |
 | 파일 | ~92 |
 | LOC (md+json+yaml+yml+js+mjs+sh+ps1) | ~10,500 |
-| Rust LOC (별도) | 529 (미컴파일) |
+| Rust LOC (별도) | 529+ (컴파일 및 smoke 검증 완료) |
 | 커밋 | 4 |
 | Agents | 11 |
 | Skills | 6 |
@@ -187,4 +187,4 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 - local-first auth 포팅 + provider mutation guard 후 테스트 99/99 PASS
 - ARCHITECTURE 풀 18절 본문 528줄
 
-잔존 부채는 **외부 의존 검증** (Gemini CLI 설치 후 live smoke / GitHub push) + **Rust 컴파일** + **npm publish 결정** + **사내 임팩트 (사용자 명시 시점)**. 자체 완결 가능한 영역은 **99% 정합성 도달**.
+잔존 부채는 **외부 의존 검증** (Gemini CLI 설치 후 live smoke / GitHub push) + **npm publish 결정** + **사내 임팩트 (사용자 명시 시점)**. 자체 완결 가능한 영역은 **99% 정합성 도달**.
