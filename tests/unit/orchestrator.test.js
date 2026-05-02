@@ -1,5 +1,5 @@
 // review 오케스트레이터 단위 테스트. mock provider 로 결정론적.
-// vitest 가 PATH 에 없으면 직접 node 로 실행 (간이 assert).
+// node:test based orchestrator checks.
 
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';

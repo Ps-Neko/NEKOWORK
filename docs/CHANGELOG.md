@@ -21,6 +21,7 @@
 - `scripts/agents/runners/gemini.js` — prompt body 포함, non-interactive handoff mode 명시, git mutation guard 적용.
 - `scripts/agents/runners/{claude,codex,gemini}.js` — 중복 `which` / subprocess / JSON 추출 로직을 `scripts/core/` 로 이동.
 - `scripts/core/subprocess.js` — Windows timeout 시 `.cmd` shim 하위 프로세스까지 `taskkill /t` 로 정리.
+- `package.json` — unused `vitest` devDependency 제거. Repo 기본 테스트 러너를 `node:test` 로 문서화하고 npm audit 0 vulnerabilities 로 정리.
 - `scripts/orchestrators/review.js` — live provider 실패 시 기본 mock fallback 제거. fallback 은 `HARNESS_LIVE_ALLOW_MOCK_FALLBACK=1` 명시 opt-in 으로만 허용.
 - `scripts/cli.js`, `docs/SETUP.md`, `docs/RUNBOOK.md`, `docs/PORTING.md` — `--live` 설명을 local CLI auth first 로 갱신.
 - `scripts/agents/runners/codex.js` — PascalCase live 응답과 `Risks` 배열을 handoff schema 로 정규화.
@@ -308,5 +309,5 @@ harness version
 
 ### 의존성
 - Node 22+ (테스트는 24.14.0)
-- npm packages: ajv, ajv-formats, yaml, @modelcontextprotocol/sdk, vitest, typescript, @types/node, optional @anthropic-ai/sdk
+- npm packages: ajv, ajv-formats, yaml, @modelcontextprotocol/sdk, typescript, @types/node, optional @anthropic-ai/sdk
 - 옵션: Claude/Codex/Gemini CLI 세션 (`--live`), HARNESS_CLAUDE_RUNNER=sdk + ANTHROPIC_API_KEY (CI/API-key opt-in)

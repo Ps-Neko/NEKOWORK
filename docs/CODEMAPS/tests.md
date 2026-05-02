@@ -39,7 +39,7 @@ tests/
 | `unit/costs.test.js` | _(none)_ |  |
 | `unit/git-mutation-guard.test.js` | _(none)_ |  |
 | `unit/instincts.test.js` | _(none)_ |  |
-| `unit/orchestrator.test.js` | _(none)_ | review 오케스트레이터 단위 테스트. mock provider 로 결정론적. vitest 가 PATH 에 없으면 직접 node 로 실행 (간이 assert). |
+| `unit/orchestrator.test.js` | _(none)_ | review 오케스트레이터 단위 테스트. mock provider 로 결정론적. node:test based orchestrator checks. |
 | `unit/portability.test.js` | _(none)_ |  |
 | `unit/router.test.js` | _(none)_ |  |
 | `unit/runners-extract.test.js` | _(none)_ | live runner 의 JSON 추출 / prompt 빌더 단위 테스트. Claude/Codex CLI 미설치 환경에서도 동작 (실 호출 없음). |

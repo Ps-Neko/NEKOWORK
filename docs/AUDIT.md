@@ -147,7 +147,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 | 마찰 | 원인 / 회수안 |
 |---|---|
 | Git CRLF warning 매 add 마다 | `.gitattributes` 추가하여 LF 강제 |
-| `node --test tests/unit/` 디렉터리 호출 실패 | Node 22+ glob 미지원. `tests/unit/*.test.js` 명시 또는 vitest 도입 |
+| `node --test tests/unit/` 디렉터리 호출 실패 | Node 22+ glob 미지원. `tests/unit/*.test.js` 명시 |
 | Windows 에서 tsc 가 PATH 에서 못 잡힘 | `which()` 가 cwd 부터 부모 탐색. 임시 .ts 는 프로젝트 안에 둘 것 |
 | `/tmp` 가 Node 에서 Windows 경로로 매핑 안 됨 | 임시 파일은 `os.tmpdir()` 또는 `tests/_tmp/` 사용 |
 | Node SDK `notifications/initialized` 가 처음에 누락되면 timeout | smoke test 에 명시 — 현재 OK |

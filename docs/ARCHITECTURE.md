@@ -191,7 +191,7 @@ ENV 토글: `HARNESS_HOOK_<NAME>=1` 로 개별 활성/비활성.
 | `common/testing.md` | 80% 커버리지, TDD, 격리, 결정성 |
 | `common/security.md` | 시크릿, 입력 검증, MCP 핀, 사고 대응 |
 | `typescript/coding-style.md` | 타입, async, immutability, console.log 금지 |
-| `typescript/testing.md` | vitest / node:test, Playwright |
+| `typescript/testing.md` | node:test, Playwright |
 | `typescript/security.md` | zod, parameterized SQL, JWT, CSRF |
 | `python/coding-style.md` | PEP 8, 타입 힌트, dataclass / pydantic |
 | `python/testing.md` | pytest, parametrize, asyncio, 80% 커버리지 |
@@ -328,7 +328,7 @@ node scripts/sync-claude-md.js  → CLAUDE.md 마커 영역 갱신
 | 리스크 | 대응 |
 |---|---|
 | Git CRLF warning | `.gitattributes` 로 LF 강제 |
-| Node 22+ glob 미지원 | 테스트 호출 시 `tests/unit/*.test.js` 명시 또는 vitest 도입 |
+| Node 22+ glob 미지원 | 테스트 호출 시 `tests/unit/*.test.js` 명시 |
 | Windows tsc PATH 미인식 | 임시 .ts 는 프로젝트 안에 두고 cwd 기준으로 탐색 |
 | `/tmp` 가 Windows 매핑 안 됨 | `os.tmpdir()` / `tests/_tmp/` 사용 |
 | Codex / Claude 컨텍스트 의도치 않은 공유 | 핸드오프 마크다운만 허용, 직접 메시지 전달 차단 |
