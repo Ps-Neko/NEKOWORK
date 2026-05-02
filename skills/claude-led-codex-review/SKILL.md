@@ -53,6 +53,27 @@ harness review "<task>" --no-codex         # 단계 5 스킵 (Codex CLI 미설�
 
 각 단계의 핸드오프는 `verdict: block | approve_with_fixes | approve` 와 issues 배열을 갖는다.
 
+### Verdict 자동 판정 룰
+
+`scripts/lib/severity.js` 의 `deriveVerdict(issues, opts)` 가 정전(canon).
+
+**BLOCK 강성 룰** (하나라도 충족):
+- `critical >= 1`
+- `high > 5` — high 다수는 자동 통과 위험, 추가 검토 강제
+- `confidence < 0.6` — codex 가 자신없게 답할 때 보수 안전망
+
+**APPROVE_WITH_FIXES**:
+- `high in [1, 5]`
+- `medium >= 1`
+- `blast_radius >= 10` 이면서 `issues.length >= 1` — 큰 변경은 작은 issue 라도 추가 검토
+
+**APPROVE**: 그 외.
+
+명시 verdict (`block`/`approve_with_fixes`/`approve`) 가 codex 응답에 있으면 그대로 따르되,
+`high > 5` 또는 `confidence < 0.6` 인 경우는 **block 으로 강등**한다 (codex 가 자신감 없이 approve 한 경우의 안전망).
+
+### Fix Loop
+
 ```
 [5 codex-review] ──verdict──┐
                             │

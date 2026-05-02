@@ -18,7 +18,7 @@ import { resolveCli } from '../../core/cli-resolver.js';
 import { withGitMutationGuard } from '../../core/git-mutation-guard.js';
 import { extractJson } from '../../core/json-extractor.js';
 import { spawnAndCollect } from '../../core/subprocess.js';
-import { classifyCategory, classifySeverity, deriveVerdict } from '../../lib/severity.js';
+import { classifyCategory, classifySeverity, deriveVerdict, severityCounts } from '../../lib/severity.js';
 
 export async function runCodex(args) {
   assertDelegatedCliAuth('codex');
@@ -124,20 +124,24 @@ function normalizeHandoff(raw) {
   const issueSource = Array.isArray(rawIssues) ? rawIssues : (Array.isArray(rawRisks) ? rawRisks : []);
   const issues = issueSource.map(normalizeIssue);
 
+  // verdict 결정 전에 confidence / blastRadius 추출 — deriveVerdict opts 로 전달.
+  const confRaw = pick('confidence', 'Confidence');
+  const confNum = confRaw != null ? Number(confRaw) : NaN;
+  const confidence = Number.isFinite(confNum) ? confNum : undefined;
+  const filesArr = normalizeFiles(pick('files', 'Files'));
+  const blastRadius = filesArr.length;
+
   const lower = {
     decided: stringifyField(pick('decided', 'Decided', 'decision', 'Decision')),
     rejected: stringifyField(pick('rejected', 'Rejected')),
     risks: stringifyField(Array.isArray(rawRisks) ? rawRisks.map(r => r.issue || r.summary || r.message || JSON.stringify(r)).join('; ') : rawRisks),
-    files: normalizeFiles(pick('files', 'Files')),
+    files: filesArr,
     remaining: stringifyField(pick('remaining', 'Remaining')),
     issues,
-    verdict: normalizeVerdict(pick('verdict', 'Verdict'), issues, pick('decided', 'Decided')),
+    verdict: normalizeVerdict(pick('verdict', 'Verdict'), issues, pick('decided', 'Decided'), { confidence, blastRadius }),
   };
 
-  if (pick('confidence', 'Confidence') != null) {
-    const n = Number(pick('confidence', 'Confidence'));
-    if (Number.isFinite(n)) lower.confidence = n;
-  }
+  if (confidence !== undefined) lower.confidence = confidence;
 
   return lower;
 }
@@ -174,11 +178,28 @@ function stringifyField(value) {
   return JSON.stringify(value);
 }
 
-function normalizeVerdict(verdict, issues, decided) {
+function normalizeVerdict(verdict, issues, decided, opts = {}) {
   const v = String(verdict || '').toLowerCase();
-  if (['block', 'approve_with_fixes', 'approve'].includes(v)) return v;
-  if (['request_changes', 'changes_requested', 'fix', 'gate'].includes(v)) return deriveVerdict(issues.length ? issues : [{ severity: 'high', category: 'correctness', summary: String(decided || 'changes requested') }]);
-  return deriveVerdict(issues);
+  let result;
+  if (['block', 'approve_with_fixes', 'approve'].includes(v)) {
+    result = v;
+  } else if (['request_changes', 'changes_requested', 'fix', 'gate'].includes(v)) {
+    result = deriveVerdict(
+      issues.length ? issues : [{ severity: 'high', category: 'correctness', summary: String(decided || 'changes requested') }],
+      opts,
+    );
+  } else {
+    result = deriveVerdict(issues, opts);
+  }
+
+  // 보수 강등: 명시 verdict 가 approve 류라도 high > 5 / confidence < 0.6 이면 block.
+  // codex 가 자신감 없게 approve 한 경우의 안전망.
+  if (result !== 'block') {
+    const c = severityCounts(issues);
+    if (c.high > 5)                                                   return 'block';
+    if (typeof opts.confidence === 'number' && opts.confidence < 0.6) return 'block';
+  }
+  return result;
 }
 
 export { buildPrompt as _buildPrompt, extractJson, normalizeHandoff as _normalizeHandoff };
