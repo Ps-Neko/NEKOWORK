@@ -57,6 +57,8 @@ node scripts/cli.js review "<task>" --live --no-ship
 기본 runner 는 `claude -p` 를 호출하므로 Claude Pro/Max 구독 세션을 사용한다.
 `ANTHROPIC_API_KEY` 는 기본 경로에 필요 없다. SDK/API-key 경로가 꼭 필요할 때만
 `HARNESS_CLAUDE_RUNNER=sdk` 와 `ANTHROPIC_API_KEY` 를 명시한다.
+CLI handoff mode 는 실행 전후 git 상태를 비교해 예기치 않은 파일 쓰기를 차단한다.
+의도적으로 Claude CLI 쓰기 실험을 할 때만 `HARNESS_CLAUDE_ALLOW_WORKSPACE_MUTATION=1` 을 사용한다.
 
 ### 3. Gemini CLI live (research agent)
 

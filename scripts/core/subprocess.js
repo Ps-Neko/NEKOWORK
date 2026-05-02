@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 
 export function spawnAndCollect(bin, args, stdin, options = {}) {
   const label = options.label || bin;
@@ -18,7 +18,7 @@ export function spawnAndCollect(bin, args, stdin, options = {}) {
     };
 
     const timeout = setTimeout(() => {
-      try { child.kill(); } catch {}
+      killProcessTree(child);
       settle(reject, new Error(`${label} timeout`));
     }, timeoutMs);
 
@@ -31,6 +31,21 @@ export function spawnAndCollect(bin, args, stdin, options = {}) {
     });
     child.stdin.end(stdin);
   });
+}
+
+function killProcessTree(child) {
+  try {
+    if (process.platform === 'win32' && child.pid) {
+      spawnSync('taskkill.exe', ['/pid', String(child.pid), '/t', '/f'], {
+        stdio: 'ignore',
+        windowsHide: true,
+      });
+      return;
+    }
+    child.kill();
+  } catch {
+    try { child.kill(); } catch {}
+  }
 }
 
 function spawnProcess(bin, args, options = {}) {

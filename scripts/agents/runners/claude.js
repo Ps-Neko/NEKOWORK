@@ -4,6 +4,7 @@
 
 import { assertDelegatedCliAuth } from '../../core/auth-guard.js';
 import { resolveCli } from '../../core/cli-resolver.js';
+import { withGitMutationGuard } from '../../core/git-mutation-guard.js';
 import { extractJson } from '../../core/json-extractor.js';
 import { spawnAndCollect } from '../../core/subprocess.js';
 
@@ -72,14 +73,21 @@ async function runClaudeCli(args) {
     '--output-format', 'json',
     '--no-session-persistence',
     '--tools', '',
+    '--permission-mode', 'plan',
     '--model', modelId,
     '--system-prompt', systemPrompt,
   ];
 
-  const stdout = await spawnAndCollect(claudeBin, cliArgs, userPrompt, {
-    label: 'claude',
-    timeoutMs: Number(process.env.HARNESS_CLAUDE_TIMEOUT_S || 180) * 1000,
-  });
+  const cwd = args.harnessRoot || process.cwd();
+  const stdout = await withGitMutationGuard(
+    cwd,
+    () => spawnAndCollect(claudeBin, cliArgs, userPrompt, {
+      label: 'claude',
+      timeoutMs: Number(process.env.HARNESS_CLAUDE_TIMEOUT_S || 180) * 1000,
+      cwd,
+    }),
+    { label: 'claude', allowEnvKey: 'HARNESS_CLAUDE_ALLOW_WORKSPACE_MUTATION' },
+  );
   const wrapper = parseCliJson(stdout);
   const text = typeof wrapper?.result === 'string' ? wrapper.result : stdout;
   const jsonText = extractJson(text);
@@ -103,6 +111,9 @@ function buildSystem(a) {
 Sandbox: ${a.sandbox || 'workspace-write'}.
 Output rules: respond with ONE JSON object conforming to schemas/handoff.schema.json.
 No prose outside JSON. Korean for natural-language fields.
+Non-interactive handoff mode: do not call tools, edit files, run shell commands, wait for approvals, or make commits.
+If the agent body asks you to implement, test, or commit, summarize the intended change and evidence in JSON only.
+Keep the JSON concise so the CLI can finish promptly.
 
 Agent body:
 ${a.promptBody}`;

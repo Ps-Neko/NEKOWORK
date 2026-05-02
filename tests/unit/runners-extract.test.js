@@ -59,6 +59,8 @@ test('claude buildSystem: agent 본문 / sandbox / disallowedTools 포함', () =
   assert.match(s, /read-only/);
   assert.match(s, /Write, Edit/);
   assert.match(s, /careful reviewer/);
+  assert.match(s, /Non-interactive handoff mode/);
+  assert.match(s, /do not call tools/);
 });
 
 test('claude buildUserMessage: PRD / diff / priorHandoffs 포함', () => {
