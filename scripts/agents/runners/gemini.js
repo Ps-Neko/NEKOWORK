@@ -17,9 +17,10 @@ export async function runGemini(args) {
 
   const prompt = buildPrompt(args);
   const cwd = args.harnessRoot || process.cwd();
+  const cliArgs = buildCliArgs(args);
   const stdout = await withGitMutationGuard(
     cwd,
-    () => spawnAndCollect(bin, ['--quiet'], prompt, {
+    () => spawnAndCollect(bin, cliArgs, prompt, {
       label: 'gemini',
       timeoutMs: Number(process.env.HARNESS_GEMINI_TIMEOUT_S || 120) * 1000,
       cwd,
@@ -27,8 +28,48 @@ export async function runGemini(args) {
     { label: 'gemini', allowEnvKey: 'HARNESS_GEMINI_ALLOW_WORKSPACE_MUTATION' },
   );
 
-  const json = extractJson(stdout);
-  if (!json) throw new Error('Gemini response did not contain JSON. raw:\n' + stdout.slice(0, 500));
+  return parseGeminiOutput(stdout);
+}
+
+function buildCliArgs(a) {
+  const args = [
+    '--prompt',
+    'Use the instructions provided on stdin. Return only the requested JSON.',
+    '--output-format',
+    'json',
+    '--approval-mode',
+    'plan',
+    '--skip-trust',
+  ];
+
+  const model = process.env.HARNESS_GEMINI_MODEL || a.model;
+  if (model) args.push('--model', model);
+  return args;
+}
+
+function parseGeminiOutput(stdout) {
+  const parsed = parseOuterJson(stdout);
+  if (parsed && typeof parsed.response === 'string') {
+    const responseJson = extractJson(parsed.response);
+    if (!responseJson) {
+      throw new Error('Gemini JSON wrapper did not contain handoff JSON in response. raw:\n' + parsed.response.slice(0, 500));
+    }
+    return JSON.parse(responseJson);
+  }
+
+  return parsed;
+}
+
+function parseOuterJson(stdout) {
+  const text = String(stdout || '').trim();
+  if (!text) throw new Error('Gemini response did not contain JSON. raw:\n');
+
+  try {
+    return JSON.parse(text);
+  } catch {}
+
+  const json = extractJson(text);
+  if (!json) throw new Error('Gemini response did not contain JSON. raw:\n' + text.slice(0, 500));
   return JSON.parse(json);
 }
 
@@ -47,4 +88,4 @@ function buildPrompt(a) {
   ].filter(Boolean).join('\n');
 }
 
-export { buildPrompt as _buildPrompt };
+export { buildPrompt as _buildPrompt, buildCliArgs as _buildCliArgs, parseGeminiOutput as _parseGeminiOutput };

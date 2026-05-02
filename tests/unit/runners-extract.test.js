@@ -6,12 +6,17 @@ import { test } from 'node:test';
 import {
   extractJson as extractClaude,
   _buildSystem,
+  _buildCliArgs as _buildClaudeCliArgs,
   _buildUserMessage,
   _parseCliJson,
   _normalizeCliUsage,
 } from '../../scripts/agents/runners/claude.js';
 import { extractJson as extractCodex, _buildPrompt, _normalizeHandoff } from '../../scripts/agents/runners/codex.js';
-import { _buildPrompt as _buildGeminiPrompt } from '../../scripts/agents/runners/gemini.js';
+import {
+  _buildCliArgs as _buildGeminiCliArgs,
+  _buildPrompt as _buildGeminiPrompt,
+  _parseGeminiOutput,
+} from '../../scripts/agents/runners/gemini.js';
 
 test('extractJson: ```json 펜스 블록', () => {
   const text = 'before\n```json\n{"verdict":"approve","issues":[]}\n```\nafter';
@@ -62,6 +67,13 @@ test('claude buildSystem: agent 본문 / sandbox / disallowedTools 포함', () =
   assert.match(s, /careful reviewer/);
   assert.match(s, /Non-interactive handoff mode/);
   assert.match(s, /do not call tools/);
+});
+
+test('claude workspace-write args allow isolated edits', () => {
+  const args = _buildClaudeCliArgs({ executionMode: 'workspace-write' }, 'sonnet', 'system');
+  assert.equal(args.includes('--tools'), false);
+  assert.equal(args.includes('--allowedTools'), true);
+  assert.equal(args.includes('acceptEdits'), true);
 });
 
 test('claude buildUserMessage: PRD / diff / priorHandoffs 포함', () => {
@@ -161,4 +173,25 @@ test('gemini buildPrompt includes handoff mode and agent body', () => {
   assert.match(p, /Non-interactive handoff mode/);
   assert.match(p, /Return only JSON/);
   assert.match(p, /## PRD/);
+});
+
+test('gemini buildCliArgs uses current headless flags', () => {
+  const args = _buildGeminiCliArgs({ model: 'gemini-2.5-pro' });
+  assert.equal(args.includes('--quiet'), false);
+  assert.equal(args.includes('--prompt'), true);
+  assert.equal(args.includes('--output-format'), true);
+  assert.equal(args.includes('--approval-mode'), true);
+  assert.equal(args.includes('plan'), true);
+  assert.equal(args.includes('--model'), true);
+});
+
+test('gemini parseGeminiOutput unwraps response JSON', () => {
+  const handoff = '{"decided":"OK","files":["a.md"],"verdict":"approve"}';
+  const parsed = _parseGeminiOutput(JSON.stringify({
+    response: '```json\n' + handoff + '\n```',
+    stats: { models: {} },
+  }));
+  assert.equal(parsed.decided, 'OK');
+  assert.deepEqual(parsed.files, ['a.md']);
+  assert.equal(parsed.verdict, 'approve');
 });

@@ -17,6 +17,7 @@ tests/
     ├── auth-guard.test.js
     ├── core-utils.test.js
     ├── costs.test.js
+    ├── execution-workspace.test.js
     ├── git-mutation-guard.test.js
     ├── instincts.test.js
     ├── orchestrator.test.js
@@ -24,6 +25,7 @@ tests/
     ├── router.test.js
     ├── runners-extract.test.js
     ├── severity.test.js
+    ├── team-lite.test.js
     └── token-vault.test.js
 ```
 
@@ -37,6 +39,7 @@ tests/
 | `unit/auth-guard.test.js` | _(none)_ |  |
 | `unit/core-utils.test.js` | _(none)_ |  |
 | `unit/costs.test.js` | _(none)_ |  |
+| `unit/execution-workspace.test.js` | _(none)_ |  |
 | `unit/git-mutation-guard.test.js` | _(none)_ |  |
 | `unit/instincts.test.js` | _(none)_ |  |
 | `unit/orchestrator.test.js` | _(none)_ | review 오케스트레이터 단위 테스트. mock provider 로 결정론적. node:test based orchestrator checks. |
@@ -44,5 +47,6 @@ tests/
 | `unit/router.test.js` | _(none)_ |  |
 | `unit/runners-extract.test.js` | _(none)_ | live runner 의 JSON 추출 / prompt 빌더 단위 테스트. Claude/Codex CLI 미설치 환경에서도 동작 (실 호출 없음). |
 | `unit/severity.test.js` | _(none)_ |  |
+| `unit/team-lite.test.js` | _(none)_ |  |
 | `unit/token-vault.test.js` | _(none)_ |  |
 
