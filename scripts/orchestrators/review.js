@@ -4,7 +4,7 @@
 // 핵심 규칙:
 //   - 단계 5/6 의 verdict 가 block 또는 critical/high 발견 시 fix loop (executor 재호출, round++)
 //   - round 한도 = 3. critical 발견 또는 round ≥ 3 → human gate.
-//   - --secure 또는 auth/crypto/payment 디렉터리 변경 자동 감지 → 단계 6 활성.
+//   - --secure 또는 보안 카테고리(auth/crypto/token/cert/csrf/webhook 등) 변경 자동 감지 → 단계 6 활성.
 //   - --fast → 단계 1·6 스킵.
 //   - --no-ship → 단계 7 생략.
 
@@ -20,9 +20,20 @@ const STAGE_INDEX = {
 };
 
 const ROUND_LIMIT = Number(process.env.HARNESS_REVIEW_ROUND_LIMIT || 3);
-const SENSITIVE_PATTERNS = [
+// 단어 경계(\b)는 [A-Za-z0-9_] 사이에 매칭하지 않으므로 'session_id' 의 'session' 처럼
+// _ 로 이어진 경우는 매칭 안 됨. 변형은 별도 패턴으로 명시한다.
+export const SENSITIVE_PATTERNS = [
+  // 인증 / 세션 / 시크릿
   /\bauth\b/i, /\bcrypto\b/i, /\bpayment\b/i, /\bsession\b/i,
   /\bpermission\b/i, /\boauth\b/i, /\bjwt\b/i, /\bpassword\b/i, /\bsecret\b/i,
+  // 자격증명 / 토큰
+  /\btoken\b/i, /\bapikey\b/i, /\bapi[-_]key\b/i,
+  // 인증서 / 전송보안
+  /\bcert\b/i, /\btls\b/i, /\bssl\b/i, /\bmtls\b/i,
+  // 웹 보안
+  /\bcsrf\b/i, /\bcors\b/i, /\bxss\b/i,
+  // 외부 검증 누락 다발
+  /\bwebhook\b/i,
 ];
 
 export async function reviewCycle(opts) {
