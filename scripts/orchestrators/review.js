@@ -155,25 +155,38 @@ export async function reviewCycle(opts) {
     break;
   }
 
-  // ---- 5. codex-review ----
-  log('5 codex-review');
-  const h5 = await runWithFallback({
-    agent: 'codex-reviewer', stage: 'codex-review', task: opts.task, live, root, sessionDir, sessionId,
-    context: { round: 1, prd, priorHandoffs: handoffs.slice(-3), diff: currentDiff },
-  });
+  // ---- 5 + 6. codex-review + codex-challenge (병렬 실행) ----
+  // 두 단계는 같은 입력(prd / priorHandoffs / diff)을 받고 컨텍스트가 독립이다.
+  // Promise.all 로 동시 호출 → codex CLI 호출 시간(가장 큰 비용)을 1회 비용으로 단축.
+  // stage 5 critical 시 stage 6 결과는 폐기 (직렬 동작과 의미 동일).
+  const wantChallenge = (secureRequested || sensitiveHit) && !fast;
+  log(wantChallenge
+    ? `5+6 codex-review + codex-challenge (병렬, ${secureRequested ? '--secure' : 'sensitive 자동'})`
+    : '5 codex-review');
+
+  const codexCommonContext = { round: 1, prd, priorHandoffs: handoffs.slice(-3), diff: currentDiff };
+  const codexPromises = [
+    runWithFallback({
+      agent: 'codex-reviewer', stage: 'codex-review', task: opts.task, live, root, sessionDir, sessionId,
+      context: codexCommonContext,
+    }),
+  ];
+  if (wantChallenge) {
+    codexPromises.push(runWithFallback({
+      agent: 'codex-challenger', stage: 'codex-challenge', task: opts.task, live, root, sessionDir, sessionId,
+      context: codexCommonContext,
+    }));
+  }
+  const codexResults = await Promise.all(codexPromises);
+  const h5 = codexResults[0];
+  const h6 = codexResults[1] || null;
+
   writeHandoff(h5);
   if (hasCritical(h5.issues)) {
     return humanGate(sessionDir, 'codex-review 에서 critical 발견', sessionId, handoffs);
   }
 
-  // ---- 6. codex-challenge ----
-  const wantChallenge = (secureRequested || sensitiveHit) && !fast;
-  if (wantChallenge) {
-    log(`6 codex-challenge (${secureRequested ? '--secure' : 'sensitive 자동'})`);
-    const h6 = await runWithFallback({
-      agent: 'codex-challenger', stage: 'codex-challenge', task: opts.task, live, root, sessionDir, sessionId,
-      context: { round: 1, prd, priorHandoffs: handoffs.slice(-3), diff: currentDiff },
-    });
+  if (h6) {
     writeHandoff(h6);
     if (hasCritical(h6.issues)) {
       return humanGate(sessionDir, 'codex-challenge 에서 critical 발견', sessionId, handoffs);
