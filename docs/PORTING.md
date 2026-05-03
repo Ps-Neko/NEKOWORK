@@ -31,18 +31,18 @@ node .harness-tool/scripts/cli.js review "<task>"
 ### B. npm dep (future public package only)
 
 0.0.2 is not published to npm. Use submodule/local repo integration for now.
-If a public npm package is requested later, publish under a controlled scope such as
-`@ps-neko/nekowork` or `@ps-neko/harness-cli` first, then use:
+If a public npm package is requested later, publish the prepared package name
+`@ps-neko/nekowork`, then use:
 
 ```bash
-npm i --save-dev <published-harness-package>
+npm i --save-dev @ps-neko/nekowork
 ```
 
 `package.json`:
 ```json
 {
   "scripts": {
-    "harness": "node node_modules/<published-harness-package>/scripts/cli.js"
+    "harness": "node node_modules/@ps-neko/nekowork/scripts/cli.js"
   }
 }
 ```
@@ -52,7 +52,7 @@ npm i --save-dev <published-harness-package>
 0.0.2 is not published globally. After an explicit public package migration:
 
 ```bash
-npm i -g <published-harness-package>
+npm i -g @ps-neko/nekowork
 harness install --plan --profile research --harness claude
 ```
 

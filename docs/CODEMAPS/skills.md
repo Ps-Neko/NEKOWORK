@@ -11,9 +11,15 @@ skills/
 │   └── SKILL.md
 ├── plan-eng-review/
 │   └── SKILL.md
+├── porting/
+│   └── SKILL.md
 ├── ralph/
 │   └── SKILL.md
+├── release-readiness/
+│   └── SKILL.md
 ├── review/
+│   └── SKILL.md
+├── security-hardening/
 │   └── SKILL.md
 ├── ship/
 │   └── SKILL.md
