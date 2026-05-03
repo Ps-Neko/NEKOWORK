@@ -18,7 +18,7 @@
 | 8 | Codex Review Loop | OK | `scripts/orchestrators/review.js`, fix-loop / round / HUMAN_GATE |
 | 9 | Memory & Learning | OK | session + project + instincts 3-tier |
 | 10 | Security & Governance | OK | gateguard / config-protection / audit / MCP 핀 / workflow hardening / dead-man / supply-chain gate |
-| 11 | 설치/배포 구조 | OK | plan/apply/build, 5 profile × 6 module × 32 component |
+| 11 | 설치/배포 구조 | OK | plan/apply/build, 5 profile × 7 module × 35 component |
 | 12 | MVP 범위 | OK | 18절 MVP 정의 항목 모두 충족 (§4) |
 | 13 | 확장 로드맵 | OK | CHANGELOG Unreleased / RUNBOOK |
 | 14 | 리스크 / 대응책 | 부분 | 발견된 마찰 (CRLF / Windows tsc / Node 24 호환) 문서 미정리 |
@@ -164,7 +164,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 | Rust LOC (별도) | 529+ (컴파일 및 smoke 검증 완료) |
 | 커밋 | 4 |
 | Agents | 11 |
-| Skills | 6 |
+| Skills | 9 |
 | Hooks | 5 |
 | Schemas | 10 |
 | Provider runners | 4 (mock/claude/codex/gemini) |

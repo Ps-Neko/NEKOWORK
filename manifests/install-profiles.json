@@ -19,7 +19,8 @@
         "hooks-runtime",
         "platform-configs",
         "workflow-quality",
-        "codex-loop"
+        "codex-loop",
+        "ops-readiness"
       ]
     },
     "security": {
@@ -29,7 +30,8 @@
         "agents-core",
         "hooks-runtime",
         "platform-configs",
-        "codex-loop"
+        "codex-loop",
+        "ops-readiness"
       ],
       "defaults": {
         "review_mode": "secure",
@@ -44,19 +46,21 @@
         "agents-core",
         "hooks-runtime",
         "platform-configs",
-        "workflow-quality"
+        "workflow-quality",
+        "ops-readiness"
       ],
       "post_install_note": "Day 1 MVP 에는 rag-bridge 모듈 미포함. Q3 확장 예정."
     },
     "full": {
-      "description": "현재 정의된 모든 모듈 (Day 1 = 6개). 향후 확장 시 자동 포함.",
+      "description": "현재 정의된 모든 모듈 (0.0.2 = 7개). 향후 확장 시 자동 포함.",
       "modules": [
         "rules-core",
         "agents-core",
         "hooks-runtime",
         "platform-configs",
         "workflow-quality",
-        "codex-loop"
+        "codex-loop",
+        "ops-readiness"
       ]
     }
   }

@@ -4,9 +4,14 @@
 
 ## [Unreleased]
 
+### Changed (public package rename and catalog expansion, 2026-05-03)
+- Rename the npm package metadata from `@harness/cli` to `@ps-neko/nekowork` while keeping `private: true`; the CLI binary remains `harness`.
+- Expand the skill catalog with `security-hardening`, `release-readiness`, and `porting`.
+- Add the `ops-readiness` install module and wire it into developer, security, research, and full profiles.
+
 ### Changed (npm publish decision, 2026-05-03)
 - Keep 0.0.2 private and do not publish to npm.
-- Document that a future public npm package must first move from `@harness/cli` to a controlled scope such as `@ps-neko/nekowork` or `@ps-neko/harness-cli`.
+- Document that a future public npm package must use the controlled `@ps-neko/nekowork` scope.
 - Mark npm-based porting examples as future public-package paths; submodule/local repo integration remains the supported path for 0.0.2.
 
 ### Added (release readiness, 2026-05-03)

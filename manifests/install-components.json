@@ -131,6 +131,21 @@
       "source": "skills/ship/",
       "target": { "claude": ".claude/skills/ship/" }
     },
+    "skill:security-hardening": {
+      "type": "skill",
+      "source": "skills/security-hardening/",
+      "target": { "claude": ".claude/skills/security-hardening/" }
+    },
+    "skill:release-readiness": {
+      "type": "skill",
+      "source": "skills/release-readiness/",
+      "target": { "claude": ".claude/skills/release-readiness/" }
+    },
+    "skill:porting": {
+      "type": "skill",
+      "source": "skills/porting/",
+      "target": { "claude": ".claude/skills/porting/" }
+    },
 
     "command:claude-led-codex-review": {
       "type": "command",
