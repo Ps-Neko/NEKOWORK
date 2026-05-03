@@ -122,6 +122,7 @@ harness review "<task>" --fast                # ideate / challenge 스킵
 harness review "<task>" --no-ship             # ship 단계 생략
 harness review "<task>" --no-codex            # codex-review / challenge 생략
 harness review "<task>" --live                # 실 LLM 호출 (claude/codex/gcloud 로그인 세션 사용, §0.1)
+harness review "<task>" --project-root <dir>  # 외부 프로젝트에 session/git 작업을 쓰고 HARNESS catalog 는 현재 설치 루트에서 읽음
 
 # --fast 와 --secure 는 의미가 충돌하므로 함께 쓰면 실패
 
@@ -136,6 +137,7 @@ harness wait {start|stop|status}
 
 # 운영
 harness sessions
+harness sessions --project-root <dir>
 harness costs --since=7d
 harness instincts {list|get <id>|promote <id>|prune|ready}
 ```
@@ -223,7 +225,11 @@ node scripts/demo-review.js "<task>" demo-local --no-ship
 2. `node .harness-tool/scripts/install-plan.js --profile research`.
 3. 프로젝트별 룰은 `rules/<project>/` 로 추가 (common 위에 오버라이드).
 4. CLAUDE.md 의 `<!-- HARNESS:START -->` 마커 영역만 자동 갱신, 사용자 영역 보존.
-5. `node scripts/portability/simulate-port.js <target> --profile research --verbose` 으로 dry-run 가능.
+5. `node REPO_ROOT/scripts/portability/simulate-port.js <target> --profile research --verbose` 으로 dry-run 가능.
+6. 대상 프로젝트 루트에서 `node .harness-tool/scripts/cli.js review "<task>" --no-ship` 를 실행한다.
+
+대상 프로젝트 밖에서 실행해야 하면 `--project-root <target>` 또는 `HARNESS_PROJECT_ROOT=<target>` 를 쓴다.
+이 경우 `agents/` / `schemas/` 는 HARNESS 설치 루트에서 읽고, `.harness/state` / git 작업은 대상 프로젝트에 기록된다.
 
 ## 9. 배포 (publish)
 

@@ -5,6 +5,7 @@ import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { reviewCycle, SENSITIVE_PATTERNS } from '../../scripts/orchestrators/review.js';
@@ -75,6 +76,31 @@ test('stopAfter=plan 이면 implement 이전에 멈춘다', async () => {
   assert.equal(r.stoppedAt, 'plan');
   assert.equal(r.verdict, 'planned');
   assert.deepEqual(r.handoffs.map(h => h.stage), ['ideate', 'plan']);
+});
+
+test('projectRoot 지정 시 session state 는 대상 프로젝트에 쓰고 agent catalog 는 harnessRoot 에서 읽는다', async () => {
+  const sessionId = 'unit-project-root-split';
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-review-project-root-'));
+  const harnessSessionDir = path.join(ROOT, '.harness', 'state', 'sessions', sessionId);
+  fs.rmSync(harnessSessionDir, { recursive: true, force: true });
+
+  try {
+    const r = await reviewCycle({
+      task: '포팅 대상 계획 검증',
+      sessionId,
+      harnessRoot: ROOT,
+      projectRoot,
+      stopAfter: 'plan',
+      noShip: true,
+    });
+
+    assert.equal(path.resolve(r.sessionDir), path.join(projectRoot, '.harness', 'state', 'sessions', sessionId));
+    assert.ok(fs.existsSync(path.join(r.sessionDir, 'handoffs', '01-ideate.json')));
+    assert.ok(fs.existsSync(path.join(r.sessionDir, 'handoffs', '02-plan.json')));
+    assert.equal(fs.existsSync(harnessSessionDir), false, 'harnessRoot 에 session state 를 쓰면 안 됨');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
 });
 
 test('--no-codex 이면 Codex 단계만 건너뛴다', async () => {

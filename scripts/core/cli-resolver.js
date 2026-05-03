@@ -23,9 +23,13 @@ export function resolveProviderCli(provider, options = {}) {
   const bin = options.bin || provider;
   const env = options.env || process.env;
   const root = options.root || process.cwd();
+  const roots = options.roots || [root];
   const resolved = resolveCli(bin, env, options);
   if (!resolved) return null;
-  return assertProviderCliTrust(provider, resolved, root, env);
+  for (const trustRoot of roots) {
+    assertProviderCliTrust(provider, resolved, trustRoot, env);
+  }
+  return resolved;
 }
 
 export function assertProviderCliTrust(provider, binPath, root = process.cwd(), env = process.env) {
