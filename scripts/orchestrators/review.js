@@ -5,7 +5,7 @@
 //   - 단계 5/6 의 verdict 가 block 또는 critical/high 발견 시 fix loop (executor 재호출, round++)
 //   - round 한도 = 3. critical 발견 또는 round ≥ 3 → human gate.
 //   - --secure 또는 보안 카테고리(auth/crypto/token/cert/csrf/webhook 등) 변경 자동 감지 → 단계 6 활성.
-//   - --fast → 단계 1·6 스킵.
+//   - --fast → 단계 1·6 스킵. --secure 와 동시 사용은 거절.
 //   - --no-ship → 단계 7 생략.
 
 import fs from 'node:fs';
@@ -45,12 +45,19 @@ export async function reviewCycle(opts) {
   const live = !!opts.live;
   const fast = !!opts.fast;
   const noShip = !!opts.noShip;
+  const noCodex = !!opts.noCodex;
   let secureRequested = !!opts.secure;
+  if (fast && secureRequested) {
+    throw new Error('--secure 와 --fast 는 함께 쓸 수 없습니다. 보안 검증이 필요하면 --secure 만 사용하세요.');
+  }
+  if (noCodex && secureRequested) {
+    throw new Error('--no-codex 와 --secure 는 함께 쓸 수 없습니다. 보안 검증이 필요하면 Codex 단계를 유지하세요.');
+  }
 
   const log = (msg) => console.log(`[review:${sessionId}] ${msg}`);
 
   log(`task: ${opts.task}`);
-  log(`mode: ${live ? 'live' : 'mock'}${fast ? ' --fast' : ''}${noShip ? ' --no-ship' : ''}${secureRequested ? ' --secure' : ''}`);
+  log(`mode: ${live ? 'live' : 'mock'}${fast ? ' --fast' : ''}${noShip ? ' --no-ship' : ''}${noCodex ? ' --no-codex' : ''}${secureRequested ? ' --secure' : ''}`);
 
   const handoffs = [];
   const writeHandoff = (h) => {
@@ -100,6 +107,18 @@ export async function reviewCycle(opts) {
   // mock 일 경우 prdSeed 가 같이 옴. PRD 저장.
   if (h2.prdSeed) {
     fs.writeFileSync(path.join(sessionDir, 'prd.json'), JSON.stringify(h2.prdSeed, null, 2));
+  }
+  if (opts.stopAfter === 'plan') {
+    return {
+      sessionId,
+      sessionDir,
+      handoffs,
+      files: dedupe(h2.files || []),
+      secureActive: false,
+      verdict: 'planned',
+      humanGate: false,
+      stoppedAt: 'plan',
+    };
   }
   const prd = readPrd(sessionDir);
   let currentDiff = opts.diff || '';
@@ -154,45 +173,75 @@ export async function reviewCycle(opts) {
     }
     break;
   }
+  if (opts.stopAfter === 'self-review') {
+    return {
+      sessionId,
+      sessionDir,
+      handoffs,
+      files: dedupe(allFiles),
+      secureActive: false,
+      verdict: lastVerdict || 'approve',
+      humanGate: false,
+      stoppedAt: 'self-review',
+    };
+  }
 
   // ---- 5 + 6. codex-review + codex-challenge (병렬 실행) ----
   // 두 단계는 같은 입력(prd / priorHandoffs / diff)을 받고 컨텍스트가 독립이다.
   // Promise.all 로 동시 호출 → codex CLI 호출 시간(가장 큰 비용)을 1회 비용으로 단축.
   // stage 5 critical 시 stage 6 결과는 폐기 (직렬 동작과 의미 동일).
-  const wantChallenge = (secureRequested || sensitiveHit) && !fast;
-  log(wantChallenge
-    ? `5+6 codex-review + codex-challenge (병렬, ${secureRequested ? '--secure' : 'sensitive 자동'})`
-    : '5 codex-review');
+  const wantChallenge = !noCodex && (secureRequested || sensitiveHit) && !fast;
+  if (noCodex) {
+    log('5+6 codex-review/codex-challenge skipped (--no-codex)');
+  } else {
+    log(wantChallenge
+      ? `5+6 codex-review + codex-challenge (병렬, ${secureRequested ? '--secure' : 'sensitive 자동'})`
+      : '5 codex-review');
+  }
 
   const codexCommonContext = { round: 1, prd, priorHandoffs: handoffs.slice(-3), diff: currentDiff };
-  const codexPromises = [
-    runWithFallback({
-      agent: 'codex-reviewer', stage: 'codex-review', task: opts.task, live, root, sessionDir, sessionId,
-      context: codexCommonContext,
-    }),
-  ];
-  if (wantChallenge) {
-    codexPromises.push(runWithFallback({
-      agent: 'codex-challenger', stage: 'codex-challenge', task: opts.task, live, root, sessionDir, sessionId,
-      context: codexCommonContext,
-    }));
-  }
-  const codexResults = await Promise.all(codexPromises);
-  const h5 = codexResults[0];
-  const h6 = codexResults[1] || null;
-
-  writeHandoff(h5);
-  if (hasCritical(h5.issues)) {
-    return humanGate(sessionDir, 'codex-review 에서 critical 발견', sessionId, handoffs);
-  }
-
-  if (h6) {
-    writeHandoff(h6);
-    if (hasCritical(h6.issues)) {
-      return humanGate(sessionDir, 'codex-challenge 에서 critical 발견', sessionId, handoffs);
+  if (!noCodex) {
+    const codexPromises = [
+      runWithFallback({
+        agent: 'codex-reviewer', stage: 'codex-review', task: opts.task, live, root, sessionDir, sessionId,
+        context: codexCommonContext,
+      }),
+    ];
+    if (wantChallenge) {
+      codexPromises.push(runWithFallback({
+        agent: 'codex-challenger', stage: 'codex-challenge', task: opts.task, live, root, sessionDir, sessionId,
+        context: codexCommonContext,
+      }));
     }
-  } else {
-    log(`6 codex-challenge skipped${fast ? ' (--fast)' : ' (sensitive 미감지, --secure 미지정)'}`);
+    const codexResults = await Promise.all(codexPromises);
+    const h5 = codexResults[0];
+    const h6 = codexResults[1] || null;
+
+    writeHandoff(h5);
+    if (hasCritical(h5.issues)) {
+      return humanGate(sessionDir, 'codex-review 에서 critical 발견', sessionId, handoffs);
+    }
+    if (opts.stopAfter === 'codex-review') {
+      return {
+        sessionId,
+        sessionDir,
+        handoffs,
+        files: dedupe(allFiles),
+        secureActive: wantChallenge,
+        verdict: h5.verdict || 'approve',
+        humanGate: false,
+        stoppedAt: 'codex-review',
+      };
+    }
+
+    if (h6) {
+      writeHandoff(h6);
+      if (hasCritical(h6.issues)) {
+        return humanGate(sessionDir, 'codex-challenge 에서 critical 발견', sessionId, handoffs);
+      }
+    } else {
+      log(`6 codex-challenge skipped${fast ? ' (--fast)' : ' (sensitive 미감지, --secure 미지정)'}`);
+    }
   }
 
   if (live && currentDiff.trim()) {

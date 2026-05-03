@@ -38,6 +38,7 @@ hooks:
   toggles_env_prefix: HARNESS_HOOK_
   active:
     - gateguard-fact-force
+    - config-protection
     - quality-gate
     - pre-bash-dispatcher
     - persistent-mode

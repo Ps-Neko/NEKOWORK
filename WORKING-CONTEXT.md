@@ -5,16 +5,16 @@
 
 ## Purpose
 
-P1 회수 후 잡티 제거 + 거버넌스 정합. 외부 의존 영역 (API 키 / GitHub push / Rust / Codex CLI) 은 사용자 동의 시점까지 보류.
+0.0.2 local-first HARNESS 안정화. CLI 위임 인증, provider runner, 검증 게이트, 문서/스키마 정합성을 현재 기준으로 유지한다.
 
 ## Current Truth
 
 - 위치: `REPO_ROOT/` · 브랜치: `main`
 - 버전: `0.0.2` (2026-04-29 P1 회수 릴리스)
 - 카탈로그: 11 agents · 5 skills (+1 ralph) · 5 hooks · 6 modules · 5 profiles
-- 5 빌더 모두 동작 (claude / codex / cursor / gemini / opencode) + codemaps 보너스
-- 단일 / 통합 / e2e 합 73/73 PASS
-- 외부 의존성: 옵션 — `ANTHROPIC_API_KEY` (--live), `codex` / `gemini` 바이너리, rustup
+- 5 빌더 모두 동작 (claude / codex / cursor / gemini / opencode) + codemaps
+- `npm test`, `npm run lint`, `npm audit --audit-level=moderate`, provider live smoke, Rust release build 검증 경로 유지
+- 외부 의존성: 옵션 — provider CLI 로그인 세션, npm publish 결정, 사내 PoC 결합
 
 ## Current Constraints
 
@@ -29,8 +29,7 @@ P1 회수 후 잡티 제거 + 거버넌스 정합. 외부 의존 영역 (API 키
 - 2.5시간 잡티 제거 배치 (CHANGELOG / WORKING-CONTEXT / Validator 경고 / RUNBOOK·PORTING / Security Bar)
 
 ### Next
-- AUDIT P0 외부 검증 (사용자 동의 후): API live 1회, GitHub push, Actions 실 동작
-- AUDIT P2 외부 의존: Rust 컴파일, Codex/Gemini CLI live, npm publish 결정
+- AUDIT 잔존: npm publish 결정, 사내 PoC 결합, OIDC/dead-man/supply-chain 심화
 
 ## Open PR Classification
 

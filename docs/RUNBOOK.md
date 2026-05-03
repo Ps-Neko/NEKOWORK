@@ -90,12 +90,12 @@ node scripts/repair.js --check
 node scripts/build-codemaps.js --check
 
 # 테스트 (단위 + 통합 + e2e)
-npm test                          # 99 케이스
+npm test
 ```
 
 CI 한 줄:
 ```bash
-npm run lint && npm test && node scripts/repair.js --check && node scripts/sync-claude-md.js --check && node scripts/build-codemaps.js --check
+npm run lint && npm test && npm audit --audit-level=moderate && node scripts/repair.js --check && node scripts/sync-claude-md.js --check && node scripts/build-codemaps.js --check
 ```
 
 ## 4. CLI 사용
@@ -112,10 +112,13 @@ harness review "<task>"                       # 1~7 단계 자동
 harness review "<task>" --secure              # codex-challenge 강제
 harness review "<task>" --fast                # ideate / challenge 스킵
 harness review "<task>" --no-ship             # ship 단계 생략
+harness review "<task>" --no-codex            # codex-review / challenge 생략
 harness review "<task>" --live                # 실 LLM 호출 (claude/codex/gcloud 로그인 세션 사용, §0.1)
 
+# --fast 와 --secure 는 의미가 충돌하므로 함께 쓰면 실패
+
 # 단독 단계
-harness plan "<task>"                         # 1·2 만
+harness plan "<task>"                         # 1·2 만, implement 이전 stop
 # self-review / codex-review 단독은 미구현 — review 풀사이클 사용
 
 # 영속 / ralph (명시 옵트인)

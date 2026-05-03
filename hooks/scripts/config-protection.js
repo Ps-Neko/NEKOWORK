@@ -4,7 +4,7 @@
 
 import fs from 'node:fs';
 
-if (process.env.HARNESS_HOOK_GATEGUARD === '0') process.exit(0);
+if (process.env.HARNESS_HOOK_CONFIG_PROTECTION === '0') process.exit(0);
 
 let input = '';
 try { input = fs.readFileSync(0, 'utf8'); } catch { /* TTY */ }
