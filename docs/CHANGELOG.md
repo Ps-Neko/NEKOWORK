@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Changed (public user documentation polish, 2026-05-03)
+- Rewrite `README.md` as a public-facing first-run guide with status, quickstart, live auth, catalog, release gates, and documentation links.
+- Add `docs/QUICKSTART.md` for source install, mock review, external project integration, live provider setup, future npm paths, and troubleshooting.
+- Extend release and runbook docs with `npm pack --dry-run --json` and the explicit public npm publish checklist.
+
 ### Changed (public package rename and catalog expansion, 2026-05-03)
 - Rename the npm package metadata from `@harness/cli` to `@ps-neko/nekowork` while keeping `private: true`; the CLI binary remains `harness`.
 - Expand the skill catalog with `security-hardening`, `release-readiness`, and `porting`.
