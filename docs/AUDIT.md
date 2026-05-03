@@ -17,7 +17,7 @@
 | 7 | Skill/Hook/Rule 구조 | OK | hook 5, rule 디렉터리 8 파일 (common 3 + ts 3 + py 2) |
 | 8 | Codex Review Loop | OK | `scripts/orchestrators/review.js`, fix-loop / round / HUMAN_GATE |
 | 9 | Memory & Learning | OK | session + project + instincts 3-tier |
-| 10 | Security & Governance | 부분 | gateguard / config-protection / audit / MCP 핀 OK. 12-item 풀 매핑 미문서화 |
+| 10 | Security & Governance | OK | gateguard / config-protection / audit / MCP 핀 / workflow hardening / dead-man / supply-chain gate |
 | 11 | 설치/배포 구조 | OK | plan/apply/build, 5 profile × 6 module × 32 component |
 | 12 | MVP 범위 | OK | 18절 MVP 정의 항목 모두 충족 (§4) |
 | 13 | 확장 로드맵 | OK | CHANGELOG Unreleased / RUNBOOK |
@@ -37,7 +37,7 @@
 | 4 Skill & Rule | OK | 6/6 skill + 거버넌스 4 + ralph. **rule 디렉터리 8 파일** (common 3 + ts 3 + py 2) |
 | 5 Memory & Learning | OK | session(prd/handoffs/notepad/round) + project-memory(stub) + instincts (record/list/promote/prune/ready) |
 | 6 Verification | OK | quality-gate ✓, self-review ✓, codex-review ✓, codex-challenge ✓, fix-loop ✓, severity matrix ✓, human gate ✓ |
-| 7 Security & Governance | 부분 | gateguard / config-protection / audit jsonl / MCP 핀 / sandbox 프로파일 ✓. **OIDC / dead-man switch / supply chain 스캔 미구현** |
+| 7 Security & Governance | OK | gateguard / config-protection / audit jsonl / MCP 핀 / sandbox 프로파일 / OIDC static-secret guard / dead-man timeout / supply-chain scan gate ✓ |
 | 8 Integration | OK | 5/5 builder (claude / codex / cursor / gemini / opencode), GH Actions ✓, MCP 단일 게이트웨이 ✓ |
 
 ## 3. 빠진 항목 / 부채 (구체)
@@ -189,4 +189,4 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 - local-first auth 포팅 + provider mutation guard 후 `npm test` PASS
 - ARCHITECTURE 풀 18절 본문 528줄
 
-잔존 부채는 **npm publish 결정** + **사내 임팩트 (사용자 명시 시점)** + **OIDC / dead-man / supply-chain 심화**다. 자체 완결 가능한 영역은 실사용 가능한 수준까지 정합성 도달.
+잔존 부채는 **npm publish 결정** + **사내 임팩트 (사용자 명시 시점)** 다. OIDC / dead-man / supply-chain 심화는 `npm run security:hardening` CI gate로 1차 완료했다.

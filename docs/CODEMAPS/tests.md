@@ -25,6 +25,7 @@ tests/
     ├── portability.test.js
     ├── router.test.js
     ├── runners-extract.test.js
+    ├── security-hardening.test.js
     ├── severity.test.js
     ├── team-lite.test.js
     └── token-vault.test.js
@@ -48,6 +49,7 @@ tests/
 | `unit/portability.test.js` | _(none)_ |  |
 | `unit/router.test.js` | _(none)_ |  |
 | `unit/runners-extract.test.js` | _(none)_ | live runner 의 JSON 추출 / prompt 빌더 단위 테스트. Claude/Codex CLI 미설치 환경에서도 동작 (실 호출 없음). |
+| `unit/security-hardening.test.js` | _(none)_ |  |
 | `unit/severity.test.js` | _(none)_ |  |
 | `unit/team-lite.test.js` | _(none)_ |  |
 | `unit/token-vault.test.js` | _(none)_ |  |
