@@ -10,8 +10,9 @@ import { spawnAndCollect } from '../../core/subprocess.js';
 export async function runGemini(args) {
   assertDelegatedCliAuth('gemini');
 
-  const cwd = args.harnessRoot || process.cwd();
-  const bin = resolveProviderCli('gemini', { root: cwd });
+  const cwd = args.projectRoot || args.harnessRoot || process.cwd();
+  const trustRoots = [cwd, args.harnessRoot].filter(Boolean);
+  const bin = resolveProviderCli('gemini', { root: cwd, roots: trustRoots });
   if (!bin) {
     throw new Error('gemini CLI is not installed. Install/login to Gemini CLI, or use --provider=mock.');
   }

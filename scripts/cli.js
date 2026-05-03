@@ -18,6 +18,10 @@ function run(script, args) {
   process.exit(r.status ?? 1);
 }
 
+function resolveProjectRoot(value) {
+  return path.resolve(value || process.env.HARNESS_PROJECT_ROOT || process.cwd());
+}
+
 function help() {
   console.log(`
 harness <verb> [args]
@@ -31,21 +35,24 @@ harness <verb> [args]
   version
 
 리뷰 풀사이클
-  review "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>]
+  review "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>] [--project-root <dir>]
                                          claude-led-codex-review 7단계
-  plan "<task>"                          단계 1·2 만 (ideate + plan)
+  plan "<task>" [--project-root <dir>]   단계 1·2 만 (ideate + plan)
   self-review                            예약됨: 현재는 review 풀사이클 사용
   codex-review                           예약됨: 현재는 review 풀사이클 사용
 
 옵션:
   --live      로컬 CLI 세션 호출. Claude는 claude auth login 세션,
               Codex는 codex 로그인 세션 사용. API KEY 불필요.
+  --project-root <dir>
+              세션/state/git 작업 대상 프로젝트 루트. 생략 시 현재 작업 디렉터리
+              또는 HARNESS_PROJECT_ROOT 사용. agents/schemas 는 HARNESS 설치 루트에서 읽음.
   (기본)      mock provider — API 키 / CLI 없이 풀사이클 검증
 
 영속 / ralph
-  ralph "<task>" [--max-iter 5] [--secure] [--live]
+  ralph "<task>" [--max-iter 5] [--secure] [--live] [--project-root <dir>]
                                          PRD AC 가 모두 passes 될 때까지 반복
-  team-lite "<task>" [--live] [--session <id>]
+  team-lite "<task>" [--live] [--session <id>] [--project-root <dir>]
                                          OMC-style staged team pipeline
   wait start                             영속 데몬 시작 (background)
   wait stop                              데몬 정지
@@ -68,7 +75,7 @@ harness <verb> [args]
 
 async function dynamicReview(opts) {
   const { reviewCycle } = await import('./orchestrators/review.js');
-  const result = await reviewCycle({ ...opts, harnessRoot: ROOT });
+  const result = await reviewCycle({ ...opts, harnessRoot: ROOT, projectRoot: resolveProjectRoot(opts.projectRoot) });
   console.log('');
   console.log('=== 결과 ===');
   console.log('  session    : ' + result.sessionId);
@@ -93,6 +100,7 @@ function parseReviewArgs(argv) {
     noShip: false,
     noCodex: false,
     sessionId: null,
+    projectRoot: null,
   };
   const unknown = [];
   for (let i = 0; i < argv.length; i++) {
@@ -107,6 +115,12 @@ function parseReviewArgs(argv) {
       if (!value || value.startsWith('--')) throw usageError('--session 값이 필요합니다.');
       opts.sessionId = value;
     }
+    else if (a === '--project-root') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--project-root 값이 필요합니다.');
+      opts.projectRoot = value;
+    }
+    else if (a.startsWith('--project-root=')) { opts.projectRoot = a.slice('--project-root='.length); }
     else if (a === '--max-iter') {
       const value = argv[++i];
       if (!value || value.startsWith('--')) throw usageError('--max-iter 값이 필요합니다.');
@@ -150,7 +164,7 @@ function parseReviewArgs(argv) {
       else for (const a of rest) if (a.startsWith('--max-iter=')) opts.maxIter = Number(a.slice('--max-iter='.length));
       if (!opts.task) { console.error('--task 필요. 예: harness ralph "기능 X" --max-iter 5'); process.exit(2); }
       const { ralphLoop } = await import('./orchestrators/ralph.js');
-      const r = await ralphLoop({ ...opts, harnessRoot: ROOT });
+      const r = await ralphLoop({ ...opts, harnessRoot: ROOT, projectRoot: resolveProjectRoot(opts.projectRoot) });
       console.log('=== ralph 종료 ===');
       console.log(JSON.stringify(r, null, 2));
       if (r.reason === 'human_gate') process.exit(3);
@@ -160,7 +174,7 @@ function parseReviewArgs(argv) {
       const opts = parseReviewArgs(rest);
       if (!opts.task) { console.error('task required. ex: harness team-lite "refactor auth guard"'); process.exit(2); }
       const { teamLiteCycle } = await import('./orchestrators/team-lite.js');
-      const r = await teamLiteCycle({ ...opts, harnessRoot: ROOT });
+      const r = await teamLiteCycle({ ...opts, harnessRoot: ROOT, projectRoot: resolveProjectRoot(opts.projectRoot) });
       console.log('=== team-lite done ===');
       console.log('  session  : ' + r.sessionId);
       console.log('  tasks    : ' + r.tasks.map(t => `${t.id}:${t.status}`).join(', '));
@@ -178,7 +192,7 @@ function parseReviewArgs(argv) {
       opts.noShip = true;
       // stop-after: implement 이전 단계까지만 실행 (ideate + plan)
       const { reviewCycle } = await import('./orchestrators/review.js');
-      const result = await reviewCycle({ ...opts, harnessRoot: ROOT, stopAfter: 'plan' });
+      const result = await reviewCycle({ ...opts, harnessRoot: ROOT, projectRoot: resolveProjectRoot(opts.projectRoot), stopAfter: 'plan' });
       console.log('handoffs:', result.handoffs.map(h => h.stage).join(' → '));
       break;
     }
@@ -282,7 +296,13 @@ function parseReviewArgs(argv) {
       break;
     }
     case 'sessions': {
-      const dir = path.join(ROOT, '.harness', 'state', 'sessions');
+      const sessionsProjectRoot = (() => {
+        const i = rest.indexOf('--project-root');
+        if (i >= 0 && rest[i + 1]) return rest[i + 1];
+        for (const a of rest) if (a.startsWith('--project-root=')) return a.slice('--project-root='.length);
+        return null;
+      })();
+      const dir = path.join(resolveProjectRoot(sessionsProjectRoot), '.harness', 'state', 'sessions');
       if (!fs.existsSync(dir)) { console.log('(세션 없음)'); break; }
       for (const s of fs.readdirSync(dir)) {
         const sd = path.join(dir, s);

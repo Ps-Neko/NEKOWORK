@@ -37,9 +37,10 @@ export const SENSITIVE_PATTERNS = [
 ];
 
 export async function reviewCycle(opts) {
-  const root = opts.harnessRoot || process.cwd();
+  const harnessRoot = opts.harnessRoot || process.cwd();
+  const projectRoot = opts.projectRoot || harnessRoot;
   const sessionId = opts.sessionId || `review-${Date.now()}`;
-  const sessionDir = path.join(root, '.harness', 'state', 'sessions', sessionId);
+  const sessionDir = path.join(projectRoot, '.harness', 'state', 'sessions', sessionId);
   fs.mkdirSync(path.join(sessionDir, 'handoffs'), { recursive: true });
 
   const live = !!opts.live;
@@ -58,6 +59,10 @@ export async function reviewCycle(opts) {
 
   log(`task: ${opts.task}`);
   log(`mode: ${live ? 'live' : 'mock'}${fast ? ' --fast' : ''}${noShip ? ' --no-ship' : ''}${noCodex ? ' --no-codex' : ''}${secureRequested ? ' --secure' : ''}`);
+  if (path.resolve(harnessRoot) !== path.resolve(projectRoot)) {
+    log(`harness root: ${harnessRoot}`);
+    log(`project root: ${projectRoot}`);
+  }
 
   const handoffs = [];
   const writeHandoff = (h) => {
@@ -93,7 +98,7 @@ export async function reviewCycle(opts) {
   // ---- 1. ideate ----
   if (!fast) {
     log('1 ideate');
-    const h1 = await runWithFallback({ agent: 'planner', stage: 'ideate', task: opts.task, live, root });
+    const h1 = await runWithFallback({ agent: 'planner', stage: 'ideate', task: opts.task, live, harnessRoot, projectRoot });
     writeHandoff(h1);
   } else {
     log('1 ideate skipped (--fast)');
@@ -101,7 +106,7 @@ export async function reviewCycle(opts) {
 
   // ---- 2. plan ----
   log('2 plan');
-  const h2 = await runWithFallback({ agent: 'planner', stage: 'plan', task: opts.task, live, root });
+  const h2 = await runWithFallback({ agent: 'planner', stage: 'plan', task: opts.task, live, harnessRoot, projectRoot });
   writeHandoff(h2);
 
   // mock 일 경우 prdSeed 가 같이 옴. PRD 저장.
@@ -130,7 +135,7 @@ export async function reviewCycle(opts) {
   // ---- 3. implement ----
   log('3 implement');
   const impl3 = await runImplementStage({
-    agent: 'executor', stage: 'implement', task: opts.task, live, root, sessionDir, sessionId,
+    agent: 'executor', stage: 'implement', task: opts.task, live, harnessRoot, projectRoot, sessionDir, sessionId,
     context: { prd, acCount: prd?.acceptance?.length || 3 },
   });
   const h3 = impl3.handoff;
@@ -145,7 +150,7 @@ export async function reviewCycle(opts) {
     reviewRound++;
     log(`4 self-review (round ${reviewRound})`);
     const hSelf = await runWithFallback({
-      agent: 'code-reviewer', stage: 'self-review', task: opts.task, live, root, sessionDir, sessionId,
+      agent: 'code-reviewer', stage: 'self-review', task: opts.task, live, harnessRoot, projectRoot, sessionDir, sessionId,
       context: { round: reviewRound, prd, priorHandoffs: handoffs.slice(-3), diff: currentDiff },
     });
     hSelf.round = reviewRound;
@@ -161,7 +166,7 @@ export async function reviewCycle(opts) {
     if (lastVerdict === 'block' || lastVerdict === 'approve_with_fixes') {
       log(`fix-loop: executor round ${reviewRound + 1}`);
       const implFix = await runImplementStage({
-        agent: 'executor', stage: 'implement', task: opts.task, live, root, sessionDir, sessionId,
+        agent: 'executor', stage: 'implement', task: opts.task, live, harnessRoot, projectRoot, sessionDir, sessionId,
         context: { prd, round: reviewRound + 1, issues: hSelf.issues, diff: currentDiff },
       });
       const hFix = implFix.handoff;
@@ -203,13 +208,13 @@ export async function reviewCycle(opts) {
   if (!noCodex) {
     const codexPromises = [
       runWithFallback({
-        agent: 'codex-reviewer', stage: 'codex-review', task: opts.task, live, root, sessionDir, sessionId,
+        agent: 'codex-reviewer', stage: 'codex-review', task: opts.task, live, harnessRoot, projectRoot, sessionDir, sessionId,
         context: codexCommonContext,
       }),
     ];
     if (wantChallenge) {
       codexPromises.push(runWithFallback({
-        agent: 'codex-challenger', stage: 'codex-challenge', task: opts.task, live, root, sessionDir, sessionId,
+        agent: 'codex-challenger', stage: 'codex-challenge', task: opts.task, live, harnessRoot, projectRoot, sessionDir, sessionId,
         context: codexCommonContext,
       }));
     }
@@ -246,7 +251,7 @@ export async function reviewCycle(opts) {
 
   if (live && currentDiff.trim()) {
     try {
-      const applied = applyExecutionDiff(root, currentDiff);
+      const applied = applyExecutionDiff(projectRoot, currentDiff);
       if (applied) {
         fs.writeFileSync(path.join(sessionDir, 'APPLIED_DIFF'), `applied_at: ${new Date().toISOString()}\n`);
       }
@@ -261,7 +266,7 @@ export async function reviewCycle(opts) {
   } else {
     log('7 ship');
     const h7 = await runWithFallback({
-      agent: 'doc-writer', stage: 'ship', task: opts.task, live, root, sessionDir, sessionId,
+      agent: 'doc-writer', stage: 'ship', task: opts.task, live, harnessRoot, projectRoot, sessionDir, sessionId,
       context: { prd, priorHandoffs: handoffs },
     });
     writeHandoff(h7);
@@ -280,9 +285,9 @@ export async function reviewCycle(opts) {
 
 // ----------------
 
-async function runWithFallback({ agent, stage, task, live, root, context, sessionDir, sessionId, executionMode }) {
+async function runWithFallback({ agent, stage, task, live, harnessRoot, projectRoot, context, sessionDir, sessionId, executionMode }) {
   try {
-    return await dispatch({ agent, stage, task, live, harnessRoot: root, context, sessionDir, sessionId, executionMode });
+    return await dispatch({ agent, stage, task, live, harnessRoot, projectRoot, context, sessionDir, sessionId, executionMode });
   } catch (e) {
     if (live) {
       if (process.env.HARNESS_LIVE_ALLOW_MOCK_FALLBACK !== '1') {
@@ -290,7 +295,7 @@ async function runWithFallback({ agent, stage, task, live, root, context, sessio
       }
       console.error(`[review] ${agent}/${stage} live 실패 → mock 폴백(HARNESS_LIVE_ALLOW_MOCK_FALLBACK=1): ${e.message}`);
       return await dispatch({
-        agent, stage, task, live: false, harnessRoot: root, context,
+        agent, stage, task, live: false, harnessRoot, projectRoot, context,
         providerOverride: 'mock', sessionDir, sessionId, executionMode,
       });
     }
@@ -298,22 +303,23 @@ async function runWithFallback({ agent, stage, task, live, root, context, sessio
   }
 }
 
-async function runImplementStage({ agent, stage, task, live, root, context, sessionDir, sessionId }) {
+async function runImplementStage({ agent, stage, task, live, harnessRoot, projectRoot, context, sessionDir, sessionId }) {
   if (!live) {
-    const handoff = await runWithFallback({ agent, stage, task, live, root, context, sessionDir, sessionId });
+    const handoff = await runWithFallback({ agent, stage, task, live, harnessRoot, projectRoot, context, sessionDir, sessionId });
     return { handoff, diff: null, files: [] };
   }
 
   const round = context?.round || 1;
   const execution = await withExecutionWorkspace(
-    root,
+    projectRoot,
     sessionDir,
     async (workspaceRoot) => runWithFallback({
       agent,
       stage,
       task,
       live,
-      root: workspaceRoot,
+      harnessRoot,
+      projectRoot: workspaceRoot,
       context,
       sessionDir,
       sessionId,

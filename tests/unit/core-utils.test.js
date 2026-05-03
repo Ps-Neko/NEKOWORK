@@ -41,6 +41,23 @@ test('provider cli resolver blocks workspace-local shims by default', () => {
   );
 });
 
+test('provider cli resolver checks every trust root', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-provider-project-root-'));
+  const harnessRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-provider-tool-root-'));
+  const ext = process.platform === 'win32' ? '.cmd' : '';
+  const file = path.join(harnessRoot, `claude${ext}`);
+  fs.writeFileSync(file, process.platform === 'win32' ? '@echo off\r\n' : '#!/bin/sh\n');
+
+  assert.throws(
+    () => resolveProviderCli('claude', {
+      root: projectRoot,
+      roots: [projectRoot, harnessRoot],
+      env: { PATH: harnessRoot, PATHEXT: '.CMD;.EXE' },
+    }),
+    /current workspace/
+  );
+});
+
 test('provider cli resolver allows workspace-local shims with explicit opt-in', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-provider-cli-allow-'));
   const ext = process.platform === 'win32' ? '.cmd' : '';
