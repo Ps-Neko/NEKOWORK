@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Added (security hardening gate, 2026-05-03)
+- `scripts/ci/security-hardening.js` adds a CI-enforced policy gate for workflow permissions, job timeouts, action pinning, MCP semver pins, HTTPS MCP URLs, package-lock presence, dependency spec hygiene, and OIDC requirements for static cloud credential secrets.
+- `agent.yaml` now declares `dead_man_switch`, `oidc`, and `supply_chain` policy knobs under `security`.
+- `.github/workflows/harness-{validate,review}.yml` run the hardening gate; the review workflow only exposes the SDK/API-key live path for explicit manual `workflow_dispatch` opt-in.
+- `tests/unit/security-hardening.test.js` covers pinned action refs, MCP pins, repository policy, unsafe workflow triggers, and cloud-secret/OIDC enforcement.
+
 ### Changed (target-root install/apply, 2026-05-03)
 - `scripts/install-{plan,apply}.js`, `scripts/build-*.js`, `scripts/core/install-state.js` — support `--project-root` / `HARNESS_PROJECT_ROOT` so install outputs and `.harness/install-state.json` can be written to an external target project while reading catalog inputs from the HARNESS tool root.
 - `scripts/core/build-roots.js` — centralize builder source/target root resolution.

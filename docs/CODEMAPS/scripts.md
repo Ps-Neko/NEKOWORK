@@ -22,6 +22,7 @@ scripts/
 ├── ci/
 │   ├── catalog.js
 │   ├── check-markers.js
+│   ├── security-hardening.js
 │   ├── validate-agents.js
 │   ├── validate-hooks.js
 │   ├── validate-manifests.js
@@ -90,6 +91,7 @@ scripts/
 | `build-opencode.js` | _(none)_ | 정규 카탈로그 → .opencode/ 로 투영. opencode 형식: JSON 단일 설정 (config_format: json). agents/skills/hooks 를 모두 JSON 배열로 합성. |
 | `ci/catalog.js` | _(none)_ | 정규 카탈로그 무결성 체크. agent.yaml 의 agents/skills/commands 가 실제 파일과 일치하는지, 모듈이 누락 없이 컴포넌트를 참조하는지. |
 | `ci/check-markers.js` | _(none)_ | HARNESS:START / HARNESS:END 마커 무결성 검증. 사용자 작성 영역과 자동 갱신 영역 사이가 짝지어져 있는지. |
+| `ci/security-hardening.js` | `checkSecurityHardening`, `isPinnedActionRef`, `isSemverMcpPin` | Security hardening CI gate: workflow permissions/timeouts/action pins, MCP pins, package spec hygiene, package-lock pres |
 | `ci/validate-agents.js` | _(none)_ | agents/<name>.md frontmatter 가 schemas/agent.schema.json 을 만족하는지 검증. agent.yaml 의 agents 목록과 실 파일 일치 여부도 체크. |
 | `ci/validate-hooks.js` | _(none)_ | hooks/hooks.json 이 schemas/hooks.schema.json 을 만족하고 참조하는 스크립트 파일이 실제 존재하는지 검증. |
 | `ci/validate-manifests.js` | _(none)_ | agent.yaml + manifests/install-{profiles,modules,components}.json 검증. 1) 각 파일 schema 통과 2) 프로파일 → 모듈 → 컴포넌트 그래프의 참조 무결성 |

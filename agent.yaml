@@ -128,6 +128,22 @@ security:
   audit_log_path: .harness/audit
   secret_redaction: true
   fact_forcing_default: true
+  dead_man_switch:
+    enabled: true
+    max_ci_job_minutes: 20
+    max_live_review_minutes: 20
+    require_explicit_live_opt_in: true
+  oidc:
+    required_for_cloud_credentials: true
+    static_cloud_secret_patterns:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AZURE_CLIENT_SECRET
+      - GOOGLE_APPLICATION_CREDENTIALS
+  supply_chain:
+    package_lock_required: true
+    forbid_latest_tags: true
+    require_mcp_semver_pin: true
 
 auth:
   # 3계층 인증 모델. 상세는 docs/AUTH-MIGRATION.md.
