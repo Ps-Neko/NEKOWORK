@@ -189,4 +189,4 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 - local-first auth 포팅 + provider mutation guard 후 `npm test` PASS
 - ARCHITECTURE 풀 18절 본문 528줄
 
-잔존 부채는 **npm publish 결정** + **사내 임팩트 (사용자 명시 시점)** 다. OIDC / dead-man / supply-chain 심화는 `npm run security:hardening` CI gate로 1차 완료했다.
+잔존 부채는 **사내 임팩트 (사용자 명시 시점)** 뿐이다. npm publish 는 명시 공개 릴리스 요청 전까지 `private: true` 유지로 결정했고, OIDC / dead-man / supply-chain 심화는 `npm run security:hardening` CI gate로 1차 완료했다.
