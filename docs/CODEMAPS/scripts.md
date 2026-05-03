@@ -63,6 +63,7 @@ scripts/
 |-- build-gemini.js
 |-- build-opencode.js
 |-- cli.js
+|-- demo-external-project.js
 |-- demo-review.js
 |-- doctor.js
 |-- install-apply.js
@@ -107,6 +108,7 @@ scripts/
 | `core/json-extractor.js` | `extractJson`, `parseJsonObject` |  |
 | `core/subprocess.js` | `spawnAndCollect` |  |
 | `daemon/wait.js` | _(none)_ | `harness wait --start` . : - .harness/state/sessions/*/wakeup.json (10 ). - ralph review . - rate-limit / cost cap 1 backoff. / . . |
+| `demo-external-project.js` | _(none)_ | Create a tiny target project and run the repository-based NEKOWORK porting path. |
 | `demo-review.js` | _(none)_ | claude-led-codex-review (Week 1 ). LLM 7 / / round . ("git push ") ship . |
 | `doctor.js` | `buildDoctorReport`, `parseDoctorArgs`, `renderDoctorReport` |  |
 | `install-apply.js` | _(none)_ | HARNESS install --apply : plan harness (agent.yaml harnesses ) install-state . (idempotent). git checkout . |

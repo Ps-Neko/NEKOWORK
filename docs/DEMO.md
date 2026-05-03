@@ -2,6 +2,14 @@
 
 This demo uses mock providers. It does not call Claude, Codex, Gemini, or paid APIs.
 
+## External Project Demo
+
+```bash
+npm run demo:external
+```
+
+This creates a tiny disposable target project, applies the `developer` profile, runs `doctor --quick`, and writes a planning session into the target project's `.harness/` directory. See [EXAMPLE-PROJECT.md](EXAMPLE-PROJECT.md) for details.
+
 ## Command
 
 ```bash

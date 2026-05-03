@@ -39,6 +39,12 @@ The default review path uses mock providers, so it does not need API keys or pro
 
 For the fuller first-run guide, see [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
+To see the repository-based external project flow end to end:
+
+```bash
+npm run demo:external
+```
+
 ## What You Get
 
 ```text
@@ -70,6 +76,8 @@ node .harness-tool/scripts/cli.js plan "first NEKOWORK smoke" --project-root .
 ```
 
 The HARNESS tool root stays in `.harness-tool/`. Session state, generated harness files, and git work happen in the target project root.
+
+For a disposable external-project walkthrough, see [docs/EXAMPLE-PROJECT.md](docs/EXAMPLE-PROJECT.md).
 
 ## Live Provider Auth
 
@@ -165,6 +173,7 @@ npm pack --dry-run --json
 
 - [docs/QUICKSTART.md](docs/QUICKSTART.md) - first run and common paths
 - [docs/DEMO.md](docs/DEMO.md) - sample command output and generated files
+- [docs/EXAMPLE-PROJECT.md](docs/EXAMPLE-PROJECT.md) - repository-based external project demo
 - [docs/SECURITY.md](docs/SECURITY.md) - local-first auth and safety model
 - [docs/ADVANCED.md](docs/ADVANCED.md) - advanced workflows and runtime features
 - [docs/SETUP.md](docs/SETUP.md) - local contributor setup and live provider smoke
