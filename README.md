@@ -18,16 +18,16 @@ Claude Code · Codex CLI · Cursor · Gemini CLI · OpenCode 를 단일 매니�
 
 ```bash
 node scripts/install-plan.js --profile core      # 설치 dry-run
-npm test                                          # 99 테스트 (82 unit + 10 integration + 7 e2e)
+npm test                                          # 전체 테스트 (unit + integration + e2e)
 node scripts/cli.js review "<task>" --no-ship    # 7단계 풀사이클 dry-run (mock provider)
 ```
 
 ## 상태 (2026-05-02 기준, v0.0.2)
 
 - **0.0.1** (Week 1~4): 골격·거버넌스·매니페스트·11 agents·5 skills·5 hooks·MCP 7 도구·orchestrator·4 provider runner·인스팅트·Rust runtime 골격·GitHub Actions 2개. ~12,000 LOC.
-- **0.0.2** (P1 회수): 빈 디렉터리 0, 미구현 스크립트 0 (validate-* 4개 / build-{cursor,gemini,opencode} / sync-claude-md / repair / build-codemaps), 통합 테스트 10·E2E 테스트 7 신규. 단위 56 + 통합 10 + E2E 7 = **73/73 PASS**. 누적 ~14,500 LOC.
-- **local-first auth 포팅**: Claude 기본 live runner 를 Claude Code CLI 세션으로 전환. Claude/Codex/Gemini CLI 호출 직전 long-lived API key 환경변수는 기본 차단, 명시 opt-in 시에만 SDK/API-key 경로 사용. Provider 공통 core 유틸(`cli-resolver`, `subprocess`, `json-extractor`) 분리. Claude/Codex/Gemini handoff-mode 실행 전후 git mutation guard 추가. 단위 82 + 통합 10 + E2E 7 = **99/99 PASS**.
-- **다음**: P2 외부 의존 — Gemini CLI 설치 후 live smoke / npm publish / origin/main 통합 PR.
+- **0.0.2** (P1 회수): 빈 디렉터리 0, 미구현 스크립트 0 (validate-* 4개 / build-{cursor,gemini,opencode} / sync-claude-md / repair / build-codemaps), 통합/E2E 테스트와 코드맵 생성기 추가.
+- **local-first auth 포팅**: Claude 기본 live runner 를 Claude Code CLI 세션으로 전환. Claude/Codex/Gemini CLI 호출 직전 long-lived API key 환경변수는 기본 차단, 명시 opt-in 시에만 SDK/API-key 경로 사용. Provider 공통 core 유틸(`cli-resolver`, `subprocess`, `json-extractor`) 분리. Claude/Codex/Gemini handoff-mode 실행 전후 git mutation guard 추가.
+- **현재 품질 게이트**: `npm test`, `npm run lint`, `npm audit --audit-level=moderate`, `build:codemaps -- --check`, provider live smoke, Rust release build 기준으로 관리.
 
 ## 빠진 / 부채
 
@@ -35,7 +35,7 @@ node scripts/cli.js review "<task>" --no-ship    # 7단계 풀사이클 dry-run 
 
 - 빈 디렉터리 **0**, 미구현 스크립트 **0**, stub 메시지 **0**.
 - 자체 완결 영역 100% 정합.
-- 외부 의존 잔존 3건: Gemini CLI 설치 후 live smoke / npm publish 결정 / 사내 PoC 결합.
+- 외부 의존 잔존: npm publish 결정 / 사내 PoC 결합. provider live smoke 는 로컬 로그인 세션 기준 검증 가능.
 
 ## 문서
 

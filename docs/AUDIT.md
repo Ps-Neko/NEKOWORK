@@ -79,7 +79,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 
 ### 3.4 stub 메시지 흔적 — **2026-04-29 회수**
 - `scripts/cli.js`, `bridge/mcp-server.js`, `hooks/scripts/pre-bash-dispatcher.js`, `scripts/daemon/wait.js`, `scripts/orchestrators/ralph.js`, `scripts/ci/catalog.js` — "Day N" 흔적 모두 정리.
-- `package.json`: `lint` / `test` 가 실 명령으로 매핑 (catalog + validate:all / 73 테스트 러닝).
+- `package.json`: `lint` / `test` 가 실 명령으로 매핑 (catalog + validate:all / unit+integration+e2e 테스트 러닝).
 
 ### 3.5 OMC / ECC 차용 안 한 것 (의도적)
 | 패턴 | 이유 |
@@ -98,7 +98,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 2. ✓ `gateguard-fact-force` 활성, Edit 전 사실 조사 강제
 3. ✓ critical 자동 fix → re-review 1회 루프
 4. ✓ `.harness/state/sessions/<id>/` 영속, 핸드오프 7개 파일
-5. ✓ 80% 커버리지 게이트 — 단위 테스트 52/52 PASS (proxy)
+5. ✓ 테스트 게이트 — unit / integration / e2e suite 를 `npm test` 로 실행
 
 **MVP 100% 충족.** 단 PR 코멘트는 Actions 가 mock 으로만 동작 (실 push 후 검증 필요).
 
@@ -107,7 +107,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 > 2026-04-29 P1 회수 세션 후 갱신. P1 / P2(부분) 완료, 잔존은 외부 의존이 큰 항목들.
 
 ### P0 — 사용자 환경 동의 후 즉시 가치
-1. **Claude CLI live smoke** — `npm run verify:claude` 후 `harness review --live --no-ship "간단 변경"` 한 번. 로컬 Claude Code 구독/OAuth 세션으로 실 응답 파싱 검증.
+1. **Claude CLI live smoke** — `npm run verify:claude` 후 `harness review --live --no-ship "간단 변경"` 한 번. 로컬 Claude Code 구독/OAuth 세션으로 실 응답 파싱 검증. (로컬 smoke 경로 검증 완료, 풀사이클 회귀 시 재실행)
 2. **사내 PoC 비파괴 결합** — 사용자가 지정하는 사내 프로젝트에 `.harness-tool/` 결합. 첫 review 동작 확인. (메모리 등록된 두 디렉터리는 제외).
 3. **GitHub 레포 push 후 Actions 실 동작 검증** — README / agent.yaml / package.json 의 owner 는 `Ps-Neko/NEKOWORK` 로 이미 채워짐 (2026-04 origin 통합 시점). PR 코멘트 자동 등록은 push 후 첫 PR 에서 검증.
 
@@ -125,8 +125,8 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 
 ### P2 — 검증 / 확장 (외부 의존)
 1. ~~**Rust runtime 컴파일 검증** — rustup 설치 + `cargo build --release` + smoke (init / status / ipc ping).~~ 완료.
-2. **Codex CLI / Gemini CLI live 검증** — 바이너리 설치 후 풀사이클 1회.
-3. **GitHub Actions 실 동작** — push 후 PR 코멘트 자동 검증.
+2. **Codex CLI / Gemini CLI live 검증** — 바이너리 설치 후 풀사이클 1회. (단독 smoke 검증 완료, 풀사이클 회귀 시 재실행)
+3. **GitHub Actions 실 동작** — push 후 PR 코멘트 자동 검증. (PR 기반 validate/review 검증 완료)
 4. **npm publish 결정** — `private: true` 유지 vs 공개.
 
 ### P3 — 사내 임팩트 (사용자 요청 시)
@@ -168,10 +168,10 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 | Provider runners | 4 (mock/claude/codex/gemini) |
 | MCP 도구 | 7 |
 | CLI verbs | 10 (install / validate / review / plan / ralph / wait / sessions / costs / instincts / version) |
-| 단위 테스트 | **82/82 PASS** (기존 56 + auth guard / core runner utils / git mutation guard / runner wrapper / codex/gemini prompt normalization / live fallback guard / token vault 등) |
-| 통합 테스트 | **10/10 PASS** (build pipeline + state 영속 + repair detection + sync-claude-md + codemaps + validate:all + check-markers) |
-| E2E 테스트 | **7/7 PASS** (demo-review 7단계 + 5필드 무결성 + --secure + round 카운터 + CLI version/help) |
-| 전체 테스트 | **99/99 PASS** |
+| 단위 테스트 | `npm run test:unit` PASS (auth guard / core runner utils / git mutation guard / runner wrapper / codex/gemini prompt normalization / live fallback guard / token vault 등) |
+| 통합 테스트 | `npm run test:integration` PASS (build pipeline + state 영속 + repair detection + sync-claude-md + codemaps + validate:all + check-markers) |
+| E2E 테스트 | `npm run test:e2e` PASS (demo-review 7단계 + 5필드 무결성 + --secure + round 카운터 + CLI version/help) |
+| 전체 테스트 | `npm test` PASS |
 | GitHub Actions | 2 |
 
 ## 8. 결론
@@ -183,8 +183,8 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 - 미구현 스크립트 9개 → 0개 (보너스 build-codemaps 1개 추가)
 - stub 메시지 흔적 → 정리
 - install-apply sha256 placeholder → 실값
-- 테스트 52 → 73 (integration + e2e 추가)
-- local-first auth 포팅 + provider mutation guard 후 테스트 99/99 PASS
+- 테스트 suite 확장 (unit + integration + e2e)
+- local-first auth 포팅 + provider mutation guard 후 `npm test` PASS
 - ARCHITECTURE 풀 18절 본문 528줄
 
-잔존 부채는 **외부 의존 검증** (Gemini CLI 설치 후 live smoke / GitHub push) + **npm publish 결정** + **사내 임팩트 (사용자 명시 시점)**. 자체 완결 가능한 영역은 **99% 정합성 도달**.
+잔존 부채는 **npm publish 결정** + **사내 임팩트 (사용자 명시 시점)** + **OIDC / dead-man / supply-chain 심화**다. 자체 완결 가능한 영역은 실사용 가능한 수준까지 정합성 도달.

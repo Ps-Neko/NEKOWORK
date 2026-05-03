@@ -20,7 +20,7 @@ harness review "<task>"                    # 전체 사이클
 harness review "<task>" --secure           # + 단계 6 codex-challenge 강제
 harness review "<task>" --fast             # 단계 1·6 스킵
 harness review "<task>" --no-ship          # 단계 7 생략 (리뷰까지만)
-harness review "<task>" --no-codex         # 단계 5 스킵 (Codex CLI 미설치 시 mock)
+harness review "<task>" --no-codex         # 단계 5·6 스킵 (Codex 검증 생략)
 ```
 
 또는 슬래시: `/claude-led-codex-review <task> [--flags]`
@@ -46,7 +46,7 @@ harness review "<task>" --no-codex         # 단계 5 스킵 (Codex CLI 미설�
 | 3 implement | executor | debugger, test-engineer | TDD |
 | 4 self-review | code-reviewer | security-reviewer | auth/crypto / >20파일 |
 | 5 codex-review | codex-reviewer | — | --no-codex 가 아닐 때 |
-| 6 codex-challenge | codex-challenger | — | --secure 또는 critical 발견 |
+| 6 codex-challenge | codex-challenger | — | --secure 또는 sensitive 자동 감지 (--fast 와 동시 사용 불가) |
 | 7 ship | doc-writer, git-master | — | 모든 게이트 PASS |
 
 ## 단계 5+6 병렬 실행
@@ -56,7 +56,9 @@ orchestrator 가 `Promise.all` 로 동시 호출한다. codex CLI 호출 시간(
 1회 비용으로 단축.
 
 - 직렬 의미 동일: stage 5 critical 시 stage 6 결과는 폐기 (humanGate 즉시 return)
+- `--no-codex` 이면 stage 5·6 전체 스킵
 - `--fast` 또는 sensitive 미감지 + `--secure` 미지정이면 stage 6 자체 스킵 (병렬 안 함)
+- `--fast` 와 `--secure` 는 의미가 충돌하므로 CLI 가 즉시 거절
 - 코드: `scripts/orchestrators/review.js` 의 5+6 블록
 
 ## Verdict 처리 + Fix Loop
@@ -111,7 +113,8 @@ orchestrator 가 `Promise.all` 로 동시 호출한다. codex CLI 호출 시간(
 
 `--fast`:
 - 단계 1 (office-hours) 스킵 → 사용자 한 줄 → 바로 단계 2
-- 단계 6 (challenge) 스킵 (--secure 가 같이 오면 무시)
+- 단계 6 (challenge) 스킵
+- `--secure` 와 같이 오면 실패. 보안 검증이 필요하면 `--secure` 만 사용
 
 단순 리팩토링·문서 변경에 권장. 보안·인증 코드에는 금지.
 

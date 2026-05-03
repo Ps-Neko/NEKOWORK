@@ -30,11 +30,11 @@ harness <verb> [args]
   version
 
 리뷰 풀사이클
-  review "<task>" [--secure] [--fast] [--no-ship] [--live] [--session <id>]
+  review "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>]
                                          claude-led-codex-review 7단계
   plan "<task>"                          단계 1·2 만 (ideate + plan)
-  self-review                            단계 4 만 (Claude self-review)
-  codex-review                           단계 5 만 (Codex 독립 리뷰)
+  self-review                            예약됨: 현재는 review 풀사이클 사용
+  codex-review                           예약됨: 현재는 review 풀사이클 사용
 
 옵션:
   --live      로컬 CLI 세션 호출. Claude는 claude auth login 세션,
@@ -77,20 +77,50 @@ async function dynamicReview(opts) {
   if (result.humanGate) process.exit(3);
 }
 
+function usageError(message) {
+  const err = new Error(message);
+  err.cliUsage = true;
+  return err;
+}
+
 function parseReviewArgs(argv) {
-  const opts = { task: '', live: false, secure: false, fast: false, noShip: false, sessionId: null };
+  const opts = {
+    task: '',
+    live: false,
+    secure: false,
+    fast: false,
+    noShip: false,
+    noCodex: false,
+    sessionId: null,
+  };
+  const unknown = [];
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--live') opts.live = true;
     else if (a === '--secure') opts.secure = true;
     else if (a === '--fast') opts.fast = true;
     else if (a === '--no-ship') opts.noShip = true;
-    else if (a === '--session') opts.sessionId = argv[++i];
-    else if (a === '--max-iter') { opts.maxIter = Number(argv[++i]); }
+    else if (a === '--no-codex') opts.noCodex = true;
+    else if (a === '--session') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--session 값이 필요합니다.');
+      opts.sessionId = value;
+    }
+    else if (a === '--max-iter') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--max-iter 값이 필요합니다.');
+      opts.maxIter = Number(value);
+    }
     else if (a.startsWith('--max-iter=')) { opts.maxIter = Number(a.slice('--max-iter='.length)); }
-    else if (a.startsWith('--')) { /* 알 수 없는 플래그 무시 */ }
+    else if (a.startsWith('--')) unknown.push(a);
     else if (!opts.task) opts.task = a;
     else opts.task += ' ' + a;
+  }
+  if (unknown.length) throw usageError(`알 수 없는 플래그: ${unknown.join(', ')}`);
+  if (opts.secure && opts.fast) throw usageError('--secure 와 --fast 는 함께 쓸 수 없습니다. 보안 검증이 필요하면 --secure 만 사용하세요.');
+  if (opts.noCodex && opts.secure) throw usageError('--no-codex 와 --secure 는 함께 쓸 수 없습니다. 보안 검증이 필요하면 Codex 단계를 유지하세요.');
+  if (opts.maxIter != null && (!Number.isFinite(opts.maxIter) || opts.maxIter < 1)) {
+    throw usageError('--max-iter 는 1 이상의 숫자여야 합니다.');
   }
   return opts;
 }
@@ -147,7 +177,7 @@ function parseReviewArgs(argv) {
       opts.noShip = true;
       // stop-after: implement 이전 단계까지만 실행 (ideate + plan)
       const { reviewCycle } = await import('./orchestrators/review.js');
-      const result = await reviewCycle({ ...opts, harnessRoot: ROOT });
+      const result = await reviewCycle({ ...opts, harnessRoot: ROOT, stopAfter: 'plan' });
       console.log('handoffs:', result.handoffs.map(h => h.stage).join(' → '));
       break;
     }
@@ -281,4 +311,11 @@ function parseReviewArgs(argv) {
       help();
       process.exit(2);
   }
-})().catch((e) => { console.error('UNEXPECTED:', e?.stack || e); process.exit(1); });
+})().catch((e) => {
+  if (e?.cliUsage) {
+    console.error(e.message);
+    process.exit(2);
+  }
+  console.error('UNEXPECTED:', e?.stack || e);
+  process.exit(1);
+});

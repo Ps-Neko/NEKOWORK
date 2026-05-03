@@ -111,7 +111,7 @@ HARNESS 는 **하나의 매니페스트(`agent.yaml`)** 와 **5개 정규 카탈
 3. **구현**: executor agent. 매 Edit/Write 직전 `gateguard-fact-force` hook 이 importer/API/schema 사실 조사 강제.
 4. **자체 리뷰**: code-reviewer agent (Claude Opus, read-only) → `01-self-review.md`.
 5. **Codex 리뷰**: codex-reviewer agent (gpt-5-codex, read-only, no-net) → `02-codex-review.md`. Claude / Codex 컨텍스트 미공유 — 핸드오프 마크다운으로만 통신.
-6. **(선택) Codex 챌린지**: `--secure` 일 때만. codex-challenger 가 의도적으로 부수려 듦 → `03-codex-challenge.md`.
+6. **(선택) Codex 챌린지**: `--secure` 또는 sensitive 자동 감지 시. codex-challenger 가 의도적으로 부수려 듦 → `03-codex-challenge.md`.
 7. **Fix-loop**: severity ≥ HIGH 발견 시 executor 재실행, round ≤ 3.
 8. **Human gate**: severity = critical OR round ≥ 3 OR blast_radius ≥ 20 파일이면 사람 승인 대기.
 9. **Ship**: `04-ship.md` + 커밋 / PR.
@@ -245,7 +245,7 @@ Severity matrix (`scripts/lib/severity.js`):
 | MEDIUM | 타입 부재, 미사용 import, 부분 covered |
 | LOW | 코멘트, 네이밍, 포맷 |
 
-`--fast` 시 codex-challenge 스킵. `--secure` 시 codex-challenge 강제. `--no-ship` 시 ship 단계만 생략(나머지는 그대로).
+`--fast` 시 ideate / codex-challenge 를 스킵한다. `--secure` 시 codex-challenge 를 강제한다. 두 플래그는 의미가 충돌하므로 함께 쓰면 실패한다. `--no-ship` 은 ship 단계만, `--no-codex` 는 codex-review / codex-challenge 를 생략한다.
 
 ## 9. Memory & Learning (3-tier)
 
@@ -274,7 +274,7 @@ Severity matrix (`scripts/lib/severity.js`):
 | 9 | 승인 필요 작업 | `unsandboxed_shell, egress, deploy, off_repo_write` |
 | 10 | OIDC / 키리스 | **미구현** — P3 |
 | 11 | dead-man switch | **미구현** — P3 |
-| 12 | 의존성 스캔 | npm/pip/cargo audit 가이드. CI 자동화 미통합 — P2 |
+| 12 | 의존성 스캔 | npm audit CI 게이트 통합. cargo audit 은 별도 도구 설치 시 확장 |
 
 ## 11. 설치 / 배포 구조
 
@@ -413,7 +413,7 @@ skills: [claude-led-codex-review, plan-eng-review, tdd-workflow, review, ship]
 
 hooks:
   file: hooks/hooks.json
-  active: [gateguard-fact-force, quality-gate, pre-bash-dispatcher, persistent-mode]
+  active: [gateguard-fact-force, config-protection, quality-gate, pre-bash-dispatcher, persistent-mode]
 
 mcp:
   gateway: bridge/mcp-server.js
@@ -466,12 +466,11 @@ node scripts/sync-claude-md.js --check
 # 풀체인
 harness review "<task>"                  # 1~7단계 자동
 harness review "<task>" --secure         # codex-challenge 강제
-harness review "<task>" --fast           # codex-challenge 스킵
+harness review "<task>" --fast           # ideate / codex-challenge 스킵
+harness review "<task>" --no-codex       # codex-review / codex-challenge 생략
 harness review --pr 123                  # PR 모드
-harness plan "<task>"                    # 단계 2 단독
-harness self-review                      # 단계 4 단독
-harness codex-review                     # 단계 5 단독
-harness ship                             # 단계 7 단독
+harness plan "<task>"                    # ideate + plan, implement 이전 stop
+# self-review / codex-review 단독 CLI 는 예약됨. 현재는 review 풀사이클 사용.
 
 # 운영
 harness sessions                         # 활성 / 보관 세션 목록
@@ -520,9 +519,10 @@ node scripts/ci/check-markers.js         # CLAUDE.md 마커 무결성
 
 | 플래그 | 효과 |
 |---|---|
-| `--fast` | 단계 1·6 스킵 (빠른 패치) |
-| `--secure` | 단계 6 강제 (인증 / 결제 / PII) |
+| `--fast` | 단계 1·6 스킵 (빠른 패치). `--secure` 와 동시 사용 불가 |
+| `--secure` | 단계 6 강제 (인증 / 결제 / PII). `--fast` 와 동시 사용 불가 |
 | `--no-ship` | 단계 7 생략 (로컬 검증 only) |
+| `--no-codex` | 단계 5·6 생략 (Codex 검증 생략, ship 은 `--no-ship` 으로 별도 제어) |
 | `--pr <n>` | PR 모드. 결과를 GitHub PR 코멘트로 |
 
 `severity = critical` OR `round ≥ 3` OR `blast_radius ≥ 20` 파일이면 human gate 자동 트리거.

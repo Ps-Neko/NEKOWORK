@@ -1,3 +1,5 @@
+## Overview
+
 # AUTH-MIGRATION — API key → 위임/OAuth/vault 3계층 전환
 
 > 대상: NEKOWORK / HARNESS 0.0.x → 0.1.x.
@@ -175,7 +177,7 @@ harness review "<task>"                   # claude CLI 통해 자동 위임
 ```bash
 codex auth login                          # ChatGPT 로그인 세션
 unset OPENAI_API_KEY                      # 구독 사용 시
-harness codex-review
+harness review "<task>" --no-ship         # 단계 5 codex-review 포함
 ```
 
 ### 5.3 GitHub

@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+### Changed (CLI contract hardening, 2026-05-03)
+- `scripts/cli.js` — unknown review flags now fail fast; `--no-codex` is parsed explicitly; `--fast` with `--secure` is rejected as a conflicting request.
+- `scripts/orchestrators/review.js` — add `stopAfter` support so `harness plan` stops after ideate/plan and never enters implement; add `--no-codex` handling for stage 5/6 skip.
+- `schemas/handoff.schema.json`, `scripts/agents/dispatch.js` — align persisted handoff metadata (`provider`, `model`, `duration_ms`, whitelisted orchestration metadata) with the schema and avoid arbitrary runner passthrough.
+- `hooks/scripts/config-protection.js`, `hooks/hooks.json`, `agent.yaml` — split config-protection onto its own `HARNESS_HOOK_CONFIG_PROTECTION` toggle.
+- `.github/workflows/harness-validate.yml` — CI now runs full `npm test`, `npm audit --audit-level=moderate`, all harness builders, and codemap freshness check.
+
 ### Added (Local-first runner/auth port, 2026-05-02)
 - `scripts/core/auth-guard.js` — Claude/Codex/Gemini CLI 호출 직전 long-lived API key 환경변수 차단. `HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1` 명시 옵트아웃.
 - `scripts/core/{cli-resolver,json-extractor,subprocess}.js` — provider runner 공통 CLI 탐색, JSON 추출, subprocess 수집 유틸.
