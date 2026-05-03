@@ -295,7 +295,8 @@ profiles (5)  →  modules (6)  →  components (32)
 설치 흐름:
 
 ```
-install.sh --plan       → install-plan.js     (검증 + 표 출력, dry-run)
+install.sh --plan --list → 선택 가능한 profile/module/component/target 카탈로그
+install.sh --plan       → install-plan.js     (검증 + 표 출력, dry-run, unknown filter fail-fast)
 install.sh --apply      → install-apply.js    (plan + 빌더 실행 + state 기록)
 node scripts/repair.js  → install state 비교, 변경분만 재빌드
 node scripts/sync-claude-md.js  → CLAUDE.md 마커 영역 갱신

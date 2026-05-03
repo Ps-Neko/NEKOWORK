@@ -16,6 +16,7 @@ function parseArgs(argv) {
     profile: null,
     harness: null,
     json: false,
+    list: false,
     verbose: false,
     modules: [],
     withoutModules: [],
@@ -25,13 +26,14 @@ function parseArgs(argv) {
 
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
-    if (a === '--profile') args.profile = argv[++i];
-    else if (a === '--harness' || a === '--target') args.harness = argv[++i];
-    else if (a === '--module' || a === '--with-module') args.modules.push(argv[++i]);
-    else if (a === '--without-module') args.withoutModules.push(argv[++i]);
-    else if (a === '--component' || a === '--with-component') args.components.push(argv[++i]);
-    else if (a === '--without-component') args.withoutComponents.push(argv[++i]);
+    if (a === '--profile') args.profile = takeValue(argv, i++, a);
+    else if (a === '--harness' || a === '--target') args.harness = takeValue(argv, i++, a);
+    else if (a === '--module' || a === '--with-module') args.modules.push(takeValue(argv, i++, a));
+    else if (a === '--without-module') args.withoutModules.push(takeValue(argv, i++, a));
+    else if (a === '--component' || a === '--with-component') args.components.push(takeValue(argv, i++, a));
+    else if (a === '--without-component') args.withoutComponents.push(takeValue(argv, i++, a));
     else if (a === '--json') args.json = true;
+    else if (a === '--list') args.list = true;
     else if (a === '--verbose' || a === '-v') args.verbose = true;
     else if (a === '--help' || a === '-h') {
       printHelp();
@@ -44,12 +46,22 @@ function parseArgs(argv) {
   return args;
 }
 
+function takeValue(argv, i, flag) {
+  const value = argv[i + 1];
+  if (!value || value.startsWith('--')) {
+    console.error(`${flag} value required`);
+    process.exit(2);
+  }
+  return value;
+}
+
 function printHelp() {
   console.log(`
 HARNESS install --plan
 
 Usage:
   install.sh --plan [--profile <name>] [--target <name>] [--module <id>] [--component <id>] [--json] [--verbose]
+  install.sh --plan --list [--json]
 
 Options:
   --profile <name>          profile to install (core | developer | security | research | full)
@@ -59,11 +71,13 @@ Options:
   --without-module <id>     exclude a module, repeatable
   --component <id>          include a direct component, repeatable
   --without-component <id>  exclude a component, repeatable
+  --list                    list available profiles, modules, components, and targets
   --json                    emit JSON
   --verbose                 print schema validation detail
   --help                    show this help
 
 Examples:
+  ./install.sh --plan --list
   ./install.sh --plan --profile core
   ./install.sh --plan --profile developer --target claude --json
   ./install.sh --plan --profile core --module codex-loop --without-component hook:persistent-mode
@@ -115,6 +129,8 @@ function plan(profileName, filters = {}) {
   if (!profile) {
     throw new Error(`unknown profile: ${resolvedProfile}. available: ${Object.keys(profilesDoc.profiles).join(', ')}`);
   }
+
+  validateSelections({ manifest, modulesDoc, componentsDoc, filters });
 
   const harnessFilter = filters.harness || null;
   const excludedModules = new Set(filters.withoutModules || []);
@@ -175,12 +191,37 @@ function plan(profileName, filters = {}) {
   };
 }
 
+function validateSelections({ manifest, modulesDoc, componentsDoc, filters }) {
+  const availableTargets = (manifest.harnesses || []).map(h => h.name);
+  const availableModules = Object.keys(modulesDoc.modules);
+  const availableComponents = Object.keys(componentsDoc.components);
+
+  if (filters.harness && !availableTargets.includes(filters.harness)) {
+    throw new Error(`unknown target: ${filters.harness}. available: ${availableTargets.join(', ')}`);
+  }
+
+  for (const mid of [...(filters.modules || []), ...(filters.withoutModules || [])]) {
+    if (!modulesDoc.modules[mid]) {
+      throw new Error(`unknown module: ${mid}. available: ${availableModules.join(', ')}`);
+    }
+  }
+
+  for (const cid of [...(filters.components || []), ...(filters.withoutComponents || [])]) {
+    if (!componentsDoc.components[cid]) {
+      throw new Error(`unknown component: ${cid}. available: ${availableComponents.join(', ')}`);
+    }
+  }
+}
+
 function pushComponentRows(componentRows, moduleName, cid, comp, harnessFilter) {
   const targets = comp.target || {};
   const harnesses = Object.keys(targets);
   const filtered = harnessFilter ? harnesses.filter(h => h === harnessFilter) : harnesses;
 
   if (filtered.length === 0 && harnesses.length === 0) {
+    const platformHarness = cid.startsWith('platform:') ? cid.slice('platform:'.length) : null;
+    if (harnessFilter && platformHarness && platformHarness !== harnessFilter) return;
+
     componentRows.push({
       module: moduleName,
       component: cid,
@@ -239,6 +280,78 @@ function printPlan(p) {
   console.log('');
 }
 
+function listCatalog() {
+  const manifest = readYaml('agent.yaml');
+  const profilesDoc = readJson('manifests/install-profiles.json');
+  const modulesDoc = readJson('manifests/install-modules.json');
+  const componentsDoc = readJson('manifests/install-components.json');
+
+  return {
+    harness_version: manifest.version,
+    default_profile: manifest.profiles?.default || null,
+    targets: (manifest.harnesses || []).map(h => ({
+      name: h.name,
+      output_dir: h.output_dir,
+      builder: h.builder,
+    })),
+    profiles: Object.entries(profilesDoc.profiles).map(([name, p]) => ({
+      name,
+      description: p.description,
+      modules: p.modules,
+      defaults: p.defaults || null,
+    })),
+    modules: Object.entries(modulesDoc.modules).map(([name, m]) => ({
+      name,
+      description: m.description,
+      components: m.components,
+      depends_on: m.depends_on || [],
+      required: Boolean(m.required),
+    })),
+    components: Object.entries(componentsDoc.components).map(([name, c]) => ({
+      name,
+      type: c.type,
+      source: c.source || c.builder || null,
+      targets: Object.keys(c.target || {}),
+      output_dir: c.output_dir || null,
+    })),
+  };
+}
+
+function printCatalog(catalog) {
+  const bold = (s) => process.stdout.isTTY ? `\x1b[1m${s}\x1b[0m` : s;
+  console.log('');
+  console.log(bold(`HARNESS install catalog  (v${catalog.harness_version})`));
+  console.log('  default profile: ' + catalog.default_profile);
+  console.log('');
+
+  console.log(bold('Targets'));
+  for (const t of catalog.targets) {
+    console.log(`  - ${t.name.padEnd(8)} ${t.output_dir.padEnd(12)} ${t.builder}`);
+  }
+  console.log('');
+
+  console.log(bold('Profiles'));
+  for (const p of catalog.profiles) {
+    console.log(`  - ${p.name.padEnd(10)} ${p.modules.join(', ')}`);
+  }
+  console.log('');
+
+  console.log(bold('Modules'));
+  for (const m of catalog.modules) {
+    const deps = m.depends_on.length ? ` deps=${m.depends_on.join(',')}` : '';
+    const required = m.required ? ' required' : '';
+    console.log(`  - ${m.name.padEnd(18)} ${m.components.length} components${required}${deps}`);
+  }
+  console.log('');
+
+  console.log(bold('Components'));
+  for (const c of catalog.components) {
+    const targets = c.targets.length ? c.targets.join(',') : (c.output_dir ? `builder:${c.output_dir}` : '-');
+    console.log(`  - ${c.name.padEnd(32)} ${String(c.type).padEnd(9)} ${targets}`);
+  }
+  console.log('');
+}
+
 async function main() {
   const args = parseArgs(process.argv);
 
@@ -249,6 +362,13 @@ async function main() {
     process.exit(1);
   }
   if (args.verbose) console.error('=> validation passed');
+
+  if (args.list) {
+    const catalog = listCatalog();
+    if (args.json) process.stdout.write(JSON.stringify(catalog, null, 2) + '\n');
+    else printCatalog(catalog);
+    return;
+  }
 
   let p;
   try {
