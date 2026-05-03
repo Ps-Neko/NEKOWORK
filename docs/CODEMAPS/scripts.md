@@ -64,6 +64,7 @@ scripts/
 ├── build-opencode.js
 ├── cli.js
 ├── demo-review.js
+├── doctor.js
 ├── install-apply.js
 ├── install-plan.js
 ├── repair.js
@@ -96,7 +97,7 @@ scripts/
 | `ci/validate-hooks.js` | _(none)_ | hooks/hooks.json 이 schemas/hooks.schema.json 을 만족하고 참조하는 스크립트 파일이 실제 존재하는지 검증. |
 | `ci/validate-manifests.js` | _(none)_ | agent.yaml + manifests/install-{profiles,modules,components}.json 검증. 1) 각 파일 schema 통과 2) 프로파일 → 모듈 → 컴포넌트 그래프의 참조 무결성 |
 | `ci/validate-skills.js` | _(none)_ | skills/<name>/SKILL.md frontmatter 가 schemas/skill.schema.json 을 만족하는지 검증. agent.yaml 의 skills 목록과 실 디렉터리 일치 여부도 체크. |
-| `cli.js` | _(none)_ | HARNESS CLI 진입점. 10 verb: install / validate / review / plan / self-review / codex-review / ralph / wait / sessions / co |
+| `cli.js` | _(none)_ | NEKOWORK/HARNESS CLI entrypoint. Public verbs: doctor, plan, review, install, validate, version. Advanced verbs: self-re |
 | `core/auth-guard.js` | ` BLOCKED_ENV `, `assertDelegatedCliAuth` |  |
 | `core/build-roots.js` | `buildRoots` |  |
 | `core/cli-resolver.js` | `assertProviderCliTrust`, `isPathInside`, `resolveCli`, `resolveProviderCli` |  |
@@ -107,6 +108,7 @@ scripts/
 | `core/subprocess.js` | `spawnAndCollect` |  |
 | `daemon/wait.js` | _(none)_ | `harness wait --start` 영속 데몬. 동작:   - .harness/state/sessions/*/wakeup.json 폴링 (10초 간격).   - 발견 시 해당 세션의 ralph 또는 review |
 | `demo-review.js` | _(none)_ | claude-led-codex-review 풀사이클 시뮬레이션 (Week 1 데모). 실제 LLM 호출은 안 함 — 7단계의 핸드오프 파일 / 상태 / round 카운터가 잘 흐르는지만 검증. 사용자 룰("git p |
+| `doctor.js` | `buildDoctorReport`, `parseDoctorArgs`, `renderDoctorReport` |  |
 | `install-apply.js` | _(none)_ | HARNESS install --apply : plan 단계 검증 → harness 별 빌드 (agent.yaml harnesses 전부) → install-state 기록 → 마커 검증. 멱등(idempotent) |
 | `install-plan.js` | `plan` | HARNESS install --plan: dry-run manifest planner. |
 | `lib/costs.js` | `list`, `record`, `summarize` | 비용 트래커. 매 도구 호출 후 모델·토큰·USD 추정값을 ~/.harness/costs.jsonl 에 append. CLI 조회: harness costs --since=7d (또는 --since=1h, 30m,  |
