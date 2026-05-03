@@ -18,6 +18,7 @@ function parseArgs(argv) {
     json: false,
     list: false,
     verbose: false,
+    projectRoot: null,
     modules: [],
     withoutModules: [],
     components: [],
@@ -32,6 +33,7 @@ function parseArgs(argv) {
     else if (a === '--without-module') args.withoutModules.push(takeValue(argv, i++, a));
     else if (a === '--component' || a === '--with-component') args.components.push(takeValue(argv, i++, a));
     else if (a === '--without-component') args.withoutComponents.push(takeValue(argv, i++, a));
+    else if (a === '--project-root' || a === '--target-root') args.projectRoot = takeValue(argv, i++, a);
     else if (a === '--json') args.json = true;
     else if (a === '--list') args.list = true;
     else if (a === '--verbose' || a === '-v') args.verbose = true;
@@ -60,7 +62,7 @@ function printHelp() {
 HARNESS install --plan
 
 Usage:
-  install.sh --plan [--profile <name>] [--target <name>] [--module <id>] [--component <id>] [--json] [--verbose]
+  install.sh --plan [--profile <name>] [--target <name>] [--module <id>] [--component <id>] [--project-root <dir>] [--json] [--verbose]
   install.sh --plan --list [--json]
 
 Options:
@@ -71,6 +73,8 @@ Options:
   --without-module <id>     exclude a module, repeatable
   --component <id>          include a direct component, repeatable
   --without-component <id>  exclude a component, repeatable
+  --project-root <dir>      annotate the intended target project root (dry-run still writes nothing)
+  --target-root <dir>       alias for --project-root
   --list                    list available profiles, modules, components, and targets
   --json                    emit JSON
   --verbose                 print schema validation detail
@@ -187,6 +191,7 @@ function plan(profileName, filters = {}) {
     component_count: componentRows.length,
     components: componentRows,
     harness_filter: harnessFilter,
+    target_root: filters.projectRoot ? path.resolve(filters.projectRoot) : null,
     note: 'dry-run only. Use install-apply.js --apply to build target harness outputs.',
   };
 }
@@ -252,6 +257,7 @@ function printPlan(p) {
   console.log('  profile      : ' + p.profile);
   console.log('  description  : ' + p.profile_description);
   if (p.harness_filter) console.log('  target       : ' + p.harness_filter);
+  if (p.target_root) console.log('  target root  : ' + p.target_root);
   if (p.selected_modules.length) console.log('  with modules : ' + p.selected_modules.join(', '));
   if (p.excluded_modules.length) console.log('  without mods : ' + p.excluded_modules.join(', '));
   if (p.selected_components.length) console.log('  components+  : ' + p.selected_components.join(', '));

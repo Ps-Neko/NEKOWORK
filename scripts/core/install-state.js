@@ -56,6 +56,7 @@ export function loadInstallState(root) {
 }
 
 export function buildInstallState(root, {
+  targetRoot = root,
   profile,
   harnessDefs,
   harnessNames,
@@ -76,7 +77,7 @@ export function buildInstallState(root, {
 
   for (const h of harnessDefs) {
     if (!selected.has(h.name)) continue;
-    const component = buildStateComponent(root, h, sourceSha, now, previousState?.components?.[h.name]);
+    const component = buildStateComponent(root, targetRoot, h, sourceSha, now, previousState?.components?.[h.name]);
     if (component) state.components[h.name] = component;
   }
 
@@ -84,8 +85,8 @@ export function buildInstallState(root, {
   return { state, sourceSha };
 }
 
-export function buildStateComponent(root, harnessDef, sourceSha, now = new Date().toISOString(), previous = null) {
-  const outDir = path.join(root, harnessDef.output_dir);
+export function buildStateComponent(root, targetRoot, harnessDef, sourceSha, now = new Date().toISOString(), previous = null) {
+  const outDir = path.join(targetRoot, harnessDef.output_dir);
   if (!fs.existsSync(outDir)) return null;
   return {
     installed_at: previous?.installed_at || now,
@@ -98,8 +99,8 @@ export function buildStateComponent(root, harnessDef, sourceSha, now = new Date(
   };
 }
 
-export function writeInstallState(root, state) {
-  assertInstallState(root, state);
+export function writeInstallState(root, state, { schemaRoot = root } = {}) {
+  assertInstallState(schemaRoot, state);
   const file = installStatePath(root);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, JSON.stringify(state, null, 2));

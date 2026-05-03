@@ -111,7 +111,9 @@ npm run lint && npm test && npm audit --audit-level=moderate && node scripts/rep
 ```bash
 # 설치 / 검증
 harness install --plan --profile developer
+harness install --plan --profile developer --project-root <dir>
 harness install --apply --profile developer
+harness install --apply --profile developer --project-root <dir>
 harness validate
 harness version
 
@@ -222,14 +224,15 @@ node scripts/demo-review.js "<task>" demo-local --no-ship
 `docs/PORTING.md` 참조. 요약:
 
 1. 대상 프로젝트 루트에 `.harness-tool/` 으로 결합 (submodule 또는 npm dep).
-2. `node .harness-tool/scripts/install-plan.js --profile research`.
+2. `node .harness-tool/scripts/install-plan.js --profile research --project-root .`.
 3. 프로젝트별 룰은 `rules/<project>/` 로 추가 (common 위에 오버라이드).
 4. CLAUDE.md 의 `<!-- HARNESS:START -->` 마커 영역만 자동 갱신, 사용자 영역 보존.
 5. `node C:/Users/Mun/harness/scripts/portability/simulate-port.js <target> --profile research --verbose` 으로 dry-run 가능.
-6. 대상 프로젝트 루트에서 `node .harness-tool/scripts/cli.js review "<task>" --no-ship` 를 실행한다.
+6. 대상 프로젝트 루트에서 `node .harness-tool/scripts/install-apply.js --profile research --project-root .` 로 하네스 산출물을 생성한다.
+7. 대상 프로젝트 루트에서 `node .harness-tool/scripts/cli.js review "<task>" --no-ship` 를 실행한다.
 
 대상 프로젝트 밖에서 실행해야 하면 `--project-root <target>` 또는 `HARNESS_PROJECT_ROOT=<target>` 를 쓴다.
-이 경우 `agents/` / `schemas/` 는 HARNESS 설치 루트에서 읽고, `.harness/state` / git 작업은 대상 프로젝트에 기록된다.
+이 경우 `agents/` / `schemas/` / 빌더 입력은 HARNESS 설치 루트에서 읽고, `.harness/state` / `.harness/install-state.json` / 하네스 출력 / git 작업은 대상 프로젝트에 기록된다.
 
 ## 9. 배포 (publish)
 

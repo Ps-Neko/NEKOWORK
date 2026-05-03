@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Changed (target-root install/apply, 2026-05-03)
+- `scripts/install-{plan,apply}.js`, `scripts/build-*.js`, `scripts/core/install-state.js` — support `--project-root` / `HARNESS_PROJECT_ROOT` so install outputs and `.harness/install-state.json` can be written to an external target project while reading catalog inputs from the HARNESS tool root.
+- `scripts/core/build-roots.js` — centralize builder source/target root resolution.
+- `tests/integration/build-pipeline.test.js`, `docs/PORTING.md`, `docs/RUNBOOK.md` — cover and document external target install apply.
+
 ### Fixed (round handoff persistence, 2026-05-03)
 - `scripts/orchestrators/review.js`, `scripts/demo-review.js` — preserve repeated stage handoffs with `-r<N>` suffixes instead of overwriting round 1 files during fix loops.
 - `tests/unit/orchestrator.test.js`, `tests/e2e/review-cycle.test.js` — assert disk handoff counts match in-memory handoffs and round 2 review files survive.
