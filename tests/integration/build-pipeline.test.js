@@ -77,9 +77,11 @@ test('install plan: 매니페스트 검증 + 컴포넌트 표 출력', () => {
 });
 
 test('install plan: selective module/component/target filters', () => {
+  const targetRoot = path.join(os.tmpdir(), 'harness-plan-target');
   const r = run('scripts/install-plan.js', [
     '--profile', 'core',
     '--target', 'claude',
+    '--project-root', targetRoot,
     '--module', 'codex-loop',
     '--component', 'agent:research',
     '--without-component', 'hook:persistent-mode',
@@ -88,6 +90,7 @@ test('install plan: selective module/component/target filters', () => {
   assert.equal(r.status, 0, `selective plan failed: ${r.stderr}`);
   const plan = JSON.parse(r.stdout);
   assert.equal(plan.harness_filter, 'claude');
+  assert.equal(plan.target_root, path.resolve(targetRoot));
   assert.ok(plan.modules.includes('codex-loop'));
   assert.ok(plan.selected_components.includes('agent:research'));
   assert.ok(plan.components.every(c => c.harness === 'claude' || c.harness === '(builder)'));
@@ -127,6 +130,27 @@ test('install apply: dry-run refuses unknown target through plan gate', () => {
   assert.equal(r.status, 1);
   assert.match(r.stderr, /unknown target: nope/);
   assert.match(r.stderr, /plan 실패/);
+});
+
+test('install apply: --project-root 는 외부 대상에 출력과 state 를 기록한다', () => {
+  const targetRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-apply-target-'));
+
+  try {
+    const r = run('scripts/install-apply.js', ['--profile', 'core', '--target', 'codex', '--project-root', targetRoot]);
+    assert.equal(r.status, 0, `external apply failed: ${r.stderr}\n${r.stdout}`);
+    assert.match(r.stdout, /target root/);
+    assert.ok(fs.existsSync(path.join(targetRoot, '.codex', 'config.toml')));
+    assert.ok(fs.existsSync(path.join(targetRoot, '.harness', 'install-state.json')));
+    assert.equal(fs.existsSync(path.join(SANDBOX, '.codex')), false, 'source root must not receive target output');
+
+    const state = JSON.parse(fs.readFileSync(path.join(targetRoot, '.harness', 'install-state.json'), 'utf8'));
+    assertValidInstallState(state);
+    assert.ok(state.components.codex);
+    assert.equal(state.components.claude, undefined);
+    assert.equal(state.components.codex.targets[0].path, '.codex');
+  } finally {
+    fs.rmSync(targetRoot, { recursive: true, force: true });
+  }
 });
 
 test('install apply: 5개 빌더 모두 실행 + state 기록', () => {

@@ -82,6 +82,7 @@ node .harness-tool/scripts/install-plan.js --list
 ```bash
 node .harness-tool/scripts/install-plan.js \
   --profile research --harness claude \
+  --project-root . \
   --json > harness-plan.json
 ```
 
@@ -104,14 +105,14 @@ rules/<project-id>/
 ### Step 4 — apply
 
 ```bash
-node .harness-tool/scripts/install-apply.js --profile research
+node .harness-tool/scripts/install-apply.js --profile research --project-root .
 ```
 
 산출: 프로젝트 루트에 5 하네스 디렉터리 (`.claude/` · `.codex/` · `.cursor/` · `.gemini/` · `.opencode/`) + `.harness/install-state.json` 영속 (source/target sha256 기록).
 
 특정 하네스만 필요하면:
 ```bash
-node .harness-tool/scripts/install-apply.js --harness claude
+node .harness-tool/scripts/install-apply.js --harness claude --project-root .
 ```
 
 ### Step 5 — 첫 review (mock)
