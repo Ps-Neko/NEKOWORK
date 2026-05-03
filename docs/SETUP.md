@@ -2,6 +2,10 @@
 
 > 외부 컨트리뷰터 / 다른 머신 셋업 가이드. P2 외부 의존 항목별 검증 절차 포함.
 
+First-time users should start with [QUICKSTART.md](QUICKSTART.md). This file is the deeper local contributor setup guide.
+
+Public npm publishing is not enabled for 0.0.2. The package metadata is prepared as `@ps-neko/nekowork`, but use source checkout, submodule, or local repository integration until an explicit public publish is completed.
+
 ## 사전 요구
 
 - Node ≥ 22.0.0 (테스트는 24.14.0)

@@ -241,11 +241,16 @@ node scripts/demo-review.js "<task>" demo-local --no-ship
 
 현재 `private: true` (npm publish 막힘). 공개 시:
 
-1. `package.json` 의 `repository.url` 확인 — 현재 `Ps-Neko/NEKOWORK` 로 채워짐. 다른 조직으로 이전 시에만 갱신.
-2. `private: true` → 제거 또는 `false`.
-3. `npm version patch|minor|major` 로 SemVer 업.
-4. `npm publish --access public`.
-5. `docs/CHANGELOG.md` 갱신.
+1. `package.json` 의 `name` 이 `@ps-neko/nekowork` 인지 확인.
+2. `package.json` 의 `repository.url` 확인 — 현재 `Ps-Neko/NEKOWORK` 로 채워짐. 다른 조직으로 이전 시에만 갱신.
+3. `npm run lint && npm test && npm audit --audit-level=moderate`.
+4. `node scripts/repair.js --check && node scripts/sync-claude-md.js --check && node scripts/build-codemaps.js --check`.
+5. `npm pack --dry-run --json` 결과를 확인.
+6. `npm whoami` 로 publish 계정과 2FA 상태 확인.
+7. `private: true` → 제거 또는 `false`.
+8. `npm version patch|minor|major` 로 SemVer 업.
+9. `npm publish --access public`.
+10. `docs/CHANGELOG.md` 와 README 설치 안내를 공개 npm 기준으로 갱신.
 
 ## 10. 진행 상태
 
