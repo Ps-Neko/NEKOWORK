@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Changed (team-lite runtime hardening, 2026-05-03)
+- `scripts/orchestrators/team-lite.js` — formalize the staged pipeline contract (`team-plan → team-prd → team-exec → team-verify → team-fix`), task dependency graph, terminal statuses, heartbeat history, and monitor snapshots.
+- `schemas/handoff.schema.json` — add `team_stage` metadata so team-lite handoff JSON remains schema-valid instead of carrying ad hoc fields.
+- `tests/unit/team-lite.test.js`, `docs/ARCHITECTURE.md`, `docs/RUNBOOK.md` — cover schema validation, skip/failure behavior, and document the OMC-style lightweight team pipeline.
+
 ### Changed (Selective install UX hardening, 2026-05-03)
 - `scripts/install-plan.js` — add `--list` catalog output and fail fast on unknown target/module/component include or exclude filters.
 - `scripts/install-plan.js` — target-filtered plans now omit unrelated `platform:<target>` builder components instead of showing every builder row.

@@ -110,7 +110,7 @@ scripts/
 | `lib/token-vault.js` | `audit`, `backend`, `list`, `load`, `redact`, `remove`, `save` | scripts/lib/token-vault.js auth.token_store: os-keychain (default) 또는 encrypted-file. 백엔드 결정:   HARNESS_TOKEN_STORE_KIND |
 | `orchestrators/ralph.js` | `ralphLoop` | ralph 영속 루프. PRD AC 가 모두 PASS 될 때까지 review 사이클 반복. 명시 호출 전용. 매직 키워드 자동 활성 안 함. |
 | `orchestrators/review.js` | `SENSITIVE_PATTERNS`, `reviewCycle` | 7단계 review 오케스트레이터. claude-led-codex-review SKILL 의 Stage Routing 표를 코드로 구현.  핵심 규칙:   - 단계 5/6 의 verdict 가 block 또는 cri |
-| `orchestrators/team-lite.js` | `teamLiteCycle` |  |
+| `orchestrators/team-lite.js` | `TEAM_LITE_STAGES`, `assertTaskGraph`, `createTasks`, `teamLiteCycle` |  |
 | `portability/simulate-port.js` | _(none)_ | PoC 이식 시뮬레이터. PORTING.md 의 30분 절차를 dry-run 으로 검증.  입력: --target <대상 디렉터리>  (사용자가 지정한 사내 프로젝트 경로)       --profile <name>  |
 | `repair.js` | _(none)_ | HARNESS repair : install-state.json 과 실 디스크의 빌드 산출물을 비교해 누락 / sha256 불일치인 하네스만 다시 빌드한다. install-apply 의 경량판.  - state 파일 |
 | `sync-claude-md.js` | _(none)_ | CLAUDE.md / .claude/CLAUDE.md 의 HARNESS:START~HARNESS:END 영역을 agent.yaml + package.json + manifests 에서 다시 생성해 갈아낀다. 사용자  |
