@@ -2,6 +2,16 @@
 
 NEKOWORK 0.0.3 is a repository-based alpha. It is not published to npm, so use a submodule or local checkout until public npm publishing is explicitly approved.
 
+## Local Demo First
+
+Before touching a real target project, run the disposable external-project demo from the NEKOWORK checkout:
+
+```bash
+npm run demo:external
+```
+
+The demo creates a tiny target project, runs the porting preflight, applies generated harness outputs, runs `doctor --quick`, and creates a planning session. Use `npm run demo:external -- --cleanup` when you want the generated target removed after success.
+
 ## Recommended Shape
 
 ```text

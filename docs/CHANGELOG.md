@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Added
+- Add `npm run demo:external` to create a disposable target project and verify repository-based porting end to end.
+- Add `docs/EXAMPLE-PROJECT.md` and e2e coverage for the external project demo.
+
+### Changed
+- Rewrite `docs/AUDIT.md` and `docs/ARCHITECTURE.md` with clean public-facing ASCII content.
+- Link the external project demo from README, Quickstart, Porting, Demo, and Release Readiness docs.
+
 ## [0.0.3] - 2026-05-03
 
 ### Changed

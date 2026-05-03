@@ -1,6 +1,6 @@
 # Release Readiness
 
-Status date: 2026-05-03
+Status date: 2026-05-04
 
 HARNESS / NEKOWORK is release-ready for local use and repository-based installation. Public npm publishing is intentionally disabled for the 0.0.3 line.
 
@@ -23,6 +23,7 @@ node scripts/cli.js doctor
 node scripts/cli.js doctor --quick --gemini-smoke
 npm run lint
 npm test
+npm run demo:external -- --cleanup
 npm audit --audit-level=moderate
 node scripts/repair.js --check
 node scripts/sync-claude-md.js --check
@@ -41,6 +42,12 @@ node scripts/install-plan.js --profile developer --json
 node scripts/portability/simulate-port.js <target> --profile developer --json
 node scripts/install-apply.js --profile developer --project-root <target>
 node scripts/cli.js plan "release readiness smoke" --project-root <target>
+```
+
+The disposable equivalent is:
+
+```bash
+npm run demo:external -- --cleanup
 ```
 
 Expected target outputs:
