@@ -24,6 +24,10 @@ echo ".harness-tool/" >> .gitignore   # tool 자체는 커밋 안 함
 node .harness-tool/scripts/cli.js review "<task>"
 ```
 
+`scripts/cli.js` 는 HARNESS 설치 루트(`.harness-tool`)에서 `agents/` 와 `schemas/` 를 읽고,
+현재 작업 디렉터리를 대상 프로젝트 루트로 사용한다. 다른 디렉터리에서 실행할 때만
+`--project-root <대상 프로젝트>` 또는 `HARNESS_PROJECT_ROOT=<대상 프로젝트>` 를 명시한다.
+
 ### B. npm dep
 
 ```bash
@@ -118,6 +122,15 @@ node .harness-tool/scripts/cli.js review \
 ```
 
 7개 핸드오프가 `.harness/state/sessions/port-first/handoffs/` 에 떨어지면 결합 OK.
+HARNESS 자체 파일은 `.harness-tool/` 안에 남고, session state / git worktree / live runner cwd 는
+대상 프로젝트 루트 기준이다.
+
+대상 프로젝트 밖에서 실행하는 경우:
+
+```bash
+node REPO_ROOT/scripts/cli.js plan \
+  "첫 풀사이클 검증" --project-root <대상 프로젝트> --session port-first
+```
 
 ## 3. 사내 PoC 별 주의사항
 
@@ -156,6 +169,7 @@ npm run lint && npm test && \
 | Windows 에서 quality-gate 의 tsc 가 안 잡힘 | `node_modules/.bin/tsc.cmd` 가 PATH 에 없음 — `which()` 가 cwd 부터 부모로 탐색하므로 프로젝트 루트에서 호출. |
 | MCP 게이트웨이 stdio 통신 timeout | `HARNESS_CODEX_TIMEOUT_S` 환경변수로 조정 (기본 180). |
 | ralph 가 무한 반복 | `HARNESS_RALPH_MAX_ITER` 또는 `--max-iter` 강제. `HARNESS_DAILY_COST_CAP_USD` 로 비용 게이트. |
+| 세션이 HARNESS 설치 루트에 생김 | 대상 프로젝트 루트에서 실행하거나 `--project-root <dir>` / `HARNESS_PROJECT_ROOT` 를 지정. |
 
 ## 6. 버전 / 호환성
 

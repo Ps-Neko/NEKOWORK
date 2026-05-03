@@ -30,11 +30,13 @@ const RUNNERS = {
  * @param {boolean} [opts.live=false]   - 실 LLM 호출
  * @param {string}  [opts.providerOverride] - provider 강제 지정
  * @param {string}  [opts.harnessRoot]
+ * @param {string}  [opts.projectRoot]
  * @returns {Promise<object>} 핸드오프 객체 (handoff.schema.json 준수)
  */
 export async function dispatch(opts) {
-  const root = opts.harnessRoot || process.cwd();
-  const agentFile = path.join(root, 'agents', `${opts.agent}.md`);
+  const harnessRoot = opts.harnessRoot || process.cwd();
+  const projectRoot = opts.projectRoot || harnessRoot;
+  const agentFile = path.join(harnessRoot, 'agents', `${opts.agent}.md`);
   if (!fs.existsSync(agentFile)) throw new Error(`agent file not found: ${opts.agent}`);
 
   const raw = fs.readFileSync(agentFile, 'utf8');
@@ -56,7 +58,7 @@ export async function dispatch(opts) {
         files: opts.context?.files || [],
         ecoMode: !!process.env.HARNESS_ECO,
         riskLevel: riskLevel(opts.context?.files || [], opts.task || ''),
-        harnessRoot: root,
+        harnessRoot,
       });
       decision.provider = provider;
       decision.model = fm.model;
@@ -75,7 +77,8 @@ export async function dispatch(opts) {
     disallowedTools: fm.disallowedTools || [],
     promptBody: body,
     context: opts.context || {},
-    harnessRoot: root,
+    harnessRoot,
+    projectRoot,
     executionMode: opts.executionMode,
   });
   const durMs = Date.now() - startTs;

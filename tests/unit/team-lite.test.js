@@ -2,6 +2,7 @@ import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { teamLiteCycle, _createTasks, _assertTaskGraph } from '../../scripts/orchestrators/team-lite.js';
@@ -66,6 +67,39 @@ test('team-lite task graph contract is explicit and validates dependencies', () 
   const broken = tasks.map(t => ({ ...t }));
   broken[1].depends_on = ['missing-task'];
   assert.throws(() => _assertTaskGraph(broken), /depends on unknown task/);
+});
+
+test('team-lite projectRoot 지정 시 state 는 대상 프로젝트에 쓰고 schema 는 harnessRoot 에서 읽는다', async () => {
+  const sessionId = 'unit-team-lite-project-root';
+  cleanSession(sessionId);
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-team-project-root-'));
+  const dispatcher = async ({ agent, stage }) => ({
+    stage,
+    agent,
+    decided: `${agent} ${stage} ok`,
+    rejected: '',
+    risks: '',
+    files: [],
+    remaining: '',
+    verdict: stage === 'self-review' ? 'approve' : undefined,
+  });
+
+  try {
+    const r = await teamLiteCycle({
+      task: 'portable team-lite smoke',
+      sessionId,
+      harnessRoot: ROOT,
+      projectRoot,
+      dispatcher,
+    });
+
+    assert.equal(path.resolve(r.sessionDir), path.join(projectRoot, '.harness', 'state', 'sessions', sessionId));
+    assert.ok(fs.existsSync(path.join(r.sessionDir, 'team-lite.json')));
+    assert.ok(fs.existsSync(path.join(r.sessionDir, 'handoffs', '01-team-plan.json')));
+    assert.equal(fs.existsSync(path.join(ROOT, '.harness', 'state', 'sessions', sessionId)), false);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
 });
 
 test('team-lite skips team-fix when team-verify approves', async () => {

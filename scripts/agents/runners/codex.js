@@ -23,8 +23,9 @@ import { classifyCategory, classifySeverity, deriveVerdict, severityCounts } fro
 export async function runCodex(args) {
   assertDelegatedCliAuth('codex');
 
-  const cwd = args.harnessRoot || process.cwd();
-  const codexBin = resolveProviderCli('codex', { root: cwd });
+  const cwd = args.projectRoot || args.harnessRoot || process.cwd();
+  const trustRoots = [cwd, args.harnessRoot].filter(Boolean);
+  const codexBin = resolveProviderCli('codex', { root: cwd, roots: trustRoots });
   if (!codexBin) {
     throw new Error('codex CLI 미설치. https://github.com/openai/codex 또는 --provider=mock 사용.');
   }

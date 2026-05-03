@@ -10,11 +10,12 @@ const DEFAULT_MAX_ITER = Number(process.env.HARNESS_RALPH_MAX_ITER || 5);
 const DAILY_CAP_USD = Number(process.env.HARNESS_DAILY_COST_CAP_USD || 0); // 0 = 무제한
 
 export async function ralphLoop(opts) {
-  const root = opts.harnessRoot || process.cwd();
+  const harnessRoot = opts.harnessRoot || process.cwd();
+  const projectRoot = opts.projectRoot || harnessRoot;
   const sessionId = opts.sessionId || `ralph-${Date.now()}`;
   const maxIter = Math.max(1, Number(opts.maxIter || DEFAULT_MAX_ITER));
 
-  const sessionDir = path.join(root, '.harness', 'state', 'sessions', sessionId);
+  const sessionDir = path.join(projectRoot, '.harness', 'state', 'sessions', sessionId);
   fs.mkdirSync(sessionDir, { recursive: true });
   fs.writeFileSync(path.join(sessionDir, 'active'), `started_at: ${new Date().toISOString()}\nmode: ralph\n`);
 
@@ -48,7 +49,8 @@ export async function ralphLoop(opts) {
       secure: opts.secure,
       noShip: true,
       sessionId: `${sessionId}-i${iter}`,
-      harnessRoot: root,
+      harnessRoot,
+      projectRoot,
     });
 
     if (result.humanGate) {

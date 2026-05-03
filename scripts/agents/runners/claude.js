@@ -60,8 +60,9 @@ async function runClaudeSdk(args) {
 async function runClaudeCli(args) {
   assertDelegatedCliAuth('claude');
 
-  const cwd = args.harnessRoot || process.cwd();
-  const claudeBin = resolveProviderCli('claude', { root: cwd });
+  const cwd = args.projectRoot || args.harnessRoot || process.cwd();
+  const trustRoots = [cwd, args.harnessRoot].filter(Boolean);
+  const claudeBin = resolveProviderCli('claude', { root: cwd, roots: trustRoots });
   if (!claudeBin) {
     throw new Error('claude CLI is not installed. Install/login to Claude Code, or explicitly use HARNESS_CLAUDE_RUNNER=sdk with ANTHROPIC_API_KEY.');
   }
