@@ -19,7 +19,7 @@ HARNESS 는 **하나의 매니페스트(`agent.yaml`)** 와 **5개 정규 카탈
 | 출처 | 차용 | 의도적 거절 |
 |---|---|---|
 | ECC v2.0.0-rc.1 | progressive disclosure, skill / agent / rule 계층, 정규 카탈로그 → 산출물 분리, schema 검증 매니페스트 | 184개 스킬 풀 카탈로그 (점진 확장으로 대체), `pyproject.toml` LLM monorepo (별도 레포 분리), gan-{planner,generator,evaluator} (YAGNI) |
-| OMC v4.13.5 | 핸드오프 5필드, persistent mode, fact-forcing, instinct 학습 | 매직 키워드 자동 활성 (`$ralph` 등 — 사용자 룰 "확인 후 실행" 우선), tmux team 런타임 (Windows 마찰 — ralph 단일 워커가 대체), `bridge/cli.cjs` 3.2MB 단일 번들 (디버깅 / 모듈성) |
+| OMC v4.13.5 | 핸드오프 5필드, persistent mode, fact-forcing, instinct 학습, staged team-lite pipeline | 매직 키워드 자동 활성 (`$ralph` 등 — 사용자 룰 "확인 후 실행" 우선), tmux team 런타임 (Windows 마찰 — lightweight team-lite / ralph 로 대체), `bridge/cli.cjs` 3.2MB 단일 번들 (디버깅 / 모듈성) |
 | CLCR (사용자 본인 자산) | 7단계 풀사이클(ideate→plan→implement→self-review→codex-review→codex-challenge→ship), severity matrix, fix-loop round ≤ 3, --secure / --fast / --no-ship 플래그 | — |
 
 ## 3. 통합 아키텍처 개요
@@ -94,7 +94,7 @@ HARNESS 는 **하나의 매니페스트(`agent.yaml`)** 와 **5개 정규 카탈
 | 계층 | Day 1 부트스트랩 | 현 상태 (`docs/AUDIT.md` §2) |
 |---|---|---|
 | 1 Interface | NL Router(off, 사용자 룰 우선), Slash Command, CLI(`scripts/cli.js`), GitHub Actions | 부분 — NL Router 의도적 OFF |
-| 2 Orchestration | planner / router / persistent / cost. team mgr 는 ralph 단일 워커 | 부분 — tmux team 미채택 |
+| 2 Orchestration | planner / router / persistent / cost / ralph / team-lite | 부분 — tmux team 미채택, staged team-lite 로 대체 |
 | 3 Agent | 11/11 (Claude 8, Codex 2, Gemini 1) | OK |
 | 4 Skill & Rule | 5 스킬 + ralph + 거버넌스 4 + rule 공통/TS/Python | OK (rules 작성 완료) |
 | 5 Memory & Learning | session(7개 핸드오프 파일) + project-memory + 글로벌 instincts | OK |
@@ -121,6 +121,17 @@ HARNESS 는 **하나의 매니페스트(`agent.yaml`)** 와 **5개 정규 카탈
 - `.harness/state/sessions/<id>/routing.jsonl` — 단계별 agent / model / cost.
 - `.harness/costs.jsonl` — 누적 비용.
 - `.harness/audit/<date>.jsonl` — 모든 도구 호출.
+
+`harness team-lite "<task>"` 경량 팀 파이프라인:
+
+1. `team-plan` — planner 가 작업 분해.
+2. `team-prd` — architect 가 PRD/설계 관점 정리.
+3. `team-exec` — executor 가 구현 handoff 생성.
+4. `team-verify` — code-reviewer 가 검증 verdict 생성.
+5. `team-fix` — `team-verify` 가 approve 가 아니면 executor fix 단계 실행, approve 면 skipped.
+
+세션에는 `team-lite.json`, `monitor.json`, `heartbeat.json`, `heartbeat.jsonl`, `heartbeats/<stage>.json`, `handoffs/<NN>-team-*.{md,json}` 이 기록된다.
+각 JSON handoff 는 `schemas/handoff.schema.json` 을 통과해야 하며, team 메타데이터는 `team_stage` 로만 보존한다.
 
 ## 6. Agent 라우팅 전략
 

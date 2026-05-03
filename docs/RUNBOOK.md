@@ -131,6 +131,7 @@ harness plan "<task>"                         # 1·2 만, implement 이전 stop
 
 # 영속 / ralph (명시 옵트인)
 harness ralph "<task>" [--max-iter 5]
+harness team-lite "<task>" [--live] [--session <id>]
 harness wait {start|stop|status}
 
 # 운영
@@ -138,6 +139,12 @@ harness sessions
 harness costs --since=7d
 harness instincts {list|get <id>|promote <id>|prune|ready}
 ```
+
+`team-lite` 는 OMC식 staged team pipeline 의 경량판이다. 실행 순서는
+`team-plan → team-prd → team-exec → team-verify → team-fix` 이며,
+`team-verify` 가 `approve` 를 반환하면 `team-fix` 는 `skipped` 로 닫힌다.
+세션 산출물은 `.harness/state/sessions/<id>/team-lite.json`, `monitor.json`,
+`heartbeat.jsonl`, `heartbeats/<stage>.json`, `handoffs/<NN>-team-*.{md,json}` 에 남는다.
 
 ## 5. 빌더 / repair / sync 사이클
 

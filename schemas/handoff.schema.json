@@ -13,6 +13,10 @@
     "agent": { "type": "string" },
     "round": { "type": "integer", "minimum": 1 },
     "session_id": { "type": "string" },
+    "team_stage": {
+      "type": "string",
+      "pattern": "^team-[a-z0-9-]+$"
+    },
     "timestamp": { "type": "string", "format": "date-time" },
     "duration_ms": { "type": "integer", "minimum": 0 },
     "provider": { "enum": ["mock", "claude", "codex", "gemini", "local"] },
