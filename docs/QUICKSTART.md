@@ -69,6 +69,20 @@ Profiles:
 
 ## 4. Use HARNESS In A Target Project
 
+For a disposable end-to-end target project demo:
+
+```bash
+npm run demo:external
+```
+
+Add `-- --cleanup` if you want the generated target removed after the run:
+
+```bash
+npm run demo:external -- --cleanup
+```
+
+See [EXAMPLE-PROJECT.md](EXAMPLE-PROJECT.md) for the full walkthrough and expected outputs.
+
 Recommended 0.0.3 integration:
 
 ```bash
