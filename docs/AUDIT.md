@@ -75,7 +75,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 | Rust runtime 컴파일 | OK | 2026-05-03 `npm run verify:runtime` PASS: cargo auto-discovery, build/test/clippy/help/init/status/ipc |
 | GitHub OAuth 상태 | OK | 2026-05-03 keychain token valid for Ps-Neko. scope: `gist read:org repo`; workflow 파일 변경 시 `workflow` scope refresh 필요 |
 | GitHub Actions 실 동작 | OK | PR #18~#24 기준 validate/review checks PASS |
-| npm publish 결정 | OK | 명시 공개 릴리스 요청 전까지 `private: true` 유지 |
+| npm publish 결정 | OK | 0.0.2 는 공개 npm publish 하지 않고 `private: true` 유지 |
 | 사내 PoC preflight | OK | 2026-05-03 `simulate-port` dry-run 강화 + `--project-root` 기반 portable execution/install 준비. 실제 결합은 선택한 대상 프로젝트에 `.harness-tool/` 결합 후 수행 |
 | ~~install-apply 의 sha256 placeholder~~ | ~~Day 4 stub~~ | **2026-04-29 회수**: source_sha256 + targets[].sha256 모두 실값 |
 
@@ -129,7 +129,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 1. ~~**Rust runtime 컴파일 검증** — rustup 설치 + `cargo build --release` + smoke (init / status / ipc ping).~~ 완료.
 2. ~~**Codex CLI / Gemini CLI live 검증** — 바이너리 설치 후 단독 smoke 1회.~~ 2026-05-03 완료.
 3. ~~**GitHub Actions 실 동작** — push 후 PR validate/review 검증.~~ PR #18~#23에서 완료.
-4. ~~**npm publish 결정** — `private: true` 유지 vs 공개.~~ 명시 공개 릴리스 요청 전까지 `private: true` 유지.
+4. ~~**npm publish 결정** — `private: true` 유지 vs 공개.~~ 0.0.2 는 공개 npm publish 하지 않고 `private: true` 유지.
 
 ### P3 — 사내 임팩트 (사용자 요청 시)
 1. 사용자 명시 사내 프로젝트에 풀 결합 + 첫 실 task 1개로 사이클.
@@ -189,4 +189,4 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 - local-first auth 포팅 + provider mutation guard 후 `npm test` PASS
 - ARCHITECTURE 풀 18절 본문 528줄
 
-잔존 부채는 **사내 임팩트 (사용자 명시 시점)** 뿐이다. npm publish 는 명시 공개 릴리스 요청 전까지 `private: true` 유지로 결정했고, OIDC / dead-man / supply-chain 심화는 `npm run security:hardening` CI gate로 1차 완료했다.
+잔존 부채는 **사내 임팩트 (사용자 명시 시점)** 뿐이다. npm publish 는 0.0.2 에서 하지 않고 `private: true` 유지로 결정했으며, OIDC / dead-man / supply-chain 심화는 `npm run security:hardening` CI gate로 1차 완료했다.

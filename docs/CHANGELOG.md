@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Changed (npm publish decision, 2026-05-03)
+- Keep 0.0.2 private and do not publish to npm.
+- Document that a future public npm package must first move from `@harness/cli` to a controlled scope such as `@ps-neko/nekowork` or `@ps-neko/harness-cli`.
+- Mark npm-based porting examples as future public-package paths; submodule/local repo integration remains the supported path for 0.0.2.
+
 ### Added (release readiness, 2026-05-03)
 - `docs/RELEASE-READINESS.md` records the final local release checklist, install smoke, full builder smoke, and the explicit decision to keep `package.json` private until a public release request.
 - `docs/AUDIT.md` now treats npm publish as a settled hold decision, leaving only internal project/provider integration as optional future work.

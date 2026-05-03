@@ -28,25 +28,31 @@ node .harness-tool/scripts/cli.js review "<task>"
 현재 작업 디렉터리를 대상 프로젝트 루트로 사용한다. 다른 디렉터리에서 실행할 때만
 `--project-root <대상 프로젝트>` 또는 `HARNESS_PROJECT_ROOT=<대상 프로젝트>` 를 명시한다.
 
-### B. npm dep
+### B. npm dep (future public package only)
+
+0.0.2 is not published to npm. Use submodule/local repo integration for now.
+If a public npm package is requested later, publish under a controlled scope such as
+`@ps-neko/nekowork` or `@ps-neko/harness-cli` first, then use:
 
 ```bash
-npm i --save-dev @harness/cli
+npm i --save-dev <published-harness-package>
 ```
 
 `package.json`:
 ```json
 {
   "scripts": {
-    "harness": "node node_modules/@harness/cli/scripts/cli.js"
+    "harness": "node node_modules/<published-harness-package>/scripts/cli.js"
   }
 }
 ```
 
 ### C. 글로벌 설치
 
+0.0.2 is not published globally. After an explicit public package migration:
+
 ```bash
-npm i -g @harness/cli
+npm i -g <published-harness-package>
 harness install --plan --profile research --harness claude
 ```
 
