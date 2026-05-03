@@ -93,7 +93,7 @@ scripts/
 | `ci/validate-skills.js` | _(none)_ | skills/<name>/SKILL.md frontmatter 가 schemas/skill.schema.json 을 만족하는지 검증. agent.yaml 의 skills 목록과 실 디렉터리 일치 여부도 체크. |
 | `cli.js` | _(none)_ | HARNESS CLI 진입점. 10 verb: install / validate / review / plan / self-review / codex-review / ralph / wait / sessions / co |
 | `core/auth-guard.js` | ` BLOCKED_ENV `, `assertDelegatedCliAuth` |  |
-| `core/cli-resolver.js` | `resolveCli` |  |
+| `core/cli-resolver.js` | `assertProviderCliTrust`, `isPathInside`, `resolveCli`, `resolveProviderCli` |  |
 | `core/execution-workspace.js` | `applyExecutionDiff`, `captureExecutionDiff`, `changedFiles`, `withExecutionWorkspace` |  |
 | `core/git-mutation-guard.js` | `readGitStatus`, `withGitMutationGuard` |  |
 | `core/json-extractor.js` | `extractJson`, `parseJsonObject` |  |
