@@ -85,10 +85,11 @@ npm run verify:gemini
 # rustup 설치 (https://rustup.rs)
 # Windows MSVC target 은 Visual Studio Build Tools C++ workload 필요
 winget install --id Microsoft.VisualStudio.2022.BuildTools -e --override "--wait --quiet --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --norestart"
-cd runtime
-cargo build --release
-./target/release/harness-runtime --help
+npm run verify:runtime
 ```
+
+`verify:runtime` 은 `cargo` 가 PATH 에 없어도 기본 rustup 설치 위치(`~/.cargo/bin`)를 탐색한다.
+내부적으로 release build, `cargo test`, `cargo clippy --all-targets -- -D warnings`, `--help`, `init`, `status`, `ipc ping` smoke 를 순서대로 실행한다.
 
 주의: Node 데몬(`harness wait`)과 동시 실행 금지. 둘 다 wakeup.json 폴링.
 

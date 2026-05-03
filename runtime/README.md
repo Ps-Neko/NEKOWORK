@@ -21,9 +21,17 @@ cargo build --release
 
 Output: `target/release/harness-runtime.exe` on Windows, `target/release/harness-runtime` on Linux/macOS.
 
+From the repository root, the same verification can be run without manually editing PATH:
+
+```powershell
+npm run verify:runtime
+```
+
+`verify:runtime` locates `cargo` on PATH or in the default rustup install directories, then runs release build, tests, clippy, and smoke checks.
+
 ## Smoke
 
-Verified on Windows on 2026-05-02:
+Verified on Windows on 2026-05-03:
 
 ```powershell
 runtime\target\release\harness-runtime.exe --help

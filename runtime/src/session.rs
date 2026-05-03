@@ -1,5 +1,5 @@
-// 세션 영속 SQLite. 컴팩션과 무관하게 살아남는 상태.
-// 스키마:
+// SQLite-backed runtime state. This survives context compaction and process restarts.
+// Schema:
 //   sessions(id, started_at, mode, task, harness_root, status)
 //   handoffs(session_id, stage, round, agent, verdict, payload_json, written_at)
 //   audits(ts, session_id, event, details_json)
@@ -14,9 +14,10 @@ pub fn db_path(root: &Path) -> PathBuf {
 
 pub fn open(root: &Path) -> Result<Connection> {
     std::fs::create_dir_all(root.join(".harness"))
-        .with_context(|| format!(".harness 디렉터리 생성 실패: {}", root.display()))?;
+        .with_context(|| format!("failed to create .harness directory: {}", root.display()))?;
     let p = db_path(root);
-    let conn = Connection::open(&p).with_context(|| format!("SQLite open 실패: {}", p.display()))?;
+    let conn = Connection::open(&p)
+        .with_context(|| format!("failed to open SQLite db: {}", p.display()))?;
     conn.execute_batch(SCHEMA)?;
     Ok(conn)
 }
@@ -61,7 +62,13 @@ CREATE INDEX IF NOT EXISTS idx_handoffs_session ON handoffs(session_id);
 CREATE INDEX IF NOT EXISTS idx_audits_session   ON audits(session_id);
 "#;
 
-pub fn upsert_session(conn: &Connection, id: &str, mode: &str, task: Option<&str>, root: Option<&str>) -> Result<()> {
+pub fn upsert_session(
+    conn: &Connection,
+    id: &str,
+    mode: &str,
+    task: Option<&str>,
+    root: Option<&str>,
+) -> Result<()> {
     let now = chrono::Utc::now().to_rfc3339();
     conn.execute(
         "INSERT INTO sessions(id, started_at, mode, task, harness_root, status)
@@ -92,7 +99,12 @@ pub fn record_handoff(
     Ok(())
 }
 
-pub fn record_audit(conn: &Connection, session_id: Option<&str>, event: &str, details_json: &str) -> Result<()> {
+pub fn record_audit(
+    conn: &Connection,
+    session_id: Option<&str>,
+    event: &str,
+    details_json: &str,
+) -> Result<()> {
     let now = chrono::Utc::now().to_rfc3339();
     conn.execute(
         "INSERT INTO audits(ts, session_id, event, details_json) VALUES (?1, ?2, ?3, ?4)",
@@ -102,9 +114,12 @@ pub fn record_audit(conn: &Connection, session_id: Option<&str>, event: &str, de
 }
 
 pub fn list_active(conn: &Connection) -> Result<Vec<String>> {
-    let mut stmt = conn.prepare("SELECT id FROM sessions WHERE status = 'active' ORDER BY started_at")?;
+    let mut stmt =
+        conn.prepare("SELECT id FROM sessions WHERE status = 'active' ORDER BY started_at")?;
     let rows = stmt.query_map([], |r| r.get::<_, String>(0))?;
     let mut out = Vec::new();
-    for r in rows { out.push(r?); }
+    for r in rows {
+        out.push(r?);
+    }
     Ok(out)
 }

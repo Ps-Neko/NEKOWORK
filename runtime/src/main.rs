@@ -1,21 +1,25 @@
-// HARNESS Rust runtime — 영속 데몬, supervisor, IPC bridge.
-// 동작:
-//   - daemon  : 백그라운드 supervisor. wakeup.json 폴링, child 프로세스 spawn / heartbeat / kill.
-//   - status  : 현재 세션 / pending wakeup / 자식 프로세스 상태 출력.
-//   - ipc     : Node CLI 와 stdio JSON-RPC. routing trace / cost / instinct 기록 위임 가능.
+// HARNESS Rust runtime: persistent supervisor plus IPC bridge.
+// Commands:
+//   - daemon: poll wakeup.json and spawn a resumable child process.
+//   - status: print active sessions, pending wakeups, and supervisor pid.
+//   - ipc: handle one stdio JSON-RPC request for Node/Rust handoff.
 //
-// 의존: tokio (async), rusqlite (세션 SQLite — 컨텍스트와 무관 영속), sysinfo, clap.
+// Dependencies: tokio, rusqlite, sysinfo, clap, tracing.
 
 use clap::{Parser, Subcommand};
 use std::process::ExitCode;
 
 mod ipc;
+mod observability;
 mod session;
 mod supervisor;
-mod observability;
 
 #[derive(Parser, Debug)]
-#[command(name = "harness-runtime", version, about = "HARNESS 영속 supervisor (Rust)")]
+#[command(
+    name = "harness-runtime",
+    version,
+    about = "HARNESS persistent supervisor (Rust)"
+)]
 struct Cli {
     #[arg(long, env = "HARNESS_ROOT", default_value = ".")]
     root: String,
@@ -26,7 +30,7 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Cmd {
-    /// 영속 데몬 시작.
+    /// Start the persistent supervisor.
     Daemon {
         #[arg(long, default_value_t = 10_000)]
         poll_ms: u64,
@@ -34,11 +38,11 @@ enum Cmd {
         #[arg(long)]
         foreground: bool,
     },
-    /// 현재 상태 출력.
+    /// Print current runtime status.
     Status,
-    /// Node CLI 와 stdio JSON-RPC. 단일 요청 처리 후 종료.
+    /// Handle one stdio JSON-RPC request, then exit.
     Ipc,
-    /// 세션 SQLite 초기화 (idempotent).
+    /// Initialize the SQLite runtime database.
     Init,
 }
 
@@ -52,7 +56,10 @@ async fn main() -> ExitCode {
         Cmd::Init => session::init(&root).await,
         Cmd::Status => observability::print_status(&root).await,
         Cmd::Ipc => ipc::run(&root).await,
-        Cmd::Daemon { poll_ms, foreground } => supervisor::run(&root, poll_ms, foreground).await,
+        Cmd::Daemon {
+            poll_ms,
+            foreground,
+        } => supervisor::run(&root, poll_ms, foreground).await,
     };
 
     match result {
