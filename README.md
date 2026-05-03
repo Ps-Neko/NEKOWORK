@@ -27,7 +27,7 @@ node scripts/cli.js review "<task>" --no-ship    # 7단계 풀사이클 dry-run 
 - **0.0.1** (Week 1~4): 골격·거버넌스·매니페스트·11 agents·5 skills·5 hooks·MCP 7 도구·orchestrator·4 provider runner·인스팅트·Rust runtime 골격·GitHub Actions 2개. ~12,000 LOC.
 - **0.0.2** (P1 회수): 빈 디렉터리 0, 미구현 스크립트 0 (validate-* 4개 / build-{cursor,gemini,opencode} / sync-claude-md / repair / build-codemaps), 통합/E2E 테스트와 코드맵 생성기 추가.
 - **local-first auth 포팅**: Claude 기본 live runner 를 Claude Code CLI 세션으로 전환. Claude/Codex/Gemini CLI 호출 직전 long-lived API key 환경변수는 기본 차단, 명시 opt-in 시에만 SDK/API-key 경로 사용. Provider 공통 core 유틸(`cli-resolver`, `subprocess`, `json-extractor`) 분리. Claude/Codex/Gemini handoff-mode 실행 전후 git mutation guard 추가.
-- **현재 품질 게이트**: `npm test`, `npm run lint`, `npm audit --audit-level=moderate`, `build:codemaps -- --check`, provider live smoke, Rust release build 기준으로 관리.
+- **현재 품질 게이트**: `npm test`, `npm run lint`, `npm audit --audit-level=moderate`, `build:codemaps -- --check`, provider live smoke, `npm run verify:runtime` 기준으로 관리.
 
 ## 빠진 / 부채
 

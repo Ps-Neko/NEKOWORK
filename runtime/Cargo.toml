@@ -2,7 +2,7 @@
 name = "harness-runtime"
 version = "0.0.1"
 edition = "2021"
-description = "HARNESS Rust runtime — 영속 데몬, supervisor, IPC bridge"
+description = "HARNESS Rust runtime supervisor and IPC bridge"
 license = "MIT"
 publish = false
 

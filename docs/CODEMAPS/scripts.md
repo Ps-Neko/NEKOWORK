@@ -52,7 +52,8 @@ scripts/
 ├── verify/
 │   ├── claude-live.js
 │   ├── codex-live.js
-│   └── gemini-live.js
+│   ├── gemini-live.js
+│   └── runtime.js
 ├── build-claude.js
 ├── build-codemaps.js
 ├── build-codex.js
@@ -119,4 +120,5 @@ scripts/
 | `verify/claude-live.js` | _(none)_ | Claude Code CLI live smoke. Uses the local Claude subscription/OAuth session by default, not ANTHROPIC_API_KEY. |
 | `verify/codex-live.js` | _(none)_ | codex runner 단독 live 검증 (P2-c).  환경: codex CLI (≥0.124) + ChatGPT 로그인 세션. OPENAI_API_KEY 는 기본 차단되며, 종량제 opt-in 때만 HARNES |
 | `verify/gemini-live.js` | _(none)_ | Gemini CLI live smoke. Uses the local Gemini/gcloud session by default, not GEMINI_API_KEY. |
+| `verify/runtime.js` | _(none)_ | Rust runtime verification smoke: cargo build/test/clippy plus CLI IPC checks. |
 
