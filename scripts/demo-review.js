@@ -34,11 +34,17 @@ function callMcp(tool, args) {
   } else if (tool === 'handoff_write') {
     const stageOrder = ['ideate', 'plan', 'implement', 'self-review', 'codex-review', 'codex-challenge', 'ship'];
     const nn = String(stageOrder.indexOf(args.stage) + 1).padStart(2, '0');
+    const base = handoffBase(nn, args);
     const md = renderHandoff(args);
-    fs.writeFileSync(path.join(SESSION_DIR, 'handoffs', `${nn}-${args.stage}.md`), md);
-    fs.writeFileSync(path.join(SESSION_DIR, 'handoffs', `${nn}-${args.stage}.json`),
+    fs.writeFileSync(path.join(SESSION_DIR, 'handoffs', `${base}.md`), md);
+    fs.writeFileSync(path.join(SESSION_DIR, 'handoffs', `${base}.json`),
       JSON.stringify({ ...args, timestamp: new Date().toISOString() }, null, 2));
   }
+}
+
+function handoffBase(nn, args) {
+  const round = Number(args.round || 1);
+  return `${nn}-${args.stage}${round > 1 ? `-r${round}` : ''}`;
 }
 
 function renderHandoff(a) {

@@ -140,13 +140,31 @@ test('핸드오프 파일이 디스크에 잘 떨어진다', async () => {
     noShip: true,
   });
   for (const h of r.handoffs) {
-    const md = path.join(r.sessionDir, 'handoffs', `${pad(h.stage)}-${h.stage}.md`);
+    const md = path.join(r.sessionDir, 'handoffs', `${handoffBase(h)}.md`);
     const json = md.replace(/\.md$/, '.json');
     assert.ok(fs.existsSync(md), `${md} exists`);
     assert.ok(fs.existsSync(json), `${json} exists`);
     const data = JSON.parse(fs.readFileSync(json, 'utf8'));
     assert.equal(validateHandoff(data), true, `${json}: ${ajv.errorsText(validateHandoff.errors)}`);
   }
+});
+
+test('round 2 handoff 는 round suffix 로 보존되어 stage 파일을 덮어쓰지 않는다', async () => {
+  fs.rmSync(path.join(ROOT, '.harness', 'state', 'sessions', 'unit-round-files'), { recursive: true, force: true });
+  const r = await reviewCycle({
+    task: 'round 파일 보존',
+    sessionId: 'unit-round-files',
+    harnessRoot: ROOT,
+    noShip: true,
+    noCodex: true,
+  });
+
+  const files = fs.readdirSync(path.join(r.sessionDir, 'handoffs')).filter(f => f.endsWith('.json')).sort();
+  assert.ok(files.includes('03-implement.json'));
+  assert.ok(files.includes('03-implement-r2.json'));
+  assert.ok(files.includes('04-self-review.json'));
+  assert.ok(files.includes('04-self-review-r2.json'));
+  assert.equal(files.length, r.handoffs.length, '디스크 handoff 수가 메모리 handoff 수와 같아야 함');
 });
 
 test('live provider 실패는 기본적으로 mock fallback 하지 않는다', async () => {
@@ -213,4 +231,9 @@ test('SENSITIVE_PATTERNS: 21개 보안 카테고리 키워드 모두 자동 감�
 function pad(stage) {
   const map = { ideate: '01', plan: '02', implement: '03', 'self-review': '04', 'codex-review': '05', 'codex-challenge': '06', ship: '07' };
   return map[stage] || '00';
+}
+
+function handoffBase(h) {
+  const round = Number(h.round || 1);
+  return `${pad(h.stage)}-${h.stage}${round > 1 ? `-r${round}` : ''}`;
 }
