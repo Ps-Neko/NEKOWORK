@@ -35,7 +35,7 @@ node scripts/cli.js review "<task>" --no-ship    # 7단계 풀사이클 dry-run 
 
 - 빈 디렉터리 **0**, 미구현 스크립트 **0**, stub 메시지 **0**.
 - 자체 완결 영역 100% 정합.
-- 외부 의존 잔존: 사내 PoC 결합. npm publish 는 명시 릴리스 요청 전까지 `private: true` 유지로 결정. Claude/Codex/Gemini provider live smoke 는 로컬 로그인 세션 기준 검증 완료.
+- 외부 의존 잔존: 사내 PoC 결합. npm publish 는 0.0.2 에서 하지 않고 `private: true` 유지로 결정. 공개 배포가 필요하면 `@ps-neko/nekowork` 같은 소유 가능한 scope 로 package name 을 먼저 정리한다. Claude/Codex/Gemini provider live smoke 는 로컬 로그인 세션 기준 검증 완료.
 
 ## 문서
 
