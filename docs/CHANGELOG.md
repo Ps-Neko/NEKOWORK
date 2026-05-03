@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+### Verified (local live provider smoke, 2026-05-03)
+- `npm run verify:claude` — PASS with Claude Code CLI 2.1.126 using local delegated auth.
+- `npm run verify:codex` — PASS with codex-cli 0.128.0 using ChatGPT login session; security regression sample returns `block` with 2 issues.
+- `npm run verify:gemini` — PASS with Gemini CLI 0.40.1 using local Gemini login session.
+- `npm run auth:github:status` — PASS via keychain for `Ps-Neko`; current local token scopes are `gist read:org repo` and need `workflow` only when changing workflow files.
+- `package.json` — keep `private: true` as the explicit npm publish decision until a public release request and checklist exist.
+
 ### Changed (Rust runtime verification, 2026-05-03)
 - `scripts/verify/runtime.js`, `package.json` — add `npm run verify:runtime` for cargo auto-discovery, release build, tests, clippy, and runtime smoke checks.
 - `runtime/src/*.rs`, `runtime/Cargo.toml` — normalize runtime comments, CLI help text, and log strings to stable ASCII so Windows terminals and codemaps stay readable.
