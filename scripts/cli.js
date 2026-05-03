@@ -25,6 +25,7 @@ harness <verb> [args]
 설치 / 검증
   install --plan [--profile <name>] [--target <name>] [--module <id>] [--component <id>]
                                          매니페스트 selective dry-run
+  install --plan --list [--json]         사용 가능한 profile/module/component/target 목록
   install --apply [--profile <name>]     실제 적용 (.claude/, .codex/ 빌드 + state 기록)
   validate                               카탈로그 + 마커 검증
   version

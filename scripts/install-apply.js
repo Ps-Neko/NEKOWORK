@@ -24,12 +24,12 @@ function parseArgs(argv) {
   };
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
-    if (a === '--profile') args.profile = argv[++i];
-    else if (a === '--harness' || a === '--target') args.harness = argv[++i];
-    else if (a === '--module' || a === '--with-module') args.modules.push(argv[++i]);
-    else if (a === '--without-module') args.withoutModules.push(argv[++i]);
-    else if (a === '--component' || a === '--with-component') args.components.push(argv[++i]);
-    else if (a === '--without-component') args.withoutComponents.push(argv[++i]);
+    if (a === '--profile') args.profile = takeValue(argv, i++, a);
+    else if (a === '--harness' || a === '--target') args.harness = takeValue(argv, i++, a);
+    else if (a === '--module' || a === '--with-module') args.modules.push(takeValue(argv, i++, a));
+    else if (a === '--without-module') args.withoutModules.push(takeValue(argv, i++, a));
+    else if (a === '--component' || a === '--with-component') args.components.push(takeValue(argv, i++, a));
+    else if (a === '--without-component') args.withoutComponents.push(takeValue(argv, i++, a));
     else if (a === '--force') args.force = true;
     else if (a === '--dry-run') args.dryRun = true;
     else if (a === '--help' || a === '-h') { printHelp(); process.exit(0); }
@@ -38,18 +38,32 @@ function parseArgs(argv) {
   return args;
 }
 
+function takeValue(argv, i, flag) {
+  const value = argv[i + 1];
+  if (!value || value.startsWith('--')) {
+    console.error(`${flag} value required`);
+    process.exit(2);
+  }
+  return value;
+}
+
 function printHelp() {
   console.log(`
 HARNESS install --apply
 
 사용법:
-  install.sh --apply [--profile <name>] [--harness <name>] [--force] [--dry-run]
+  install.sh --apply [--profile <name>] [--harness <name>] [--module <id>] [--component <id>] [--force] [--dry-run]
 
 옵션:
-  --profile <name>   프로파일 선택 (기본: agent.yaml profiles.default)
-  --harness <name>   특정 하네스만 빌드 (claude | codex)
-  --force            기존 .claude/ .codex/ 무시하고 재생성
-  --dry-run          plan 만 다시 출력하고 종료
+  --profile <name>          프로파일 선택 (기본: agent.yaml profiles.default)
+  --harness <name>          특정 하네스만 빌드 (claude | codex | cursor | gemini | opencode)
+  --target <name>           --harness alias
+  --module <id>             include an additional module, repeatable
+  --without-module <id>     exclude a module, repeatable
+  --component <id>          include a direct component, repeatable
+  --without-component <id>  exclude a component, repeatable
+  --force                   기존 출력 무시하고 재생성
+  --dry-run                 plan 만 다시 출력하고 종료
 `);
 }
 

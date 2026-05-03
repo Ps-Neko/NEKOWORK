@@ -51,6 +51,12 @@ npm install
 ./install.sh --apply --profile developer       # 5 빌더 + state 기록
 ```
 
+선택 가능한 profile/module/component/target 확인:
+```bash
+node scripts/install-plan.js --list
+node scripts/install-plan.js --list --json
+```
+
 JSON 출력 (CI / 외부 도구):
 ```bash
 node scripts/install-plan.js --profile developer --json > plan.json
@@ -60,6 +66,8 @@ node scripts/install-plan.js --profile developer --json > plan.json
 ```bash
 ./install.sh --apply --harness claude
 ```
+
+`--target`, `--module`, `--component`, `--without-*` 에 없는 이름을 넣으면 plan 단계에서 즉시 실패합니다.
 
 ## 2. 프로파일
 

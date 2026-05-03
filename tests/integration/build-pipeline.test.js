@@ -72,7 +72,42 @@ test('install plan: selective module/component/target filters', () => {
   assert.ok(plan.modules.includes('codex-loop'));
   assert.ok(plan.selected_components.includes('agent:research'));
   assert.ok(plan.components.every(c => c.harness === 'claude' || c.harness === '(builder)'));
+  assert.ok(!plan.components.some(c => c.component === 'platform:codex'));
   assert.ok(!plan.components.some(c => c.component === 'hook:persistent-mode'));
+});
+
+test('install plan: --list exposes selectable catalog', () => {
+  const r = run('scripts/install-plan.js', ['--list', '--json']);
+  assert.equal(r.status, 0, `list failed: ${r.stderr}`);
+  const catalog = JSON.parse(r.stdout);
+  assert.equal(catalog.default_profile, 'developer');
+  assert.ok(catalog.targets.some(t => t.name === 'claude'));
+  assert.ok(catalog.profiles.some(p => p.name === 'security'));
+  assert.ok(catalog.modules.some(m => m.name === 'codex-loop'));
+  assert.ok(catalog.components.some(c => c.name === 'skill:claude-led-codex-review'));
+});
+
+test('install plan: unknown target/module/component filters fail fast', () => {
+  const cases = [
+    [['--target', 'nope'], /unknown target: nope/],
+    [['--module', 'nope'], /unknown module: nope/],
+    [['--without-module', 'nope'], /unknown module: nope/],
+    [['--component', 'nope:thing'], /unknown component: nope:thing/],
+    [['--without-component', 'nope:thing'], /unknown component: nope:thing/],
+  ];
+
+  for (const [args, pattern] of cases) {
+    const r = run('scripts/install-plan.js', ['--profile', 'core', ...args]);
+    assert.equal(r.status, 1, `expected failure for ${args.join(' ')}`);
+    assert.match(r.stderr, pattern);
+  }
+});
+
+test('install apply: dry-run refuses unknown target through plan gate', () => {
+  const r = run('scripts/install-apply.js', ['--target', 'nope', '--dry-run']);
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /unknown target: nope/);
+  assert.match(r.stderr, /plan 실패/);
 });
 
 test('install apply: 5개 빌더 모두 실행 + state 기록', () => {
