@@ -66,15 +66,17 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 | `scripts/repair.js` | ✓ | install-state sha256 비교 + 변경분 재빌드 |
 | `scripts/build-codemaps.js` | ✓ | (보너스) 디렉터리 트리 + export 추출 |
 
-### 3.3 검증 안 된 컴포넌트
+### 3.3 외부 의존 검증 컴포넌트
 | 항목 | 이유 | 변경 |
 |---|---|---|
-| Claude CLI live 호출 | 로컬 Claude Code 로그인 세션 필요 | 기본 runner 전환됨, smoke 미실행 |
-| Codex CLI live 호출 | codex 바이너리 미설치 | 동일 |
-| Gemini CLI live 호출 | gemini 바이너리 미설치 | 동일 |
-| Rust runtime 컴파일 | OK | 2026-05-02 rustup + VS Build Tools, `cargo build --release`, help/init/status/ipc ping PASS |
-| GitHub Actions 실 동작 | 레포 미 push | 동일 |
-| 사내 PoC 실 이식 | 외부 디렉터리 변경 보류 | 동일 |
+| Claude CLI live 호출 | OK | 2026-05-03 Claude Code CLI 2.1.126, `npm run verify:claude` PASS |
+| Codex CLI live 호출 | OK | 2026-05-03 codex-cli 0.128.0, `npm run verify:codex` PASS |
+| Gemini CLI live 호출 | OK | 2026-05-03 Gemini CLI 0.40.1, `npm run verify:gemini` PASS |
+| Rust runtime 컴파일 | OK | 2026-05-03 `npm run verify:runtime` PASS: cargo auto-discovery, build/test/clippy/help/init/status/ipc |
+| GitHub OAuth 상태 | OK | 2026-05-03 keychain token valid for Ps-Neko. scope: `gist read:org repo`; workflow 파일 변경 시 `workflow` scope refresh 필요 |
+| GitHub Actions 실 동작 | OK | PR #18~#23 기준 validate/review checks PASS |
+| npm publish 결정 | OK | 명시 공개 릴리스 요청 전까지 `private: true` 유지 |
+| 사내 PoC 실 이식 | 외부 디렉터리 변경 보류 | 사용자 대상 프로젝트 지정 필요 |
 | ~~install-apply 의 sha256 placeholder~~ | ~~Day 4 stub~~ | **2026-04-29 회수**: source_sha256 + targets[].sha256 모두 실값 |
 
 ### 3.4 stub 메시지 흔적 — **2026-04-29 회수**
@@ -107,9 +109,9 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 > 2026-04-29 P1 회수 세션 후 갱신. P1 / P2(부분) 완료, 잔존은 외부 의존이 큰 항목들.
 
 ### P0 — 사용자 환경 동의 후 즉시 가치
-1. **Claude CLI live smoke** — `npm run verify:claude` 후 `harness review --live --no-ship "간단 변경"` 한 번. 로컬 Claude Code 구독/OAuth 세션으로 실 응답 파싱 검증. (로컬 smoke 경로 검증 완료, 풀사이클 회귀 시 재실행)
+1. ~~**Claude/Codex/Gemini CLI live smoke** — delegated local CLI auth 로 provider smoke 완료.~~ 2026-05-03 완료.
 2. **사내 PoC 비파괴 결합** — 사용자가 지정하는 사내 프로젝트에 `.harness-tool/` 결합. 첫 review 동작 확인. (메모리 등록된 두 디렉터리는 제외).
-3. **GitHub 레포 push 후 Actions 실 동작 검증** — README / agent.yaml / package.json 의 owner 는 `Ps-Neko/NEKOWORK` 로 이미 채워짐 (2026-04 origin 통합 시점). PR 코멘트 자동 등록은 push 후 첫 PR 에서 검증.
+3. **GitHub workflow scope refresh** — workflow 파일을 로컬에서 수정해야 할 때만 `gh auth refresh -s workflow` 또는 HARNESS OAuth App workflow scope 재승인.
 
 ### P1 — 자체 완결 — **2026-04-29 모두 완료**
 - ~~sync-claude-md~~ ✓
@@ -125,9 +127,9 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 
 ### P2 — 검증 / 확장 (외부 의존)
 1. ~~**Rust runtime 컴파일 검증** — rustup 설치 + `cargo build --release` + smoke (init / status / ipc ping).~~ 완료.
-2. **Codex CLI / Gemini CLI live 검증** — 바이너리 설치 후 풀사이클 1회. (단독 smoke 검증 완료, 풀사이클 회귀 시 재실행)
-3. **GitHub Actions 실 동작** — push 후 PR 코멘트 자동 검증. (PR 기반 validate/review 검증 완료)
-4. **npm publish 결정** — `private: true` 유지 vs 공개.
+2. ~~**Codex CLI / Gemini CLI live 검증** — 바이너리 설치 후 단독 smoke 1회.~~ 2026-05-03 완료.
+3. ~~**GitHub Actions 실 동작** — push 후 PR validate/review 검증.~~ PR #18~#23에서 완료.
+4. ~~**npm publish 결정** — `private: true` 유지 vs 공개.~~ 명시 공개 릴리스 요청 전까지 `private: true` 유지.
 
 ### P3 — 사내 임팩트 (사용자 요청 시)
 1. 사용자 명시 사내 프로젝트에 풀 결합 + 첫 실 task 1개로 사이클.

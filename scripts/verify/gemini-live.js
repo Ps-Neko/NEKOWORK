@@ -7,21 +7,21 @@ const started = Date.now();
 let result;
 try {
   result = await runGemini({
-  agent: 'gemini-live-smoke',
-  stage: 'ideate',
-  task: [
-    'Return a minimal HARNESS handoff JSON for a local Gemini CLI smoke test.',
-    'Do not browse, do not call tools, and do not modify files.',
-  ].join(' '),
-  model: process.env.HARNESS_GEMINI_SMOKE_MODEL || 'gemini-2.5-flash',
-  sandbox: 'read-only',
-  disallowedTools: ['Write', 'Edit', 'Bash'],
-  promptBody: [
-    'Return only one JSON object.',
-    'Required shape:',
-    '{"decided":"Gemini CLI smoke passed","rejected":"","risks":"","files":["GEMINI_SMOKE.md"],"remaining":"","issues":[],"verdict":"approve","confidence":0.9}',
-  ].join('\n'),
-  context: {},
+    agent: 'gemini-live-smoke',
+    stage: 'ideate',
+    task: [
+      'Return a minimal HARNESS handoff JSON for a local Gemini CLI smoke test.',
+      'Do not browse, do not call tools, and do not modify files.',
+    ].join(' '),
+    model: process.env.HARNESS_GEMINI_SMOKE_MODEL || 'gemini-2.5-flash',
+    sandbox: 'read-only',
+    disallowedTools: ['Write', 'Edit', 'Bash'],
+    promptBody: [
+      'Return only one JSON object.',
+      'Required shape:',
+      '{"decided":"Gemini CLI smoke passed","rejected":"","risks":"","files":["GEMINI_SMOKE.md"],"remaining":"","issues":[],"verdict":"approve","confidence":0.9}',
+    ].join('\n'),
+    context: {},
   });
 } catch (e) {
   const msg = String(e?.message || e);
@@ -36,7 +36,7 @@ try {
   throw e;
 }
 
-const ok = ['approve', '승인'].includes(result?.verdict)
+const ok = result?.verdict === 'approve'
   && Array.isArray(result.files)
   && result.files.includes('GEMINI_SMOKE.md');
 
