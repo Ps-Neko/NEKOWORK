@@ -1,4 +1,4 @@
-// tracing 초기화 + status 출력.
+// Tracing setup and status output.
 
 use anyhow::Result;
 use std::path::Path;
@@ -15,7 +15,9 @@ pub fn init() {
 
 pub async fn print_status(root: &Path) -> Result<()> {
     let pidfile = root.join(".harness").join("runtime.pid");
-    let pid = std::fs::read_to_string(&pidfile).ok().and_then(|s| s.trim().parse::<u32>().ok());
+    let pid = std::fs::read_to_string(&pidfile)
+        .ok()
+        .and_then(|s| s.trim().parse::<u32>().ok());
     println!("supervisor pid: {:?}", pid);
 
     let conn = crate::session::open(root)?;
@@ -24,6 +26,7 @@ pub async fn print_status(root: &Path) -> Result<()> {
     for id in &active {
         println!("  - {}", id);
     }
+
     let sessions_dir = root.join(".harness").join("state").join("sessions");
     let mut pending = 0usize;
     if sessions_dir.exists() {

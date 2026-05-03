@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Changed (Rust runtime verification, 2026-05-03)
+- `scripts/verify/runtime.js`, `package.json` — add `npm run verify:runtime` for cargo auto-discovery, release build, tests, clippy, and runtime smoke checks.
+- `runtime/src/*.rs`, `runtime/Cargo.toml` — normalize runtime comments, CLI help text, and log strings to stable ASCII so Windows terminals and codemaps stay readable.
+- `runtime/README.md`, `docs/SETUP.md` — document the one-command runtime verification path.
+
 ### Changed (repair/install-state hardening, 2026-05-03)
 - `scripts/core/install-state.js` — centralize catalog/output sha256 calculation plus install-state schema validation and writes.
 - `scripts/install-apply.js`, `scripts/repair.js` — share install-state code; `repair` now restores real `source_sha256` / target sha values instead of placeholder hashes and validates state before writing.
