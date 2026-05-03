@@ -1,6 +1,6 @@
 # Quickstart
 
-This guide gets a new user from a clean checkout to the first HARNESS run.
+This guide gets a new user from a clean checkout to the first NEKOWORK run.
 
 ## 1. Install From Source
 
@@ -15,11 +15,10 @@ npm ci
 Verify the checkout:
 
 ```bash
-npm run lint
-npm test
+node scripts/cli.js doctor --quick
 ```
 
-Both commands should pass before using the tool as a base for another project.
+`doctor --quick` checks Node.js, package metadata, git state, API key overrides, and provider CLI presence without running the slower freshness checks.
 
 ## 2. Run A Mock Review
 
@@ -34,6 +33,17 @@ Expected result:
 - session state under `.harness/state/sessions/first-smoke/`
 - handoff markdown files under `handoffs/`
 - no PR or publish action because `--no-ship` is set
+
+Example output:
+
+```text
+[review:first-smoke] 1 ideate
+[review:first-smoke] 2 plan
+[review:first-smoke] 3 implement
+[review:first-smoke] 4 self-review
+[review:first-smoke] 5 codex-review
+[review:first-smoke] 7 ship skipped (--no-ship)
+```
 
 For a planning-only first pass:
 
@@ -81,6 +91,7 @@ node .harness-tool/scripts/install-apply.js --profile developer --project-root .
 Smoke test in the target project:
 
 ```bash
+node .harness-tool/scripts/cli.js doctor --project-root . --quick
 node .harness-tool/scripts/cli.js plan "target project smoke" --project-root . --session target-smoke
 ```
 
@@ -173,6 +184,12 @@ Do not use these npm commands until a public package has actually been published
 
 - Confirm the provider CLI is installed and logged in.
 - Unset API key environment variables unless you intentionally opted into a metered path.
+
+`doctor` exits with `FAIL`:
+
+- Read the failed row first.
+- Run without `--quick` if you need repair/sync/codemap freshness checks.
+- Use `--json` for CI or issue reports.
 
 `repair --check` reports stale output:
 

@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Changed (external trust polish, 2026-05-03)
+- Add `harness doctor` / `scripts/doctor.js` for local environment, provider CLI, API key override, and generated-output freshness checks.
+- Add `docs/ADVANCED.md`, `docs/SECURITY.md`, and `docs/DEMO.md`.
+- Refocus README on NEKOWORK as the public product name and move advanced runtime features out of the first-run path.
+- Rewrite `docs/SETUP.md` and `docs/RUNBOOK.md` as clean public-facing English guides.
+
 ### Changed (public user documentation polish, 2026-05-03)
 - Rewrite `README.md` as a public-facing first-run guide with status, quickstart, live auth, catalog, release gates, and documentation links.
 - Add `docs/QUICKSTART.md` for source install, mock review, external project integration, live provider setup, future npm paths, and troubleshooting.
