@@ -34,7 +34,7 @@ Install / verify
   install --apply [--profile <name>] [--project-root <dir>]
                                          apply generated harness outputs and state
   validate                               validate catalog and core profile
-  doctor [--project-root <dir>] [--quick] [--json]
+  doctor [--project-root <dir>] [--quick] [--gemini-smoke] [--json]
                                          local environment health check
   version
 

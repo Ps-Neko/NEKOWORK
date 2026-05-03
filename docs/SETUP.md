@@ -2,7 +2,7 @@
 
 Start with [QUICKSTART.md](QUICKSTART.md) if this is your first run. This page is the deeper contributor setup guide.
 
-NEKOWORK 0.0.2 is not published to npm. Use a source checkout, submodule, or local repository integration until a public publish is explicitly approved.
+NEKOWORK 0.0.3 is not published to npm. Use a source checkout, submodule, or local repository integration until a public publish is explicitly approved.
 
 ## Requirements
 
@@ -73,9 +73,10 @@ npm run verify:codex
 ```bash
 gemini
 npm run verify:gemini
+node scripts/cli.js doctor --quick --gemini-smoke
 ```
 
-Gemini CLI does not expose the same non-interactive auth-status contract as Claude/Codex, so `doctor` checks installation and leaves auth verification to the smoke command.
+Gemini CLI does not expose the same non-interactive auth-status contract as Claude/Codex. Plain `doctor` checks installation and warns that auth was not checked; `doctor --gemini-smoke` runs the explicit live smoke and will fail if headless Gemini auth is not ready.
 
 ## API Key Overrides
 
@@ -113,7 +114,7 @@ Workflow file pushes may require a token with `workflow` scope. The local harnes
 
 ## Rust Runtime
 
-The Rust runtime is optional for 0.0.2:
+The Rust runtime is optional for 0.0.3:
 
 ```bash
 npm run verify:runtime

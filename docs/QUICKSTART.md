@@ -4,7 +4,7 @@ This guide gets a new user from a clean checkout to the first NEKOWORK run.
 
 ## 1. Install From Source
 
-HARNESS 0.0.2 is not published to npm yet. Use the repository path:
+HARNESS 0.0.3 is not published to npm yet. Use the repository path:
 
 ```bash
 git clone https://github.com/Ps-Neko/NEKOWORK.git harness
@@ -69,7 +69,7 @@ Profiles:
 
 ## 4. Use HARNESS In A Target Project
 
-Recommended 0.0.2 integration:
+Recommended 0.0.3 integration:
 
 ```bash
 cd <target-project>
@@ -129,7 +129,10 @@ Gemini:
 ```bash
 gemini
 npm run verify:gemini
+node scripts/cli.js doctor --quick --gemini-smoke
 ```
+
+Plain `doctor` reports Gemini installation only. Add `--gemini-smoke` when you want the live Gemini auth check included in the health report.
 
 Then run:
 
@@ -157,7 +160,7 @@ Remove-Item Env:GOOGLE_API_KEY -ErrorAction SilentlyContinue
 
 ## 6. Future npm Install Path
 
-The package metadata is already prepared as `@ps-neko/nekowork`, but `private: true` prevents publishing for 0.0.2.
+The package metadata is already prepared as `@ps-neko/nekowork`, but `private: true` prevents publishing for 0.0.3.
 
 After an explicit public publish decision, the intended install paths are:
 

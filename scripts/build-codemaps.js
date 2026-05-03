@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// docs/CODEMAPS/<area>.md 자동 생성.
-// 디렉터리 트리(파일 목록) + 각 .js / .mjs 의 핵심 export(엔트리 함수) 를 추출.
-// 코드 본문은 포함하지 않는다 (네비게이션 보조).
+// Generate docs/CODEMAPS/<area>.md from repository directories.
+// The maps include a shallow directory tree plus exported JS symbols.
+// They intentionally omit code bodies and are safe to regenerate.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -11,40 +11,55 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const OUT = path.join(ROOT, 'docs', 'CODEMAPS');
 
-// 매핑할 영역. (area, 디렉터리) 페어. 새 영역 추가 시 여기에만 등록.
 const AREAS = [
-  { area: 'scripts',       dir: 'scripts',       depth: 3 },
-  { area: 'agents',        dir: 'agents',        depth: 1 },
-  { area: 'skills',        dir: 'skills',        depth: 2 },
-  { area: 'hooks',         dir: 'hooks',         depth: 2 },
-  { area: 'manifests',     dir: 'manifests',     depth: 1 },
-  { area: 'schemas',       dir: 'schemas',       depth: 1 },
-  { area: 'bridge',        dir: 'bridge',        depth: 1 },
-  { area: 'rules',         dir: 'rules',         depth: 2 },
-  { area: 'tests',         dir: 'tests',         depth: 2 },
+  { area: 'scripts', dir: 'scripts', depth: 3 },
+  { area: 'agents', dir: 'agents', depth: 1 },
+  { area: 'skills', dir: 'skills', depth: 2 },
+  { area: 'hooks', dir: 'hooks', depth: 2 },
+  { area: 'manifests', dir: 'manifests', depth: 1 },
+  { area: 'schemas', dir: 'schemas', depth: 1 },
+  { area: 'bridge', dir: 'bridge', depth: 1 },
+  { area: 'rules', dir: 'rules', depth: 2 },
+  { area: 'tests', dir: 'tests', depth: 2 },
 ];
 
-const SKIP = new Set(['node_modules', '.git', '.harness', '.claude', '.codex', '.cursor', '.gemini', '.opencode']);
+const SKIP = new Set([
+  'node_modules',
+  '.git',
+  '.harness',
+  '.claude',
+  '.codex',
+  '.cursor',
+  '.gemini',
+  '.opencode',
+]);
 
 function parseArgs(argv) {
   const args = { check: false, verbose: false };
   for (let i = 2; i < argv.length; i++) {
-    const a = argv[i];
-    if (a === '--check') args.check = true;
-    else if (a === '--verbose' || a === '-v') args.verbose = true;
-    else if (a === '--help' || a === '-h') {
-      console.log(`사용법: node scripts/build-codemaps.js [--check] [--verbose]`);
+    const arg = argv[i];
+    if (arg === '--check') args.check = true;
+    else if (arg === '--verbose' || arg === '-v') args.verbose = true;
+    else if (arg === '--help' || arg === '-h') {
+      console.log('Usage: node scripts/build-codemaps.js [--check] [--verbose]');
       process.exit(0);
-    } else { console.error(`알 수 없는 인자: ${a}`); process.exit(2); }
+    } else {
+      console.error(`unknown argument: ${arg}`);
+      process.exit(2);
+    }
   }
   return args;
 }
 
-// 디렉터리 트리 라인 생성 (한정된 depth)
-function tree(dir, maxDepth, prefix = '', depth = 0) {
+function toSlash(value) {
+  return value.split(path.sep).join('/');
+}
+
+function directoryTree(dir, maxDepth, prefix = '', depth = 0) {
   if (depth > maxDepth) return [];
+
   const entries = fs.readdirSync(dir, { withFileTypes: true })
-    .filter(e => !SKIP.has(e.name) && !e.name.startsWith('.'))
+    .filter(entry => !SKIP.has(entry.name) && !entry.name.startsWith('.'))
     .sort((a, b) => {
       if (a.isDirectory() !== b.isDirectory()) return a.isDirectory() ? -1 : 1;
       return a.name.localeCompare(b.name);
@@ -52,21 +67,19 @@ function tree(dir, maxDepth, prefix = '', depth = 0) {
 
   const lines = [];
   for (let i = 0; i < entries.length; i++) {
-    const e = entries[i];
+    const entry = entries[i];
     const last = i === entries.length - 1;
-    const branch = last ? '└── ' : '├── ';
-    const cont = last ? '    ' : '│   ';
-    if (e.isDirectory()) {
-      lines.push(prefix + branch + e.name + '/');
-      lines.push(...tree(path.join(dir, e.name), maxDepth, prefix + cont, depth + 1));
-    } else {
-      lines.push(prefix + branch + e.name);
+    const branch = last ? '`-- ' : '|-- ';
+    const childPrefix = last ? '    ' : '|   ';
+    const label = entry.isDirectory() ? `${entry.name}/` : entry.name;
+    lines.push(prefix + branch + label);
+    if (entry.isDirectory()) {
+      lines.push(...directoryTree(path.join(dir, entry.name), maxDepth, prefix + childPrefix, depth + 1));
     }
   }
   return lines;
 }
 
-// .js/.mjs 의 export 추출. AST 안 쓰고 정규식으로 (가벼움).
 function extractExports(code) {
   const exports = new Set();
   const patterns = [
@@ -77,10 +90,11 @@ function extractExports(code) {
     /^export\s+\{([^}]+)\}/gm,
     /^export\s+default\s+(?:async\s+)?function\s+([a-zA-Z_$][\w$]*)/gm,
   ];
-  for (const re of patterns) {
-    let m;
-    while ((m = re.exec(code)) !== null) {
-      const raw = m[1];
+
+  for (const pattern of patterns) {
+    let match;
+    while ((match = pattern.exec(code)) !== null) {
+      const raw = match[1];
       if (raw.includes(',') || raw.includes(' as ')) {
         for (const part of raw.split(',')) {
           const name = part.trim().split(/\s+as\s+/)[0].trim();
@@ -91,89 +105,138 @@ function extractExports(code) {
       }
     }
   }
+
   if (/^export\s+default\b/m.test(code) && !exports.has('default')) {
     exports.add('default');
   }
+
   return [...exports].sort();
 }
 
-// 파일 첫 주석 추출 (한 줄 또는 // 연속 블록).
 function leadingComment(code) {
   const lines = code.split('\n');
-  let collected = [];
+  const collected = [];
   let started = false;
+
   for (const line of lines) {
-    const t = line.trim();
-    if (!started && (t === '' || t.startsWith('#!'))) continue;
-    if (t.startsWith('//')) {
-      collected.push(t.replace(/^\/\/\s?/, ''));
+    const trimmed = line.trim();
+    if (!started && (trimmed === '' || trimmed.startsWith('#!'))) continue;
+    if (trimmed.startsWith('//')) {
+      collected.push(trimmed.replace(/^\/\/\s?/, ''));
       started = true;
-    } else if (started) break;
-    else if (t.startsWith('/*')) {
-      // /* ... */ 파싱은 스킵
+    } else if (started) {
       break;
     } else {
       break;
     }
   }
-  return collected.join(' ').slice(0, 200);
+
+  return collected.join(' ');
+}
+
+function cleanCell(value) {
+  return String(value || '')
+    .normalize('NFKD')
+    .replace(/[^\x20-\x7E]/g, ' ')
+    .replace(/[|]/g, '\\|')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 140);
+}
+
+function collectJsFiles(absDir) {
+  const files = [];
+
+  function walk(dir, rel = '') {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (SKIP.has(entry.name) || entry.name.startsWith('.')) continue;
+
+      const abs = path.join(dir, entry.name);
+      const nextRel = rel ? `${rel}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) {
+        walk(abs, nextRel);
+      } else if (/\.(m?js|cjs)$/.test(entry.name)) {
+        const code = fs.readFileSync(abs, 'utf8');
+        files.push({
+          rel: nextRel,
+          exports: extractExports(code),
+          comment: cleanCell(leadingComment(code)),
+        });
+      }
+    }
+  }
+
+  walk(absDir);
+  return files.sort((a, b) => a.rel.localeCompare(b.rel));
 }
 
 function buildArea({ area, dir, depth }) {
   const absDir = path.join(ROOT, dir);
   if (!fs.existsSync(absDir)) return null;
 
-  const treeLines = tree(absDir, depth);
+  const treeLines = directoryTree(absDir, depth);
+  const jsFiles = collectJsFiles(absDir);
 
-  // 모든 .js/.mjs 파일 수집 (재귀, depth 무관)
-  const jsFiles = [];
-  function walk(d, rel = '') {
-    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
-      if (SKIP.has(e.name) || e.name.startsWith('.')) continue;
-      const p = path.join(d, e.name);
-      const r = rel ? `${rel}/${e.name}` : e.name;
-      if (e.isDirectory()) walk(p, r);
-      else if (/\.(m?js|cjs)$/.test(e.name)) {
-        const code = fs.readFileSync(p, 'utf8');
-        jsFiles.push({
-          rel: r,
-          comment: leadingComment(code),
-          exports: extractExports(code),
-        });
-      }
-    }
-  }
-  walk(absDir);
-
-  const lines = [];
-  lines.push(`# CODEMAP — ${area}`);
-  lines.push('');
-  lines.push(`> 자동 생성. \`scripts/build-codemaps.js\` 가 \`${dir}/\` 를 스캔. 직접 편집 금지.`);
-  lines.push(`> 코드 본문은 포함 안 함. 네비게이션 보조용.`);
-  lines.push('');
-
-  lines.push('## 디렉터리 트리');
-  lines.push('');
-  lines.push('```');
-  lines.push(`${dir}/`);
-  for (const l of treeLines) lines.push(l);
-  lines.push('```');
-  lines.push('');
+  const lines = [
+    `# CODEMAP: ${area}`,
+    '',
+    `> Generated by \`scripts/build-codemaps.js\` from \`${dir}/\`. Do not edit directly.`,
+    '> Directory shape and exported JS symbols only. Code bodies are intentionally omitted.',
+    '',
+    '## Directory Tree',
+    '',
+    '```text',
+    `${dir}/`,
+    ...treeLines,
+    '```',
+    '',
+  ];
 
   if (jsFiles.length) {
-    lines.push('## 핵심 export');
+    lines.push('## JS Exports');
     lines.push('');
-    lines.push('| 파일 | export | 설명 |');
+    lines.push('| File | Exports | Description |');
     lines.push('|---|---|---|');
-    for (const f of jsFiles.sort((a, b) => a.rel.localeCompare(b.rel))) {
-      const exps = f.exports.length ? f.exports.map(e => '`' + e + '`').join(', ') : '_(none)_';
-      const desc = (f.comment || '').replace(/\|/g, '\\|').slice(0, 120);
-      lines.push(`| \`${f.rel}\` | ${exps} | ${desc} |`);
+    for (const file of jsFiles) {
+      const exports = file.exports.length
+        ? file.exports.map(name => `\`${name}\``).join(', ')
+        : '_(none)_';
+      lines.push(`| \`${file.rel}\` | ${exports} | ${file.comment} |`);
     }
     lines.push('');
   }
 
-  return { area, content: lines.join('\n') + '\n', fileCount: jsFiles.length };
+  return {
+    area,
+    content: lines.join('\n') + '\n',
+    fileCount: jsFiles.length,
+  };
+}
+
+function buildIndex() {
+  const lines = [
+    '# CODEMAPS: index',
+    '',
+    '> Generated by `scripts/build-codemaps.js`. Do not edit directly.',
+    '',
+    '| Area | File |',
+    '|---|---|',
+  ];
+
+  for (const area of AREAS) {
+    if (fs.existsSync(path.join(OUT, `${area.area}.md`))) {
+      lines.push(`| ${area.area} | [${area.area}.md](./${area.area}.md) |`);
+    }
+  }
+
+  return lines.join('\n') + '\n';
+}
+
+function writeOrCheck(file, content, args) {
+  const before = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+  if (before === content) return false;
+  if (!args.check) fs.writeFileSync(file, content);
+  return true;
 }
 
 function main() {
@@ -182,55 +245,42 @@ function main() {
 
   let changed = 0;
   let total = 0;
-  for (const def of AREAS) {
-    const built = buildArea(def);
+
+  for (const area of AREAS) {
+    const built = buildArea(area);
     if (!built) {
-      if (args.verbose) console.log(`[SKIP] ${def.area} — ${def.dir}/ 없음`);
+      if (args.verbose) console.log(`[SKIP] ${area.area}: ${area.dir}/ not found`);
       continue;
     }
+
     total++;
-    const out = path.join(OUT, `${built.area}.md`);
-    const before = fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : '';
-    if (before !== built.content) {
+    const outFile = path.join(OUT, `${built.area}.md`);
+    if (writeOrCheck(outFile, built.content, args)) {
       changed++;
-      if (!args.check) fs.writeFileSync(out, built.content);
-      console.log(`[${args.check ? 'DIFF' : 'WRITE'}] ${path.relative(ROOT, out)} (${built.fileCount} files)`);
+      console.log(`[${args.check ? 'DIFF' : 'WRITE'}] ${toSlash(path.relative(ROOT, outFile))} (${built.fileCount} files)`);
     } else if (args.verbose) {
-      console.log(`[ OK ] ${path.relative(ROOT, out)}`);
+      console.log(`[ OK ] ${toSlash(path.relative(ROOT, outFile))}`);
     }
   }
 
-  // 인덱스
-  const indexLines = [
-    '# CODEMAPS — 인덱스',
-    '',
-    '> 자동 생성. `scripts/build-codemaps.js` 가 갱신.',
-    '',
-    '| 영역 | 파일 |',
-    '|---|---|',
-  ];
-  for (const def of AREAS) {
-    if (!fs.existsSync(path.join(OUT, `${def.area}.md`))) continue;
-    indexLines.push(`| ${def.area} | [${def.area}.md](./${def.area}.md) |`);
-  }
-  const indexContent = indexLines.join('\n') + '\n';
   const indexFile = path.join(OUT, 'README.md');
-  const indexBefore = fs.existsSync(indexFile) ? fs.readFileSync(indexFile, 'utf8') : '';
-  if (indexBefore !== indexContent) {
-    if (!args.check) fs.writeFileSync(indexFile, indexContent);
-    if (indexBefore !== '') changed++;
+  if (writeOrCheck(indexFile, buildIndex(), args)) {
+    changed++;
+    console.log(`[${args.check ? 'DIFF' : 'WRITE'}] ${toSlash(path.relative(ROOT, indexFile))}`);
+  } else if (args.verbose) {
+    console.log(`[ OK ] ${toSlash(path.relative(ROOT, indexFile))}`);
   }
 
   if (args.check) {
     if (changed > 0) {
-      console.error(`${changed} 개 codemap 이 outdated. \`node scripts/build-codemaps.js\` 실행 필요.`);
+      console.error(`${changed} codemap file(s) are outdated. Run: node scripts/build-codemaps.js`);
       process.exit(1);
     }
-    console.log('모든 codemap 최신 상태.');
+    console.log('All codemaps are up to date.');
     return;
   }
 
-  console.log(`\n${total} 영역 처리, ${changed} 변경.`);
+  console.log(`\nprocessed=${total}, changed=${changed}`);
 }
 
 main();
