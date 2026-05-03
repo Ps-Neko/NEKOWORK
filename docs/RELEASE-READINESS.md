@@ -26,6 +26,7 @@ node scripts/repair.js --check
 node scripts/sync-claude-md.js --check
 node scripts/build-codemaps.js --check
 npm run security:hardening
+npm pack --dry-run --json
 ```
 
 ## Install Smoke
@@ -77,3 +78,16 @@ Expected target outputs:
 - Internal LLM provider wiring
 - Internal project rollout
 - Automatic promotion of learned instincts without human approval
+
+## Public npm Checklist
+
+Only run this checklist after the project owner explicitly approves public publishing:
+
+1. Confirm the npm package name is still `@ps-neko/nekowork`.
+2. Confirm the `harness` binary is still intentional.
+3. Run the required gates above.
+4. Inspect `npm pack --dry-run --json` and confirm only intended files are included.
+5. Confirm npm account access and 2FA readiness with `npm whoami`.
+6. Remove or set `private: false` in `package.json`.
+7. Publish with `npm publish --access public`.
+8. Restore documentation from "future npm path" to "published npm path" where appropriate.

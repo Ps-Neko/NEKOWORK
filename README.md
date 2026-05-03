@@ -1,58 +1,148 @@
-# HARNESS
+# HARNESS / NEKOWORK
 
-> Hybrid Agent Runtime with Native Evaluation, Skills, and Security
+Hybrid Agent Runtime with Native Evaluation, Skills, and Security.
 
 [![harness-validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
-Claude Code · Codex CLI · Cursor · Gemini CLI · OpenCode 를 단일 매니페스트로 통합하는 차세대 AI 개발 에이전트 하네스. ECC(everything-claude-code) 의 매니페스트·인스톨러 골격 위에 OMC(oh-my-claudecode) 의 멀티 에이전트·영속 실행 런타임을 얹고, claude-led-codex-review 7단계 풀사이클을 디폴트 검증 루프로 박았다.
+HARNESS is a local-first multi-harness AI development runtime. One source catalog, `agent.yaml`, is projected into Claude Code, Codex CLI, Cursor, Gemini CLI, and OpenCode surfaces.
 
-## 5대 원칙
+Claude writes or plans, Codex challenges the result in a separate context, and human gates stop critical or repeated-risk changes.
 
-1. **Single Source of Truth** — `agent.yaml` + `agents/`, `skills/`, `hooks/`, `commands/` 가 진실 원본. 하네스별 디렉터리(`.claude/`, `.codex/`, ...)는 빌드 산출물.
-2. **Claude 주 실행자, Codex 독립 검증자** — 컨텍스트 미공유. 핸드오프 마크다운으로만 통신.
-3. **Progressive Disclosure** — 스킬은 카탈로그 description 만 노출, 본문은 호출 시점 lazy-load.
-4. **Fact-Forcing Security** — 자기평가는 무력. Edit 직전 importer·API·schema 사실 조사 강제.
-5. **Test → Review → Re-Review → Human Gate** — 모든 자동 수정은 4단 게이트.
+## Status
 
-## 빠른 시작
+- Current version: `0.0.2` alpha
+- Current package name: `@ps-neko/nekowork`
+- npm publishing: disabled for now by `private: true`
+- Supported install path today: clone, submodule, or local repository integration
+- Future npm path is prepared, but `npm publish` still requires an explicit release decision
+
+## Quick Start
+
+Requirements:
+
+- Node.js 22+
+- npm
+- git
+
+Run HARNESS from source:
 
 ```bash
-node scripts/install-plan.js --profile core      # 설치 dry-run
-npm test                                          # 전체 테스트 (unit + integration + e2e)
-node scripts/cli.js review "<task>" --no-ship    # 7단계 풀사이클 dry-run (mock provider)
+git clone https://github.com/Ps-Neko/NEKOWORK.git harness
+cd harness
+npm ci
+npm run lint
+npm test
+node scripts/cli.js review "check the project setup" --no-ship
 ```
 
-## 상태 (2026-05-03 기준, v0.0.2)
+The default review path uses mock providers, so it does not need API keys or provider CLIs.
 
-- **0.0.1** (Week 1~4): 골격·거버넌스·매니페스트·11 agents·5 skills·5 hooks·MCP 7 도구·orchestrator·4 provider runner·인스팅트·Rust runtime 골격·GitHub Actions 2개. ~12,000 LOC.
-- **0.0.2** (P1 회수): 빈 디렉터리 0, 미구현 스크립트 0 (validate-* 4개 / build-{cursor,gemini,opencode} / sync-claude-md / repair / build-codemaps), 통합/E2E 테스트와 코드맵 생성기 추가.
-- **local-first auth 포팅**: Claude 기본 live runner 를 Claude Code CLI 세션으로 전환. Claude/Codex/Gemini CLI 호출 직전 long-lived API key 환경변수는 기본 차단, 명시 opt-in 시에만 SDK/API-key 경로 사용. Provider 공통 core 유틸(`cli-resolver`, `subprocess`, `json-extractor`) 분리. Claude/Codex/Gemini handoff-mode 실행 전후 git mutation guard 추가.
-- **현재 품질 게이트**: `npm test`, `npm run lint`, `npm audit --audit-level=moderate`, `build:codemaps -- --check`, `npm run verify:{claude,codex,gemini,runtime}` 기준으로 관리.
+For the fuller first-run guide, see [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
-## 빠진 / 부채
+## Use It In Another Project
 
-`docs/AUDIT.md` 참조. 0.0.2 P1 회수 결과:
+Recommended 0.0.2 shape:
 
-- 빈 디렉터리 **0**, 미구현 스크립트 **0**, stub 메시지 **0**.
-- 자체 완결 영역 100% 정합.
-- 외부 의존 잔존: 사내 PoC 결합. npm publish 는 0.0.2 에서 하지 않고 `private: true` 유지로 결정. 공개 배포용 package name 은 `@ps-neko/nekowork` 로 정리되었지만 실제 publish 는 별도 승인 후 진행한다. Claude/Codex/Gemini provider live smoke 는 로컬 로그인 세션 기준 검증 완료.
+```bash
+cd <target-project>
+git submodule add https://github.com/Ps-Neko/NEKOWORK.git .harness-tool
+node .harness-tool/scripts/portability/simulate-port.js . --profile developer --verbose
+node .harness-tool/scripts/install-apply.js --profile developer --project-root .
+node .harness-tool/scripts/cli.js plan "first HARNESS smoke" --project-root .
+```
 
-## 문서
+The HARNESS tool root stays in `.harness-tool/`. Session state, generated harness files, and git work happen in the target project root.
 
-- [docs/SETUP.md](docs/SETUP.md) — 외부 컨트리뷰터 / 다른 머신 셋업 (P2 외부 의존 절차)
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — 통합 설계 (18절)
-- [docs/CHANGELOG.md](docs/CHANGELOG.md) — 버전 이력
-- [docs/AUDIT.md](docs/AUDIT.md) — 부채 / 우선순위
-- [docs/RELEASE-READINESS.md](docs/RELEASE-READINESS.md) — 릴리즈 전 최종 체크리스트
-- [docs/RUNBOOK.md](docs/RUNBOOK.md) — 운영 절차
-- [docs/PORTING.md](docs/PORTING.md) — 사내 PoC 결합 가이드
-- [SOUL.md](SOUL.md) — 정체성
-- [RULES.md](RULES.md) — Must / Must Never
-- [CLAUDE.md](CLAUDE.md) — Claude Code 부팅 컨텍스트
-- [AGENTS.md](AGENTS.md) — 외부 하네스용 풀 사양
-- [WORKING-CONTEXT.md](WORKING-CONTEXT.md) — 현재 스프린트 액티브 메모리
-- [REVIEW.md](REVIEW.md) — 핸드오프 표준
+## Live Provider Auth
 
-## 라이선스
+Live mode delegates auth to local CLI sessions:
+
+```bash
+claude auth status
+codex login
+gemini
+
+node scripts/cli.js review "live local smoke" --live --no-ship
+```
+
+Long-lived API key environment variables are blocked by default before provider CLI calls:
+
+- Claude: `ANTHROPIC_API_KEY`
+- Codex: `OPENAI_API_KEY`
+- Gemini: `GEMINI_API_KEY`, `GOOGLE_API_KEY`
+
+Use API-key paths only with explicit opt-in, for example `HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1`.
+
+## Catalog
+
+- Agents: 11
+- Skills: 9
+- Hooks: 5
+- Modules: 7
+- Profiles: `core`, `developer`, `security`, `research`, `full`
+- Harness targets: `claude`, `codex`, `cursor`, `gemini`, `opencode`
+
+Key skills:
+
+- `claude-led-codex-review`
+- `plan-eng-review`
+- `tdd-workflow`
+- `review`
+- `ship`
+- `ralph`
+- `security-hardening`
+- `release-readiness`
+- `porting`
+
+## Common Commands
+
+```bash
+node scripts/install-plan.js --list
+node scripts/install-plan.js --profile developer
+node scripts/install-apply.js --profile developer --project-root <target>
+
+node scripts/cli.js plan "draft a safe implementation plan"
+node scripts/cli.js review "implement and review this change" --no-ship
+node scripts/cli.js review "security-sensitive change" --secure --no-ship
+node scripts/cli.js team-lite "split and verify this task"
+
+npm run lint
+npm test
+npm audit --audit-level=moderate
+node scripts/repair.js --check
+node scripts/sync-claude-md.js --check
+node scripts/build-codemaps.js --check
+```
+
+## Release Gates
+
+Before any tag or public npm decision, run:
+
+```bash
+npm run lint
+npm test
+npm audit --audit-level=moderate
+node scripts/repair.js --check
+node scripts/sync-claude-md.js --check
+node scripts/build-codemaps.js --check
+npm run security:hardening
+npm pack --dry-run --json
+```
+
+`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.0.2.tgz`. It does not publish.
+
+## Documentation
+
+- [docs/QUICKSTART.md](docs/QUICKSTART.md) - first run and common paths
+- [docs/SETUP.md](docs/SETUP.md) - local contributor setup and live provider smoke
+- [docs/PORTING.md](docs/PORTING.md) - using HARNESS in an external project
+- [docs/RELEASE-READINESS.md](docs/RELEASE-READINESS.md) - release and publish gates
+- [docs/RUNBOOK.md](docs/RUNBOOK.md) - operations guide
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - system architecture
+- [docs/AUDIT.md](docs/AUDIT.md) - readiness and remaining debt
+- [docs/CHANGELOG.md](docs/CHANGELOG.md) - project history
+- [SOUL.md](SOUL.md), [RULES.md](RULES.md), [AGENTS.md](AGENTS.md) - project principles and agent rules
+
+## License
 
 MIT
