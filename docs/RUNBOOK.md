@@ -83,7 +83,10 @@ node scripts/install-plan.js --profile developer --json > plan.json
 
 ```bash
 # 카탈로그 무결성 + 4 validator
-npm run lint                      # catalog.js + validate:all
+npm run lint                      # catalog.js + validate:all + security:hardening
+
+# workflow / OIDC / dead-man / MCP pin / dependency hardening
+npm run security:hardening
 
 # 마커 무결성
 node scripts/ci/check-markers.js

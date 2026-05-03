@@ -99,7 +99,7 @@ HARNESS 는 **하나의 매니페스트(`agent.yaml`)** 와 **5개 정규 카탈
 | 4 Skill & Rule | 5 스킬 + ralph + 거버넌스 4 + rule 공통/TS/Python | OK (rules 작성 완료) |
 | 5 Memory & Learning | session(7개 핸드오프 파일) + project-memory + 글로벌 instincts | OK |
 | 6 Verification | quality-gate → self-review → codex-review → codex-challenge → fix-loop → human gate | OK |
-| 7 Security & Governance | gateguard-fact-force, config-protection, audit jsonl, MCP 핀, sandbox profile | 부분 — OIDC / dead-man / supply chain 미구현 |
+| 7 Security & Governance | gateguard-fact-force, config-protection, audit jsonl, MCP 핀, sandbox profile, workflow hardening gate | OK |
 | 8 Integration | claude / codex / cursor / gemini / opencode 빌더 + MCP 단일 게이트웨이 | OK (5개 빌더 모두 구현) |
 
 ## 5. 데이터 / 컨텍스트 흐름
@@ -283,9 +283,9 @@ Severity matrix (`scripts/lib/severity.js`):
 | 7 | audit log | `.harness/audit/<date>.jsonl` 모든 도구 호출 |
 | 8 | severity matrix + human gate | round 3 / critical / blast 20 파일 트리거 |
 | 9 | 승인 필요 작업 | `unsandboxed_shell, egress, deploy, off_repo_write` |
-| 10 | OIDC / 키리스 | **미구현** — P3 |
-| 11 | dead-man switch | **미구현** — P3 |
-| 12 | 의존성 스캔 | npm audit CI 게이트 통합. cargo audit 은 별도 도구 설치 시 확장 |
+| 10 | OIDC / 키리스 | static cloud credential secrets require OIDC `id-token: write` in `security-hardening` gate |
+| 11 | dead-man switch | `security.dead_man_switch.max_ci_job_minutes` enforces workflow job timeouts |
+| 12 | 의존성 스캔 | `npm audit` + `security-hardening` package-lock/dependency spec/MCP pin gate. cargo audit 은 별도 도구 설치 시 확장 |
 
 ## 11. 설치 / 배포 구조
 
@@ -449,6 +449,9 @@ security:
   outbound_network_default: deny
   fact_forcing_default: true
   audit_log_path: .harness/audit
+  dead_man_switch: { enabled: true, max_ci_job_minutes: 20, require_explicit_live_opt_in: true }
+  oidc: { required_for_cloud_credentials: true }
+  supply_chain: { package_lock_required: true, require_mcp_semver_pin: true }
 
 routing:
   eco_mode_floor: sonnet
@@ -505,7 +508,7 @@ node scripts/ci/check-markers.js         # CLAUDE.md 마커 무결성
 3. **codemap 자동 생성** (P2) — `docs/CODEMAPS/<area>.md` 디렉터리 트리 + 핵심 export.
 4. ~~**Rust runtime 컴파일 검증** (P2) — IPC ping 까지.~~ 완료.
 5. **사내 LLM provider** (P3) — `runners/internal.js` 추가, 사내 endpoint 라우팅.
-6. **OIDC / dead-man / supply chain 스캔** (P3) — Security Bar 12-item 풀 충족.
+6. ~~**OIDC / dead-man / supply chain 스캔** (P3) — Security Bar 12-item 풀 충족.~~ 완료: `npm run security:hardening`.
 
 **원칙 유지**:
 

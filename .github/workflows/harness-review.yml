@@ -1,28 +1,22 @@
 name: harness-review
 
-# claude-led-codex-review 7단계 풀사이클을 PR 에 자동 적용.
-# - dry-run (mock provider) 디폴트: API 키 / Codex CLI 미설정 환경에서도 동작
-# - live 는 self-hosted CLI 세션 또는 HARNESS_CLAUDE_RUNNER=sdk + secret opt-in 일 때만 사용
-# - sensitive path 자동 감지 → --secure
-# - critical 발견 / round ≥ 3 → 워크플로우 실패 + PR 코멘트
-
 on:
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       task:
-        description: '리뷰 task 설명'
+        description: Review task description
         required: false
         default: ''
       secure:
-        description: '단계 6 codex-challenge 강제'
+        description: Force stage 6 codex-challenge
         required: false
-        default: 'auto'
+        default: auto
         type: choice
         options: [auto, on, off]
       live:
-        description: '실 LLM 호출 (시크릿 필요)'
+        description: Use live LLM runner. Only honored for manual workflow_dispatch.
         required: false
         default: 'false'
         type: choice
@@ -40,12 +34,12 @@ jobs:
     env:
       HARNESS_HOOK_GATEGUARD: '1'
       HARNESS_HOOK_QUALITY_GATE: '1'
-      HARNESS_HOOK_PRE_BASH: '0'           # CI 에서는 bash 게이트 사용 안 함
-      HARNESS_HOOK_PERSISTENT_MODE: '0'    # CI 에서는 영속 모드 OFF
+      HARNESS_HOOK_PRE_BASH: '0'
+      HARNESS_HOOK_PERSISTENT_MODE: '0'
       HARNESS_CI_SESSION_ID: ci-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
-      - name: Checkout (full history)
+      - name: Checkout full history
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
@@ -54,7 +48,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '22'
-          cache: 'npm'
+          cache: npm
 
       - name: npm install
         run: npm ci --no-audit --no-fund
@@ -65,50 +59,67 @@ jobs:
           node scripts/ci/catalog.js
           node scripts/ci/check-markers.js
 
+      - name: Security hardening gate
+        run: npm run security:hardening
+
       - name: Compute task / secure / live
         id: opts
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TASK: ${{ github.event.inputs.task || '' }}
+          INPUT_SECURE: ${{ github.event.inputs.secure || 'auto' }}
+          INPUT_LIVE: ${{ github.event.inputs.live || 'false' }}
+          PR_TITLE: ${{ github.event.pull_request.title || '' }}
+          HAS_ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
         run: |
-          TASK="${{ github.event.inputs.task }}"
-          if [ -z "$TASK" ] && [ -n "${{ github.event.pull_request.title }}" ]; then
-            TASK="${{ github.event.pull_request.title }}"
+          TASK="$INPUT_TASK"
+          if [ -z "$TASK" ] && [ -n "$PR_TITLE" ]; then
+            TASK="$PR_TITLE"
           fi
           if [ -z "$TASK" ]; then
-            TASK="자동: ${{ github.event_name }} ${{ github.ref }}"
+            TASK="auto: $EVENT_NAME $GITHUB_REF"
           fi
           echo "task=$TASK" >> "$GITHUB_OUTPUT"
 
-          SECURE="${{ github.event.inputs.secure || 'auto' }}"
           SECURE_FLAG=""
-          if [ "$SECURE" = "on" ]; then SECURE_FLAG="--secure"; fi
-          # auto: orchestrator 가 sensitive path 자동 감지
+          if [ "$INPUT_SECURE" = "on" ]; then
+            SECURE_FLAG="--secure"
+          fi
           echo "secure_flag=$SECURE_FLAG" >> "$GITHUB_OUTPUT"
 
-          LIVE="${{ github.event.inputs.live || 'false' }}"
           LIVE_FLAG=""
-          if [ "$LIVE" = "true" ] && [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+          RUNNER=""
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$INPUT_LIVE" = "true" ] && [ "$HAS_ANTHROPIC_API_KEY" = "true" ]; then
             LIVE_FLAG="--live"
+            RUNNER="sdk"
           fi
           echo "live_flag=$LIVE_FLAG" >> "$GITHUB_OUTPUT"
+          echo "runner=$RUNNER" >> "$GITHUB_OUTPUT"
 
       - name: Run review
         id: review
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          HARNESS_CLAUDE_RUNNER: ${{ steps.opts.outputs.live_flag && 'sdk' || '' }}
+          TASK: ${{ steps.opts.outputs.task }}
+          SECURE_FLAG: ${{ steps.opts.outputs.secure_flag }}
+          LIVE_FLAG: ${{ steps.opts.outputs.live_flag }}
+          ANTHROPIC_API_KEY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.live == 'true' && secrets.ANTHROPIC_API_KEY || '' }}
+          HARNESS_CLAUDE_RUNNER: ${{ steps.opts.outputs.runner }}
         run: |
           set +e
-          node scripts/cli.js review "${{ steps.opts.outputs.task }}" \
-            ${{ steps.opts.outputs.secure_flag }} \
-            ${{ steps.opts.outputs.live_flag }} \
+          node scripts/cli.js review "$TASK" \
+            $SECURE_FLAG \
+            $LIVE_FLAG \
             --no-ship \
             --session "$HARNESS_CI_SESSION_ID"
           CODE=$?
           echo "exit=$CODE" >> "$GITHUB_OUTPUT"
-          # exit 3 = HUMAN_GATE
-          # 그 외 0 외 코드는 일반 실패
-          if [ "$CODE" = "0" ]; then echo "verdict=approve" >> "$GITHUB_OUTPUT";
-          elif [ "$CODE" = "3" ]; then echo "verdict=human_gate" >> "$GITHUB_OUTPUT";
-          else echo "verdict=error" >> "$GITHUB_OUTPUT"; fi
+          if [ "$CODE" = "0" ]; then
+            echo "verdict=approve" >> "$GITHUB_OUTPUT"
+          elif [ "$CODE" = "3" ]; then
+            echo "verdict=human_gate" >> "$GITHUB_OUTPUT"
+          else
+            echo "verdict=error" >> "$GITHUB_OUTPUT"
+          fi
           exit 0
 
       - name: Collect handoffs
@@ -153,7 +164,9 @@ jobs:
                 const text = fs.readFileSync(`${sessionDir}/handoffs/${last}`, 'utf8');
                 body += `\n<details><summary>${last}</summary>\n\n${text}\n</details>\n`;
               }
-            } catch (e) { body += `(핸드오프 디렉터리 없음: ${e.message})\n`; }
+            } catch (e) {
+              body += `(handoff directory missing: ${e.message})\n`;
+            }
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
