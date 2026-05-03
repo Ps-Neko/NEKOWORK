@@ -171,6 +171,10 @@ node scripts/repair.js --harness cursor       # 특정 하네스만
 node scripts/repair.js --force                # 전부 재빌드 (sha256 무시)
 ```
 
+`repair` 는 `.harness/install-state.json` 을 schema 검증한 뒤 실행하며,
+재빌드 후 `source_sha256` 과 `targets[].sha256` 을 모두 실 sha256 으로 다시 기록한다.
+예전 placeholder hash 가 남아 있으면 `--check` 에서 부정합으로 보고한다.
+
 ## 6. 트러블슈팅
 
 ### Ajv 가 draft 2020-12 인식 못 함

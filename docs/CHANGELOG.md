@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Changed (repair/install-state hardening, 2026-05-03)
+- `scripts/core/install-state.js` — centralize catalog/output sha256 calculation plus install-state schema validation and writes.
+- `scripts/install-apply.js`, `scripts/repair.js` — share install-state code; `repair` now restores real `source_sha256` / target sha values instead of placeholder hashes and validates state before writing.
+- `schemas/install-state.schema.json`, `tests/integration/build-pipeline.test.js`, docs — require target sha256 shape and cover placeholder recovery through repair.
+
 ### Changed (team-lite runtime hardening, 2026-05-03)
 - `scripts/orchestrators/team-lite.js` — formalize the staged pipeline contract (`team-plan → team-prd → team-exec → team-verify → team-fix`), task dependency graph, terminal statuses, heartbeat history, and monitor snapshots.
 - `schemas/handoff.schema.json` — add `team_stage` metadata so team-lite handoff JSON remains schema-valid instead of carrying ad hoc fields.

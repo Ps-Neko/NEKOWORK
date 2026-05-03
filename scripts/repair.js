@@ -9,14 +9,23 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import YAML from 'yaml';
+import {
+  ZERO_SHA,
+  assertInstallState,
+  buildInstallState,
+  installStatePath,
+  loadInstallState,
+  sha256OfCatalog,
+  sha256OfDir,
+  writeInstallState,
+} from './core/install-state.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const STATE_FILE = path.join(ROOT, '.harness', 'install-state.json');
+const STATE_FILE = installStatePath(ROOT);
 
 function parseArgs(argv) {
   const args = { check: false, harness: null, force: false, verbose: false };
@@ -47,25 +56,6 @@ HARNESS repair
 `);
 }
 
-function sha256OfDir(dir) {
-  if (!fs.existsSync(dir)) return null;
-  const entries = [];
-  function walk(d) {
-    for (const e of fs.readdirSync(d, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-      const p = path.join(d, e.name);
-      if (e.isDirectory()) walk(p);
-      else if (e.isFile()) {
-        const rel = path.relative(dir, p).replace(/\\/g, '/');
-        const h = crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
-        entries.push(`${rel} ${h}`);
-      }
-    }
-  }
-  walk(dir);
-  if (entries.length === 0) return null;
-  return crypto.createHash('sha256').update(entries.join('\n')).digest('hex');
-}
-
 function runBuilder(name) {
   const script = path.join(__dirname, `build-${name}.js`);
   if (!fs.existsSync(script)) {
@@ -81,10 +71,16 @@ function main() {
 
   const manifest = YAML.parse(fs.readFileSync(path.join(ROOT, 'agent.yaml'), 'utf8'));
   const harnessDefs = manifest.harnesses || [];
+  const sourceSha = sha256OfCatalog(ROOT);
 
-  let state = null;
-  if (fs.existsSync(STATE_FILE)) {
-    state = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+  let state = loadInstallState(ROOT);
+  if (state) {
+    try {
+      assertInstallState(ROOT, state);
+    } catch (e) {
+      console.error(e.message);
+      process.exit(1);
+    }
   } else if (!args.force) {
     console.error('install-state.json 없음. 먼저 `install.sh --apply` 실행 필요.');
     console.error(`(${path.relative(ROOT, STATE_FILE)})`);
@@ -118,9 +114,21 @@ function main() {
       continue;
     }
 
-    // state 의 placeholder("0"*64) 는 비교 무의미 → 디렉터리만 검증
+    if (stateEntry.source_sha256 === ZERO_SHA || stateEntry.source_sha256 !== sourceSha) {
+      issues.push({
+        harness: h.name,
+        reason: `source_sha256 불일치 (${sourceSha.slice(0, 12)} vs ${(stateEntry.source_sha256 || '').slice(0, 12)})`,
+      });
+      continue;
+    }
+
+    // 이전 state 의 target placeholder("0"*64) 는 비교 무의미 → 재빌드 후 실값으로 회수한다.
     const stateSha = stateEntry.targets?.[0]?.sha256 || null;
-    if (stateSha && stateSha !== '0'.repeat(64)) {
+    if (stateSha === ZERO_SHA) {
+      issues.push({ harness: h.name, reason: 'target sha256 placeholder' });
+      continue;
+    }
+    if (stateSha) {
       const actualSha = sha256OfDir(outDir);
       if (actualSha !== stateSha) {
         issues.push({ harness: h.name, reason: `sha256 불일치 (${actualSha?.slice(0, 12)} vs ${stateSha.slice(0, 12)})` });
@@ -159,22 +167,16 @@ function main() {
     process.exit(1);
   }
 
-  // state 갱신: last_updated + 각 하네스의 sha256 (placeholder 였던 항목은 실 sha256 으로)
-  if (state) {
-    state.last_updated = new Date().toISOString();
-    for (const i of issues) {
-      const outDir = path.join(ROOT, harnessDefs.find(h => h.name === i.harness).output_dir);
-      const sha = sha256OfDir(outDir) || '0'.repeat(64);
-      state.components ??= {};
-      state.components[i.harness] = {
-        installed_at: state.components[i.harness]?.installed_at || new Date().toISOString(),
-        source_sha256: '0'.repeat(64),
-        targets: [{ harness: i.harness, path: harnessDefs.find(h => h.name === i.harness).output_dir, sha256: sha }],
-      };
-    }
-    fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
-    console.log(`\nstate 갱신: ${path.relative(ROOT, STATE_FILE)}`);
-  }
+  const rebuilt = issues.map(i => i.harness);
+  const updated = buildInstallState(ROOT, {
+    profile: state?.profile || manifest.profiles?.default || 'developer',
+    harnessDefs,
+    harnessNames: rebuilt,
+    previousState: state,
+  }).state;
+  state = updated;
+  writeInstallState(ROOT, state);
+  console.log(`\nstate 갱신: ${path.relative(ROOT, STATE_FILE)}`);
 
   console.log('repair 완료.');
 }

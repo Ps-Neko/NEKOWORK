@@ -345,7 +345,7 @@ node scripts/sync-claude-md.js  → CLAUDE.md 마커 영역 갱신
 | `/tmp` 가 Windows 매핑 안 됨 | `os.tmpdir()` / `tests/_tmp/` 사용 |
 | Codex / Claude 컨텍스트 의도치 않은 공유 | 핸드오프 마크다운만 허용, 직접 메시지 전달 차단 |
 | 매니페스트 vs 실 카탈로그 불일치 | `validate:all` + `repair --check` CI 게이트 |
-| install 부분 실패 시 반쪽 상태 | `install-apply` 가 멱등. `repair` 가 sha256 비교로 재정합 |
+| install 부분 실패 시 반쪽 상태 | `install-apply` / `repair` 가 공통 install-state schema 검증 + source/target sha256 실값 재기록 |
 | 시크릿 의도치 않은 커밋 | `config-protection` 훅 + `secret_redaction` audit |
 | MCP 서버 supply chain | SemVer 핀 강제. 새 서버 추가 시 security-reviewer 검토 |
 
