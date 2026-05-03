@@ -58,6 +58,12 @@ harness install --plan --profile research --harness claude
 
 ### Step 2 — 매니페스트 dry-run
 
+선택 가능한 카탈로그부터 확인:
+
+```bash
+node .harness-tool/scripts/install-plan.js --list
+```
+
 ```bash
 node .harness-tool/scripts/install-plan.js \
   --profile research --harness claude \
@@ -65,6 +71,7 @@ node .harness-tool/scripts/install-plan.js \
 ```
 
 산출 plan.json 검토. 사내 정책에 맞지 않는 컴포넌트가 있으면 **모듈 단위로 제외**하거나 사내 모듈로 오버라이드.
+없는 target/module/component 이름은 plan 단계에서 실패하므로 이 목록을 먼저 기준으로 삼는다.
 
 ### Step 3 — 프로젝트 룰 오버라이드
 

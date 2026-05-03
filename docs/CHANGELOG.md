@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Changed (Selective install UX hardening, 2026-05-03)
+- `scripts/install-plan.js` — add `--list` catalog output and fail fast on unknown target/module/component include or exclude filters.
+- `scripts/install-plan.js` — target-filtered plans now omit unrelated `platform:<target>` builder components instead of showing every builder row.
+- `scripts/install-apply.js`, `scripts/cli.js`, docs, and integration tests — document the complete selective install flags and gate apply through the stricter plan validation.
+
 ### Changed (Provider CLI path hardening, 2026-05-03)
 - `scripts/core/cli-resolver.js` — add provider-aware CLI resolution that rejects workspace-local `claude` / `codex` / `gemini` shims by default, with explicit `HARNESS_<PROVIDER>_ALLOW_WORKSPACE_BIN=1` opt-in.
 - `scripts/agents/runners/{claude,codex,gemini}.js` — resolve provider binaries through the trusted provider CLI resolver.
