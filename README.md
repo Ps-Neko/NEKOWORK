@@ -43,6 +43,7 @@ node scripts/cli.js review "<task>" --no-ship    # 7단계 풀사이클 dry-run 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — 통합 설계 (18절)
 - [docs/CHANGELOG.md](docs/CHANGELOG.md) — 버전 이력
 - [docs/AUDIT.md](docs/AUDIT.md) — 부채 / 우선순위
+- [docs/RELEASE-READINESS.md](docs/RELEASE-READINESS.md) — 릴리즈 전 최종 체크리스트
 - [docs/RUNBOOK.md](docs/RUNBOOK.md) — 운영 절차
 - [docs/PORTING.md](docs/PORTING.md) — 사내 PoC 결합 가이드
 - [SOUL.md](SOUL.md) — 정체성

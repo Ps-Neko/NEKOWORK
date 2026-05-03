@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added (release readiness, 2026-05-03)
+- `docs/RELEASE-READINESS.md` records the final local release checklist, install smoke, full builder smoke, and the explicit decision to keep `package.json` private until a public release request.
+- `docs/AUDIT.md` now treats npm publish as a settled hold decision, leaving only internal project/provider integration as optional future work.
+
 ### Added (security hardening gate, 2026-05-03)
 - `scripts/ci/security-hardening.js` adds a CI-enforced policy gate for workflow permissions, job timeouts, action pinning, MCP semver pins, HTTPS MCP URLs, package-lock presence, dependency spec hygiene, and OIDC requirements for static cloud credential secrets.
 - `agent.yaml` now declares `dead_man_switch`, `oidc`, and `supply_chain` policy knobs under `security`.
