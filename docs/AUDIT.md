@@ -24,7 +24,7 @@
 | 14 | 리스크 / 대응책 | 부분 | 발견된 마찰 (CRLF / Windows tsc / Node 24 호환) 문서 미정리 |
 | 15 | 예시 디렉터리 구조 | OK | 실 디렉터리 vs 설계 거의 일치 |
 | 16 | 예시 설정 파일 | OK | agent.yaml / hooks.json / .mcp.json |
-| 17 | 예시 명령어 | OK | CLI 10 verb 동작 |
+| 17 | 예시 명령어 | OK | CLI public and advanced verbs 동작 |
 | 18 | 최종 권장 아키텍처 | OK | README, CHANGELOG |
 
 ## 2. 8계층 vs 실 구현
@@ -169,7 +169,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 | Schemas | 10 |
 | Provider runners | 4 (mock/claude/codex/gemini) |
 | MCP 도구 | 7 |
-| CLI verbs | 10 (install / validate / review / plan / ralph / wait / sessions / costs / instincts / version) |
+| CLI verbs | public: doctor / plan / review / install / validate / version; advanced: self-review / codex-review / ralph / wait / sessions / costs / instincts |
 | 단위 테스트 | `npm run test:unit` PASS (auth guard / core runner utils / git mutation guard / runner wrapper / codex/gemini prompt normalization / live fallback guard / token vault 등) |
 | 통합 테스트 | `npm run test:integration` PASS (build pipeline + state 영속 + repair detection + sync-claude-md + codemaps + validate:all + check-markers) |
 | E2E 테스트 | `npm run test:e2e` PASS (demo-review 7단계 + 5필드 무결성 + --secure + round 카운터 + CLI version/help) |

@@ -374,7 +374,7 @@ harness/
 │   └── install-components.json ← 35 component
 ├── schemas/                    ← 10 JSON schema
 ├── scripts/
-│   ├── cli.js                  ← harness CLI (10 verb)
+│   ├── cli.js                  ← harness CLI (public + advanced verbs)
 │   ├── install-plan.js / install-apply.js
 │   ├── repair.js               ← 변경분만 재빌드
 │   ├── sync-claude-md.js       ← 마커 영역 갱신
@@ -470,7 +470,7 @@ routing:
 }
 ```
 
-## 17. 예시 명령어 (CLI 10 verb)
+## 17. 예시 명령어 (CLI verbs)
 
 ```bash
 # 설치 / 정합성

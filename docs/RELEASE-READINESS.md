@@ -19,6 +19,7 @@ HARNESS / NEKOWORK is release-ready for local use and repository-based installat
 Run these before a release tag or public package decision:
 
 ```bash
+node scripts/cli.js doctor
 npm run lint
 npm test
 npm audit --audit-level=moderate
