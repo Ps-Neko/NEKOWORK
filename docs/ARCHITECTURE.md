@@ -265,7 +265,7 @@ Severity matrix (`scripts/lib/severity.js`):
 |---|---|---|
 | 1 | 시크릿 redaction | `secret_redaction: true` (audit jsonl 작성 직전 마스킹) |
 | 2 | 시크릿 파일 보호 | `config-protection` 훅이 .env, .pem 류 Edit 차단 |
-| 3 | MCP allowlist + SemVer 핀 | `mcp.external_servers[*].pin` 강제, `mcp_pin_required: true` |
+| 3 | CLI/MCP allowlist + SemVer 핀 | provider CLI 는 workspace-local shim 기본 차단, `mcp.external_servers[*].pin` 강제 |
 | 4 | 외향 네트워크 기본 차단 | `outbound_network_default: deny`, opt-in |
 | 5 | sandbox 프로파일 | agent frontmatter `sandbox: read-only / workspace-write / danger` |
 | 6 | 사실 조사 강제 | `fact_forcing_default: true`, gateguard 훅 |

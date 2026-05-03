@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { resolveCli } from '../../scripts/core/cli-resolver.js';
+import { isPathInside, resolveCli, resolveProviderCli } from '../../scripts/core/cli-resolver.js';
 import { extractJson } from '../../scripts/core/json-extractor.js';
 import { spawnAndCollect } from '../../scripts/core/subprocess.js';
 
@@ -24,6 +24,44 @@ test('cli resolver finds platform command shims', () => {
     PATHEXT: '.CMD;.EXE',
   });
   assert.equal(resolved, file);
+});
+
+test('provider cli resolver blocks workspace-local shims by default', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-provider-cli-root-'));
+  const ext = process.platform === 'win32' ? '.cmd' : '';
+  const file = path.join(root, `codex${ext}`);
+  fs.writeFileSync(file, process.platform === 'win32' ? '@echo off\r\n' : '#!/bin/sh\n');
+
+  assert.throws(
+    () => resolveProviderCli('codex', {
+      root,
+      env: { PATH: root, PATHEXT: '.CMD;.EXE' },
+    }),
+    /current workspace/
+  );
+});
+
+test('provider cli resolver allows workspace-local shims with explicit opt-in', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-provider-cli-allow-'));
+  const ext = process.platform === 'win32' ? '.cmd' : '';
+  const file = path.join(root, `codex${ext}`);
+  fs.writeFileSync(file, process.platform === 'win32' ? '@echo off\r\n' : '#!/bin/sh\n');
+
+  const resolved = resolveProviderCli('codex', {
+    root,
+    env: {
+      PATH: root,
+      PATHEXT: '.CMD;.EXE',
+      HARNESS_CODEX_ALLOW_WORKSPACE_BIN: '1',
+    },
+  });
+  assert.equal(resolved, file);
+});
+
+test('path containment treats sibling paths as outside', () => {
+  const root = path.join(os.tmpdir(), 'harness-root');
+  assert.equal(isPathInside(root, path.join(root, 'node_modules', '.bin', 'codex')), true);
+  assert.equal(isPathInside(root, path.join(os.tmpdir(), 'harness-root-sibling', 'codex')), false);
 });
 
 test('subprocess collector passes stdin and captures stdout', async () => {

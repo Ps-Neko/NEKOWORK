@@ -60,6 +60,13 @@ node scripts/cli.js review "<task>" --live --no-ship
 CLI handoff mode 는 실행 전후 git 상태를 비교해 예기치 않은 파일 쓰기를 차단한다.
 의도적으로 Claude CLI 쓰기 실험을 할 때만 `HARNESS_CLAUDE_ALLOW_WORKSPACE_MUTATION=1` 을 사용한다.
 
+### Provider CLI path trust
+
+`claude`, `codex`, `gemini` provider CLI 는 사용자/global 설치 경로에서 해석되어야 한다.
+현재 워크스페이스 내부의 shim 이 먼저 잡히면 delegated auth 를 가로챌 수 있으므로 기본 차단한다.
+테스트나 의도한 로컬 shim 실험일 때만 provider 별로 `HARNESS_CODEX_ALLOW_WORKSPACE_BIN=1`,
+`HARNESS_CLAUDE_ALLOW_WORKSPACE_BIN=1`, `HARNESS_GEMINI_ALLOW_WORKSPACE_BIN=1` 을 설정한다.
+
 ### 3. Gemini CLI live (research agent)
 
 ```bash

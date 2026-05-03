@@ -14,7 +14,7 @@
 // 출력: stdout 의 JSON. 5필드 + issues + verdict.
 
 import { assertDelegatedCliAuth } from '../../core/auth-guard.js';
-import { resolveCli } from '../../core/cli-resolver.js';
+import { resolveProviderCli } from '../../core/cli-resolver.js';
 import { withGitMutationGuard } from '../../core/git-mutation-guard.js';
 import { extractJson } from '../../core/json-extractor.js';
 import { spawnAndCollect } from '../../core/subprocess.js';
@@ -23,7 +23,8 @@ import { classifyCategory, classifySeverity, deriveVerdict, severityCounts } fro
 export async function runCodex(args) {
   assertDelegatedCliAuth('codex');
 
-  const codexBin = resolveCli('codex');
+  const cwd = args.harnessRoot || process.cwd();
+  const codexBin = resolveProviderCli('codex', { root: cwd });
   if (!codexBin) {
     throw new Error('codex CLI 미설치. https://github.com/openai/codex 또는 --provider=mock 사용.');
   }
@@ -47,7 +48,6 @@ export async function runCodex(args) {
     cliArgs.push(...process.env.HARNESS_CODEX_EXTRA_ARGS.split(' '));
   }
 
-  const cwd = args.harnessRoot || process.cwd();
   const stdout = await withGitMutationGuard(
     cwd,
     () => spawnAndCollect(codexBin, cliArgs, promptText, {

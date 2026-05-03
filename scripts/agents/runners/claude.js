@@ -3,7 +3,7 @@
 // Set HARNESS_CLAUDE_RUNNER=sdk to opt into Anthropic SDK/API-key mode.
 
 import { assertDelegatedCliAuth } from '../../core/auth-guard.js';
-import { resolveCli } from '../../core/cli-resolver.js';
+import { resolveProviderCli } from '../../core/cli-resolver.js';
 import { withGitMutationGuard } from '../../core/git-mutation-guard.js';
 import { extractJson } from '../../core/json-extractor.js';
 import { spawnAndCollect } from '../../core/subprocess.js';
@@ -60,7 +60,8 @@ async function runClaudeSdk(args) {
 async function runClaudeCli(args) {
   assertDelegatedCliAuth('claude');
 
-  const claudeBin = resolveCli('claude');
+  const cwd = args.harnessRoot || process.cwd();
+  const claudeBin = resolveProviderCli('claude', { root: cwd });
   if (!claudeBin) {
     throw new Error('claude CLI is not installed. Install/login to Claude Code, or explicitly use HARNESS_CLAUDE_RUNNER=sdk with ANTHROPIC_API_KEY.');
   }
@@ -70,7 +71,6 @@ async function runClaudeCli(args) {
   const modelId = process.env.HARNESS_CLAUDE_MODEL || args.model || 'sonnet';
   const cliArgs = buildCliArgs(args, modelId, systemPrompt);
 
-  const cwd = args.harnessRoot || process.cwd();
   const run = () => spawnAndCollect(claudeBin, cliArgs, userPrompt, {
     label: 'claude',
     // 풀사이클 stage 3 implement 는 verify smoke(~25s) 보다 응답이 길어
