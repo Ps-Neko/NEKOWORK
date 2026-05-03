@@ -2,14 +2,14 @@
 
 Status date: 2026-05-03
 
-HARNESS / NEKOWORK is release-ready for local use and repository-based installation. Public npm publishing is intentionally disabled for the 0.0.2 line.
+HARNESS / NEKOWORK is release-ready for local use and repository-based installation. Public npm publishing is intentionally disabled for the 0.0.3 line.
 
 ## Decision
 
-- Decision: do not publish 0.0.2 to npm.
+- Decision: do not publish 0.0.3 to npm.
 - `package.json` keeps `private: true`.
 - The canonical repo is `Ps-Neko/NEKOWORK`.
-- Current release track is `0.0.2`.
+- Current release track is `0.0.3`.
 - Required local provider auth is delegated CLI auth, not long-lived API keys.
 - Remaining optional work is internal project/provider integration on request.
 - Public package metadata is prepared as `@ps-neko/nekowork`, but actual `npm publish` still requires an explicit approval step.
@@ -20,6 +20,7 @@ Run these before a release tag or public package decision:
 
 ```bash
 node scripts/cli.js doctor
+node scripts/cli.js doctor --quick --gemini-smoke
 npm run lint
 npm test
 npm audit --audit-level=moderate

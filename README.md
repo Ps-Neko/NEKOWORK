@@ -10,7 +10,7 @@ Claude writes or plans, Codex challenges the result in a separate context, and h
 
 ## Status
 
-- Current version: `0.0.2` alpha
+- Current version: `0.0.3` alpha
 - Current package name: `@ps-neko/nekowork`
 - npm publishing: disabled for now by `private: true`
 - Supported install path today: clone, submodule, or local repository integration
@@ -58,7 +58,7 @@ Outputs are written under:
 
 ## Use It In Another Project
 
-Recommended 0.0.2 shape:
+Recommended 0.0.3 shape:
 
 ```bash
 cd <target-project>
@@ -127,6 +127,7 @@ Key skills:
 
 ```bash
 node scripts/cli.js doctor
+node scripts/cli.js doctor --quick --gemini-smoke
 node scripts/install-plan.js --list
 node scripts/install-plan.js --profile developer
 node scripts/install-apply.js --profile developer --project-root <target>
@@ -158,7 +159,7 @@ npm run security:hardening
 npm pack --dry-run --json
 ```
 
-`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.0.2.tgz`. It does not publish.
+`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.0.3.tgz`. It does not publish.
 
 ## Documentation
 
