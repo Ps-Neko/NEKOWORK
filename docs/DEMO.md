@@ -76,7 +76,7 @@ project root : C:\path\to\harness
 
 STATUS  CHECK                   MESSAGE
 PASS    node                    Node 24.x
-PASS    package metadata        @ps-neko/nekowork@0.0.2; private publish disabled
+PASS    package metadata        @ps-neko/nekowork@0.0.3; private publish disabled
 PASS    git worktree            project root is inside a git worktree
 WARN    gemini cli              installed, auth status is not checked non-interactively
 

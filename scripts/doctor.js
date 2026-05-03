@@ -19,6 +19,7 @@ const STATUS_RANK = { PASS: 0, WARN: 1, FAIL: 2 };
 export function parseDoctorArgs(argv = []) {
   const opts = {
     json: false,
+    geminiSmoke: false,
     projectRoot: null,
     quick: false,
   };
@@ -26,6 +27,7 @@ export function parseDoctorArgs(argv = []) {
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === '--json') opts.json = true;
+    else if (arg === '--gemini-smoke') opts.geminiSmoke = true;
     else if (arg === '--quick') opts.quick = true;
     else if (arg === '--project-root') {
       const value = argv[++i];
@@ -50,6 +52,7 @@ export function buildDoctorReport(options = {}) {
   const runCommand = options.runCommand || defaultRunCommand;
   const nodeVersion = options.nodeVersion || process.versions.node;
   const quick = Boolean(options.quick);
+  const geminiSmoke = Boolean(options.geminiSmoke);
 
   const checks = [];
 
@@ -58,7 +61,14 @@ export function buildDoctorReport(options = {}) {
   checks.push(checkGitWorktree(projectRoot, runCommand));
   checks.push(checkApiKeyEnvironment(env));
 
-  checks.push(...checkProviderClis({ harnessRoot, projectRoot, env, runCommand }));
+  checks.push(...checkProviderClis({ harnessRoot, projectRoot, env, runCommand, geminiSmoke }));
+
+  if (geminiSmoke) {
+    checks.push(checkCommand('gemini live smoke', 'node scripts/verify/gemini-live.js', runCommand, harnessRoot, [
+      process.execPath,
+      ['scripts/verify/gemini-live.js'],
+    ]));
+  }
 
   if (!quick) {
     checks.push(checkCommand('repair freshness', 'node scripts/repair.js --check', runCommand, harnessRoot, [
@@ -81,6 +91,7 @@ export function buildDoctorReport(options = {}) {
     harnessRoot,
     projectRoot,
     quick,
+    geminiSmoke,
     summary,
     checks,
   };
@@ -144,15 +155,15 @@ function checkApiKeyEnvironment(env) {
   return warn('api key env', `will be blocked before delegated CLI calls: ${found.join(', ')}`);
 }
 
-function checkProviderClis({ harnessRoot, projectRoot, env, runCommand }) {
+function checkProviderClis({ harnessRoot, projectRoot, env, runCommand, geminiSmoke }) {
   return [
     checkProviderCli('claude', ['auth', 'status'], { harnessRoot, projectRoot, env, runCommand }),
     checkProviderCli('codex', ['login', 'status'], { harnessRoot, projectRoot, env, runCommand }),
-    checkProviderCli('gemini', null, { harnessRoot, projectRoot, env, runCommand }),
+    checkProviderCli('gemini', null, { harnessRoot, projectRoot, env, runCommand, geminiSmoke }),
   ];
 }
 
-function checkProviderCli(provider, authArgs, { harnessRoot, projectRoot, env, runCommand }) {
+function checkProviderCli(provider, authArgs, { harnessRoot, projectRoot, env, runCommand, geminiSmoke }) {
   let resolved;
   try {
     resolved = resolveProviderCli(provider, {
@@ -167,7 +178,10 @@ function checkProviderCli(provider, authArgs, { harnessRoot, projectRoot, env, r
   if (!resolved) return warn(`${provider} cli`, `${provider} CLI not found on PATH; mock mode still works`);
 
   if (!authArgs) {
-    return warn(`${provider} cli`, `${resolved}; installed, auth status is not checked non-interactively`);
+    if (provider === 'gemini' && geminiSmoke) {
+      return pass(`${provider} cli`, `${resolved}; installed; live smoke requested`);
+    }
+    return warn(`${provider} cli`, `${resolved}; installed; auth status is not checked non-interactively; run --gemini-smoke or npm run verify:gemini`);
   }
 
   const auth = runCommand(resolved, authArgs, { cwd: projectRoot, timeoutMs: 10000 });
@@ -239,7 +253,7 @@ function printHelp() {
   console.log(`NEKOWORK doctor
 
 Usage:
-  harness doctor [--project-root <dir>] [--quick] [--json]
+  harness doctor [--project-root <dir>] [--quick] [--gemini-smoke] [--json]
 
 Checks:
   - Node.js version
@@ -247,6 +261,7 @@ Checks:
   - git worktree
   - delegated-provider API key environment overrides
   - Claude/Codex/Gemini CLI presence and auth where non-interactive status exists
+  - Gemini live smoke when --gemini-smoke is set
   - repair, CLAUDE.md sync, and codemap freshness unless --quick is set
 `);
 }
@@ -262,6 +277,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       harnessRoot: DEFAULT_ROOT,
       projectRoot: opts.projectRoot,
       quick: opts.quick,
+      geminiSmoke: opts.geminiSmoke,
     });
     if (opts.json) console.log(JSON.stringify(report, null, 2));
     else console.log(renderDoctorReport(report));

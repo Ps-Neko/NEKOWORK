@@ -45,7 +45,7 @@ node scripts/cli.js instincts ready --blocked
 node scripts/cli.js instincts promote <id>
 ```
 
-Promotion requires confidence `1.0`; automatic promotion without human confirmation is outside the 0.0.2 release scope.
+Promotion requires confidence `1.0`; automatic promotion without human confirmation is outside the 0.0.3 release scope.
 
 ## Cost Tracking
 
@@ -69,7 +69,7 @@ Verify it with:
 npm run verify:runtime
 ```
 
-The Node CLI remains the primary 0.0.2 user path.
+The Node CLI remains the primary 0.0.3 user path.
 
 ## Full Builder Surface
 

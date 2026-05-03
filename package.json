@@ -1,7 +1,7 @@
 {
   "name": "@ps-neko/nekowork",
-  "version": "0.0.2",
-  "description": "HARNESS — Hybrid Agent Runtime with Native Evaluation, Skills, and Security",
+  "version": "0.0.3",
+  "description": "Local-first AI development harness for Claude Code, Codex CLI, and Gemini CLI",
   "keywords": [
     "claude",
     "claude-code",

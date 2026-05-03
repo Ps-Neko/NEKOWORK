@@ -12,7 +12,7 @@ npm test
 npm audit --audit-level=moderate
 ```
 
-`doctor` exits with failure if required freshness checks fail. Use `--quick` for a faster local environment check.
+`doctor` exits with failure if required freshness checks fail. Use `--quick` for a faster local environment check. Use `node scripts/cli.js doctor --quick --gemini-smoke` when Gemini live auth readiness matters for the release or machine being checked.
 
 ## Catalog Changes
 
@@ -88,10 +88,10 @@ Do not run this checklist unless public publish is explicitly approved.
 ## GitHub Release Checklist
 
 ```bash
-git tag -a v0.0.2 -m "HARNESS v0.0.2"
-git push origin v0.0.2
+git tag -a v0.0.3 -m "HARNESS v0.0.3"
+git push origin v0.0.3
 npm pack --json
-gh release create v0.0.2 ps-neko-nekowork-0.0.2.tgz --title "HARNESS v0.0.2" --prerelease --notes-file <notes.md>
+gh release create v0.0.3 ps-neko-nekowork-0.0.3.tgz --title "HARNESS v0.0.3" --prerelease --notes-file <notes.md>
 ```
 
 Remove the local tarball after it is uploaded.

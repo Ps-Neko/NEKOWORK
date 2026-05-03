@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { buildDoctorReport, parseDoctorArgs, renderDoctorReport } from '../../scripts/doctor.js';
 
-function makeRoot(pkg = { name: '@ps-neko/nekowork', version: '0.0.2', private: true }) {
+function makeRoot(pkg = { name: '@ps-neko/nekowork', version: '0.0.3', private: true }) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-doctor-root-'));
   fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify(pkg, null, 2));
   return root;
@@ -17,9 +17,10 @@ function runCommandPass(command, args) {
 }
 
 test('doctor args parse json, quick, and project root', () => {
-  const parsed = parseDoctorArgs(['--json', '--quick', '--project-root', 'target']);
+  const parsed = parseDoctorArgs(['--json', '--quick', '--gemini-smoke', '--project-root', 'target']);
   assert.equal(parsed.json, true);
   assert.equal(parsed.quick, true);
+  assert.equal(parsed.geminiSmoke, true);
   assert.equal(parsed.projectRoot, 'target');
 });
 
@@ -44,7 +45,7 @@ test('doctor report passes core checks without provider CLIs in quick mode', () 
 });
 
 test('doctor reports node and package failures', () => {
-  const root = makeRoot({ name: '@wrong/name', version: '0.0.2', private: true });
+  const root = makeRoot({ name: '@wrong/name', version: '0.0.3', private: true });
   const report = buildDoctorReport({
     harnessRoot: root,
     projectRoot: root,
@@ -92,6 +93,26 @@ test('doctor freshness failures affect overall status', () => {
 
   assert.ok(report.checks.some((check) => check.name === 'codemaps freshness' && check.status === 'FAIL'));
   assert.equal(report.summary.status, 'FAIL');
+});
+
+test('doctor can run an explicit Gemini live smoke check', () => {
+  const root = makeRoot();
+  const report = buildDoctorReport({
+    harnessRoot: root,
+    projectRoot: root,
+    env: { PATH: '' },
+    nodeVersion: '22.1.0',
+    quick: true,
+    geminiSmoke: true,
+    runCommand(command, args) {
+      if (command === 'git') return { status: 0, stdout: 'true\n', stderr: '' };
+      if (args.some((arg) => arg.includes('gemini-live.js'))) return { status: 0, stdout: 'Gemini PASS\n', stderr: '' };
+      return { status: 0, stdout: 'ok\n', stderr: '' };
+    },
+  });
+
+  assert.equal(report.geminiSmoke, true);
+  assert.ok(report.checks.some((check) => check.name === 'gemini live smoke' && check.status === 'PASS'));
 });
 
 test('doctor render is a compact table', () => {
