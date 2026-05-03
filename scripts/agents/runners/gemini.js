@@ -2,7 +2,7 @@
 // Default auth is delegated to the user's local gemini/gcloud session.
 
 import { assertDelegatedCliAuth } from '../../core/auth-guard.js';
-import { resolveCli } from '../../core/cli-resolver.js';
+import { resolveProviderCli } from '../../core/cli-resolver.js';
 import { withGitMutationGuard } from '../../core/git-mutation-guard.js';
 import { extractJson } from '../../core/json-extractor.js';
 import { spawnAndCollect } from '../../core/subprocess.js';
@@ -10,13 +10,13 @@ import { spawnAndCollect } from '../../core/subprocess.js';
 export async function runGemini(args) {
   assertDelegatedCliAuth('gemini');
 
-  const bin = resolveCli('gemini');
+  const cwd = args.harnessRoot || process.cwd();
+  const bin = resolveProviderCli('gemini', { root: cwd });
   if (!bin) {
     throw new Error('gemini CLI is not installed. Install/login to Gemini CLI, or use --provider=mock.');
   }
 
   const prompt = buildPrompt(args);
-  const cwd = args.harnessRoot || process.cwd();
   const cliArgs = buildCliArgs(args);
   const stdout = await withGitMutationGuard(
     cwd,
