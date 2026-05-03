@@ -85,6 +85,17 @@
       "level": 3,
       "required": false,
       "depends_on": ["agents-core", "workflow-quality"]
+    },
+    "ops-readiness": {
+      "description": "Release, security-hardening, and external project porting operating skills.",
+      "components": [
+        "skill:security-hardening",
+        "skill:release-readiness",
+        "skill:porting"
+      ],
+      "level": 2,
+      "required": false,
+      "depends_on": ["workflow-quality"]
     }
   }
 }

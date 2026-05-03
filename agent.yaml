@@ -27,6 +27,9 @@ skills:
   - tdd-workflow
   - review
   - ship
+  - security-hardening
+  - release-readiness
+  - porting
   - ralph   # 명시 옵트인 영속 루프. 자동 키워드 활성 OFF.
 
 commands:
@@ -89,13 +92,14 @@ profiles:
     - full
 
 modules:
-  # Day 1 MVP: 6개. 나머지 14개는 점진 확장.
+  # 0.0.2 catalog: 7 modules. Future modules stay selective/profile-driven.
   - rules-core
   - agents-core
   - hooks-runtime
   - platform-configs
   - workflow-quality
   - codex-loop
+  - ops-readiness
 
 build:
   prepack:

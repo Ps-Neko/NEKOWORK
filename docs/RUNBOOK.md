@@ -252,7 +252,7 @@ node scripts/demo-review.js "<task>" demo-local --no-ship
 상세 이력은 `docs/CHANGELOG.md` 와 `docs/dev-log/` 참조. 현재 상태 요약:
 
 - 버전: 0.0.2 (2026-04-29 P1 회수)
-- 카탈로그: 11 agents · 6 skills · 5 hooks · 6 modules · 5 profiles
+- 카탈로그: 11 agents · 9 skills · 5 hooks · 7 modules · 5 profiles
 - 5 빌더 모두 동작 + codemaps
 - `npm test` PASS (unit + integration + e2e)
 - 자체 완결 가능 영역 정합 100%

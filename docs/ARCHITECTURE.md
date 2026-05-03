@@ -51,9 +51,9 @@ HARNESS 는 **하나의 매니페스트(`agent.yaml`)** 와 **5개 정규 카탈
 └────────┬────────────┬──────────────┬───────────────────┬─────────────┘
          │            │              │                   │
 ┌────────▼────────────▼──────────────▼───────────────────▼─────────────┐
-│  Skill (5) + Hook (5) + Rule (common/ts/py)                          │
-│  claude-led-codex-review · plan-eng-review · tdd-workflow · review · │
-│  ship · ralph         hooks: gateguard-fact-force · quality-gate ·   │
+│  Skill (9) + Hook (5) + Rule (common/ts/py)                          │
+│  review workflow skills + ops-readiness skill trio                   │
+│  ralph                hooks: gateguard-fact-force · quality-gate ·   │
 │                              pre-bash-dispatcher · persistent-mode · │
 │                              config-protection                       │
 └────────┬────────────┬──────────────┬───────────────────┬─────────────┘
@@ -96,7 +96,7 @@ HARNESS 는 **하나의 매니페스트(`agent.yaml`)** 와 **5개 정규 카탈
 | 1 Interface | NL Router(off, 사용자 룰 우선), Slash Command, CLI(`scripts/cli.js`), GitHub Actions | 부분 — NL Router 의도적 OFF |
 | 2 Orchestration | planner / router / persistent / cost / ralph / team-lite | 부분 — tmux team 미채택, staged team-lite 로 대체 |
 | 3 Agent | 11/11 (Claude 8, Codex 2, Gemini 1) | OK |
-| 4 Skill & Rule | 5 스킬 + ralph + 거버넌스 4 + rule 공통/TS/Python | OK (rules 작성 완료) |
+| 4 Skill & Rule | 9 스킬 + 거버넌스 4 + rule 공통/TS/Python | OK (rules 작성 완료) |
 | 5 Memory & Learning | session(7개 핸드오프 파일) + project-memory + 글로벌 instincts | OK |
 | 6 Verification | quality-gate → self-review → codex-review → codex-challenge → fix-loop → human gate | OK |
 | 7 Security & Governance | gateguard-fact-force, config-protection, audit jsonl, MCP 핀, sandbox profile, workflow hardening gate | OK |
@@ -176,7 +176,7 @@ HARNESS 는 **하나의 매니페스트(`agent.yaml`)** 와 **5개 정규 카탈
 
 - Frontmatter: `name, description, origin, level` (`schemas/skill.schema.json`).
 - Progressive disclosure — Gemini / opencode 빌더는 description 만 노출.
-- 5 정식 + 1 부속 (ralph): `claude-led-codex-review`, `plan-eng-review`, `tdd-workflow`, `review`, `ship`, `ralph`.
+- 9개 스킬: `claude-led-codex-review`, `plan-eng-review`, `tdd-workflow`, `review`, `ship`, `ralph`, `security-hardening`, `release-readiness`, `porting`.
 
 ### Hook (`hooks/hooks.json` + `hooks/scripts/`)
 
@@ -292,7 +292,7 @@ Severity matrix (`scripts/lib/severity.js`):
 3 layered manifest:
 
 ```
-profiles (5)  →  modules (6)  →  components (32)
+profiles (5)  →  modules (7)  →  components (35)
 ```
 
 | Profile | 포함 모듈 | 기본값 |
@@ -354,12 +354,12 @@ node scripts/sync-claude-md.js  → CLAUDE.md 마커 영역 갱신
 ```
 harness/
 ├── agent.yaml                 ← 매니페스트 (단일 진실 원본)
-├── package.json               ← @harness/cli (private)
+├── package.json               ← @ps-neko/nekowork (private)
 ├── VERSION
 ├── SOUL.md  RULES.md  CLAUDE.md  AGENTS.md  WORKING-CONTEXT.md  REVIEW.md
 │   └─ (거버넌스 4 + 작업 컨텍스트 + 리뷰 로그)
 ├── agents/<name>.md            ← 11개. frontmatter + 본문
-├── skills/<name>/SKILL.md      ← 5+1. progressive disclosure
+├── skills/<name>/SKILL.md      ← 9. progressive disclosure
 ├── commands/<name>.md          ← 1 (legacy compat)
 ├── hooks/
 │   ├── hooks.json              ← 단일 정의
@@ -370,8 +370,8 @@ harness/
 │   └── python/                 ← Python 확장
 ├── manifests/
 │   ├── install-profiles.json   ← 5 profile
-│   ├── install-modules.json    ← 6 module
-│   └── install-components.json ← 32 component
+│   ├── install-modules.json    ← 7 module
+│   └── install-components.json ← 35 component
 ├── schemas/                    ← 10 JSON schema
 ├── scripts/
 │   ├── cli.js                  ← harness CLI (10 verb)
@@ -421,7 +421,8 @@ agents: [architect, planner, executor, code-reviewer, codex-reviewer,
          codex-challenger, security-reviewer, debugger, test-engineer,
          research, doc-writer]
 
-skills: [claude-led-codex-review, plan-eng-review, tdd-workflow, review, ship]
+skills: [claude-led-codex-review, plan-eng-review, tdd-workflow, review, ship,
+         security-hardening, release-readiness, porting]
 
 hooks:
   file: hooks/hooks.json
