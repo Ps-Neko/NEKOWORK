@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed (round handoff persistence, 2026-05-03)
+- `scripts/orchestrators/review.js`, `scripts/demo-review.js` — preserve repeated stage handoffs with `-r<N>` suffixes instead of overwriting round 1 files during fix loops.
+- `tests/unit/orchestrator.test.js`, `tests/e2e/review-cycle.test.js` — assert disk handoff counts match in-memory handoffs and round 2 review files survive.
+
 ### Changed (project-root portable execution, 2026-05-03)
 - `scripts/cli.js`, `scripts/orchestrators/{review,ralph,team-lite}.js`, `scripts/agents/dispatch.js` — split HARNESS install root from target project root so ported `.harness-tool` executions write session state and run git/live work in the target project.
 - `scripts/agents/runners/{claude,codex,gemini}.js`, `scripts/core/cli-resolver.js` — run provider CLIs from `projectRoot` while checking both project and tool roots for local binary hijacks.

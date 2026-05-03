@@ -61,9 +61,10 @@ test('demo-review --no-ship: 7단계 핸드오프 모두 산출', () => {
   assert.equal(prd.acceptance.length, 3);
 
   const handoffs = fs.readdirSync(path.join(sessionDir, 'handoffs')).filter(f => f.endsWith('.md')).sort();
-  // ideate / plan / implement(2 round) / self-review(2 round) / codex-review / codex-challenge — 6 stage = 7 .md
+  // ideate / plan / implement(2 round) / self-review(2 round) / codex-review / codex-challenge = 8 .md
   // (ship 은 --no-ship 으로 생략)
-  const stages = handoffs.map(f => f.replace(/^\d+-/, '').replace(/\.md$/, ''));
+  assert.equal(handoffs.length, 8);
+  const stages = handoffs.map(stageFromHandoffFile);
   assert.ok(stages.includes('ideate'));
   assert.ok(stages.includes('plan'));
   assert.ok(stages.includes('implement'));
@@ -96,12 +97,9 @@ test('demo-review --secure: codex-challenge 강제 활성', () => {
 test('round 카운터: self-review high 발견 시 round 2 까지 진행', () => {
   const sessionDir = path.join(SANDBOX, '.harness', 'state', 'sessions', 'e2e-jwt-no-ship');
   const reviews = fs.readdirSync(path.join(sessionDir, 'handoffs'))
-    .filter(f => /self-review\.json$/.test(f));
-  // demo 는 round 1(high 발견) → round 2(해결) — 2 round 의 self-review json 이 존재해야 함
-  // 단, 같은 stage 의 NN 파일명이 같으면 덮어써짐. 실 round 분리는 상태 file 에서 검증.
-  assert.ok(reviews.length >= 1, 'self-review json 누락');
-  // round 2 가 마지막 덮어쓰기 — verdict 가 approve 여야 함
-  const final = JSON.parse(fs.readFileSync(path.join(sessionDir, 'handoffs', reviews[0]), 'utf8'));
+    .filter(f => /self-review(?:-r\d+)?\.json$/.test(f));
+  assert.deepEqual(reviews.sort(), ['04-self-review-r2.json', '04-self-review.json'].sort());
+  const final = JSON.parse(fs.readFileSync(path.join(sessionDir, 'handoffs', '04-self-review-r2.json'), 'utf8'));
   assert.equal(final.verdict, 'approve');
   assert.equal(final.round, 2);
 });
@@ -167,3 +165,10 @@ test('CLI review: unknown flag 는 usage error 로 실패한다', () => {
   assert.match(r.stderr, /알 수 없는 플래그/);
   assert.doesNotMatch(r.stderr, /UNEXPECTED/);
 });
+
+function stageFromHandoffFile(file) {
+  return file
+    .replace(/^\d+-/, '')
+    .replace(/-r\d+(?=\.md$)/, '')
+    .replace(/\.md$/, '');
+}
