@@ -38,6 +38,7 @@ codex login                                       # ChatGPT 인증 (구독 필�
 npm run verify:codex
 ```
 
+검증 완료: 2026-05-03, codex-cli 0.128.0, ChatGPT 로그인 세션.
 호환 버전: codex CLI ≥ 0.124.0. `codex exec --sandbox read-only` 비대화형 호출 사용.
 `read-only` sandbox 는 단독 보안 경계로 보지 않는다. `runCodex` 는 실행 전후 `git status --porcelain` 을 비교해 작업공간 변조를 차단하며, 의도한 변조 실험일 때만 `HARNESS_CODEX_ALLOW_WORKSPACE_MUTATION=1` 로 우회한다.
 기본 경로에서는 `OPENAI_API_KEY` 가 설정되어 있으면 차단한다. ChatGPT 로그인 세션을 쓰려면
@@ -54,6 +55,7 @@ npm run verify:claude                            # 구독 OAuth 세션으로 1�
 node scripts/cli.js review "<task>" --live --no-ship
 ```
 
+검증 완료: 2026-05-03, Claude Code CLI 2.1.126, local delegated auth.
 기본 runner 는 `claude -p` 를 호출하므로 Claude Pro/Max 구독 세션을 사용한다.
 `ANTHROPIC_API_KEY` 는 기본 경로에 필요 없다. SDK/API-key 경로가 꼭 필요할 때만
 `HARNESS_CLAUDE_RUNNER=sdk` 와 `ANTHROPIC_API_KEY` 를 명시한다.
@@ -71,11 +73,14 @@ CLI handoff mode 는 실행 전후 git 상태를 비교해 예기치 않은 파�
 
 ```bash
 # Google 공식 Gemini CLI 설치 후 local auth 사용
-gcloud auth application-default login
+gemini                                           # 최초 1회 Login with Google 선택
+# Vertex/ADC 방식이 필요한 환경만:
+# gcloud auth application-default login
 # 종량제 API key 사용은 HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1 로 명시 opt-in 할 때만
 npm run verify:gemini
 ```
 
+검증 완료: 2026-05-03, Gemini CLI 0.40.1, local Gemini login session. `gcloud` 는 Gemini CLI 로그인 경로에서는 필수가 아니다.
 `gemini` CLI 가 PATH 에 없으면 `verify:gemini` 는 명확히 실패한다.
 기본 경로에서 `GEMINI_API_KEY` / `GOOGLE_API_KEY` 가 설정되어 있으면 auth guard 가 차단한다.
 
