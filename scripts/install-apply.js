@@ -4,9 +4,14 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import YAML from 'yaml';
+import {
+  buildInstallState,
+  loadInstallState,
+  writeInstallState,
+} from './core/install-state.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -67,43 +72,6 @@ HARNESS install --apply
 `);
 }
 
-function sha256(filePath) {
-  return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
-}
-
-function sha256OfDir(dir) {
-  if (!fs.existsSync(dir)) return null;
-  const entries = [];
-  function walk(d) {
-    for (const e of fs.readdirSync(d, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-      const p = path.join(d, e.name);
-      if (e.isDirectory()) walk(p);
-      else if (e.isFile()) {
-        const rel = path.relative(dir, p).replace(/\\/g, '/');
-        const h = crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
-        entries.push(`${rel} ${h}`);
-      }
-    }
-  }
-  walk(dir);
-  if (entries.length === 0) return null;
-  return crypto.createHash('sha256').update(entries.join('\n')).digest('hex');
-}
-
-function sha256OfCatalog() {
-  // 빌더 입력의 정전(canon): agent.yaml + agents/ + skills/ + commands/ + hooks/ + manifests/
-  const parts = [];
-  const inputs = ['agent.yaml', 'agents', 'skills', 'commands', 'hooks', 'manifests'];
-  for (const inp of inputs) {
-    const p = path.join(ROOT, inp);
-    if (!fs.existsSync(p)) continue;
-    const stat = fs.statSync(p);
-    if (stat.isFile()) parts.push(`${inp}\t${sha256(p)}`);
-    else parts.push(`${inp}/\t${sha256OfDir(p) || ''}`);
-  }
-  return crypto.createHash('sha256').update(parts.join('\n')).digest('hex');
-}
-
 function runBuilder(name) {
   const script = path.join(__dirname, `build-${name}.js`);
   if (!fs.existsSync(script)) {
@@ -114,40 +82,16 @@ function runBuilder(name) {
   return r.status === 0;
 }
 
-function recordState(profile, builders) {
-  const sourceSha = sha256OfCatalog();
-  const now = new Date().toISOString();
-  const state = {
-    $schema: 'schemas/install-state.schema.json',
-    version: '0.0.1',
-    harness_version: JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version,
+function recordState(profile, harnessDefs, builders) {
+  const previousState = loadInstallState(ROOT);
+  const { state, sourceSha } = buildInstallState(ROOT, {
     profile,
-    installed_at: now,
-    last_updated: now,
-    components: {},
-  };
-
-  // 각 하네스의 출력 디렉터리 sha256 을 targets[].sha256 에 기록.
-  // source_sha256 은 카탈로그 전체의 단일 해시 (변경 추적용).
-  for (const b of builders) {
-    const outDir = path.join(ROOT, `.${b}`);
-    if (!fs.existsSync(outDir)) continue;
-    const targetSha = sha256OfDir(outDir) || '0'.repeat(64);
-    state.components[b] = {
-      installed_at: now,
-      source_sha256: sourceSha,
-      targets: [{
-        harness: b,
-        path: outDir.replace(ROOT + path.sep, ''),
-        sha256: targetSha,
-      }],
-    };
-  }
-
-  const stateFile = path.join(ROOT, '.harness', 'install-state.json');
-  fs.mkdirSync(path.dirname(stateFile), { recursive: true });
-  fs.writeFileSync(stateFile, JSON.stringify(state, null, 2));
-  console.log(`  state: ${stateFile.replace(ROOT + path.sep, '')}`);
+    harnessDefs,
+    harnessNames: builders,
+    previousState,
+  });
+  const stateFile = writeInstallState(ROOT, state);
+  console.log(`  state: ${path.relative(ROOT, stateFile)}`);
   console.log(`  source_sha256: ${sourceSha.slice(0, 12)}…`);
 }
 
@@ -177,10 +121,9 @@ async function main() {
   }
 
   // 3. 빌더 실행 (agent.yaml harnesses 의 name 그대로)
-  const manifest = JSON.parse(JSON.stringify(
-    (await import('yaml')).default.parse(fs.readFileSync(path.join(ROOT, 'agent.yaml'), 'utf8'))
-  ));
-  const allBuilders = (manifest.harnesses || []).map(h => h.name);
+  const manifest = YAML.parse(fs.readFileSync(path.join(ROOT, 'agent.yaml'), 'utf8'));
+  const harnessDefs = manifest.harnesses || [];
+  const allBuilders = harnessDefs.map(h => h.name);
   const builders = args.harness ? [args.harness] : allBuilders;
   console.log('');
   console.log(`=> apply: ${builders.join(', ')}`);
@@ -195,7 +138,7 @@ async function main() {
   // 4. state 기록
   console.log('');
   console.log('=> state 기록');
-  recordState(args.profile || 'developer', builders);
+  recordState(args.profile || manifest.profiles?.default || 'developer', harnessDefs, builders);
 
   // 5. 마커 검증
   console.log('');

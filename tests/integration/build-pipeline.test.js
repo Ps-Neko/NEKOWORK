@@ -7,8 +7,11 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
+import Ajv2020 from 'ajv/dist/2020.js';
+import addFormats from 'ajv-formats';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
+const ZERO_SHA = '0'.repeat(64);
 let SANDBOX;
 
 function copyDir(src, dst) {
@@ -30,6 +33,22 @@ function run(script, args = [], opts = {}) {
     encoding: 'utf8',
     ...opts,
   });
+}
+
+function readState() {
+  return JSON.parse(fs.readFileSync(path.join(SANDBOX, '.harness', 'install-state.json'), 'utf8'));
+}
+
+function writeState(state) {
+  fs.writeFileSync(path.join(SANDBOX, '.harness', 'install-state.json'), JSON.stringify(state, null, 2));
+}
+
+function assertValidInstallState(state) {
+  const schema = JSON.parse(fs.readFileSync(path.join(SANDBOX, 'schemas', 'install-state.schema.json'), 'utf8'));
+  const ajv = new Ajv2020({ allErrors: true, strict: false });
+  addFormats(ajv);
+  const validate = ajv.compile(schema);
+  assert.equal(validate(state), true, JSON.stringify(validate.errors));
 }
 
 before(() => {
@@ -116,12 +135,15 @@ test('install apply: 5개 빌더 모두 실행 + state 기록', () => {
   assert.match(r.stdout, /apply: claude, codex, cursor, gemini, opencode/);
   assert.match(r.stdout, /apply 완료/);
 
-  const state = JSON.parse(fs.readFileSync(path.join(SANDBOX, '.harness', 'install-state.json'), 'utf8'));
+  const state = readState();
+  assertValidInstallState(state);
   assert.equal(state.profile, 'developer');
   for (const h of ['claude', 'codex', 'cursor', 'gemini', 'opencode']) {
     assert.ok(state.components[h], `${h} 컴포넌트 누락`);
     assert.match(state.components[h].source_sha256, /^[a-f0-9]{64}$/, `${h} source_sha256 invalid`);
+    assert.notEqual(state.components[h].source_sha256, ZERO_SHA, `${h} source_sha256 placeholder`);
     assert.match(state.components[h].targets[0].sha256, /^[a-f0-9]{64}$/, `${h} target sha256 invalid`);
+    assert.notEqual(state.components[h].targets[0].sha256, ZERO_SHA, `${h} target sha256 placeholder`);
   }
 });
 
@@ -143,6 +165,28 @@ test('repair --check: 변경 없으면 정합', () => {
   assert.match(r.stdout, /모든 하네스 정합/);
 });
 
+test('repair: source_sha256 placeholder 회수 후 state schema 유지', () => {
+  const state = readState();
+  state.components.gemini.source_sha256 = ZERO_SHA;
+  writeState(state);
+
+  const check = run('scripts/repair.js', ['--check', '--harness', 'gemini']);
+  assert.equal(check.status, 1);
+  assert.match(check.stdout, /gemini.*source_sha256 불일치/);
+
+  const fix = run('scripts/repair.js', ['--harness', 'gemini']);
+  assert.equal(fix.status, 0, `repair source fix failed: ${fix.stderr}\n${fix.stdout}`);
+
+  const repaired = readState();
+  assertValidInstallState(repaired);
+  assert.notEqual(repaired.components.gemini.source_sha256, ZERO_SHA);
+  assert.match(repaired.components.gemini.targets[0].sha256, /^[a-f0-9]{64}$/);
+  assert.notEqual(repaired.components.gemini.targets[0].sha256, ZERO_SHA);
+
+  const recheck = run('scripts/repair.js', ['--check', '--harness', 'gemini']);
+  assert.equal(recheck.status, 0, `repair recheck failed: ${recheck.stderr}\n${recheck.stdout}`);
+});
+
 test('repair: .cursor 삭제 후 재빌드 발견', () => {
   fs.rmSync(path.join(SANDBOX, '.cursor'), { recursive: true, force: true });
 
@@ -153,6 +197,14 @@ test('repair: .cursor 삭제 후 재빌드 발견', () => {
   const fix = run('scripts/repair.js');
   assert.equal(fix.status, 0, `repair fix failed: ${fix.stderr}\n${fix.stdout}`);
   assert.ok(fs.existsSync(path.join(SANDBOX, '.cursor')));
+
+  const state = readState();
+  assertValidInstallState(state);
+  assert.notEqual(state.components.cursor.source_sha256, ZERO_SHA);
+  assert.notEqual(state.components.cursor.targets[0].sha256, ZERO_SHA);
+
+  const recheck = run('scripts/repair.js', ['--check', '--harness', 'cursor']);
+  assert.equal(recheck.status, 0, `cursor recheck failed: ${recheck.stderr}\n${recheck.stdout}`);
 });
 
 test('repair: 출력 디렉터리 임의 변경 → sha256 불일치 검출', () => {

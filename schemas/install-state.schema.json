@@ -31,7 +31,7 @@
               "properties": {
                 "harness": { "type": "string" },
                 "path": { "type": "string" },
-                "sha256": { "type": "string" }
+                "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
               }
             }
           }

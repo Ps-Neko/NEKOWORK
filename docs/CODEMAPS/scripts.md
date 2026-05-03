@@ -31,6 +31,7 @@ scripts/
 │   ├── cli-resolver.js
 │   ├── execution-workspace.js
 │   ├── git-mutation-guard.js
+│   ├── install-state.js
 │   ├── json-extractor.js
 │   └── subprocess.js
 ├── daemon/
@@ -96,6 +97,7 @@ scripts/
 | `core/cli-resolver.js` | `assertProviderCliTrust`, `isPathInside`, `resolveCli`, `resolveProviderCli` |  |
 | `core/execution-workspace.js` | `applyExecutionDiff`, `captureExecutionDiff`, `changedFiles`, `withExecutionWorkspace` |  |
 | `core/git-mutation-guard.js` | `readGitStatus`, `withGitMutationGuard` |  |
+| `core/install-state.js` | `ZERO_SHA`, `assertInstallState`, `buildInstallState`, `buildStateComponent`, `installStatePath`, `loadInstallState`, `sha256`, `sha256OfCatalog`, `sha256OfDir`, `writeInstallState` |  |
 | `core/json-extractor.js` | `extractJson`, `parseJsonObject` |  |
 | `core/subprocess.js` | `spawnAndCollect` |  |
 | `daemon/wait.js` | _(none)_ | `harness wait --start` 영속 데몬. 동작:   - .harness/state/sessions/*/wakeup.json 폴링 (10초 간격).   - 발견 시 해당 세션의 ralph 또는 review |
