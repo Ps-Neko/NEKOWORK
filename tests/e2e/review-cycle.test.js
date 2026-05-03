@@ -145,6 +145,22 @@ test('CLI plan: implement 이전에 멈춘다', () => {
   assert.doesNotMatch(stages, /03-implement\.md/);
 });
 
+test('CLI --project-root: 외부 프로젝트에 session state 를 쓴다', () => {
+  const sessionId = 'e2e-cli-project-root';
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-project-root-'));
+  const harnessSessionDir = path.join(SANDBOX, '.harness', 'state', 'sessions', sessionId);
+
+  try {
+    const r = run(['scripts/cli.js', 'plan', '외부 프로젝트 계획', '--session', sessionId, '--project-root', projectRoot]);
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /project root:/);
+    assert.ok(fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', sessionId, 'handoffs', '02-plan.json')));
+    assert.equal(fs.existsSync(harnessSessionDir), false, 'HARNESS 설치 루트에 session state 를 쓰면 안 됨');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 test('CLI review: unknown flag 는 usage error 로 실패한다', () => {
   const r = run(['scripts/cli.js', 'review', '문서 수정', '--unknown-flag']);
   assert.equal(r.status, 2);

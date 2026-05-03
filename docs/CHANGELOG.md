@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Changed (project-root portable execution, 2026-05-03)
+- `scripts/cli.js`, `scripts/orchestrators/{review,ralph,team-lite}.js`, `scripts/agents/dispatch.js` — split HARNESS install root from target project root so ported `.harness-tool` executions write session state and run git/live work in the target project.
+- `scripts/agents/runners/{claude,codex,gemini}.js`, `scripts/core/cli-resolver.js` — run provider CLIs from `projectRoot` while checking both project and tool roots for local binary hijacks.
+- `tests/unit/{orchestrator,team-lite,core-utils}.test.js`, `tests/e2e/review-cycle.test.js` — cover explicit `projectRoot` state placement and multi-root CLI trust checks.
+- `docs/PORTING.md`, `docs/RUNBOOK.md` — document `--project-root` / `HARNESS_PROJECT_ROOT` for external project execution.
+
 ### Changed (portability preflight hardening, 2026-05-03)
 - `scripts/portability/simulate-port.js` — support positional target paths, detect existing `.harness-tool`, `.harness`, harness output directories, AGENTS.md merge risk, and deduplicate planned additions/conflicts.
 - `tests/unit/portability.test.js` — cover positional targets, AGENTS.md conflicts, existing tool strategy, self-target high conflict, and unique `wouldAdd` output.

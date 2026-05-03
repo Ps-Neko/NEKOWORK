@@ -15,9 +15,10 @@ const TEAM_LITE_STAGES = [
 const TERMINAL_STATUSES = new Set(['done', 'skipped', 'failed']);
 
 export async function teamLiteCycle(opts) {
-  const root = opts.harnessRoot || process.cwd();
+  const harnessRoot = opts.harnessRoot || process.cwd();
+  const projectRoot = opts.projectRoot || harnessRoot;
   const sessionId = opts.sessionId || `team-lite-${Date.now()}`;
-  const sessionDir = path.join(root, '.harness', 'state', 'sessions', sessionId);
+  const sessionDir = path.join(projectRoot, '.harness', 'state', 'sessions', sessionId);
   const handoffDir = path.join(sessionDir, 'handoffs');
   const heartbeatDir = path.join(sessionDir, 'heartbeats');
   fs.mkdirSync(handoffDir, { recursive: true });
@@ -53,7 +54,8 @@ export async function teamLiteCycle(opts) {
     let handoff;
     try {
       handoff = await runStage({
-        root,
+        harnessRoot,
+        projectRoot,
         live,
         sessionDir,
         sessionId,
@@ -65,7 +67,7 @@ export async function teamLiteCycle(opts) {
 
       handoff.team_stage = spec.id;
       removeUndefined(handoff);
-      assertValidHandoff(root, handoff);
+      assertValidHandoff(harnessRoot, handoff);
       handoffs.push(handoff);
       writeHandoff(handoffDir, handoff, handoffs.length);
     } catch (e) {
@@ -97,13 +99,14 @@ export async function teamLiteCycle(opts) {
   };
 }
 
-async function runStage({ root, live, sessionDir, sessionId, spec, task, priorHandoffs, dispatcher }) {
+async function runStage({ harnessRoot, projectRoot, live, sessionDir, sessionId, spec, task, priorHandoffs, dispatcher }) {
   return dispatcher({
     agent: spec.agent,
     stage: spec.stage,
     task,
     live,
-    harnessRoot: root,
+    harnessRoot,
+    projectRoot,
     sessionDir,
     sessionId,
     context: { priorHandoffs },
