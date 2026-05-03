@@ -3,6 +3,7 @@
 //
 // 입력: --target <대상 디렉터리>  (사용자가 지정한 사내 프로젝트 경로)
 //       --profile <name>           (기본: research)
+//       또는 positional target: node scripts/portability/simulate-port.js <대상 디렉터리>
 //
 // 출력: 대상 디렉터리에 어떤 파일이 새로 들어갈지 / 어떤 파일이 보존되는지 / 충돌 가능성 리포트.
 // 실 변경 없음 (--apply 옵션 미존재).
@@ -26,6 +27,7 @@ function args() {
     else if (v === '--verbose') a.verbose = true;
     else if (v === '--json') a.json = true;
     else if (v === '--help' || v === '-h') { help(); process.exit(0); }
+    else if (!v.startsWith('-') && !a.target) a.target = v;
     else { console.error(`알 수 없는: ${v}`); process.exit(2); }
   }
   return a;
@@ -36,22 +38,38 @@ function help() {
 HARNESS PoC 이식 시뮬레이터 (dry-run only).
 
 사용법:
+  node scripts/portability/simulate-port.js <dir> [--profile <name>] [--verbose] [--json]
   node scripts/portability/simulate-port.js --target <dir> [--profile <name>] [--verbose] [--json]
 
 예:
   node scripts/portability/simulate-port.js --target <대상 경로> --profile developer
-  node scripts/portability/simulate-port.js --target <대상 경로> --profile research
+  node scripts/portability/simulate-port.js <대상 경로> --profile research --verbose
 `);
 }
 
 function inspectTarget(dir) {
-  const r = { exists: false, isGitRepo: false, hasClaudeMd: false, hasAgentsMd: false, hasMcpJson: false, files: [] };
+  const r = {
+    exists: false,
+    isGitRepo: false,
+    hasClaudeMd: false,
+    hasAgentsMd: false,
+    hasMcpJson: false,
+    hasHarnessTool: false,
+    hasHarnessState: false,
+    harnessDirs: [],
+    files: [],
+  };
   if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) return r;
   r.exists = true;
   r.isGitRepo = fs.existsSync(path.join(dir, '.git'));
   r.hasClaudeMd = fs.existsSync(path.join(dir, 'CLAUDE.md'));
   r.hasAgentsMd = fs.existsSync(path.join(dir, 'AGENTS.md'));
   r.hasMcpJson = fs.existsSync(path.join(dir, '.mcp.json'));
+  r.hasHarnessTool = fs.existsSync(path.join(dir, '.harness-tool'));
+  r.hasHarnessState = fs.existsSync(path.join(dir, '.harness'));
+  for (const p of ['.claude', '.codex', '.cursor', '.gemini', '.opencode']) {
+    if (fs.existsSync(path.join(dir, p))) r.harnessDirs.push(p);
+  }
   for (const p of ['package.json', 'pyproject.toml', 'Cargo.toml', 'go.mod', 'pom.xml', 'build.gradle', 'requirements.txt']) {
     if (fs.existsSync(path.join(dir, p))) r.files.push(p);
   }
@@ -61,6 +79,7 @@ function inspectTarget(dir) {
 function recommendStrategy(insp) {
   // 가장 단순한 분류:
   if (!insp.exists) return { strategy: 'create', reason: '대상 디렉터리 없음 — 새로 만들고 결합' };
+  if (insp.hasHarnessTool) return { strategy: 'update-existing-tool', reason: '이미 .harness-tool 이 있음 — 새 결합보다 업데이트/repair 우선' };
   if (!insp.isGitRepo) return { strategy: 'init+submodule', reason: 'git 미초기화 — git init 후 submodule 권장' };
   if (insp.hasClaudeMd || insp.hasAgentsMd) return { strategy: 'submodule', reason: 'CLAUDE/AGENTS.md 보존 + submodule 결합' };
   return { strategy: 'submodule', reason: '표준 결합' };
@@ -77,37 +96,66 @@ function loadHarnessPlan(profile) {
 
 function detectConflicts(target, plan, insp) {
   const conflicts = [];
+  const conflictKeys = new Set();
+  const wouldAdd = [];
+  const wouldAddSet = new Set();
+  const markerManagedFiles = new Set(['CLAUDE.md', 'AGENTS.md']);
+
+  const addConflict = (severity, file, why) => {
+    const key = `${severity}\0${file}\0${why}`;
+    if (conflictKeys.has(key)) return;
+    conflictKeys.add(key);
+    conflicts.push({ severity, file, why });
+  };
+  const addWouldAdd = (targetPath) => {
+    if (wouldAddSet.has(targetPath)) return;
+    wouldAddSet.add(targetPath);
+    wouldAdd.push(targetPath);
+  };
+
+  if (path.resolve(target) === HARNESS_ROOT) {
+    addConflict('high', '.', '대상이 HARNESS 저장소 자체입니다. PoC 대상 프로젝트 루트를 별도로 지정하세요.');
+  }
+
+  if (insp.hasHarnessTool) {
+    addConflict('low', '.harness-tool', '이미 HARNESS tool 결합 흔적이 있습니다. 새 submodule 추가 대신 업데이트/repair 전략을 검토하세요.');
+  }
+
+  if (insp.hasHarnessState) {
+    addConflict('low', '.harness', '기존 HARNESS 상태 디렉터리가 있습니다. 세션/설치 상태를 보존하고 repair --check 로 정합성을 확인하세요.');
+  }
+
+  for (const dir of insp.harnessDirs) {
+    addConflict('medium', dir, '기존 하네스 출력 디렉터리가 있습니다. install-state 와 실제 산출물의 소유권을 확인하세요.');
+  }
+
   // CLAUDE.md / AGENTS.md 마커 충돌 가능성
   if (insp.hasClaudeMd) {
     const text = fs.readFileSync(path.join(target, 'CLAUDE.md'), 'utf8');
     if (!/<!--\s*HARNESS:START/i.test(text)) {
-      conflicts.push({
-        severity: 'medium',
-        file: 'CLAUDE.md',
-        why: '기존 CLAUDE.md 가 있고 HARNESS:START/END 마커가 없다 → 마커 영역 추가 필요',
-      });
+      addConflict('medium', 'CLAUDE.md', '기존 CLAUDE.md 가 있고 HARNESS:START/END 마커가 없다 → 마커 영역 추가 필요');
+    }
+  }
+  if (insp.hasAgentsMd) {
+    const text = fs.readFileSync(path.join(target, 'AGENTS.md'), 'utf8');
+    if (!/<!--\s*HARNESS:START/i.test(text)) {
+      addConflict('medium', 'AGENTS.md', '기존 AGENTS.md 가 있고 HARNESS 마커가 없다 → 사용자 영역 보존 후 수동 머지 필요');
     }
   }
   if (insp.hasMcpJson) {
-    conflicts.push({
-      severity: 'high',
-      file: '.mcp.json',
-      why: '기존 .mcp.json 존재 — harness 게이트웨이 추가 시 namespace 충돌 가능. 머지 필요.',
-    });
+    addConflict('high', '.mcp.json', '기존 .mcp.json 존재 — harness 게이트웨이 추가 시 namespace 충돌 가능. 머지 필요.');
   }
   // 새 파일 vs 기존 파일
-  const wouldAdd = [];
   for (const c of plan.components || []) {
-    if (c.harness !== 'claude' && c.harness !== 'codex') continue;
     if (!c.target) continue;
+    if (c.type === 'platform' && insp.harnessDirs.includes(c.target)) continue;
     const t = path.join(target, c.target);
     if (fs.existsSync(t)) {
-      conflicts.push({
-        severity: 'medium', file: c.target,
-        why: `이미 존재 (${c.type}) — 덮어쓰기 위험. 백업 권장.`,
-      });
+      if (!markerManagedFiles.has(c.target)) {
+        addConflict('medium', c.target, `이미 존재 (${c.type}) — 덮어쓰기 위험. 백업 권장.`);
+      }
     } else {
-      wouldAdd.push(c.target);
+      addWouldAdd(c.target);
     }
   }
   return { conflicts, wouldAdd };
@@ -124,6 +172,8 @@ function printReport(report, json, verbose) {
   console.log('  CLAUDE.md         : ' + report.inspection.hasClaudeMd);
   console.log('  AGENTS.md         : ' + report.inspection.hasAgentsMd);
   console.log('  .mcp.json         : ' + report.inspection.hasMcpJson);
+  console.log('  .harness-tool     : ' + report.inspection.hasHarnessTool);
+  console.log('  harness dirs      : ' + report.inspection.harnessDirs.join(', '));
   console.log('  package files     : ' + report.inspection.files.join(', '));
   console.log('  추천 전략         : ' + report.strategy.strategy + ' (' + report.strategy.reason + ')');
   console.log('  profile           : ' + report.profile);

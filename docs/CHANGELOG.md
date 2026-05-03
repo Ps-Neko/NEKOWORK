@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Changed (portability preflight hardening, 2026-05-03)
+- `scripts/portability/simulate-port.js` — support positional target paths, detect existing `.harness-tool`, `.harness`, harness output directories, AGENTS.md merge risk, and deduplicate planned additions/conflicts.
+- `tests/unit/portability.test.js` — cover positional targets, AGENTS.md conflicts, existing tool strategy, self-target high conflict, and unique `wouldAdd` output.
+- `docs/PORTING.md`, `docs/RUNBOOK.md` — document the non-destructive preflight command and high-conflict exit behavior.
+
 ### Verified (local live provider smoke, 2026-05-03)
 - `npm run verify:claude` — PASS with Claude Code CLI 2.1.126 using local delegated auth.
 - `npm run verify:codex` — PASS with codex-cli 0.128.0 using ChatGPT login session; security regression sample returns `block` with 2 issues.
