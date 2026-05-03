@@ -22,6 +22,7 @@ function parseArgs(argv) {
     harness: null,
     force: false,
     dryRun: false,
+    projectRoot: null,
     modules: [],
     withoutModules: [],
     components: [],
@@ -35,6 +36,7 @@ function parseArgs(argv) {
     else if (a === '--without-module') args.withoutModules.push(takeValue(argv, i++, a));
     else if (a === '--component' || a === '--with-component') args.components.push(takeValue(argv, i++, a));
     else if (a === '--without-component') args.withoutComponents.push(takeValue(argv, i++, a));
+    else if (a === '--project-root' || a === '--target-root') args.projectRoot = takeValue(argv, i++, a);
     else if (a === '--force') args.force = true;
     else if (a === '--dry-run') args.dryRun = true;
     else if (a === '--help' || a === '-h') { printHelp(); process.exit(0); }
@@ -57,7 +59,7 @@ function printHelp() {
 HARNESS install --apply
 
 사용법:
-  install.sh --apply [--profile <name>] [--harness <name>] [--module <id>] [--component <id>] [--force] [--dry-run]
+  install.sh --apply [--profile <name>] [--harness <name>] [--module <id>] [--component <id>] [--project-root <dir>] [--force] [--dry-run]
 
 옵션:
   --profile <name>          프로파일 선택 (기본: agent.yaml profiles.default)
@@ -67,36 +69,47 @@ HARNESS install --apply
   --without-module <id>     exclude a module, repeatable
   --component <id>          include a direct component, repeatable
   --without-component <id>  exclude a component, repeatable
+  --project-root <dir>      write harness outputs and .harness/install-state.json to this project root
+  --target-root <dir>       alias for --project-root
   --force                   기존 출력 무시하고 재생성
   --dry-run                 plan 만 다시 출력하고 종료
 `);
 }
 
-function runBuilder(name) {
+function runBuilder(name, targetRoot) {
   const script = path.join(__dirname, `build-${name}.js`);
   if (!fs.existsSync(script)) {
     console.error(`  [SKIP] build-${name}.js 없음`);
     return false;
   }
-  const r = spawnSync(process.execPath, [script], { stdio: 'inherit' });
+  const r = spawnSync(process.execPath, [script], {
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      HARNESS_SOURCE_ROOT: ROOT,
+      HARNESS_TARGET_ROOT: targetRoot,
+    },
+  });
   return r.status === 0;
 }
 
-function recordState(profile, harnessDefs, builders) {
-  const previousState = loadInstallState(ROOT);
+function recordState(profile, harnessDefs, builders, targetRoot) {
+  const previousState = loadInstallState(targetRoot);
   const { state, sourceSha } = buildInstallState(ROOT, {
+    targetRoot,
     profile,
     harnessDefs,
     harnessNames: builders,
     previousState,
   });
-  const stateFile = writeInstallState(ROOT, state);
-  console.log(`  state: ${path.relative(ROOT, stateFile)}`);
+  const stateFile = writeInstallState(targetRoot, state, { schemaRoot: ROOT });
+  console.log(`  state: ${path.relative(targetRoot, stateFile)}`);
   console.log(`  source_sha256: ${sourceSha.slice(0, 12)}…`);
 }
 
 async function main() {
   const args = parseArgs(process.argv);
+  const targetRoot = path.resolve(args.projectRoot || process.env.HARNESS_PROJECT_ROOT || ROOT);
 
   // 1. plan 먼저 (검증 + 결과 표시)
   console.log('=> plan 단계');
@@ -115,6 +128,8 @@ async function main() {
     return;
   }
 
+  console.log(`=> target root: ${targetRoot}`);
+
   // 2. .mcp.json 검증 (있으면 OK, 없으면 경고)
   if (!fs.existsSync(path.join(ROOT, '.mcp.json'))) {
     console.warn('WARN: .mcp.json 없음. bridge/mcp-server.js 등록 필요.');
@@ -129,7 +144,7 @@ async function main() {
   console.log(`=> apply: ${builders.join(', ')}`);
   for (const b of builders) {
     console.log('');
-    if (!runBuilder(b)) {
+    if (!runBuilder(b, targetRoot)) {
       console.error(`build-${b} 실패`);
       process.exit(1);
     }
@@ -138,7 +153,7 @@ async function main() {
   // 4. state 기록
   console.log('');
   console.log('=> state 기록');
-  recordState(args.profile || manifest.profiles?.default || 'developer', harnessDefs, builders);
+  recordState(args.profile || manifest.profiles?.default || 'developer', harnessDefs, builders, targetRoot);
 
   // 5. 마커 검증
   console.log('');
@@ -156,6 +171,7 @@ function planArgs(args) {
   return [
     ...(args.profile ? ['--profile', args.profile] : []),
     ...(args.harness ? ['--target', args.harness] : []),
+    ...(args.projectRoot ? ['--project-root', args.projectRoot] : []),
     ...args.modules.flatMap(v => ['--module', v]),
     ...args.withoutModules.flatMap(v => ['--without-module', v]),
     ...args.components.flatMap(v => ['--component', v]),

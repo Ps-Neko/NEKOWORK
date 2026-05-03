@@ -76,7 +76,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 | GitHub OAuth 상태 | OK | 2026-05-03 keychain token valid for Ps-Neko. scope: `gist read:org repo`; workflow 파일 변경 시 `workflow` scope refresh 필요 |
 | GitHub Actions 실 동작 | OK | PR #18~#24 기준 validate/review checks PASS |
 | npm publish 결정 | OK | 명시 공개 릴리스 요청 전까지 `private: true` 유지 |
-| 사내 PoC preflight | OK | 2026-05-03 `simulate-port` dry-run 강화 + `--project-root` 기반 portable execution 준비. 실제 결합은 선택한 대상 프로젝트에 `.harness-tool/` 결합 후 수행 |
+| 사내 PoC preflight | OK | 2026-05-03 `simulate-port` dry-run 강화 + `--project-root` 기반 portable execution/install 준비. 실제 결합은 선택한 대상 프로젝트에 `.harness-tool/` 결합 후 수행 |
 | ~~install-apply 의 sha256 placeholder~~ | ~~Day 4 stub~~ | **2026-04-29 회수**: source_sha256 + targets[].sha256 모두 실값 |
 
 ### 3.4 stub 메시지 흔적 — **2026-04-29 회수**
@@ -110,7 +110,7 @@ tests/integration/     ✓ build-pipeline.test.js (10 케이스)
 
 ### P0 — 사용자 환경 동의 후 즉시 가치
 1. ~~**Claude/Codex/Gemini CLI live smoke** — delegated local CLI auth 로 provider smoke 완료.~~ 2026-05-03 완료.
-2. **사내 PoC 비파괴 결합** — preflight는 `simulate-port <target> --profile research --verbose` 로 준비 완료. `--project-root` 로 HARNESS 설치 루트와 대상 프로젝트 루트를 분리했으므로 다음 단계는 선택한 프로젝트에 `.harness-tool/` 결합 후 첫 review 동작 확인. (메모리 등록된 두 디렉터리는 제외).
+2. **사내 PoC 비파괴 결합** — preflight는 `simulate-port <target> --profile research --verbose` 로 준비 완료. `--project-root` 로 HARNESS 설치 루트와 대상 프로젝트 루트를 분리했으므로 다음 단계는 선택한 프로젝트에 `.harness-tool/` 결합 후 `install-apply` 와 첫 review 동작 확인. (메모리 등록된 두 디렉터리는 제외).
 3. **GitHub workflow scope refresh** — workflow 파일을 로컬에서 수정해야 할 때만 `gh auth refresh -s workflow` 또는 HARNESS OAuth App workflow scope 재승인.
 
 ### P1 — 자체 완결 — **2026-04-29 모두 완료**

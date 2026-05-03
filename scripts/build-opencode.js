@@ -7,10 +7,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import YAML from 'yaml';
+import { buildRoots } from './core/build-roots.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, '..');
-const OUT = path.join(ROOT, '.opencode');
+const { sourceRoot: ROOT, targetRoot: TARGET_ROOT } = buildRoots(path.resolve(__dirname, '..'));
+const OUT = path.join(TARGET_ROOT, '.opencode');
 
 function ensure(dir) { fs.mkdirSync(dir, { recursive: true }); }
 

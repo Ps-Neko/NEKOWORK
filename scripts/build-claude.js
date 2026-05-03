@@ -5,10 +5,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { buildRoots } from './core/build-roots.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, '..');
-const OUT = path.join(ROOT, '.claude');
+const { sourceRoot: ROOT, targetRoot: TARGET_ROOT } = buildRoots(path.resolve(__dirname, '..'));
+const OUT = path.join(TARGET_ROOT, '.claude');
 
 function ensure(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function copy(src, dst) { fs.mkdirSync(path.dirname(dst), { recursive: true }); fs.copyFileSync(src, dst); }
@@ -76,7 +77,7 @@ for (const f of ['CLAUDE.md', 'AGENTS.md', 'RULES.md', 'SOUL.md', 'WORKING-CONTE
 console.log('  governance : 6 files');
 
 // .claude-plugin/plugin.json
-const pluginDir = path.join(ROOT, '.claude-plugin');
+const pluginDir = path.join(TARGET_ROOT, '.claude-plugin');
 ensure(pluginDir);
 const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
 const plugin = {
