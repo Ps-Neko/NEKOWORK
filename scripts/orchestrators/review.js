@@ -66,9 +66,9 @@ export async function reviewCycle(opts) {
 
   const handoffs = [];
   const writeHandoff = (h) => {
-    const nn = STAGE_INDEX[h.stage] || '00';
-    fs.writeFileSync(path.join(sessionDir, 'handoffs', `${nn}-${h.stage}.md`), renderHandoff(h));
-    fs.writeFileSync(path.join(sessionDir, 'handoffs', `${nn}-${h.stage}.json`), JSON.stringify(h, null, 2));
+    const base = handoffBase(h);
+    fs.writeFileSync(path.join(sessionDir, 'handoffs', `${base}.md`), renderHandoff(h));
+    fs.writeFileSync(path.join(sessionDir, 'handoffs', `${base}.json`), JSON.stringify(h, null, 2));
     handoffs.push(h);
     // 인스팅트 자동 누적
     try {
@@ -353,6 +353,13 @@ function humanGate(sessionDir, reason, sessionId, handoffs) {
 }
 
 function dedupe(arr) { return [...new Set(arr)]; }
+
+function handoffBase(h) {
+  const nn = STAGE_INDEX[h.stage] || '00';
+  const round = Number(h.round || 1);
+  const roundSuffix = round > 1 ? `-r${round}` : '';
+  return `${nn}-${h.stage}${roundSuffix}`;
+}
 
 function renderHandoff(h) {
   const lines = [];
