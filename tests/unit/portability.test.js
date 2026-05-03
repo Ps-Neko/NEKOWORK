@@ -20,6 +20,14 @@ test('비존재 target → strategy=create', () => {
   assert.equal(report.strategy.strategy, 'create');
 });
 
+test('positional target 도 지원', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-port-positional-'));
+  const r = run([tmp, '--profile', 'core']);
+  const report = JSON.parse(r.stdout);
+  assert.equal(report.target, path.resolve(tmp));
+  assert.equal(report.strategy.strategy, 'init+submodule');
+});
+
 test('빈 디렉터리 + git 없음 → strategy=init+submodule', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-port-empty-'));
   const r = run(['--target', tmp, '--profile', 'core']);
@@ -39,6 +47,25 @@ test('CLAUDE.md 존재 → conflict medium 발견', () => {
   assert.ok(report.conflicts.some(c => c.file === 'CLAUDE.md' && c.severity === 'medium'));
 });
 
+test('AGENTS.md 존재 → conflict medium 발견', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-port-agentsmd-'));
+  fs.mkdirSync(path.join(tmp, '.git'));
+  fs.writeFileSync(path.join(tmp, 'AGENTS.md'), '# 기존 사용자 AGENTS.md\n자유 본문');
+  const r = run(['--target', tmp, '--profile', 'core']);
+  const report = JSON.parse(r.stdout);
+  assert.ok(report.conflicts.some(c => c.file === 'AGENTS.md' && c.severity === 'medium'));
+});
+
+test('기존 .harness-tool 은 update-existing-tool 전략', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-port-tool-'));
+  fs.mkdirSync(path.join(tmp, '.git'));
+  fs.mkdirSync(path.join(tmp, '.harness-tool'));
+  const r = run(['--target', tmp, '--profile', 'core']);
+  const report = JSON.parse(r.stdout);
+  assert.equal(report.strategy.strategy, 'update-existing-tool');
+  assert.ok(report.conflicts.some(c => c.file === '.harness-tool' && c.severity === 'low'));
+});
+
 test('.mcp.json 존재 → conflict high', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-port-mcp-'));
   fs.mkdirSync(path.join(tmp, '.git'));
@@ -48,6 +75,13 @@ test('.mcp.json 존재 → conflict high', () => {
   assert.ok(report.conflicts.some(c => c.file === '.mcp.json' && c.severity === 'high'));
 });
 
+test('HARNESS repo 자체를 target 으로 지정하면 high conflict', () => {
+  const r = run(['--target', HARNESS_ROOT, '--profile', 'core']);
+  const report = JSON.parse(r.stdout);
+  assert.equal(r.code, 1);
+  assert.ok(report.conflicts.some(c => c.file === '.' && c.severity === 'high'));
+});
+
 test('plan / harness_version / wouldAdd 존재', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-port-plan-'));
   const r = run(['--target', tmp, '--profile', 'developer']);
@@ -55,5 +89,6 @@ test('plan / harness_version / wouldAdd 존재', () => {
   assert.ok(report.harness_version);
   assert.ok(report.plan.component_count > 0);
   assert.ok(Array.isArray(report.wouldAdd));
+  assert.equal(report.wouldAdd.length, new Set(report.wouldAdd).size);
   assert.equal(report.note, 'dry-run only');
 });

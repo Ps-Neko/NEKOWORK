@@ -48,6 +48,17 @@ harness install --plan --profile research --harness claude
 
 ## 2. 첫 30분 절차
 
+### Step 0 — 비파괴 preflight
+
+대상 프로젝트를 건드리기 전에 dry-run 리포트를 먼저 본다.
+
+```bash
+node scripts/portability/simulate-port.js <대상 프로젝트> --profile research --verbose
+```
+
+이 명령은 파일을 쓰지 않는다. 예상 추가 파일, 기존 `CLAUDE.md` / `AGENTS.md` 보존 충돌, `.mcp.json` namespace 충돌, 기존 `.harness-tool` 결합 여부를 리포트한다.
+`high` 충돌이 있으면 exit code 1 로 끝나므로 CI preflight 에도 사용할 수 있다.
+
 ### Step 1 — 프로필 선택
 
 | PoC 유형 | 권장 프로필 | 이유 |
@@ -160,7 +171,7 @@ node .harness-tool/scripts/sync-claude-md.js   # 마커 영역 갱신
 node .harness-tool/scripts/repair.js           # sha256 비교 + 누락 재빌드
 node .harness-tool/scripts/build-codemaps.js   # docs/CODEMAPS 갱신
 npm run lint                                   # 4 validator 통과
-npm test                                       # 99 케이스
+npm test                                       # unit + integration + e2e
 ```
 
 CI 한 줄은 §4 참조.

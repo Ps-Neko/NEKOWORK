@@ -223,7 +223,7 @@ node scripts/demo-review.js "<task>" demo-local --no-ship
 2. `node .harness-tool/scripts/install-plan.js --profile research`.
 3. 프로젝트별 룰은 `rules/<project>/` 로 추가 (common 위에 오버라이드).
 4. CLAUDE.md 의 `<!-- HARNESS:START -->` 마커 영역만 자동 갱신, 사용자 영역 보존.
-5. `node scripts/portability/simulate-port.js <target>` 으로 dry-run 가능.
+5. `node scripts/portability/simulate-port.js <target> --profile research --verbose` 으로 dry-run 가능.
 
 ## 9. 배포 (publish)
 
@@ -242,7 +242,7 @@ node scripts/demo-review.js "<task>" demo-local --no-ship
 - 버전: 0.0.2 (2026-04-29 P1 회수)
 - 카탈로그: 11 agents · 6 skills · 5 hooks · 6 modules · 5 profiles
 - 5 빌더 모두 동작 + codemaps
-- 99/99 테스트 PASS (82 unit + 10 integration + 7 e2e)
+- `npm test` PASS (unit + integration + e2e)
 - 자체 완결 가능 영역 정합 100%
 - 외부 의존 영역 (Gemini CLI live / GitHub OAuth 또는 push / npm publish) 은 사용자 동의 시점까지 보류
 
