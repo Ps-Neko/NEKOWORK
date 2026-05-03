@@ -132,3 +132,22 @@ test('CLI help: 10 verb 모두 노출', () => {
     assert.match(out, new RegExp(verb), `verb "${verb}" 미노출`);
   }
 });
+
+test('CLI plan: implement 이전에 멈춘다', () => {
+  const sessionId = 'e2e-cli-plan';
+  const r = run(['scripts/cli.js', 'plan', '계획만 확인', '--session', sessionId]);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /handoffs: ideate .* plan/);
+  const handoffDir = path.join(SANDBOX, '.harness', 'state', 'sessions', sessionId, 'handoffs');
+  const stages = fs.readdirSync(handoffDir).filter(f => f.endsWith('.md')).join('\n');
+  assert.match(stages, /01-ideate\.md/);
+  assert.match(stages, /02-plan\.md/);
+  assert.doesNotMatch(stages, /03-implement\.md/);
+});
+
+test('CLI review: unknown flag 는 usage error 로 실패한다', () => {
+  const r = run(['scripts/cli.js', 'review', '문서 수정', '--unknown-flag']);
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /알 수 없는 플래그/);
+  assert.doesNotMatch(r.stderr, /UNEXPECTED/);
+});

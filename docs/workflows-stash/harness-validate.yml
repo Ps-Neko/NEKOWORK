@@ -33,12 +33,16 @@ jobs:
 
       - name: 단위 테스트
         run: |
-          node --test tests/unit/severity.test.js \
-                       tests/unit/router.test.js \
-                       tests/unit/costs.test.js \
-                       tests/unit/orchestrator.test.js
+          npm test
+
+      - name: 의존성 감사
+        run: npm audit --audit-level=moderate
 
       - name: 빌드 산출물
         run: |
           node scripts/build-claude.js
           node scripts/build-codex.js
+          node scripts/build-cursor.js
+          node scripts/build-gemini.js
+          node scripts/build-opencode.js
+          node scripts/build-codemaps.js --check

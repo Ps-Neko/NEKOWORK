@@ -5,9 +5,15 @@ import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
+import Ajv2020 from 'ajv/dist/2020.js';
+import addFormats from 'ajv-formats';
 import { reviewCycle, SENSITIVE_PATTERNS } from '../../scripts/orchestrators/review.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
+const ajv = new Ajv2020({ allErrors: true, strict: false });
+addFormats(ajv);
+const handoffSchema = JSON.parse(fs.readFileSync(path.join(ROOT, 'schemas', 'handoff.schema.json'), 'utf8'));
+const validateHandoff = ajv.compile(handoffSchema);
 
 test('mock 풀사이클: --secure 없이도 auth 키워드면 단계 6 활성', async () => {
   const r = await reviewCycle({
@@ -58,6 +64,48 @@ test('--no-ship 이면 단계 7 없음', async () => {
   assert.ok(!r.handoffs.find(h => h.stage === 'ship'), 'ship skipped');
 });
 
+test('stopAfter=plan 이면 implement 이전에 멈춘다', async () => {
+  const r = await reviewCycle({
+    task: '계획만 작성',
+    sessionId: 'unit-stop-plan',
+    harnessRoot: ROOT,
+    stopAfter: 'plan',
+    noShip: true,
+  });
+  assert.equal(r.stoppedAt, 'plan');
+  assert.equal(r.verdict, 'planned');
+  assert.deepEqual(r.handoffs.map(h => h.stage), ['ideate', 'plan']);
+});
+
+test('--no-codex 이면 Codex 단계만 건너뛴다', async () => {
+  const r = await reviewCycle({
+    task: 'auth 문서 수정',
+    sessionId: 'unit-no-codex',
+    harnessRoot: ROOT,
+    noCodex: true,
+    noShip: true,
+  });
+  const stages = r.handoffs.map(h => h.stage);
+  assert.ok(stages.includes('self-review'));
+  assert.ok(!stages.includes('codex-review'));
+  assert.ok(!stages.includes('codex-challenge'));
+  assert.equal(r.secureActive, false);
+});
+
+test('--secure 와 --fast 는 함께 쓰면 실패한다', async () => {
+  await assert.rejects(
+    () => reviewCycle({
+      task: 'auth 변경',
+      sessionId: 'unit-fast-secure-conflict',
+      harnessRoot: ROOT,
+      fast: true,
+      secure: true,
+      noShip: true,
+    }),
+    /--secure 와 --fast/
+  );
+});
+
 test('핸드오프 파일이 디스크에 잘 떨어진다', async () => {
   const r = await reviewCycle({
     task: '간단 기능',
@@ -70,6 +118,8 @@ test('핸드오프 파일이 디스크에 잘 떨어진다', async () => {
     const json = md.replace(/\.md$/, '.json');
     assert.ok(fs.existsSync(md), `${md} exists`);
     assert.ok(fs.existsSync(json), `${json} exists`);
+    const data = JSON.parse(fs.readFileSync(json, 'utf8'));
+    assert.equal(validateHandoff(data), true, `${json}: ${ajv.errorsText(validateHandoff.errors)}`);
   }
 });
 

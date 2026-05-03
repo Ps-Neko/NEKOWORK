@@ -94,18 +94,22 @@ export async function dispatch(opts) {
     });
   } catch { /* 비용 기록 실패는 무시 */ }
 
-  // 표준화 + 메타데이터 부착. result 의 비표준 필드(예: prdSeed)도 통과시킨다.
+  // 표준화 + 메타데이터 부착. 런너의 임의 필드는 통과시키지 않고,
+  // orchestrator 가 명시적으로 쓰는 메타데이터만 보존한다.
   const standardKeys = new Set([
     'decided','rejected','risks','files','remaining','issues','verdict','confidence','usage',
   ]);
+  const passthroughKeys = new Set(['prdSeed', 'diffPath', 'executionWorkspace']);
   const passthrough = {};
   for (const [k, v] of Object.entries(result || {})) {
-    if (!standardKeys.has(k)) passthrough[k] = v;
+    if (!standardKeys.has(k) && passthroughKeys.has(k)) passthrough[k] = v;
   }
-  return {
+
+  const handoff = {
     stage: opts.stage,
     agent: fm.name,
     round: opts.context?.round || 1,
+    session_id: opts.sessionId || undefined,
     timestamp: new Date().toISOString(),
     duration_ms: durMs,
     provider,
@@ -117,9 +121,13 @@ export async function dispatch(opts) {
     remaining: result.remaining ?? '',
     issues: result.issues ?? [],
     verdict: result.verdict,
-    confidence: result.confidence ?? null,
     ...passthrough,
   };
+  if (result.confidence != null) handoff.confidence = result.confidence;
+  for (const [k, v] of Object.entries(handoff)) {
+    if (v === undefined) delete handoff[k];
+  }
+  return handoff;
 }
 
 /** agent.md frontmatter 파싱. 파일이 없거나 frontmatter 없으면 null 반환. */

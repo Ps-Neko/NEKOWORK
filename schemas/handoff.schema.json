@@ -14,6 +14,9 @@
     "round": { "type": "integer", "minimum": 1 },
     "session_id": { "type": "string" },
     "timestamp": { "type": "string", "format": "date-time" },
+    "duration_ms": { "type": "integer", "minimum": 0 },
+    "provider": { "enum": ["mock", "claude", "codex", "gemini", "local"] },
+    "model": { "type": "string" },
     "decided": { "type": "string", "minLength": 1 },
     "rejected": { "type": "string" },
     "risks": { "type": "string" },
@@ -33,6 +36,16 @@
       "type": "number",
       "minimum": 0,
       "maximum": 1
+    },
+    "prdSeed": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "diffPath": {
+      "type": "string"
+    },
+    "executionWorkspace": {
+      "type": "string"
     }
   },
   "$defs": {

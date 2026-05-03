@@ -16,7 +16,7 @@
 - agents: 11
 - skills: 6
 - commands: 1 (legacy compat)
-- hooks: 4 (gateguard-fact-force, quality-gate, pre-bash-dispatcher, persistent-mode)
+- hooks: 5 (gateguard-fact-force, config-protection, quality-gate, pre-bash-dispatcher, persistent-mode)
 - profiles: core, developer, security, research, full
 - harnesses: claude, codex, cursor, gemini, opencode
 

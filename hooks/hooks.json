@@ -20,7 +20,7 @@
       "matcher": "Edit|Write",
       "hook": "scripts/config-protection.js",
       "timeout_ms": 1000,
-      "env_toggle": "HARNESS_HOOK_GATEGUARD",
+      "env_toggle": "HARNESS_HOOK_CONFIG_PROTECTION",
       "comment": ".env / *.pem / secret 파일 접근 차단"
     }
   ],
