@@ -1,14 +1,19 @@
 # NEKOWORK
 
-Local-first AI development harness for Claude Code, Codex CLI, and Gemini CLI.
+Local-first AI development quality runtime for Claude Code, Codex CLI, and Gemini CLI.
 
 [![harness-validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
-NEKOWORK is the product. HARNESS is the local runtime it packages: one source catalog, `agent.yaml`, projected into Claude Code, Codex CLI, Cursor, Gemini CLI, and OpenCode surfaces.
+NEKOWORK prevents AI coding agents from shipping unverified changes.
 
-Claude writes or plans, Codex challenges the result in a separate context, and human gates stop critical or repeated-risk changes.
+It runs:
 
-NEKOWORK is also a quality runtime: it combines disciplined development workflow, product-aware planning, read-only multi-agent review, independent Codex verification, Human Gate approval, and explicit apply control.
+1. Work
+2. Independent verification
+3. Human approval
+4. Explicit apply
+
+No auto-commit. No auto-push. No surprise deploy.
 
 Product principle:
 
@@ -16,17 +21,47 @@ Product principle:
 NEKOWORK = Claude work -> Codex verification -> Human Gate
 ```
 
-NEKOWORK is not meant to become a large agent pack. Skills, hooks, profiles, and team modes are added only when they preserve the verification loop.
+NEKOWORK is the product. HARNESS is the local runtime it packages: one source catalog, `agent.yaml`, projected into Claude Code, Codex CLI, Cursor, Gemini CLI, and OpenCode surfaces.
 
-NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, profile, module, and pack must preserve the verification loop.
+NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profile, module, and pack must:
 
-**Public alpha evidence:** 7 packs / 9 profiles / 36 components / 5 harness targets / 7 case-study flows / 249 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
+1. improve verification,
+2. preserve one-executor writes,
+3. produce auditable evidence,
+4. respect Human Gate.
+
+**Public alpha evidence:** 7 packs / 9 profiles / 36 components / 5 harness targets / 7 case-study flows / 251 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
 **One-minute demo:** [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) / [full report example](docs/DEMO-REPORT.md) / [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) / [roadmap](docs/ROADMAP.md)
 
 ![NEKOWORK one-minute terminal demo](docs/assets/demo-terminal.svg)
+
+## Start Here
+
+Use the current npm alpha for the published health smoke:
+
+```bash
+npx -y @ps-neko/nekowork@alpha doctor --quick
+```
+
+Use a source checkout for the new simple command path:
+
+```bash
+node scripts/cli.js check
+node scripts/cli.js run "implement this safely" --session first-run
+node scripts/cli.js report --session first-run
+node scripts/cli.js gate status --session first-run
+```
+
+The simple path maps to the full evidence loop: `check = doctor --quick`, and `run = work -> verify -> ship`.
+
+To add generated harness surfaces to another local repository from a source checkout:
+
+```bash
+node /path/to/harness/scripts/cli.js init --profile developer --project-root /path/to/my-project
+```
 
 ## Example Report
 
@@ -51,6 +86,26 @@ Evidence:
 
 See the full report contract and example artifact in [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md), and the one-minute terminal transcript in [docs/DEMO.md](docs/DEMO.md).
 
+## Human Gate Example
+
+```text
+Risk: security-sensitive auth parser change
+Codex verdict: approve_with_fixes
+Ship ready: false
+
+Required before apply:
+[ ] Add parser boundary test
+[ ] Remove long-lived API key env fallback
+[ ] Re-run verify --strict-quality
+
+Decision:
+- approve
+- block
+- request fixes
+```
+
+Human Gate is the point where NEKOWORK stops being an autopilot and becomes an approval system.
+
 ## Compared With Agent Packs
 
 | Tool pattern | Optimizes for | NEKOWORK optimizes for |
@@ -60,11 +115,21 @@ See the full report contract and example artifact in [docs/DEMO-REPORT.md](docs/
 | Autopilot | Fast autonomous execution | Report, gate, explicit apply |
 | Discipline workflows | Better development habits | Evidence-backed ship decision |
 
+## When To Choose What
+
+| Use case | Prefer |
+|---|---|
+| Add TDD and discipline habits to Claude Code | Superpowers |
+| Get the broadest Claude Code skill/command environment | Everything Claude Code |
+| Simulate startup team roles from planning to QA | GStack |
+| Run autonomous multi-agent execution | OMC |
+| Verify AI changes, require human approval, then apply explicitly | NEKOWORK |
+
 ## Three Paths
 
 Most users should start with the Beginner path. The other paths are for explicit phase control or legacy compatibility.
 
-1. Beginner: `doctor -> ask -> run -> report -> gate`
+1. Beginner: `check -> run -> report -> gate`
 2. Advanced: `ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply`
 3. Legacy: `review` / `review-cycle`
 
@@ -84,7 +149,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 249 tests pass
+- `npm test`: 251 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha doctor --quick`: pass with warnings only
@@ -99,6 +164,7 @@ Current local verification:
 | npm package boundary | package/release risk | pack/audit evidence |
 | Auth parser boundary | auth/security risk | parser boundary evidence |
 | Python protocol parser | protocol correctness risk | test-backed verification |
+| Dotenv configuration boundary | config/security risk | no-secret parser evidence |
 
 ## Official Packs
 
@@ -143,14 +209,19 @@ Recommended path for most users:
 git clone https://github.com/Ps-Neko/NEKOWORK.git harness
 cd harness
 npm ci
-node scripts/cli.js doctor --quick
-node scripts/cli.js ask "clarify a risky or ambiguous request" --session first-ask
+node scripts/cli.js check
 node scripts/cli.js run "implement, verify, and prepare ship readiness" --session first-run
 node scripts/cli.js report --session first-run
 node scripts/cli.js gate status --session first-run
 ```
 
 `run` executes `work -> verify -> ship`. `report` turns the session evidence into a readable `REPORT.md`. It does not apply by default. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
+
+To initialize another local repository from this checkout:
+
+```bash
+node /path/to/harness/scripts/cli.js init --profile developer --project-root /path/to/my-project
+```
 
 Advanced path:
 
@@ -167,6 +238,8 @@ node scripts/cli.js review "check the project setup" --no-ship --session first-s
 The default review path uses mock providers, so it does not need API keys or provider CLIs.
 
 For the fuller first-run guide, see [docs/QUICKSTART.md](docs/QUICKSTART.md).
+
+For the trust and recovery model, see [Safety Guarantees](docs/SAFETY-GUARANTEES.md), [Failure Modes](docs/FAILURE-MODES.md), [Trust Model](docs/TRUST-MODEL.md), and [Why Not Autopilot](docs/WHY-NOT-AUTOPILOT.md).
 
 To see the repository-based external project flow end to end:
 
