@@ -1,15 +1,15 @@
 # Public Alpha Publish Record
 
-NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.4`.
+NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.5`.
 
 Do not publish from the `0.0.3` line.
 
-The repository metadata has been advanced to `0.1.0-alpha.4` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, and `0.1.0-alpha.4` publishes succeeded on 2026-05-08 and moved the `alpha` dist-tag forward.
+The repository metadata has been advanced to `0.1.0-alpha.5` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, and `0.1.0-alpha.5` publishes succeeded on 2026-05-08 and moved the `alpha` dist-tag forward.
 
-The matching Git tag and GitHub prerelease are published as `v0.1.0-alpha.4`:
+The matching Git tag and GitHub prerelease are published as `v0.1.0-alpha.5`:
 
 ```text
-https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.4
+https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.5
 ```
 
 ## Registry State
@@ -27,14 +27,14 @@ The current alpha install path points at the release line:
 
 ```text
 npm view @ps-neko/nekowork@alpha version --json
--> 0.1.0-alpha.4
+-> 0.1.0-alpha.5
 ```
 
 Dist-tags:
 
 ```text
 npm view @ps-neko/nekowork dist-tags --json
--> { "alpha": "0.1.0-alpha.4", "latest": "0.1.0-alpha.0" }
+-> { "alpha": "0.1.0-alpha.5", "latest": "0.1.0-alpha.0" }
 ```
 
 The publish package shape has been checked:
@@ -79,11 +79,18 @@ npm publish --access public --tag alpha
 -> published 0.1.0-alpha.4
 ```
 
+The fifth alpha update was also published with the same `alpha` dist-tag:
+
+```text
+npm publish --access public --tag alpha
+-> published 0.1.0-alpha.5
+```
+
 After publish:
 
 ```text
-npm view @ps-neko/nekowork@0.1.0-alpha.4 version --json
--> 0.1.0-alpha.4
+npm view @ps-neko/nekowork@0.1.0-alpha.5 version --json
+-> 0.1.0-alpha.5
 ```
 
 `npx` smoke passed:
@@ -108,9 +115,9 @@ Published public alpha package:
 
 ```text
 name: @ps-neko/nekowork
-version: 0.1.0-alpha.4
+version: 0.1.0-alpha.5
 dist-tag: alpha
-bin: harness
+bin: nekowork, harness
 ```
 
 The alpha tag matters. It prevents accidental default installation before the owner decides the public package should become the stable install path.
@@ -122,8 +129,8 @@ Before publishing, explicitly confirm:
 - npm scope ownership for `@ps-neko`
 - npm 2FA readiness
 - package name `@ps-neko/nekowork`
-- binary name `harness`
-- public alpha version `0.1.0-alpha.4`
+- binary names `nekowork` and `harness`
+- public alpha version `0.1.0-alpha.5`
 - `private` removed or set to `false`
 - publish tag is `alpha`, not `latest`
 
@@ -181,7 +188,7 @@ Smoke test:
 npx -y @ps-neko/nekowork@alpha check
 ```
 
-If the `harness` bin cannot run correctly through `npx`, do not promote the package.
+If the `nekowork` or `harness` bin cannot run correctly through `npx`, do not promote the package.
 
 ## Post-Publish Work
 

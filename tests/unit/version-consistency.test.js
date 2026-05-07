@@ -21,3 +21,12 @@ test('public release surfaces use the package version', () => {
   assert.match(read('docs/DEMO.md'), new RegExp(`@ps-neko/nekowork@${pkg.version}`));
   assert.match(read('docs/assets/demo-terminal.svg'), new RegExp(`@ps-neko/nekowork@${pkg.version}`));
 });
+
+test('package exposes product and runtime CLI names', () => {
+  const pkg = JSON.parse(read('package.json'));
+  const lock = JSON.parse(read('package-lock.json'));
+
+  assert.equal(pkg.bin.nekowork, 'scripts/cli.js');
+  assert.equal(pkg.bin.harness, 'scripts/cli.js');
+  assert.deepEqual(lock.packages[''].bin, pkg.bin);
+});
