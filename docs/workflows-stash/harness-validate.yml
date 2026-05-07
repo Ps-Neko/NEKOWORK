@@ -39,6 +39,23 @@ jobs:
           console.log(`published alpha smoke: ${metadata.message}`);
           NODE
 
+      - name: Fresh npx alpha init smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          workdir="$RUNNER_TEMP/nekowork-alpha-init-smoke"
+          mkdir -p "$workdir"
+          cd "$workdir"
+          git init -q
+          expected_version="$(npm view @ps-neko/nekowork@alpha version --json | node -p "JSON.parse(require('node:fs').readFileSync(0, 'utf8'))")"
+          npx -y @ps-neko/nekowork@alpha init --profile developer --project-root . --dry-run > init.txt
+          if ! grep -Fq "HARNESS install --plan  (v${expected_version})" init.txt; then
+            echo "expected init plan version: v${expected_version}"
+            cat init.txt
+            exit 1
+          fi
+          echo "published alpha init smoke: v${expected_version}"
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
