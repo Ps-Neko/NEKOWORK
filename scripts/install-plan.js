@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import YAML from 'yaml';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
+import { validateProfileSafety } from './lib/profile-safety.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -66,7 +67,7 @@ Usage:
   install.sh --plan --list [--json]
 
 Options:
-  --profile <name>          profile to install (core | developer | security | research | full)
+  --profile <name>          profile to install (core | developer | security | product | frontend | testing | research | full)
   --target <name>           harness target (claude | codex | cursor | gemini | opencode)
   --harness <name>          alias for --target
   --module <id>             include an additional module, repeatable
@@ -117,6 +118,20 @@ function validateAll(verbose) {
       for (const err of validate.errors || []) console.error(`         ${err.instancePath} ${err.message}`);
     } else if (verbose) {
       console.error(`  [OK]   ${c.name}`);
+    }
+  }
+  const profilesDoc = checks.find(c => c.name === 'manifests/install-profiles')?.data;
+  if (profilesDoc) {
+    const safety = validateProfileSafety(profilesDoc);
+    if (safety.warnings.length && verbose) {
+      for (const warning of safety.warnings) console.error(`  [WARN] ${warning}`);
+    }
+    if (safety.errors.length) {
+      ok = false;
+      console.error('  [FAIL] profile safety');
+      for (const err of safety.errors) console.error(`         ${err}`);
+    } else if (verbose) {
+      console.error('  [OK]   profile safety');
     }
   }
   return ok;

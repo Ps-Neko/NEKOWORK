@@ -17,7 +17,7 @@
 - skills: 9
 - commands: 1 (legacy compat)
 - hooks: 5 (gateguard-fact-force, config-protection, quality-gate, pre-bash-dispatcher, persistent-mode)
-- profiles: core, developer, security, research, full
+- profiles: core, developer, security, product, frontend, testing, research, full
 - harnesses: claude, codex, cursor, gemini, opencode
 
 ## 에이전트 → 모델 매트릭스
@@ -40,11 +40,19 @@
 
 ```bash
 harness install --plan --profile core      # 설치 dry-run
-harness review "<task>" [--secure|--fast|--no-ship]
+harness ask "<task>"                       # question gate, no project mutation
+harness team "<task>"                      # read-only worker handoffs
+harness work "<task>"                      # single executor implement handoff
+harness verify "<task>" --session <id>     # Codex-only verification
+harness gate status --session <id>         # inspect or resolve HUMAN_GATE state
+harness ship "<task>" --session <id>       # ship/no-ship readiness handoff
+harness apply --session <id>               # apply verified SHIP_READY live-work diff
+harness run "<task>" --session <id>        # work -> verify -> ship, optional --apply
+harness review "<task>" [--secure|--fast|--no-ship]  # legacy full cycle
+harness review-cycle "<task>" [--secure|--fast|--no-ship]  # explicit legacy alias
 harness plan "<task>"
 harness self-review
 harness codex-review                       # 단계 5 단독
-harness ship
 harness sessions
 harness costs --since=7d
 ```

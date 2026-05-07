@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import YAML from 'yaml';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
+import { validateProfileSafety } from '../lib/profile-safety.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
@@ -97,6 +98,12 @@ if (manifest && modulesDoc) {
   if (def && !profilesDoc?.profiles?.[def]) {
     errors.push(`agent.yaml profiles.default "${def}" 가 install-profiles.json 에 없음`);
   }
+}
+
+if (profilesDoc) {
+  const safety = validateProfileSafety(profilesDoc);
+  errors.push(...safety.errors);
+  warnings.push(...safety.warnings);
 }
 
 console.log(`HARNESS validate-manifests`);

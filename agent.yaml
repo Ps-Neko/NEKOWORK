@@ -88,6 +88,9 @@ profiles:
     - core
     - developer
     - security
+    - product
+    - frontend
+    - testing
     - research
     - full
 

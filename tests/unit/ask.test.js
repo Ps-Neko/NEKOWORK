@@ -1,0 +1,55 @@
+import { strict as assert } from 'node:assert';
+import { test } from 'node:test';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import Ajv2020 from 'ajv/dist/2020.js';
+import addFormats from 'ajv-formats';
+import { askGate, buildQuestionGate, classifyAskTask } from '../../scripts/orchestrators/ask.js';
+
+const ROOT = path.resolve(import.meta.dirname, '..', '..');
+const ajv = new Ajv2020({ allErrors: true, strict: false });
+addFormats(ajv);
+const handoffSchema = JSON.parse(fs.readFileSync(path.join(ROOT, 'schemas', 'handoff.schema.json'), 'utf8'));
+const validateHandoff = ajv.compile(handoffSchema);
+
+test('ask classifies financial UI tasks as high risk with human gate if continuing', () => {
+  const c = classifyAskTask('stock trading dashboard mockup with mock-only orders');
+  assert.equal(c.risk, 'high');
+  assert.ok(c.tags.includes('financial'));
+  assert.ok(c.tags.includes('product-ui'));
+  assert.equal(c.requiresCodexChallenge, true);
+  assert.equal(c.requiresHumanGate, true);
+});
+
+test('question gate handoff stays schema-valid and read-only', () => {
+  const handoff = buildQuestionGate('React dashboard mockup');
+  assert.equal(handoff.stage, 'question-gate');
+  assert.equal(handoff.provider, 'local');
+  assert.deepEqual(handoff.files, []);
+  assert.ok(handoff.questions.length >= 4);
+  assert.equal(handoff.success_criteria.length, 3);
+  assert.equal(validateHandoff(handoff), true, JSON.stringify(validateHandoff.errors));
+});
+
+test('ask writes question-gate artifacts into the target project session', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-ask-project-root-'));
+  try {
+    const r = await askGate({
+      task: 'auth token rotation plan',
+      sessionId: 'unit-ask',
+      harnessRoot: ROOT,
+      projectRoot,
+    });
+
+    assert.equal(path.resolve(r.sessionDir), path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-ask'));
+    assert.ok(fs.existsSync(path.join(r.sessionDir, 'ask.json')));
+    assert.ok(fs.existsSync(path.join(r.sessionDir, 'handoffs', '00-question-gate.json')));
+    assert.ok(fs.existsSync(path.join(r.sessionDir, 'handoffs', '00-question-gate.md')));
+    assert.equal(r.handoff.risk_level, 'high');
+    assert.equal(r.handoff.success_criteria.length, 3);
+    assert.equal(validateHandoff(r.handoff), true, JSON.stringify(validateHandoff.errors));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});

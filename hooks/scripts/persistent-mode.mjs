@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Stop persistent-mode.
-// .harness/state/sessions/<id>/active 가 있으면 wakeup.json drop.
-// Day 3 stub. 실 데몬 (harness wait --start) 은 Day 6 이후.
+// If .harness/state/sessions/<id>/active exists, drop wakeup.json for
+// `harness wait start` to process.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -22,6 +22,6 @@ const payload = {
 };
 fs.writeFileSync(wakeup, JSON.stringify(payload, null, 2));
 process.stderr.write(`[persistent-mode] wakeup signal: ${wakeup}\n`);
-process.stderr.write('[persistent-mode] The boulder never stops (Day 6 데몬 활성 시 자동 재개)\n');
+process.stderr.write('[persistent-mode] wait daemon can resume supported active sessions\n');
 
 process.exit(0);

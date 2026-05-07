@@ -93,9 +93,12 @@ export async function teamLiteCycle(opts) {
   return {
     sessionId,
     sessionDir,
+    mode: 'advanced-team-lite-handoff',
     tasks,
     handoffs,
     verdict: lastVerdict(handoffs) || 'unknown',
+    targetProjectMutated: false,
+    nextStep: 'use work/run for single-executor implementation, then verify and ship',
   };
 }
 
@@ -109,7 +112,14 @@ async function runStage({ harnessRoot, projectRoot, live, sessionDir, sessionId,
     projectRoot,
     sessionDir,
     sessionId,
-    context: { priorHandoffs },
+    sandboxOverride: 'read-only',
+    context: {
+      priorHandoffs,
+      teamLite: true,
+      readOnlyHandoff: true,
+      noProjectMutation: true,
+      recommendedNextStep: 'work/run -> verify -> ship',
+    },
   });
 }
 
@@ -157,6 +167,10 @@ function writeTeamState(sessionDir, sessionId, task, tasks, handoffs) {
   const state = {
     sessionId,
     task,
+    mode: 'advanced-team-lite-handoff',
+    mutation: 'read-only-handoffs',
+    target_project_mutated: false,
+    recommended_next_step: 'use work/run for single-executor implementation, then verify and ship',
     updated_at: new Date().toISOString(),
     pipeline: TEAM_LITE_STAGES.map(s => s.id),
     terminal_statuses: [...TERMINAL_STATUSES],

@@ -22,7 +22,7 @@ hooks/
 |---|---|---|
 | `scripts/config-protection.js` | _(none)_ | PreToolUse(Edit\|Write) config-protection. .env / *.pem / *.key / credentials . |
 | `scripts/gateguard-fact-force.js` | _(none)_ | PreToolUse(Edit\|Write) gateguard-fact-force. "Are you sure?" . importer / public API / schema . : 1. tool_input.file_path ? . 2. .harness/s |
-| `scripts/persistent-mode.mjs` | _(none)_ | Stop persistent-mode. .harness/state/sessions/<id>/active wakeup.json drop. Day 3 stub. (harness wait --start) Day 6 . |
+| `scripts/persistent-mode.mjs` | _(none)_ | Stop persistent-mode. If .harness/state/sessions/<id>/active exists, drop wakeup.json for `harness wait start` to process. |
 | `scripts/pre-bash-dispatcher.js` | _(none)_ | PreToolUse(Bash) . ECC pre-bash-dispatcher.js . . ENV on/off. stdin JSON Claude Code hook , . |
 | `scripts/quality-gate.js` | _(none)_ | PostToolUse(Edit\|Write) quality-gate. : - .ts/.tsx: tsc --noEmit ( + transitive). isolated. - .js/.mjs/.cjs: node --check . - .py: ruff che |
 

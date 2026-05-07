@@ -24,6 +24,14 @@ node scripts/cli.js doctor --quick
 
 Mock mode is the default. It does not call Claude, Codex, Gemini, or any paid API.
 
+For ambiguous or risky work, start with the local question gate:
+
+```bash
+node scripts/cli.js ask "trading dashboard mockup" --session first-ask
+```
+
+`ask` creates a question-gate handoff only. It does not call providers and does not mutate project files.
+
 ```bash
 node scripts/cli.js review "check the project setup" --no-ship --session first-smoke
 ```
@@ -32,6 +40,7 @@ Expected result:
 
 - session state under `.harness/state/sessions/first-smoke/`
 - handoff markdown files under `handoffs/`
+- `review-summary.json` with `mode: legacy-full-review-cycle`
 - no PR or publish action because `--no-ship` is set
 
 Example output:
@@ -45,11 +54,80 @@ Example output:
 [review:first-smoke] 7 ship skipped (--no-ship)
 ```
 
+`review-cycle` is an explicit alias for the same legacy full cycle:
+
+```bash
+node scripts/cli.js review-cycle "check the project setup" --no-ship --session first-review-cycle
+```
+
 For a planning-only first pass:
 
 ```bash
 node scripts/cli.js plan "draft an implementation plan" --session first-plan
 ```
+
+For multiple read-only perspectives before implementation:
+
+```bash
+node scripts/cli.js team "trading dashboard mockup" --workers planner,research,security,test --no-write --session first-team
+```
+
+`team` writes handoffs and a `team-summary.json` file. It does not run an implement stage and does not mutate project files.
+
+For a single-executor implementation handoff:
+
+```bash
+node scripts/cli.js work "implement the planned dashboard mockup" --single-executor --session first-work
+```
+
+In mock mode this writes an implement handoff only. In live mode the executor works in an isolated git worktree and NEKOWORK captures a diff under the session; the target project is not changed until a later verified apply path exists. `work` also writes `acceptance-criteria.json`, reusing `prd.json` when available or creating a deterministic minimum from the task.
+
+Then verify that work with Codex:
+
+```bash
+node scripts/cli.js verify "verify the planned dashboard mockup" --session first-work
+```
+
+`verify` reads the prior `work` handoff and optional diff. It does not implement or ship. Add `--secure` when you want Codex challenge even if the task is not auto-detected as sensitive.
+
+If verification creates a human gate, inspect it:
+
+```bash
+node scripts/cli.js gate status --session first-work
+```
+
+Then make an explicit human decision:
+
+```bash
+node scripts/cli.js gate approve --session first-work --reason "Reviewed and accepted this risk"
+node scripts/cli.js gate block --session first-work --reason "Release risk rejected"
+```
+
+`gate approve` requires an open `HUMAN_GATE`. It records approval for audit; it does not delete the original gate file.
+
+Then produce a ship/no-ship readiness handoff:
+
+```bash
+node scripts/cli.js ship "prepare dashboard ship readiness" --require-clean-gates --session first-work
+```
+
+`ship` requires the prior `work` and `verify` handoffs. It does not publish, deploy, create a PR, or mutate the target project. If Codex reported fixable findings, `ship` writes a no-ship handoff and `NO_SHIP`; if Codex fully approved, it writes `SHIP_READY`. Existing `HUMAN_GATE` always blocks it.
+
+For live work that produced a captured diff, apply it only after ship readiness:
+
+```bash
+node scripts/cli.js apply --session first-work
+```
+
+`apply` requires `SHIP_READY`, no newer `NO_SHIP`, no unresolved gate, a clean git worktree excluding `.harness/` state, and a captured diff from `work --live`. It applies the diff but does not commit, push, publish, or deploy.
+
+To run the decomposed wrapper in one command:
+
+```bash
+node scripts/cli.js run "implement and verify a change" --session first-run
+```
+
+`run` executes `work -> verify -> ship`. It does not apply by default. Add `--apply` only when live work produced a captured diff and you want the verified `SHIP_READY` diff applied.
 
 ## 3. Inspect The Install Catalog
 
@@ -64,6 +142,9 @@ Profiles:
 - `core`: minimal rules, agents, hooks, and platform configs
 - `developer`: daily development, quality workflow, Codex loop, ops-readiness
 - `security`: secure review defaults
+- `product`: question gate, scope review, acceptance criteria
+- `frontend`: UI mockup, component review, accessibility-oriented flow
+- `testing`: test planning, regression, and coverage-oriented flow
 - `research`: research-oriented profile
 - `full`: every current module
 

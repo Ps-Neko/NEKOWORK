@@ -42,6 +42,9 @@ test('team-lite writes staged task, heartbeat, monitor, and handoffs', async () 
   assert.ok(files.some(f => f.includes('team-verify') && f.endsWith('.json')));
 
   const teamState = JSON.parse(fs.readFileSync(path.join(r.sessionDir, 'team-lite.json'), 'utf8'));
+  assert.equal(teamState.mode, 'advanced-team-lite-handoff');
+  assert.equal(teamState.mutation, 'read-only-handoffs');
+  assert.equal(teamState.target_project_mutated, false);
   assert.deepEqual(teamState.pipeline, ['team-plan', 'team-prd', 'team-exec', 'team-verify', 'team-fix']);
   assert.ok(teamState.terminal_statuses.includes('done'));
   assert.ok(teamState.handoffs.every(h => h.team_stage));
@@ -73,16 +76,23 @@ test('team-lite projectRoot 지정 시 state 는 대상 프로젝트에 쓰고 s
   const sessionId = 'unit-team-lite-project-root';
   cleanSession(sessionId);
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-team-project-root-'));
-  const dispatcher = async ({ agent, stage }) => ({
-    stage,
-    agent,
-    decided: `${agent} ${stage} ok`,
-    rejected: '',
-    risks: '',
-    files: [],
-    remaining: '',
-    verdict: stage === 'self-review' ? 'approve' : undefined,
-  });
+  const calls = [];
+  const dispatcher = async (args) => {
+    calls.push(args);
+    assert.equal(args.sandboxOverride, 'read-only');
+    assert.equal(args.context.readOnlyHandoff, true);
+    assert.equal(args.context.noProjectMutation, true);
+    return {
+      stage: args.stage,
+      agent: args.agent,
+      decided: `${args.agent} ${args.stage} ok`,
+      rejected: '',
+      risks: '',
+      files: [],
+      remaining: '',
+      verdict: args.stage === 'self-review' ? 'approve' : undefined,
+    };
+  };
 
   try {
     const r = await teamLiteCycle({
@@ -94,6 +104,8 @@ test('team-lite projectRoot 지정 시 state 는 대상 프로젝트에 쓰고 s
     });
 
     assert.equal(path.resolve(r.sessionDir), path.join(projectRoot, '.harness', 'state', 'sessions', sessionId));
+    assert.equal(r.targetProjectMutated, false);
+    assert.ok(calls.length > 0);
     assert.ok(fs.existsSync(path.join(r.sessionDir, 'team-lite.json')));
     assert.ok(fs.existsSync(path.join(r.sessionDir, 'handoffs', '01-team-plan.json')));
     assert.equal(fs.existsSync(path.join(ROOT, '.harness', 'state', 'sessions', sessionId)), false);
