@@ -1,10 +1,12 @@
 # Roadmap
 
-Status date: 2026-05-07
+Status date: 2026-05-08
 
 This roadmap is intentionally small. NEKOWORK should improve the evidence surface before expanding the agent catalog.
 
 ## 0.1.0-alpha.2
+
+Status: released.
 
 Goal: make the published package and first-run story easier to trust from the outside.
 
@@ -15,6 +17,17 @@ Planned scope:
 - Keep README focused on evidence, report output, Human Gate, and explicit apply.
 - Keep the external feedback path for alpha users to paste `doctor --quick --json` and `REPORT.md` summaries.
 - Preserve the current catalog size unless a new agent, skill, hook, or pack directly strengthens verification evidence.
+
+## 0.1.0-alpha.3 Candidate
+
+Goal: gather external feedback and keep the release path boring.
+
+Candidate scope:
+
+- Keep `@alpha` smoke evidence green across local and GitHub Actions gates.
+- Add one more third-party case study only if it demonstrates a new risk class.
+- Improve feedback triage docs once alpha users file real reports.
+- Avoid provider/API-key-first setup changes unless they preserve delegated local auth as the default.
 
 Non-goals:
 

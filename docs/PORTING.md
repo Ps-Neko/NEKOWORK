@@ -1,6 +1,6 @@
 # Porting NEKOWORK Into Another Project
 
-NEKOWORK `0.1.0-alpha.1` is the current repository version and the published `@ps-neko/nekowork@alpha` package. Use a submodule or local checkout for repository-pinned workflows and examples.
+NEKOWORK `0.1.0-alpha.2` is the current repository version and the published `@ps-neko/nekowork@alpha` package. Use a submodule or local checkout for repository-pinned workflows and examples.
 
 ## Local Demo First
 

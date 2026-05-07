@@ -4,13 +4,18 @@
 
 ## [Unreleased]
 
-These entries are the current `0.1.0-alpha.2` candidate scope. Do not move them to a version heading until the owner approves the next npm alpha publish.
+No unreleased changes yet.
+
+## [0.1.0-alpha.2] - 2026-05-08
 
 ### Added
 - Add GitHub issue templates for alpha feedback and reproducible bug reports.
 - Add CI coverage for a fresh `npx @ps-neko/nekowork@alpha doctor --quick` smoke against the published alpha package.
 - Add an alpha.2 roadmap focused on release smoke evidence, demo assets, and external feedback.
 - Add a static terminal SVG for the one-minute README demo.
+
+### Changed
+- Make the published alpha smoke workflow compare against the registry's current `@alpha` version instead of a hard-coded alpha string.
 
 ## [0.1.0-alpha.1] - 2026-05-07
 
