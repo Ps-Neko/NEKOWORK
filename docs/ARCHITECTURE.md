@@ -74,6 +74,7 @@ The public alpha surface is intentionally small:
 
 ```bash
 node scripts/cli.js doctor
+node scripts/cli.js install --plan --pack quality
 node scripts/cli.js install --plan --profile developer
 node scripts/cli.js install --apply --profile developer --project-root <target>
 node scripts/cli.js ask "clarify a risky or ambiguous request" --project-root <target>

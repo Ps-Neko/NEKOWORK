@@ -15,8 +15,10 @@ NEKOWORK makes the agent prove, gate, and apply safely.
 NEKOWORK can absorb useful ideas from those systems, but only as capabilities. The architecture stays fixed around:
 
 ```text
-Claude work -> Codex verification -> Human Gate -> explicit apply
+Claude work -> Codex verification -> report -> Human Gate -> explicit apply
 ```
+
+NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, profile, module, and pack must preserve the verification loop.
 
 ## Comparison
 
@@ -27,6 +29,26 @@ Claude work -> Codex verification -> Human Gate -> explicit apply
 | Team simulation | Many specialists thinking in parallel | Keep `team` read-only and preserve one executor for writes |
 | Autopilot UX | Fast one-command execution | Use `run` as the compact safe wrapper: `work -> verify -> ship` |
 | Cross-tool setup | Many harness surfaces | Project one source catalog into Claude, Codex, Cursor, Gemini, and OpenCode |
+
+## Catalog Interpretation
+
+NEKOWORK should not be judged only by catalog size. A fairer split is:
+
+| Dimension | Current Position |
+|---|---|
+| Catalog size | Selective alpha catalog |
+| Catalog quality | Validated agents, skills, hooks, modules, and profiles |
+| Catalog consistency | Every pack resolves to a safety-checked profile |
+| Multi-surface support | Claude, Codex, Cursor, Gemini, OpenCode |
+| External evidence | Six case-study flows across UI, CI, package, auth, Python protocol, and quality lifecycle targets |
+| Verification-loop fit | Core product requirement |
+
+The catalog is small by design:
+
+```text
+not the largest catalog
+but a curated catalog for reportable, gated, explicitly applied changes
+```
 
 ## What NEKOWORK Optimizes For
 

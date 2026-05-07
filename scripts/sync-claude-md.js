@@ -61,6 +61,7 @@ function buildAutoSection() {
   const commandNames = manifest.commands || [];
   const hookList = manifest.hooks?.active || [];
   const profileNames = Object.keys(profilesDoc.profiles || {});
+  const packNames = Object.keys(profilesDoc.packs || {});
   const harnessNames = (manifest.harnesses || []).map(h => h.name);
 
   // agents/<name>.md frontmatter 에서 provider/model/sandbox 추출
@@ -92,6 +93,7 @@ function buildAutoSection() {
   lines.push(`- skills: ${skillNames.length}`);
   lines.push(`- commands: ${commandNames.length}${commandNames.length ? ' (legacy compat)' : ''}`);
   lines.push(`- hooks: ${hookList.length}${hookList.length ? ' (' + hookList.join(', ') + ')' : ''}`);
+  lines.push(`- packs: ${packNames.join(', ')}`);
   lines.push(`- profiles: ${profileNames.join(', ')}`);
   lines.push(`- harnesses: ${harnessNames.join(', ')}`);
   lines.push('');
@@ -109,12 +111,14 @@ function buildAutoSection() {
   lines.push('');
   lines.push('```bash');
   lines.push('harness install --plan --profile core      # 설치 dry-run');
+  lines.push('harness install --plan --pack quality      # curated pack dry-run');
   lines.push('harness ask "<task>"                       # question gate, no project mutation');
   lines.push('harness team "<task>"                      # read-only worker handoffs');
   lines.push('harness work "<task>"                      # single executor implement handoff');
   lines.push('harness verify "<task>" --session <id>     # Codex-only verification');
   lines.push('harness gate status --session <id>         # inspect or resolve HUMAN_GATE state');
   lines.push('harness ship "<task>" --session <id>       # ship/no-ship readiness handoff');
+  lines.push('harness report --session <id>              # readable evidence report');
   lines.push('harness apply --session <id>               # apply verified SHIP_READY live-work diff');
   lines.push('harness run "<task>" --session <id>        # work -> verify -> ship, optional --apply');
   lines.push('harness review "<task>" [--secure|--fast|--no-ship]  # legacy full cycle');

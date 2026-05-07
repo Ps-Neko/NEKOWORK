@@ -29,6 +29,7 @@ Preview the catalog:
 
 ```bash
 node scripts/install-plan.js --list
+node scripts/install-plan.js --pack quality
 node scripts/install-plan.js --profile developer
 ```
 

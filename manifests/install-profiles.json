@@ -1,6 +1,50 @@
 {
   "$schema": "../schemas/install-profiles.schema.json",
   "version": "0.0.3",
+  "packs": {
+    "core": {
+      "description": "Smallest safe NEKOWORK pack for local readiness and baseline rules.",
+      "profile": "core",
+      "workflow": "doctor -> ask -> run -> report -> gate",
+      "use_when": "Use for the first install, repo smoke, or minimal local-first verification."
+    },
+    "quality": {
+      "description": "Disciplined development pack for test-first planning, evidence warnings, and strict quality checks.",
+      "profile": "quality",
+      "workflow": "ask --profile quality -> run --profile quality --strict-quality -> report",
+      "use_when": "Use when acceptance criteria coverage and evidence-based review are the main risk."
+    },
+    "security": {
+      "description": "Security review pack for sensitive boundaries, Codex challenge, and Human Gate policy.",
+      "profile": "security",
+      "workflow": "ask --profile security -> run --profile security --secure --strict-quality -> report -> gate",
+      "use_when": "Use for auth, tokens, secrets, permissions, deploy, data, or financial safety changes."
+    },
+    "frontend": {
+      "description": "Frontend pack for mock-first UI work, component review, accessibility, and Codex verification.",
+      "profile": "frontend",
+      "workflow": "ask --profile product -> team --workers product,security,test -> run -> report",
+      "use_when": "Use for UI mockups, component changes, screen states, and accessibility-oriented review."
+    },
+    "testing": {
+      "description": "Testing pack for regression planning, coverage-oriented handoffs, and quality gates.",
+      "profile": "testing",
+      "workflow": "plan -> work -> verify --profile quality --strict-quality -> report",
+      "use_when": "Use when the change mainly needs test planning, regression coverage, or CI confidence."
+    },
+    "release": {
+      "description": "Release-readiness pack for developer workflow plus ops-readiness helpers.",
+      "profile": "developer",
+      "workflow": "run -> report -> gate -> ship",
+      "use_when": "Use when preparing changelog, readiness evidence, release notes, or no-ship handoff."
+    },
+    "enterprise": {
+      "description": "Full stable pack for organizations that want every current NEKOWORK module without weakening gates.",
+      "profile": "full",
+      "workflow": "ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply",
+      "use_when": "Use for evaluation environments that want the full stable catalog with explicit safety boundaries."
+    }
+  },
   "profiles": {
     "core": {
       "description": "Minimal NEKOWORK surface: rules, core agents, runtime hooks, platform configs, and safety gates.",

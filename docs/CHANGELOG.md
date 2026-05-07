@@ -6,6 +6,8 @@
 
 ### Added
 - Add `report` to write inspect-only `REPORT.md` and `report-summary.json` from session evidence.
+- Add official catalog packs as install aliases over safety-checked profiles.
+- Add `docs/CATALOG-PACKS.md` to position NEKOWORK as a curated verification-loop catalog rather than a size-first agent pack.
 - Add `npm run demo:quick` for the shortest no-API `doctor -> run -> report -> gate status` first experience.
 - Add `docs/WHY-NEKOWORK.md` to clarify NEKOWORK's comparison against agent-pack, discipline, team, and autopilot tools.
 - Add `docs/PUBLISH-ALPHA.md` and a third-party `sindresorhus/is-plain-obj` case study.

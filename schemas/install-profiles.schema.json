@@ -8,6 +8,20 @@
   "properties": {
     "$schema": { "type": "string" },
     "version": { "type": "string" },
+    "packs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["description", "profile", "workflow"],
+        "additionalProperties": false,
+        "properties": {
+          "description": { "type": "string", "minLength": 10 },
+          "profile": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+          "workflow": { "type": "string", "minLength": 10 },
+          "use_when": { "type": "string" }
+        }
+      }
+    },
     "profiles": {
       "type": "object",
       "minProperties": 1,

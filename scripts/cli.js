@@ -28,10 +28,10 @@ function help() {
 harness <verb> [args]
 
 Install / verify
-  install --plan [--profile <name>] [--target <name>] [--module <id>] [--component <id>] [--project-root <dir>]
+  install --plan [--profile <name>|--pack <name>] [--target <name>] [--module <id>] [--component <id>] [--project-root <dir>]
                                          selective manifest dry-run
   install --plan --list [--json]         list profile/module/component/target catalog
-  install --apply [--profile <name>] [--project-root <dir>]
+  install --apply [--profile <name>|--pack <name>] [--project-root <dir>]
                                          apply generated harness outputs and state
   validate                               validate catalog and core profile
   doctor [--project-root <dir>] [--quick] [--gemini-smoke] [--json]
