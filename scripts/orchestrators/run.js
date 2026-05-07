@@ -17,6 +17,7 @@ export async function runCycle(opts) {
     harnessRoot,
     projectRoot,
     live: !!opts.live,
+    profile: opts.profile,
     dispatcher: opts.dispatcher,
   };
 
@@ -112,6 +113,7 @@ function writeSummary(sessionDir, result) {
     work_files: result.work?.files || [],
     acceptance_required: true,
     acceptance_count: result.work?.handoff ? readAcceptanceCount(sessionDir) : 0,
+    profile: result.work?.handoff?.profile || result.verify?.profile || null,
     verify_verdict: result.verify?.verdict || null,
     verify_human_gate: Boolean(result.verify?.humanGate),
     ship_ready: result.shipReady,

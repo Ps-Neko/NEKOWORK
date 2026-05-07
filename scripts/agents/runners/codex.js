@@ -92,6 +92,22 @@ function buildPrompt(a) {
     lines.push(String(a.context.diff).slice(0, 30000));
     lines.push('```');
   }
+  if (a.context?.acceptanceCriteria?.length) {
+    lines.push('## Acceptance Criteria');
+    for (const ac of a.context.acceptanceCriteria) {
+      lines.push(`- ${ac.id}: ${ac.desc}`);
+    }
+  }
+  if (a.context?.qualityChecklist?.length) {
+    lines.push(`## Profile Quality Checklist${a.context.profile ? ` (${a.context.profile})` : ''}`);
+    for (const item of a.context.qualityChecklist) {
+      lines.push(`- ${item}`);
+    }
+  }
+  if (a.context?.evidencePolicy?.evidenceWarningRequired) {
+    lines.push('## Evidence Requirements');
+    lines.push('For critical, high, or gate-required findings, include claim, evidence, required_fix, confidence, and gate_required.');
+  }
   if (a.context?.priorHandoffs?.length) {
     lines.push('## 이전 단계 핸드오프 (5필드만)');
     for (const h of a.context.priorHandoffs) {

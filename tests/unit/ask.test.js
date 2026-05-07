@@ -32,6 +32,19 @@ test('question gate handoff stays schema-valid and read-only', () => {
   assert.equal(validateHandoff(handoff), true, JSON.stringify(validateHandoff.errors));
 });
 
+test('product and quality profiles add question templates', () => {
+  const product = buildQuestionGate('new dashboard', { profile: 'product' });
+  assert.equal(product.profile, 'product');
+  assert.ok(product.questions.some(q => /MVP scope/.test(q)));
+  assert.ok(product.questions.some(q => /non-goal/.test(q)));
+
+  const quality = buildQuestionGate('refactor parser', { profile: 'quality' });
+  assert.equal(quality.profile, 'quality');
+  assert.ok(quality.questions.some(q => /test-first plan/i.test(q)));
+  assert.ok(quality.questions.some(q => /acceptance criterion/i.test(q)));
+  assert.equal(validateHandoff(quality), true, JSON.stringify(validateHandoff.errors));
+});
+
 test('ask writes question-gate artifacts into the target project session', async () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-ask-project-root-'));
   try {

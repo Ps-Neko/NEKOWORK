@@ -11,13 +11,19 @@ const CLI = path.join(ROOT, 'scripts', 'cli.js');
 test('CLI accepts explicit safety alias flags for team and work', () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-options-'));
   try {
+    const ask = runCli(['ask', 'product scope smoke', '--profile', 'product', '--session', 'unit-cli-ask-profile', '--project-root', projectRoot, '--json']);
+    assert.equal(ask.status, 0, ask.stderr || ask.stdout);
+    assert.match(ask.stdout, /"profile": "product"/);
+
     const team = runCli(['team', 'read-only planning smoke', '--no-write', '--workers', 'planner', '--session', 'unit-cli-team', '--project-root', projectRoot, '--json']);
     assert.equal(team.status, 0, team.stderr || team.stdout);
     assert.match(team.stdout, /"workers"/);
 
-    const work = runCli(['work', 'single executor smoke', '--single-executor', '--session', 'unit-cli-work', '--project-root', projectRoot, '--json']);
+    const work = runCli(['work', 'single executor smoke', '--profile', 'quality', '--single-executor', '--session', 'unit-cli-work', '--project-root', projectRoot, '--json']);
     assert.equal(work.status, 0, work.stderr || work.stdout);
     assert.match(work.stdout, /"stage": "implement"/);
+    const workSummary = JSON.parse(fs.readFileSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-work', 'work-summary.json'), 'utf8'));
+    assert.equal(workSummary.profile, 'quality');
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }

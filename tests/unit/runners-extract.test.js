@@ -93,6 +93,21 @@ test('claude buildUserMessage: PRD / diff / priorHandoffs 포함', () => {
   assert.match(u, /Decided: AC 3개/);
 });
 
+test('claude buildUserMessage includes acceptance and quality checklist', () => {
+  const u = _buildUserMessage({
+    task: 'quality work',
+    context: {
+      profile: 'quality',
+      acceptanceCriteria: [{ id: 'AC-001', desc: 'Parser rejects bad input' }],
+      qualityChecklist: ['test-first plan'],
+    },
+  });
+  assert.match(u, /Acceptance Criteria/);
+  assert.match(u, /AC-001/);
+  assert.match(u, /Profile Quality Checklist/);
+  assert.match(u, /test-first plan/);
+});
+
 test('claude CLI wrapper: result JSON 과 usage 를 파싱', () => {
   const wrapper = _parseCliJson(JSON.stringify({
     type: 'result',
@@ -130,6 +145,22 @@ test('codex buildPrompt: PRD 포함', () => {
   });
   assert.match(p, /## PRD/);
   assert.match(p, /Verdict: approve/);
+});
+
+test('codex buildPrompt includes evidence policy and acceptance criteria', () => {
+  const p = _buildPrompt({
+    stage: 'codex-review',
+    context: {
+      profile: 'quality',
+      acceptanceCriteria: [{ id: 'AC-001', desc: 'Parser rejects bad input' }],
+      qualityChecklist: ['evidence-based review findings'],
+      evidencePolicy: { evidenceWarningRequired: true },
+    },
+  });
+  assert.match(p, /Acceptance Criteria/);
+  assert.match(p, /AC-001/);
+  assert.match(p, /Evidence Requirements/);
+  assert.match(p, /required_fix/);
 });
 
 test('큰 diff 는 30000자에서 잘림 (codex)', () => {

@@ -107,6 +107,51 @@ test('verify runs Codex review only after work handoff', async () => {
   }
 });
 
+test('verify records warning-level evidence and AC coverage checks for quality profile', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-verify-quality-'));
+  const dispatcher = async (args) => {
+    assert.equal(args.context.profile, 'quality');
+    assert.equal(args.context.evidencePolicy.evidenceWarningRequired, true);
+    assert.equal(args.context.evidencePolicy.acceptanceCoverageWarning, true);
+    return {
+      stage: args.stage,
+      agent: args.agent,
+      round: args.context.round,
+      session_id: args.sessionId,
+      timestamp: new Date().toISOString(),
+      duration_ms: 1,
+      provider: 'mock',
+      model: 'gpt-5-codex',
+      decided: `${args.stage} reviewed`,
+      files: ['src/example.ts'],
+      verdict: 'approve_with_fixes',
+      issues: [{ severity: 'high', category: 'correctness', file: 'src/example.ts', summary: 'needs rollback check' }],
+    };
+  };
+
+  try {
+    const { sessionDir } = seedImplementSession(projectRoot, 'unit-verify-quality');
+    const r = await verifyCycle({
+      task: 'verify example quality',
+      sessionId: 'unit-verify-quality',
+      harnessRoot: ROOT,
+      projectRoot,
+      profile: 'quality',
+      dispatcher,
+    });
+
+    assert.equal(r.profile, 'quality');
+    assert.ok(r.qualityWarnings.some(w => /missing claim/.test(w)));
+    assert.ok(r.qualityWarnings.some(w => /AC-001/.test(w)));
+    const summary = JSON.parse(fs.readFileSync(path.join(sessionDir, 'verify-summary.json'), 'utf8'));
+    assert.equal(summary.profile, 'quality');
+    assert.equal(summary.evidence_warning_required, true);
+    assert.ok(summary.quality_warnings.length >= 2);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 test('verify applies risk policy human gate for financial work even when Codex approves', async () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-verify-risk-policy-'));
   const dispatcher = async (args) => ({

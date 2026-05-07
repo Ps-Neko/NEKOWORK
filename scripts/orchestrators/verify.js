@@ -5,6 +5,7 @@ import addFormats from 'ajv-formats';
 import { dispatch } from '../agents/dispatch.js';
 import { ensureAcceptanceCriteria } from '../lib/acceptance-criteria.js';
 import { classifyRisk, gateReasonFromFindings } from '../lib/risk-classifier.js';
+import { acceptanceCoverageWarnings, evidenceFieldWarnings, profilePolicy } from '../lib/profile-policy.js';
 
 const STAGE_INDEX = { 'codex-review': '05', 'codex-challenge': '06' };
 
@@ -26,6 +27,7 @@ export async function verifyCycle(opts) {
 
   const prd = readJsonIfExists(path.join(sessionDir, 'prd.json'));
   const acceptance = ensureAcceptanceCriteria({ sessionDir, task: opts.task });
+  const policy = profilePolicy(opts.profile || readSessionProfile(sessionDir));
   const diff = readDiffForHandoff(sessionDir, latestImplement);
   const dispatcher = opts.dispatcher || dispatch;
   const live = !!opts.live;
@@ -34,6 +36,12 @@ export async function verifyCycle(opts) {
 
   const context = {
     round: nextRound(priorHandoffs, 'codex-review'),
+    profile: policy.profile,
+    qualityChecklist: policy.checklist,
+    evidencePolicy: {
+      evidenceWarningRequired: policy.evidenceWarningRequired,
+      acceptanceCoverageWarning: policy.acceptanceCoverageWarning,
+    },
     prd,
     acceptanceCriteria: acceptance.criteria,
     priorHandoffs: priorHandoffs.slice(-6),
@@ -55,6 +63,7 @@ export async function verifyCycle(opts) {
   });
   h5.round = context.round;
   h5.session_id = sessionId;
+  if (policy.profile) h5.profile = policy.profile;
   assertValidHandoff(harnessRoot, h5);
   writeHandoff(handoffDir, h5);
 
@@ -78,6 +87,7 @@ export async function verifyCycle(opts) {
     });
     h6.round = nextRound(handoffs, 'codex-challenge');
     h6.session_id = sessionId;
+    if (policy.profile) h6.profile = policy.profile;
     assertValidHandoff(harnessRoot, h6);
     writeHandoff(handoffDir, h6);
     handoffs.push(h6);
@@ -86,6 +96,10 @@ export async function verifyCycle(opts) {
   const gateReason = gateReasonFromFindings([h5, h6].filter(Boolean)) ||
     (classification.requiresHumanGate ? `risk policy requires human gate (${classification.tags.join(',') || classification.risk})` : null);
   if (gateReason) writeHumanGate(sessionDir, gateReason);
+  const qualityWarnings = [
+    ...evidenceFieldWarnings([h5, h6].filter(Boolean), policy.profile),
+    ...acceptanceCoverageWarnings(acceptance.criteria, [h5, h6].filter(Boolean), policy.profile),
+  ];
 
   const result = {
     sessionId,
@@ -96,6 +110,9 @@ export async function verifyCycle(opts) {
     secureActive,
     humanGate: Boolean(gateReason),
     reason: gateReason || null,
+    profile: policy.profile,
+    qualityChecklist: policy.checklist,
+    qualityWarnings,
     verdict: finalVerdict([h5, h6].filter(Boolean)),
   };
   writeSummary(sessionDir, result, opts.task, latestImplement, diff, acceptance, classification);
@@ -127,6 +144,10 @@ function latestStageHandoff(handoffs, stage) {
 function readJsonIfExists(file) {
   if (!fs.existsSync(file)) return null;
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; }
+}
+
+function readSessionProfile(sessionDir) {
+  return readJsonIfExists(path.join(sessionDir, 'ask.json'))?.profile || null;
 }
 
 function readDiffForHandoff(sessionDir, handoff) {
@@ -173,6 +194,10 @@ function writeSummary(sessionDir, result, task, implementHandoff, diff, acceptan
     acceptance_required: true,
     acceptance_count: acceptance?.criteria?.length || 0,
     acceptance_source: acceptance?.source || null,
+    profile: result.profile || null,
+    quality_checklist: result.qualityChecklist || [],
+    quality_warnings: result.qualityWarnings || [],
+    evidence_warning_required: Boolean(result.profile && ['quality', 'security'].includes(result.profile)),
     risk_level: classification?.risk || null,
     risk_tags: classification?.tags || [],
     codex_review_run: true,
