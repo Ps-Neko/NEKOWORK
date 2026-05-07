@@ -202,7 +202,7 @@ Builders project the catalog into tool-specific files:
 
 ## Release State
 
-The current release line is `0.1.0-alpha.4`:
+The current release line is `0.1.0-alpha.5`:
 
 - Repository and GitHub tarball release are available.
 - Public npm alpha is published as `@ps-neko/nekowork@alpha`.

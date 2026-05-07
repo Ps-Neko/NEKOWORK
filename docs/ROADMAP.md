@@ -18,7 +18,7 @@ Released scope:
 - Keep the external feedback path for alpha users to paste `check --json` and `REPORT.md` summaries.
 - Preserve the current catalog size unless a new agent, skill, hook, or pack directly strengthens verification evidence.
 
-## 0.1.0-alpha.4
+## 0.1.0-alpha.5
 
 Status: released.
 
