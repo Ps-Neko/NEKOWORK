@@ -7,6 +7,7 @@
 ### Added
 - Add CI coverage for a fresh `npx @ps-neko/nekowork@alpha doctor --quick` smoke against the published alpha package.
 - Add an alpha.2 roadmap focused on release smoke evidence, demo assets, and external feedback.
+- Add a static terminal SVG for the one-minute README demo.
 
 ## [0.1.0-alpha.1] - 2026-05-07
 
