@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { buildDefaultAcceptanceCriteria } from '../lib/acceptance-criteria.js';
 import { classifyRisk } from '../lib/risk-classifier.js';
+import { profilePolicy } from '../lib/profile-policy.js';
 
 export function classifyAskTask(task = '') {
   const classification = classifyRisk({ task, files: [] });
@@ -13,12 +14,16 @@ export function classifyAskTask(task = '') {
   };
 }
 
-export function buildQuestionGate(task = '') {
+export function buildQuestionGate(task = '', opts = {}) {
   const classification = classifyAskTask(task);
+  const policy = profilePolicy(opts.profile);
   const questions = [
     'What outcome should count as done?',
+    'Who is the target user or operator, and what problem should this solve?',
+    'What is the smallest MVP scope for this cycle?',
     'What is explicitly out of scope?',
     'What files, surfaces, or user flows are allowed to change?',
+    'What launch or readiness risk should block ship?',
   ];
 
   if (task.trim().split(/\s+/).filter(Boolean).length <= 6) {
@@ -27,6 +32,7 @@ export function buildQuestionGate(task = '') {
   if (classification.tags.includes('product-ui')) {
     questions.push('Is this a mock/demo UI, or should it be production-ready behavior?');
     questions.push('What target user and required screen states should guide the UI?');
+    questions.push('What UX confusion or unsafe user assumption should the design prevent?');
   }
   if (classification.tags.includes('financial')) {
     questions.push('Must all broker/order/payment behavior stay mock-only for this cycle?');
@@ -42,6 +48,14 @@ export function buildQuestionGate(task = '') {
   if (classification.tags.includes('data')) {
     questions.push('Is data loss possible, and what backup or rollback condition is required?');
   }
+  if (policy.profile === 'product') {
+    questions.push('What non-goal should be protected if scope pressure appears?');
+    questions.push('What QA acceptance criteria would make this launch-ready?');
+  }
+  if (policy.profile === 'quality') {
+    questions.push('What test-first plan should exist before implementation starts?');
+    questions.push('What evidence should prove each acceptance criterion passed?');
+  }
 
   return {
     stage: 'question-gate',
@@ -50,6 +64,7 @@ export function buildQuestionGate(task = '') {
     timestamp: new Date().toISOString(),
     provider: 'local',
     model: 'deterministic',
+    profile: policy.profile || undefined,
     decided: 'Question gate only. No provider call, shell command, or project file mutation is required.',
     rejected: 'Implementation, live provider execution, shipping, and multi-worker file writes are out of scope for ask.',
     risks: `risk=${classification.risk}; tags=${classification.tags.length ? classification.tags.join(',') : 'none'}; human_gate=${classification.requiresHumanGate ? 'required-if-continuing' : 'not-required-by-ask'}`,
@@ -75,7 +90,7 @@ export async function askGate(opts) {
   const handoffDir = path.join(sessionDir, 'handoffs');
   fs.mkdirSync(handoffDir, { recursive: true });
 
-  const handoff = buildQuestionGate(opts.task || '');
+  const handoff = buildQuestionGate(opts.task || '', { profile: opts.profile });
   handoff.session_id = sessionId;
   writeAskArtifacts(sessionDir, handoffDir, sessionId, opts.task || '', handoff);
 
@@ -92,6 +107,7 @@ function writeAskArtifacts(sessionDir, handoffDir, sessionId, task, handoff) {
     task,
     generated_at: handoff.timestamp,
     risk_level: handoff.risk_level,
+    profile: handoff.profile || null,
     requires_human_gate: handoff.requires_human_gate,
     questions: handoff.questions,
     success_criteria: handoff.success_criteria,

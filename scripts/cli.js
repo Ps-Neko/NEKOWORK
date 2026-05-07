@@ -39,13 +39,13 @@ Install / verify
   version
 
 Review loop
-  ask "<task>" [--session <id>] [--project-root <dir>] [--json]
+  ask "<task>" [--profile quality|product|security] [--session <id>] [--project-root <dir>] [--json]
                                          question gate only; no provider calls or project mutation
   team "<task>" [--workers planner,research,product,security,test] [--no-write] [--session <id>] [--project-root <dir>] [--live] [--json]
                                          read-only multi-worker handoffs; no project mutation
-  work "<task>" [--single-executor] [--session <id>] [--project-root <dir>] [--live] [--json]
+  work "<task>" [--profile quality|security] [--single-executor] [--session <id>] [--project-root <dir>] [--live] [--json]
                                          single executor implement handoff; live mode captures isolated diff
-  verify "<task>" --session <id> [--secure] [--project-root <dir>] [--live] [--json]
+  verify "<task>" --session <id> [--profile quality|security] [--secure] [--project-root <dir>] [--live] [--json]
                                          Codex-only verification of a prior work handoff
   gate status --session <id> [--project-root <dir>] [--json]
                                          inspect HUMAN_GATE / approval / block state
@@ -57,7 +57,7 @@ Review loop
                                          ship/no-ship readiness handoff; blocked by HUMAN_GATE
   apply --session <id> [--project-root <dir>] [--allow-dirty] [--force] [--json]
                                          apply a verified SHIP_READY live-work diff to the target project
-  run "<task>" [--session <id>] [--secure] [--live] [--apply] [--allow-dirty] [--force] [--project-root <dir>] [--json]
+  run "<task>" [--session <id>] [--profile quality|security] [--secure] [--live] [--apply] [--allow-dirty] [--force] [--project-root <dir>] [--json]
                                          decomposed wrapper: work -> verify -> ship, optional apply
   review "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>] [--project-root <dir>]
                                          legacy full claude-led-codex-review workflow
@@ -210,6 +210,7 @@ function parseAskArgs(argv) {
     task: '',
     sessionId: null,
     projectRoot: null,
+    profile: null,
     json: false,
   };
   const unknown = [];
@@ -217,6 +218,13 @@ function parseAskArgs(argv) {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--json') opts.json = true;
+    else if (a === '--profile') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--profile requires a value');
+      opts.profile = value;
+    } else if (a.startsWith('--profile=')) {
+      opts.profile = a.slice('--profile='.length);
+    }
     else if (a === '--session') {
       const value = argv[++i];
       if (!value || value.startsWith('--')) throw usageError('--session requires a value');
@@ -296,6 +304,7 @@ function parseWorkArgs(argv) {
     singleExecutor: false,
     sessionId: null,
     projectRoot: null,
+    profile: null,
     live: false,
     json: false,
   };
@@ -305,7 +314,13 @@ function parseWorkArgs(argv) {
     const a = argv[i];
     if (a === '--json') opts.json = true;
     else if (a === '--live') opts.live = true;
-    else if (a === '--single-executor') opts.singleExecutor = true;
+    else if (a === '--profile') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--profile requires a value');
+      opts.profile = value;
+    } else if (a.startsWith('--profile=')) {
+      opts.profile = a.slice('--profile='.length);
+    } else if (a === '--single-executor') opts.singleExecutor = true;
     else if (a === '--session') {
       const value = argv[++i];
       if (!value || value.startsWith('--')) throw usageError('--session requires a value');
@@ -337,6 +352,7 @@ function parseVerifyArgs(argv) {
     requireCleanGates: false,
     sessionId: null,
     projectRoot: null,
+    profile: null,
     live: false,
     secure: false,
     json: false,
@@ -348,7 +364,13 @@ function parseVerifyArgs(argv) {
     if (a === '--json') opts.json = true;
     else if (a === '--live') opts.live = true;
     else if (a === '--secure') opts.secure = true;
-    else if (a === '--session') {
+    else if (a === '--profile') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--profile requires a value');
+      opts.profile = value;
+    } else if (a.startsWith('--profile=')) {
+      opts.profile = a.slice('--profile='.length);
+    } else if (a === '--session') {
       const value = argv[++i];
       if (!value || value.startsWith('--')) throw usageError('--session requires a value');
       opts.sessionId = value;
@@ -507,6 +529,7 @@ function parseRunArgs(argv) {
     task: '',
     sessionId: null,
     projectRoot: null,
+    profile: null,
     live: false,
     secure: false,
     apply: false,
@@ -521,7 +544,13 @@ function parseRunArgs(argv) {
     if (a === '--json') opts.json = true;
     else if (a === '--live') opts.live = true;
     else if (a === '--secure') opts.secure = true;
-    else if (a === '--apply') opts.apply = true;
+    else if (a === '--profile') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--profile requires a value');
+      opts.profile = value;
+    } else if (a.startsWith('--profile=')) {
+      opts.profile = a.slice('--profile='.length);
+    } else if (a === '--apply') opts.apply = true;
     else if (a === '--allow-dirty') opts.allowDirty = true;
     else if (a === '--force') opts.force = true;
     else if (a === '--session') {

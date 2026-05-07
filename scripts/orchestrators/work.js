@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { dispatch } from '../agents/dispatch.js';
 import { ensureAcceptanceCriteria } from '../lib/acceptance-criteria.js';
+import { profilePolicy } from '../lib/profile-policy.js';
 import { withExecutionWorkspace } from '../core/execution-workspace.js';
 
 const STAGE_INDEX = { implement: '03' };
@@ -19,9 +20,12 @@ export async function workCycle(opts) {
   const priorHandoffs = readPriorHandoffs(handoffDir);
   const prd = readJsonIfExists(path.join(sessionDir, 'prd.json'));
   const acceptance = ensureAcceptanceCriteria({ sessionDir, task: opts.task });
+  const policy = profilePolicy(opts.profile || readSessionProfile(sessionDir));
   const round = nextRound(priorHandoffs, 'implement');
 
   const context = {
+    profile: policy.profile,
+    qualityChecklist: policy.checklist,
     prd,
     acceptanceCriteria: acceptance.criteria,
     priorHandoffs: priorHandoffs.slice(-6),
@@ -35,6 +39,7 @@ export async function workCycle(opts) {
     : await runMockExecutor({ harnessRoot, projectRoot, sessionDir, sessionId, task: opts.task, context, dispatcher });
 
   const handoff = execution.handoff;
+  if (policy.profile) handoff.profile = policy.profile;
   handoff.round = round;
   handoff.session_id = sessionId;
   handoff.files = dedupe([...(handoff.files || []), ...(execution.files || [])]);
@@ -51,6 +56,8 @@ export async function workCycle(opts) {
     diffPath: execution.diffPath || null,
     files: handoff.files || [],
     acceptance,
+    profile: policy.profile,
+    qualityChecklist: policy.checklist,
   });
 
   return {
@@ -127,6 +134,10 @@ function readJsonIfExists(file) {
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; }
 }
 
+function readSessionProfile(sessionDir) {
+  return readJsonIfExists(path.join(sessionDir, 'ask.json'))?.profile || null;
+}
+
 function nextRound(handoffs, stage) {
   const rounds = handoffs
     .filter(h => h.stage === stage)
@@ -147,6 +158,8 @@ function writeSummary(sessionDir, summary) {
     ship_run: false,
     round: summary.round,
     files: summary.files,
+    profile: summary.profile || null,
+    quality_checklist: summary.qualityChecklist || [],
     diffPath: summary.diffPath,
     acceptance_required: true,
     acceptance_count: summary.acceptance?.criteria?.length || 0,

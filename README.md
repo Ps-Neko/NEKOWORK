@@ -42,7 +42,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 227 tests pass
+- `npm test`: 231 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 

@@ -21,6 +21,7 @@
     "duration_ms": { "type": "integer", "minimum": 0 },
     "provider": { "enum": ["mock", "claude", "codex", "gemini", "local"] },
     "model": { "type": "string" },
+    "profile": { "type": "string" },
     "decided": { "type": "string", "minLength": 1 },
     "rejected": { "type": "string" },
     "risks": { "type": "string" },

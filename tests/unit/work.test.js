@@ -50,6 +50,7 @@ test('work runs one executor stage and writes implement handoff without Codex or
       sessionId: 'unit-work',
       harnessRoot: ROOT,
       projectRoot,
+      profile: 'quality',
       dispatcher,
     });
 
@@ -63,6 +64,8 @@ test('work runs one executor stage and writes implement handoff without Codex or
     assert.equal(calls[0].stage, 'implement');
     assert.equal(calls[0].live, false);
     assert.equal(calls[0].executionMode, undefined);
+    assert.equal(calls[0].context.profile, 'quality');
+    assert.ok(calls[0].context.qualityChecklist.includes('test-first plan'));
     assert.equal(calls[0].context.priorHandoffs.length, 1);
 
     assert.ok(fs.existsSync(path.join(handoffDir, '03-implement.json')));
@@ -74,6 +77,8 @@ test('work runs one executor stage and writes implement handoff without Codex or
     assert.equal(summary.target_project_mutated, false);
     assert.equal(summary.acceptance_required, true);
     assert.equal(summary.acceptance_count, 3);
+    assert.equal(summary.profile, 'quality');
+    assert.ok(summary.quality_checklist.includes('evidence-based review findings'));
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }
