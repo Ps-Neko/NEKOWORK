@@ -25,13 +25,15 @@ jobs:
           cd "$workdir"
           npx -y @ps-neko/nekowork@alpha doctor --quick --json > doctor.json
           node <<'NODE'
+          const { execSync } = require('node:child_process');
           const fs = require('node:fs');
           const report = JSON.parse(fs.readFileSync('doctor.json', 'utf8'));
+          const expectedVersion = JSON.parse(execSync('npm view @ps-neko/nekowork@alpha version --json', { encoding: 'utf8' }));
           const metadata = report.checks.find((check) => check.name === 'package metadata');
           if (report.summary.fail !== 0) {
             throw new Error(`doctor reported ${report.summary.fail} failure(s)`);
           }
-          if (!metadata || !metadata.message.includes('@ps-neko/nekowork@0.1.0-alpha.1')) {
+          if (!metadata || !metadata.message.includes(`@ps-neko/nekowork@${expectedVersion}`)) {
             throw new Error(`unexpected package metadata: ${metadata?.message || '<missing>'}`);
           }
           console.log(`published alpha smoke: ${metadata.message}`);
