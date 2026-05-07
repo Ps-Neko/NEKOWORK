@@ -7,6 +7,7 @@ NEKOWORK / HARNESS is release-ready for local use and repository-based installat
 ## Decision
 
 - Decision: do not publish 0.0.3 to npm.
+- Future public alpha path: prepare `0.1.0-alpha.0`, publish with `--tag alpha`, and keep `0.0.3` private.
 - `package.json` keeps `private: true`.
 - The canonical repo is `Ps-Neko/NEKOWORK`.
 - Current release track is `0.0.3`.
@@ -15,6 +16,7 @@ NEKOWORK / HARNESS is release-ready for local use and repository-based installat
 - Risk classifier, acceptance criteria artifacts, and profile safety validation are part of the release gate.
 - Remaining optional work is internal project/provider integration on request.
 - Public package metadata is prepared as `@ps-neko/nekowork`, but actual `npm publish` still requires an explicit approval step.
+- See [PUBLISH-ALPHA.md](PUBLISH-ALPHA.md) for the public alpha checklist.
 
 ## Required Gates
 
@@ -42,7 +44,7 @@ Current local verification after the decomposed workflow expansion:
 - `npm run lint`: pass
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
-- `npm test`: 236 tests pass
+- `npm test`: 237 tests pass
 - `npm run demo:quick -- --cleanup`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
@@ -125,9 +127,11 @@ Only run this checklist after the project owner explicitly approves public publi
 
 1. Confirm the npm package name is still `@ps-neko/nekowork`.
 2. Confirm the `harness` binary is still intentional.
-3. Run the required gates above.
-4. Inspect `npm pack --dry-run --json` and confirm only intended files are included.
-5. Confirm npm account access and 2FA readiness with `npm whoami`.
-6. Remove or set `private: false` in `package.json`.
-7. Publish with `npm publish --access public`.
-8. Restore documentation from "future npm path" to "published npm path" where appropriate.
+3. Bump to a new public alpha version such as `0.1.0-alpha.0`.
+4. Run the required gates above.
+5. Inspect `npm pack --dry-run --json` and confirm only intended files are included.
+6. Confirm npm account access and 2FA readiness with `npm whoami`.
+7. Remove or set `private: false` in `package.json`.
+8. Publish with `npm publish --access public --tag alpha`.
+9. Smoke test from a fresh directory with `npx @ps-neko/nekowork@alpha doctor --quick`.
+10. Restore documentation from "future npm path" to "published npm path" where appropriate.
