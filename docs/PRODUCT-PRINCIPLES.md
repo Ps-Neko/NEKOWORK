@@ -10,6 +10,20 @@ NEKOWORK = Claude work -> Codex verification -> Human Gate
 
 Agent catalogs, skill packs, hooks, profiles, and team execution are useful only when they strengthen that verification loop.
 
+NEKOWORK also acts as a local-first AI development quality runtime:
+
+```text
+good development discipline
++ product-aware scope control
++ read-only multi-agent thinking
++ evidence-based Codex verification
++ Human Gate
++ explicit apply
+= gated AI development lifecycle
+```
+
+See [AI-DEVELOPMENT-LIFECYCLE.md](AI-DEVELOPMENT-LIFECYCLE.md) for the lifecycle view.
+
 ## Core Invariants
 
 These rules are part of the product contract:
@@ -77,6 +91,7 @@ Current and target profile meanings:
 | `developer` | Daily development flow with quality workflow, Codex loop, and ops readiness. |
 | `security` | Secure review defaults, network denial, critical human gates, and hardened checks. |
 | `product` | Question gate, scope review, acceptance criteria, and product/design planning surfaces. |
+| `quality` | Brainstorm, test-first planning, systematic debugging, evidence-based review, and verification before completion. |
 | `frontend` | UI mockup, component review, accessibility, and front-end workflow surfaces. |
 | `testing` | Test planning, regression checks, and coverage-oriented review surfaces. |
 | `research` | Research-oriented handoffs and optional external knowledge surfaces. |
@@ -151,6 +166,7 @@ harness verify "<task>" --session <id>
 - reads prior handoffs and any captured diff
 - runs `codex-review`
 - runs `codex-challenge` for `--secure` or sensitive work
+- expects findings to include evidence whenever possible: claim, evidence, required fix, confidence, and gate requirement
 - writes `HUMAN_GATE` for critical or blocking findings
 - does not implement
 - does not ship

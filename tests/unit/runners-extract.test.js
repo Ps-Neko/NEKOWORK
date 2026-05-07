@@ -160,6 +160,33 @@ test('codex normalizeHandoff: PascalCase live 응답을 handoff schema 로 정�
   assert.equal(h.verdict, 'block');
 });
 
+test('codex normalizeHandoff preserves evidence-based issue fields', () => {
+  const h = _normalizeHandoff({
+    Decided: 'reviewed',
+    Issues: [
+      {
+        severity: 'critical',
+        category: 'security',
+        file: 'src/api/orders.ts',
+        claim: 'The implementation can place real orders.',
+        evidence: 'brokerClient.placeOrder is imported and called.',
+        required_fix: 'Replace brokerClient with a mock adapter before ship.',
+        confidence: 0.91,
+        gate_required: true,
+      },
+    ],
+    Files: ['src/api/orders.ts'],
+  });
+
+  assert.equal(h.issues[0].summary, 'The implementation can place real orders.');
+  assert.equal(h.issues[0].claim, 'The implementation can place real orders.');
+  assert.equal(h.issues[0].evidence, 'brokerClient.placeOrder is imported and called.');
+  assert.equal(h.issues[0].required_fix, 'Replace brokerClient with a mock adapter before ship.');
+  assert.equal(h.issues[0].confidence, 0.91);
+  assert.equal(h.issues[0].gate_required, true);
+  assert.equal(h.verdict, 'block');
+});
+
 test('gemini buildPrompt includes handoff mode and agent body', () => {
   const p = _buildGeminiPrompt({
     agent: 'research',

@@ -18,6 +18,8 @@
 - Add trading dashboard mock example for financial UI gating.
 - Add `examples/trading-dashboard-mock`, a standalone static case-study target with local mock-boundary checks.
 - Add `examples/github-actions-hardening`, a standalone CI workflow hardening target with local YAML policy checks.
+- Add `quality` profile and AI development lifecycle documentation for disciplined, evidence-based work.
+- Add evidence-based review issue fields to the handoff schema.
 
 ### Changed
 - Rewrite `docs/AUDIT.md` and `docs/ARCHITECTURE.md` with clean public-facing ASCII content.

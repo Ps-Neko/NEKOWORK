@@ -90,9 +90,14 @@
         "category": { "enum": ["security", "correctness", "performance", "style", "test", "docs"] },
         "file": { "type": "string" },
         "line": { "type": "integer", "minimum": 0 },
+        "claim": { "type": "string" },
+        "evidence": { "type": "string" },
         "summary": { "type": "string", "minLength": 1, "maxLength": 200 },
         "why": { "type": "string" },
-        "suggested_fix": { "type": ["string", "null"] }
+        "required_fix": { "type": ["string", "null"] },
+        "suggested_fix": { "type": ["string", "null"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "gate_required": { "type": "boolean" }
       }
     }
   }

@@ -90,6 +90,7 @@ profiles:
     - developer
     - security
     - product
+    - quality
     - frontend
     - testing
     - research

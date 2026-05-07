@@ -155,6 +155,7 @@ Profiles:
 - `developer`: daily development, quality workflow, Codex loop, ops-readiness
 - `security`: secure review defaults
 - `product`: question gate, scope review, acceptance criteria
+- `quality`: disciplined workflow, test-first planning, evidence-based review
 - `frontend`: UI mockup, component review, accessibility-oriented flow
 - `testing`: test planning, regression, and coverage-oriented flow
 - `research`: research-oriented profile
