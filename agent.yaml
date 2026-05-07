@@ -1,7 +1,8 @@
 spec_version: gitagent/0.1.0
-name: harness
-version: 0.0.2
-description: "HARNESS — Hybrid Agent Runtime with Native Evaluation, Skills, and Security"
+name: nekowork
+runtime_name: harness
+version: 0.0.3
+description: "NEKOWORK HARNESS - Local-first multi-AI development verification runtime"
 license: MIT
 homepage: https://github.com/Ps-Neko/NEKOWORK
 # authors: contributor 목록은 git 히스토리로 갈음. 별도 명시 안 함.
@@ -95,7 +96,7 @@ profiles:
     - full
 
 modules:
-  # 0.0.2 catalog: 7 modules. Future modules stay selective/profile-driven.
+  # 0.0.3 catalog: 7 modules. Future modules stay selective/profile-driven.
   - rules-core
   - agents-core
   - hooks-runtime

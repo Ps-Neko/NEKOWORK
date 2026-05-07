@@ -1,6 +1,6 @@
 # Architecture
 
-NEKOWORK packages the HARNESS runtime as a local-first AI development harness. The project keeps one canonical catalog and projects it into multiple agent surfaces.
+NEKOWORK is the product. HARNESS is the local runtime packaged by NEKOWORK as a local-first AI development harness. The project keeps one canonical catalog and projects it into multiple agent surfaces.
 
 ## Core Idea
 

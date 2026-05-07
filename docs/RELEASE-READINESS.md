@@ -2,7 +2,7 @@
 
 Status date: 2026-05-07
 
-HARNESS / NEKOWORK is release-ready for local use and repository-based installation. Public npm publishing is intentionally disabled for the 0.0.3 line.
+NEKOWORK / HARNESS is release-ready for local use and repository-based installation. Public npm publishing is intentionally disabled for the 0.0.3 line.
 
 ## Decision
 
