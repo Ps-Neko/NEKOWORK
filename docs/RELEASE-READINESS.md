@@ -16,7 +16,7 @@ NEKOWORK / HARNESS is release-ready for local use, repository-based installation
 - Risk classifier, acceptance criteria artifacts, and profile safety validation are part of the release gate.
 - Remaining optional work is internal project/provider integration on request.
 - Public package metadata is published as `@ps-neko/nekowork@alpha`.
-- Remaining npm registry cleanup: remove the accidental `latest` dist-tag after npm 2FA approval.
+- Dist-tag note: `latest` also points at the first alpha because it is the only published version; `npm dist-tag rm ... latest` returned `E400`.
 - See [PUBLISH-ALPHA.md](PUBLISH-ALPHA.md) for the public alpha checklist.
 
 ## Required Gates
@@ -120,7 +120,7 @@ Expected target outputs:
 ## Not Included
 
 - promotion to stable `latest`
-- removal of accidental `latest` dist-tag, pending npm 2FA approval
+- stable default install path; `latest` moves to a stable release later
 - Internal LLM provider wiring
 - Internal project rollout
 - Automatic apply, commit, push, PR creation, release, or deploy

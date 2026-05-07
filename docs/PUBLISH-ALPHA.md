@@ -43,11 +43,14 @@ npx -y @ps-neko/nekowork@alpha doctor --quick
 -> WARN summary, 6 pass, 1 warn, 0 fail
 ```
 
-The remaining npm registry cleanup is dist-tag only. Removing `latest` requires an npm 2FA browser challenge:
+The registry currently keeps `latest` on the first alpha because it is the only published version. Attempts to remove it after 2FA returned `E400 Bad Request`:
 
-```bash
+```text
 npm dist-tag rm @ps-neko/nekowork latest
+-> E400 Bad Request
 ```
+
+Treat `latest` as an unavoidable first-alpha registry pointer for now. Do not promote it in docs as the stable path. When the first stable package is ready, publish or retag that stable version as `latest`.
 
 ## Release Shape
 
@@ -113,5 +116,5 @@ If the `harness` bin cannot run correctly through `npx`, do not promote the pack
 
 ## Post-Publish Work
 
-- Remove the accidental `latest` dist-tag after npm 2FA approval.
+- Move `latest` to the first stable release when the project is no longer alpha.
 - Keep source/submodule install docs for users who want repository-pinned workflows.
