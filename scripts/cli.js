@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // NEKOWORK/HARNESS CLI entrypoint.
-// Public verbs: doctor, ask, plan, team, work, verify, gate, ship, apply, run, report, review, review-cycle, install, validate, version.
+// Public verbs: check, init, doctor, ask, plan, team, work, verify, gate, ship, apply, run, report, review, review-cycle, install, validate, version.
 // Advanced verbs: self-review, codex-review, ralph, wait, sessions, costs, instincts.
 
 import { spawnSync } from 'node:child_process';
@@ -28,6 +28,10 @@ function help() {
 harness <verb> [args]
 
 Install / verify
+  check [--project-root <dir>] [--gemini-smoke] [--json] [--full]
+                                         beginner health check; quick doctor by default
+  init [--profile <name>|--pack <name>] [--project-root <dir>]
+                                         beginner install alias; applies generated harness outputs
   install --plan [--profile <name>|--pack <name>] [--target <name>] [--module <id>] [--component <id>] [--project-root <dir>]
                                          selective manifest dry-run
   install --plan --list [--json]         list profile/module/component/target catalog
@@ -97,7 +101,7 @@ Sessions / cost / learning
   instincts prune [--older-days N] [--dry-run]
 
 Other
-  validate, doctor, version, help
+  validate, check, init, doctor, version, help
 `);
 }
 
@@ -641,8 +645,27 @@ function optionNumber(argv, flag, fallback = undefined) {
   return value == null ? fallback : Number(value);
 }
 
+function hasOption(argv, flag) {
+  return argv.includes(flag) || argv.some(a => a.startsWith(`${flag}=`));
+}
+
+function checkArgs(argv) {
+  const full = argv.includes('--full');
+  const filtered = argv.filter(a => a !== '--full');
+  if (full || hasOption(filtered, '--quick')) return filtered;
+  return ['--quick', ...filtered];
+}
+
 (async () => {
   switch (verb) {
+    case 'check':
+      run('doctor.js', checkArgs(rest));
+      break;
+
+    case 'init':
+      run('install-apply.js', rest);
+      break;
+
     case 'install': {
       const mode = rest.includes('--apply') ? 'apply' : 'plan';
       const filtered = rest.filter(a => a !== '--apply' && a !== '--plan');

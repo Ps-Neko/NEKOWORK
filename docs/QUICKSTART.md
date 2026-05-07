@@ -23,10 +23,18 @@ npm ci
 Verify the checkout:
 
 ```bash
-node scripts/cli.js doctor --quick
+node scripts/cli.js check
 ```
 
-`doctor --quick` checks Node.js, package metadata, git state, API key overrides, and provider CLI presence without running the slower freshness checks.
+`check` is the beginner alias for `doctor --quick`. It checks Node.js, package metadata, git state, API key overrides, and provider CLI presence without running the slower freshness checks.
+
+Initialize another local repository from the source checkout:
+
+```bash
+node /path/to/harness/scripts/cli.js init --profile developer --project-root /path/to/my-project
+```
+
+`init` is the beginner alias for `install --apply`. It writes generated harness surfaces and install state to the target project. It does not commit, push, publish, or deploy.
 
 ## 3. One-Minute Demo
 
@@ -53,7 +61,7 @@ Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false
 Use this path first. It is the recommended shortest safe loop:
 
 ```bash
-node scripts/cli.js ask "clarify a risky or ambiguous request" --session first-ask
+node scripts/cli.js check
 node scripts/cli.js run "implement, verify, and prepare ship readiness" --session first-run
 node scripts/cli.js report --session first-run
 node scripts/cli.js gate status --session first-run

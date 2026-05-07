@@ -118,9 +118,18 @@ test('CLI version matches package.json', () => {
 test('CLI help exposes public and advanced verbs', () => {
   const r = run(['scripts/cli.js']);
   const out = r.stdout + r.stderr;
-  for (const verb of ['install', 'ask', 'team', 'work', 'verify', 'gate', 'ship', 'apply', 'run', 'review', 'review-cycle', 'plan', 'doctor', 'ralph', 'wait', 'sessions', 'costs', 'instincts', 'version']) {
+  for (const verb of ['check', 'init', 'install', 'ask', 'team', 'work', 'verify', 'gate', 'ship', 'apply', 'run', 'review', 'review-cycle', 'plan', 'doctor', 'ralph', 'wait', 'sessions', 'costs', 'instincts', 'version']) {
     assert.match(out, new RegExp(verb), `verb "${verb}" not shown`);
   }
+});
+
+test('CLI check alias returns a quick health report by default', () => {
+  const r = run(['scripts/cli.js', 'check', '--json']);
+  assert.equal(r.status, 0, r.stderr);
+  const report = JSON.parse(r.stdout);
+  assert.equal(report.name, 'NEKOWORK doctor');
+  assert.ok(report.checks.some((check) => check.name === 'node'));
+  assert.ok(report.checks.some((check) => check.name === 'package metadata'));
 });
 
 test('CLI doctor quick mode returns a health report', () => {

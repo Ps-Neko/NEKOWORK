@@ -20,6 +20,16 @@ Claude work -> Codex verification -> report -> Human Gate -> explicit apply
 
 NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, profile, module, and pack must preserve the verification loop.
 
+## When To Choose What
+
+| Use case | Prefer |
+|---|---|
+| You want Claude Code to follow stronger TDD and discipline habits | Superpowers |
+| You want the broadest Claude Code skill and command environment | Everything Claude Code |
+| You want startup-style team simulation across planning, implementation, QA, and release | GStack |
+| You want autonomous multi-agent execution | OMC |
+| You want AI-generated changes verified, gated, reported, and explicitly applied | NEKOWORK |
+
 ## Comparison
 
 | Pattern | Strong At | NEKOWORK Answer |
