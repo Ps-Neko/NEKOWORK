@@ -1,0 +1,12 @@
+{
+  "name": "nekowork-github-actions-hardening",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node scripts/check.mjs"
+  },
+  "devDependencies": {
+    "yaml": "^2.6.1"
+  }
+}

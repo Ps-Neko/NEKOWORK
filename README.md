@@ -16,6 +16,12 @@ NEKOWORK = Claude work -> Codex verification -> Human Gate
 
 NEKOWORK is not meant to become a large agent pack. Skills, hooks, profiles, and team modes are added only when they preserve the verification loop.
 
+## Three Paths
+
+1. Beginner: `doctor -> ask -> run -> gate`
+2. Advanced: `ask -> plan -> team -> work -> verify -> gate -> ship -> apply`
+3. Legacy: `review` / `review-cycle`
+
 ## Why NEKOWORK
 
 NEKOWORK is for teams that want AI-assisted development without making the agent catalog the product. The default path keeps local auth, inspectable handoffs, single-executor writes, independent Codex verification, and Human Gate decisions in front of risky ship/apply steps.
@@ -32,7 +38,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 225 tests pass
+- `npm test`: 226 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 
@@ -80,7 +86,7 @@ To see the repository-based external project flow end to end:
 npm run demo:external
 ```
 
-To inspect a small real case-study target, see [examples/trading-dashboard-mock](examples/trading-dashboard-mock). It is a standalone static project that demonstrates a financial UI mock passing local checks while still requiring Human Gate policy.
+To inspect small case-study targets, see [examples/trading-dashboard-mock](examples/trading-dashboard-mock) and [examples/github-actions-hardening](examples/github-actions-hardening). They demonstrate financial UI and CI workflow changes passing local checks while still requiring Human Gate policy.
 
 ## What You Get
 
@@ -244,6 +250,7 @@ npm pack --dry-run --json
 - [docs/CLI-STAGES.md](docs/CLI-STAGES.md) - stage contract and compatibility transition
 - [docs/RISK-CLASSIFIER.md](docs/RISK-CLASSIFIER.md) - shared risk tags, challenge, and gate policy
 - [docs/examples/TRADING-DASHBOARD-MOCK.md](docs/examples/TRADING-DASHBOARD-MOCK.md) - financial mockup flow with Human Gate
+- [docs/examples/GITHUB-ACTIONS-HARDENING.md](docs/examples/GITHUB-ACTIONS-HARDENING.md) - CI workflow hardening flow with Human Gate
 - [docs/AUDIT.md](docs/AUDIT.md) - readiness and remaining debt
 - [docs/CHANGELOG.md](docs/CHANGELOG.md) - project history
 - [SOUL.md](SOUL.md), [RULES.md](RULES.md), [AGENTS.md](AGENTS.md) - project principles and agent rules
