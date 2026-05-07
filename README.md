@@ -20,9 +20,11 @@ NEKOWORK is not meant to become a large agent pack. Skills, hooks, profiles, and
 
 NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, profile, module, and pack must preserve the verification loop.
 
-**Public alpha evidence:** 7 packs · 9 profiles · 36 components · 5 harness targets · 6 case-study flows · 245 tests · 0 moderate+ npm audit issues
+**Public alpha evidence:** 7 packs / 9 profiles / 36 components / 5 harness targets / 6 case-study flows / 245 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
+
+**One-minute demo:** [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) / [full report example](docs/DEMO-REPORT.md) / [alpha.2 roadmap](docs/ROADMAP.md)
 
 ## Example Report
 
@@ -83,6 +85,7 @@ Current local verification:
 - `npm test`: 245 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
+- `npx -y @ps-neko/nekowork@alpha doctor --quick`: pass with warnings only
 
 ## Case-study Evidence
 
@@ -341,6 +344,7 @@ npm pack --dry-run --json
 - [docs/WHY-NEKOWORK.md](docs/WHY-NEKOWORK.md) - comparison and product positioning
 - [docs/CATALOG-PACKS.md](docs/CATALOG-PACKS.md) - curated catalog, official packs, and case-study evidence
 - [docs/PUBLISH-ALPHA.md](docs/PUBLISH-ALPHA.md) - public npm alpha release plan
+- [docs/ROADMAP.md](docs/ROADMAP.md) - small alpha.2 roadmap and non-goals
 - [docs/INTERNAL-PROVIDER.md](docs/INTERNAL-PROVIDER.md) - private command adapter protocol
 - [docs/DEMO.md](docs/DEMO.md) - sample command output and generated files
 - [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md) - readable session report UX

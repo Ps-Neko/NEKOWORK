@@ -59,6 +59,7 @@ Current local verification after the decomposed workflow expansion:
 - `npm publish --access public --tag alpha`: `0.1.0-alpha.1` published
 - `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.1`; `latest` remains `0.1.0-alpha.0`
 - `npx -y @ps-neko/nekowork@alpha doctor --quick`: passed for `0.1.0-alpha.1` with WARN summary from non-git project root and Gemini auth not checked
+- GitHub Actions `published-alpha-smoke`: validates the fresh `npx @alpha` path against the published package
 
 ## Install Smoke
 
