@@ -26,7 +26,7 @@ Candidate scope:
 
 - Keep `@alpha` smoke evidence green across local and GitHub Actions gates.
 - Keep the `motdotla/dotenv` case study as the current new risk-class addition for environment configuration boundaries.
-- Improve feedback triage docs once alpha users file real reports.
+- Keep feedback triage docs and issue-template classification ready for real alpha reports.
 - Avoid provider/API-key-first setup changes unless they preserve delegated local auth as the default.
 
 Non-goals:
