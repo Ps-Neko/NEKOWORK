@@ -14,3 +14,4 @@ Case studies must keep the NEKOWORK invariants visible:
 ## Current Case Studies
 
 - [sindresorhus/is-plain-obj](SINDRESORHUS-IS-PLAIN-OBJ.md): third-party public npm package, quality-profile run, strict quality no-ship evidence.
+- [jshttp/basic-auth](JSHTTP-BASIC-AUTH.md): third-party public auth parser, security-profile run, Codex review plus challenge, no-ship evidence.

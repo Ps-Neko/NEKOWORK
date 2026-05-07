@@ -18,7 +18,7 @@ This audit summarizes the current NEKOWORK state after the `v0.0.3` repository r
 | Multi-harness output | OK | Claude, Codex, Cursor, Gemini, and OpenCode builders are present |
 | Quick demo | OK | `npm run demo:quick` verifies the shortest no-API `doctor -> run -> gate status` path |
 | External demo | OK | `npm run demo:external` verifies a disposable target project flow |
-| Third-party case study | OK | `docs/case-studies/SINDRESORHUS-IS-PLAIN-OBJ.md` records a real public repository run |
+| Third-party case studies | OK | `docs/case-studies/` records real public repository runs for a package boundary and an auth boundary |
 | Decomposed workflow | OK | `ask`, `team`, `work`, `verify`, `gate`, `ship`, `apply`, and `run` are available |
 | Risk policy | OK | Shared classifier drives ask, routing traces, verify challenge/gates, and ship gate rechecks |
 | Acceptance criteria | OK | `work` ensures every session has `acceptance-criteria.json` |
@@ -52,7 +52,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 238 tests pass
+- `npm test`: 239 tests pass
 - quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass
@@ -84,7 +84,7 @@ Current local result for this working tree:
 - The disposable external project demo proves the repository-based target-project flow end to end.
 - The quick run demo proves the one-command no-API first experience.
 - Checked-in example fixtures now cover financial UI, CI hardening, and quality lifecycle evidence flows.
-- A third-party case study records a NEKOWORK run against `sindresorhus/is-plain-obj`.
+- Third-party case studies record NEKOWORK runs against `sindresorhus/is-plain-obj` and `jshttp/basic-auth`.
 - Public npm alpha `0.1.0-alpha.0` is published and smoke-tested through `npx`.
 
 ## Remaining Optional Work
@@ -92,7 +92,7 @@ Current local result for this working tree:
 | Item | Priority | Reason |
 |---|---|---|
 | Stable `latest` promotion | Medium | `alpha` is correct; npm also points `latest` at the only published version and rejected removal with `E400`, so move it to a stable version later |
-| More third-party case studies | Medium | One public repo case study exists; more languages/frameworks would improve adoption evidence |
+| More third-party case studies | Medium | Two public repo case studies exist; more languages/frameworks would improve adoption evidence |
 | Internal provider adapter | Low until requested | Only useful for private infrastructure |
 | More skill catalog expansion | Low | Should stay selective to preserve progressive disclosure |
 
@@ -111,5 +111,5 @@ Current external readiness, excluding broader adoption evidence: **9.0 / 10**.
 Main deductions:
 
 - `latest` currently points at the alpha because it is the only published version; docs still recommend `@alpha` until a stable release exists.
-- Only one independent real-world external project case study so far.
+- Two independent real-world external project case studies exist so far.
 - Advanced surfaces exist but are intentionally secondary to the public decomposed workflow and install flow.

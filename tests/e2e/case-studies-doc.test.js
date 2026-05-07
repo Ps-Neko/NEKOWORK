@@ -17,3 +17,17 @@ test('third-party case study records external repository evidence', () => {
   assert.match(doc, /target_project_mutated/);
   assert.match(doc, /No package source files were modified/);
 });
+
+test('auth parser case study records security-profile evidence', () => {
+  const file = path.join(ROOT, 'docs', 'case-studies', 'JSHTTP-BASIC-AUTH.md');
+  const doc = fs.readFileSync(file, 'utf8');
+
+  assert.match(doc, /https:\/\/github\.com\/jshttp\/basic-auth/);
+  assert.match(doc, /1ba386f174d4b3633037c7231ac6718549520bf0/);
+  assert.match(doc, /npm run specs/);
+  assert.match(doc, /28 tests passed/);
+  assert.match(doc, /profile": "security/);
+  assert.match(doc, /codex_challenge_run: true/);
+  assert.match(doc, /approve_with_fixes/);
+  assert.match(doc, /No package source files were modified/);
+});
