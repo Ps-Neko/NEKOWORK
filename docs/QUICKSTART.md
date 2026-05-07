@@ -28,10 +28,11 @@ node scripts/cli.js check
 
 `check` is the beginner alias for `doctor --quick`. It checks Node.js, package metadata, git state, API key overrides, and provider CLI presence without running the slower freshness checks.
 
-Initialize another local repository from the source checkout:
+Initialize another local repository with the published alpha:
 
 ```bash
-node /path/to/harness/scripts/cli.js init --profile developer --project-root /path/to/my-project
+cd /path/to/my-project
+npx -y @ps-neko/nekowork@alpha init --profile developer --project-root .
 ```
 
 `init` is the beginner alias for `install --apply`. It writes generated harness surfaces and install state to the target project. It does not commit, push, publish, or deploy.

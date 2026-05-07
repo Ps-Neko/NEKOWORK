@@ -1,6 +1,6 @@
 # Porting NEKOWORK Into Another Project
 
-NEKOWORK `0.1.0-alpha.2` is the current repository version and the published `@ps-neko/nekowork@alpha` package. Use a submodule or local checkout for repository-pinned workflows and examples.
+NEKOWORK `0.1.0-alpha.4` is the current repository version and the published `@ps-neko/nekowork@alpha` package. Use npm alpha for the shortest install path, or use a submodule/local checkout for repository-pinned workflows and examples.
 
 ## Local Demo First
 
@@ -26,6 +26,16 @@ target-project/
 ```
 
 The tool root stays in `.harness-tool/`. Generated harness files, session state, and git-aware execution target the project root.
+
+## npm Alpha Install
+
+Use this when you want the shortest target-project install path:
+
+```bash
+cd <target-project>
+npx -y @ps-neko/nekowork@alpha init --profile developer --project-root .
+npx -y @ps-neko/nekowork@alpha check --project-root .
+```
 
 ## Submodule Install
 
