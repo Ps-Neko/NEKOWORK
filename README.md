@@ -43,7 +43,7 @@ NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `
 Use the current npm alpha for the published health smoke:
 
 ```bash
-npx -y @ps-neko/nekowork@alpha doctor --quick
+npx -y @ps-neko/nekowork@alpha check
 ```
 
 Use a source checkout for the new simple command path:
@@ -139,9 +139,9 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 ## Status
 
-- Current repository version: `0.1.0-alpha.2`
+- Current repository version: `0.1.0-alpha.3`
 - Current package name: `@ps-neko/nekowork`
-- Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.2`
+- Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.3`
 - Supported install path today: npm alpha, clone, submodule, or local repository integration
 - Dist-tag note: use `@alpha` until a stable release; `latest` still points at the first alpha line
 - Default mode: mock providers, no API keys, no provider CLI calls
@@ -152,7 +152,7 @@ Current local verification:
 - `npm test`: 251 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
-- `npx -y @ps-neko/nekowork@alpha doctor --quick`: pass with warnings only
+- `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
 
 ## Case-study Evidence
 
@@ -189,7 +189,7 @@ Requirements:
 Fastest no-API demo:
 
 ```bash
-npx -y @ps-neko/nekowork@alpha doctor --quick
+npx -y @ps-neko/nekowork@alpha check
 ```
 
 Repository demo:
@@ -411,7 +411,7 @@ npm run security:hardening
 npm pack --dry-run --json
 ```
 
-`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.2.tgz`. It does not publish.
+`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.3.tgz`. It does not publish.
 
 ## Documentation
 

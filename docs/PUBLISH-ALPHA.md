@@ -1,15 +1,15 @@
 # Public Alpha Publish Record
 
-NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.2`.
+NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.3`.
 
 Do not publish from the `0.0.3` line.
 
-The repository metadata has been advanced to `0.1.0-alpha.2` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2` publish succeeded on 2026-05-08 and moved the `alpha` dist-tag forward.
+The repository metadata has been advanced to `0.1.0-alpha.3` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2` publish succeeded on 2026-05-08. The `0.1.0-alpha.3` publish succeeded on 2026-05-08 and moved the `alpha` dist-tag forward.
 
-The matching Git tag and GitHub prerelease are published as `v0.1.0-alpha.2`:
+The matching Git tag and GitHub prerelease are published as `v0.1.0-alpha.3`:
 
 ```text
-https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.2
+https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.3
 ```
 
 ## Registry State
@@ -27,14 +27,14 @@ The current alpha install path points at the release line:
 
 ```text
 npm view @ps-neko/nekowork@alpha version --json
--> 0.1.0-alpha.2
+-> 0.1.0-alpha.3
 ```
 
 Dist-tags:
 
 ```text
 npm view @ps-neko/nekowork dist-tags --json
--> { "alpha": "0.1.0-alpha.2", "latest": "0.1.0-alpha.0" }
+-> { "alpha": "0.1.0-alpha.3", "latest": "0.1.0-alpha.0" }
 ```
 
 The publish package shape has been checked:
@@ -65,18 +65,25 @@ npm publish --access public --tag alpha
 -> published 0.1.0-alpha.2
 ```
 
+The third alpha update was also published with the same `alpha` dist-tag:
+
+```text
+npm publish --access public --tag alpha
+-> published 0.1.0-alpha.3
+```
+
 After publish:
 
 ```text
-npm view @ps-neko/nekowork@0.1.0-alpha.2 version --json
--> 0.1.0-alpha.2
+npm view @ps-neko/nekowork@0.1.0-alpha.3 version --json
+-> 0.1.0-alpha.3
 ```
 
 `npx` smoke passed:
 
 ```text
-npx -y @ps-neko/nekowork@alpha doctor --quick
--> WARN summary, 5 pass, 2 warn, 0 fail
+npx -y @ps-neko/nekowork@alpha check
+-> WARN summary, 6 pass, 1 warn, 0 fail
 ```
 
 The registry keeps `latest` on the first alpha line. Attempts to remove it after 2FA returned `E400 Bad Request`:
@@ -94,7 +101,7 @@ Published public alpha package:
 
 ```text
 name: @ps-neko/nekowork
-version: 0.1.0-alpha.2
+version: 0.1.0-alpha.3
 dist-tag: alpha
 bin: harness
 ```
@@ -109,7 +116,7 @@ Before publishing, explicitly confirm:
 - npm 2FA readiness
 - package name `@ps-neko/nekowork`
 - binary name `harness`
-- public alpha version `0.1.0-alpha.2`
+- public alpha version `0.1.0-alpha.3`
 - `private` removed or set to `false`
 - publish tag is `alpha`, not `latest`
 
@@ -125,7 +132,7 @@ Use this checklist for `0.1.0-alpha.3` or any later alpha. Do not run it until t
 6. Confirm `npm whoami` is the owner account.
 7. Publish with `npm publish --access public --tag alpha`.
 8. Verify `npm view @ps-neko/nekowork@alpha version --json` returns the new version.
-9. Smoke test from a fresh directory with `npx -y @ps-neko/nekowork@alpha doctor --quick`.
+9. Smoke test from a fresh directory with `npx -y @ps-neko/nekowork@alpha check`.
 10. Create and push `v<version>`.
 11. Create a GitHub prerelease for `v<version>`.
 12. Update release docs from candidate/pending language to published language.
@@ -164,7 +171,7 @@ npm publish --access public --tag alpha
 Smoke test:
 
 ```bash
-npx -y @ps-neko/nekowork@alpha doctor --quick
+npx -y @ps-neko/nekowork@alpha check
 ```
 
 If the `harness` bin cannot run correctly through `npx`, do not promote the package.
