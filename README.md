@@ -4,7 +4,7 @@ Local-first AI development harness for Claude Code, Codex CLI, and Gemini CLI.
 
 [![harness-validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
-NEKOWORK packages the HARNESS runtime: one source catalog, `agent.yaml`, projected into Claude Code, Codex CLI, Cursor, Gemini CLI, and OpenCode surfaces.
+NEKOWORK is the product. HARNESS is the local runtime it packages: one source catalog, `agent.yaml`, projected into Claude Code, Codex CLI, Cursor, Gemini CLI, and OpenCode surfaces.
 
 Claude writes or plans, Codex challenges the result in a separate context, and human gates stop critical or repeated-risk changes.
 
@@ -18,6 +18,8 @@ NEKOWORK is not meant to become a large agent pack. Skills, hooks, profiles, and
 
 ## Three Paths
 
+Most users should start with the Beginner path. The other paths are for explicit phase control or legacy compatibility.
+
 1. Beginner: `doctor -> ask -> run -> gate`
 2. Advanced: `ask -> plan -> team -> work -> verify -> gate -> ship -> apply`
 3. Legacy: `review` / `review-cycle`
@@ -30,9 +32,9 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 - Current version: `0.0.3` alpha
 - Current package name: `@ps-neko/nekowork`
-- npm publishing: disabled for now by `private: true`
+- npm publishing: do not publish `0.0.3`; disabled by `private: true`
 - Supported install path today: clone, submodule, or local repository integration
-- Future npm path is prepared, but `npm publish` still requires an explicit release decision
+- Future npm path is prepared, but `npm publish` requires a new explicit release decision
 - Default mode: mock providers, no API keys, no provider CLI calls
 
 Current local verification:
@@ -50,7 +52,7 @@ Requirements:
 - npm
 - git
 
-Beginner path:
+Recommended path for most users:
 
 ```bash
 git clone https://github.com/Ps-Neko/NEKOWORK.git harness

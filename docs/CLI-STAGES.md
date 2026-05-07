@@ -21,7 +21,7 @@ ask -> plan -> team -> work -> verify -> gate -> ship -> apply
 
 ## Beginner And Advanced Paths
 
-Beginner path:
+Most users should start with this Beginner path:
 
 ```text
 doctor -> ask -> run -> gate status

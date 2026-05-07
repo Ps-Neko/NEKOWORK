@@ -22,7 +22,7 @@ node scripts/cli.js doctor --quick
 
 ## 2. Beginner Path
 
-Use this path when you want the shortest safe loop:
+Use this path first. It is the recommended shortest safe loop:
 
 ```bash
 node scripts/cli.js ask "clarify a risky or ambiguous request" --session first-ask

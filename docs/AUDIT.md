@@ -8,8 +8,8 @@ This audit summarizes the current NEKOWORK state after the `v0.0.3` repository r
 
 | Area | Status | Notes |
 |---|---|---|
-| Package metadata | OK | `@ps-neko/nekowork@0.0.3`, `private: true` |
-| npm publish | Held | Public npm publishing is intentionally disabled |
+| Package metadata | OK | `@ps-neko/nekowork@0.0.3`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness` |
+| npm publish | Held | Do not publish `0.0.3`; public npm publishing is intentionally disabled |
 | Source install | OK | Clone, local checkout, and submodule workflows are documented |
 | CLI doctor | OK | `doctor`, `doctor --quick`, and `doctor --gemini-smoke` are available |
 | Provider auth | OK | Local delegated CLI auth is the default path |
@@ -77,14 +77,14 @@ Current local result for this working tree:
 
 | Item | Priority | Reason |
 |---|---|---|
-| Public npm publish decision | High, when desired | Converts repository alpha into an installable package |
-| Real external project case study | Medium | Shows that porting works on a non-synthetic project |
+| Future public npm publish decision | High, when desired | Converts repository alpha into an installable package after a new explicit release decision |
+| Real external project case study | Medium | Requires a named third-party or production-like target repository; checked-in examples and disposable demos are complete |
 | Internal provider adapter | Low until requested | Only useful for private infrastructure |
 | More skill catalog expansion | Low | Should stay selective to preserve progressive disclosure |
 
 ## Explicit Non-Goals
 
-- No public npm publish without owner approval.
+- No public npm publish for `0.0.3`; future npm publishing requires owner approval.
 - No automatic promotion of learned instincts without human confirmation.
 - No tmux-first runtime import from OMC.
 - No bulk import of large external skill catalogs.

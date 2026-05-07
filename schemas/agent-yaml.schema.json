@@ -9,6 +9,7 @@
   "properties": {
     "spec_version": { "type": "string", "const": "gitagent/0.1.0" },
     "name": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "runtime_name": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
     "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-z0-9.-]+)?$" },
     "description": { "type": "string", "minLength": 10 },
     "license": { "type": "string" },
