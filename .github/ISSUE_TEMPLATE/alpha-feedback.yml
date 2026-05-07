@@ -1,0 +1,90 @@
+name: Alpha feedback
+description: Share first-run feedback, doctor output, or report evidence from the public alpha.
+title: "[alpha feedback]: "
+labels:
+  - alpha-feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying NEKOWORK. Please remove secrets, private paths, and proprietary code before pasting output.
+        The most useful alpha evidence is `doctor --quick --json` plus a short `REPORT.md` summary.
+  - type: dropdown
+    id: install_path
+    attributes:
+      label: Install path
+      options:
+        - npx @ps-neko/nekowork@alpha
+        - npm dev dependency
+        - global npm install
+        - git clone
+        - submodule or local checkout
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS and shell
+      placeholder: "Windows 11 / PowerShell, macOS / zsh, Ubuntu / bash"
+    validations:
+      required: true
+  - type: input
+    id: node_npm
+    attributes:
+      label: Node and npm
+      placeholder: "node v22.x, npm 10.x"
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command you ran
+      description: Paste the exact command, for example `npx -y @ps-neko/nekowork@alpha doctor --quick`.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: doctor_json
+    attributes:
+      label: doctor --quick --json output
+      description: Run `npx -y @ps-neko/nekowork@alpha doctor --quick --json` and paste the redacted output.
+      render: json
+    validations:
+      required: false
+  - type: textarea
+    id: report_summary
+    attributes:
+      label: REPORT.md summary
+      description: Paste only the summary lines, not proprietary source code.
+      placeholder: |
+        Status:
+        Verdict:
+        Ship ready:
+        Human gate:
+        Applied:
+        Evidence:
+      render: markdown
+    validations:
+      required: false
+  - type: textarea
+    id: what_worked
+    attributes:
+      label: What worked?
+      description: Tell us what felt clear, useful, or trustworthy.
+    validations:
+      required: false
+  - type: textarea
+    id: what_blocked
+    attributes:
+      label: What blocked or confused you?
+      description: Include error messages, unclear docs, or missing expectations.
+    validations:
+      required: false
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: I removed secrets, credentials, private paths, and proprietary source code from pasted output.
+          required: true
+

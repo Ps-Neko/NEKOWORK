@@ -1,0 +1,9 @@
+blank_issues_enabled: true
+contact_links:
+  - name: One-minute demo
+    url: https://github.com/Ps-Neko/NEKOWORK/blob/main/docs/DEMO.md
+    about: Run the no-API demo before filing first-run feedback.
+  - name: Release readiness
+    url: https://github.com/Ps-Neko/NEKOWORK/blob/main/docs/RELEASE-READINESS.md
+    about: Check current alpha release evidence and gates.
+

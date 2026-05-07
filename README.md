@@ -24,7 +24,7 @@ NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, pr
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
-**One-minute demo:** [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) / [full report example](docs/DEMO-REPORT.md) / [alpha.2 roadmap](docs/ROADMAP.md)
+**One-minute demo:** [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) / [full report example](docs/DEMO-REPORT.md) / [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) / [alpha.2 roadmap](docs/ROADMAP.md)
 
 ![NEKOWORK one-minute terminal demo](docs/assets/demo-terminal.svg)
 
