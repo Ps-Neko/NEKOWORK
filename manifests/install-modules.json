@@ -68,6 +68,7 @@
       "components": [
         "skill:tdd-workflow",
         "skill:plan-eng-review",
+        "skill:acceptance-coverage",
         "skill:review",
         "skill:ship"
       ],

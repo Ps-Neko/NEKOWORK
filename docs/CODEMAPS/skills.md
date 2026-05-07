@@ -7,6 +7,8 @@
 
 ```text
 skills/
+|-- acceptance-coverage/
+|   `-- SKILL.md
 |-- claude-led-codex-review/
 |   `-- SKILL.md
 |-- plan-eng-review/

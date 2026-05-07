@@ -12,6 +12,7 @@ scripts/
 |   |   |-- claude.js
 |   |   |-- codex.js
 |   |   |-- gemini.js
+|   |   |-- internal.js
 |   |   `-- mock.js
 |   `-- dispatch.js
 |-- auth/
@@ -93,6 +94,7 @@ scripts/
 | `agents/runners/claude.js` | `buildCliArgs`, `buildSystem`, `buildUserMessage`, `extractJson`, `normalizeCliUsage`, `parseCliJson`, `runClaude` | Claude runner. Default live mode uses the local Claude Code CLI subscription/OAuth session. Set HARNESS_CLAUDE_RUNNER=sdk to opt into Anthro |
 | `agents/runners/codex.js` | `buildPrompt`, `extractJson`, `normalizeHandoff`, `runCodex` | Codex runner: OpenAI Codex CLI subprocess . : codex . throw. (codex 0.124.0+ ): codex exec --sandbox read-only [--profile <name>] < prompt s |
 | `agents/runners/gemini.js` | `buildCliArgs`, `buildPrompt`, `parseGeminiOutput`, `runGemini` | Gemini runner: calls the local Gemini CLI subprocess. Default auth is delegated to the user's local gemini/gcloud session. |
+| `agents/runners/internal.js` | `buildInternalCommand`, `buildInternalPrompt`, `parseInternalResponse`, `runInternal` | Internal provider runner. Calls an explicit local command using the NEKOWORK internal-provider JSON protocol. |
 | `agents/runners/mock.js` | `runMock` | Mock runner: LLM . API / CLI dry-run . : - planner: AC 3 PRD - executor: - code-reviewer: round 1 high 1 (fix loop ), round 2 approve - code |
 | `auth/github-import-gh.js` | _(none)_ | Import the already-authenticated GitHub CLI OAuth token into the HARNESS vault. This is an explicit local-session bridge, not a static API-k |
 | `auth/github-login.js` | _(none)_ | GitHub OAuth Device Flow. : HARNESS_GITHUB_CLIENT_ID ( OAuth App client_id). docs/AUTH-MIGRATION.md 5.3. |

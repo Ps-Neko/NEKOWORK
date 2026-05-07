@@ -31,3 +31,17 @@ test('auth parser case study records security-profile evidence', () => {
   assert.match(doc, /approve_with_fixes/);
   assert.match(doc, /No package source files were modified/);
 });
+
+test('python protocol case study records non-node strict-quality evidence', () => {
+  const file = path.join(ROOT, 'docs', 'case-studies', 'PYTHON-HYPER-H11.md');
+  const doc = fs.readFileSync(file, 'utf8');
+
+  assert.match(doc, /https:\/\/github\.com\/python-hyper\/h11/);
+  assert.match(doc, /62c5068c971579d61fa1b55373390e12f25fd856/);
+  assert.match(doc, /python -m pytest h11\\tests/);
+  assert.match(doc, /78 tests passed/);
+  assert.match(doc, /profile": "quality/);
+  assert.match(doc, /strict_quality_blocked": true/);
+  assert.match(doc, /pyproject\.toml/);
+  assert.match(doc, /No package source files were modified/);
+});

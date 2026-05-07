@@ -32,9 +32,9 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 ## Status
 
-- Current version: `0.1.0-alpha.0` public alpha
+- Current repository version: `0.1.0-alpha.1` alpha candidate
 - Current package name: `@ps-neko/nekowork`
-- npm publishing: published as `@ps-neko/nekowork@alpha`
+- npm publishing: `@ps-neko/nekowork@alpha` is currently `0.1.0-alpha.0`; `0.1.0-alpha.1` publish is prepared and awaiting owner OTP/web auth
 - Supported install path today: npm alpha, clone, submodule, or local repository integration
 - Dist-tag note: `alpha` is published; `latest` also points at the first alpha because it is the only published version
 - Default mode: mock providers, no API keys, no provider CLI calls
@@ -42,7 +42,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 239 tests pass
+- `npm test`: 243 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 
@@ -107,7 +107,7 @@ To see the repository-based external project flow end to end:
 npm run demo:external
 ```
 
-To inspect small case-study targets, see [examples/trading-dashboard-mock](examples/trading-dashboard-mock), [examples/github-actions-hardening](examples/github-actions-hardening), and [examples/quality-lifecycle-smoke](examples/quality-lifecycle-smoke). They demonstrate financial UI, CI workflow, and quality lifecycle changes passing local checks while still preserving Codex verification, Human Gate policy, and explicit apply control.
+To inspect small case-study targets, see [examples/trading-dashboard-mock](examples/trading-dashboard-mock), [examples/github-actions-hardening](examples/github-actions-hardening), [examples/quality-lifecycle-smoke](examples/quality-lifecycle-smoke), and [docs/case-studies](docs/case-studies). They demonstrate financial UI, CI workflow, quality lifecycle, npm package, auth parser, and Python protocol library flows passing local checks while still preserving Codex verification, Human Gate policy, and explicit apply control.
 
 ## What You Get
 
@@ -188,7 +188,7 @@ Use `--profile quality` or `--profile security` on `work`, `verify`, and `run` w
 ## Catalog
 
 - Agents: 11
-- Skills: 9
+- Skills: 10
 - Hooks: 5
 - Modules: 7
 - Profiles: `core`, `developer`, `security`, `product`, `quality`, `frontend`, `testing`, `research`, `full`
@@ -199,6 +199,7 @@ Key skills:
 - `claude-led-codex-review`
 - `plan-eng-review`
 - `tdd-workflow`
+- `acceptance-coverage`
 - `review`
 - `ship`
 - `ralph`
@@ -253,13 +254,14 @@ npm run security:hardening
 npm pack --dry-run --json
 ```
 
-`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.0.tgz`. It does not publish.
+`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.1.tgz`. It does not publish.
 
 ## Documentation
 
 - [docs/QUICKSTART.md](docs/QUICKSTART.md) - first run and common paths
 - [docs/WHY-NEKOWORK.md](docs/WHY-NEKOWORK.md) - comparison and product positioning
 - [docs/PUBLISH-ALPHA.md](docs/PUBLISH-ALPHA.md) - public npm alpha release plan
+- [docs/INTERNAL-PROVIDER.md](docs/INTERNAL-PROVIDER.md) - private command adapter protocol
 - [docs/DEMO.md](docs/DEMO.md) - sample command output and generated files
 - [docs/EXAMPLE-PROJECT.md](docs/EXAMPLE-PROJECT.md) - repository-based external project demo
 - [docs/case-studies](docs/case-studies) - real external project run evidence

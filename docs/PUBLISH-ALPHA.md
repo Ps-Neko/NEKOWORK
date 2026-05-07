@@ -1,10 +1,10 @@
 # Public Alpha Publish Record
 
-NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`.
+NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current repository candidate is `0.1.0-alpha.1`.
 
 Do not publish from the `0.0.3` line.
 
-The repository metadata has been advanced to `0.1.0-alpha.0` with `private: false`. Public alpha publish succeeded on 2026-05-07.
+The repository metadata has been advanced to `0.1.0-alpha.1` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish dry-run passes, but actual publish requires owner OTP/web auth.
 
 ## Registry State
 
@@ -29,11 +29,18 @@ npm publish --dry-run --access public --tag alpha
 -> pass
 ```
 
-Actual publish succeeded, and a duplicate publish attempt is correctly blocked:
+The first alpha publish succeeded, and a duplicate publish attempt is correctly blocked:
 
 ```text
 npm publish --access public --tag alpha
 -> E403 previously published versions: 0.1.0-alpha.0
+```
+
+The current alpha update is prepared with the same `alpha` dist-tag, but actual publish is blocked until owner OTP/web auth is completed:
+
+```text
+npm publish --access public --tag alpha
+-> EOTP one-time password / web authentication required
 ```
 
 `npx` smoke passed:
@@ -43,7 +50,7 @@ npx -y @ps-neko/nekowork@alpha doctor --quick
 -> WARN summary, 6 pass, 1 warn, 0 fail
 ```
 
-The registry currently keeps `latest` on the first alpha because it is the only published version. Attempts to remove it after 2FA returned `E400 Bad Request`:
+The registry keeps `latest` on the first alpha. Attempts to remove it after 2FA returned `E400 Bad Request`:
 
 ```text
 npm dist-tag rm @ps-neko/nekowork latest
@@ -58,7 +65,7 @@ Prepared first public package:
 
 ```text
 name: @ps-neko/nekowork
-version: 0.1.0-alpha.0
+version: 0.1.0-alpha.1
 dist-tag: alpha
 bin: harness
 ```
@@ -73,7 +80,7 @@ Before publishing, explicitly confirm:
 - npm 2FA readiness
 - package name `@ps-neko/nekowork`
 - binary name `harness`
-- public alpha version `0.1.0-alpha.0`
+- public alpha version `0.1.0-alpha.1`
 - `private` removed or set to `false`
 - publish tag is `alpha`, not `latest`
 

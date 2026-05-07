@@ -1,6 +1,6 @@
 # Porting NEKOWORK Into Another Project
 
-NEKOWORK `0.1.0-alpha.0` is published as `@ps-neko/nekowork@alpha`. Use a submodule or local checkout for repository-pinned workflows and examples.
+NEKOWORK `0.1.0-alpha.1` is the current repository candidate. The published `@ps-neko/nekowork@alpha` package remains `0.1.0-alpha.0` until owner-authenticated npm publish completes. Use a submodule or local checkout for repository-pinned workflows and examples.
 
 ## Local Demo First
 

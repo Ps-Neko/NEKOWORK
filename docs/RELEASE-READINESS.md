@@ -2,7 +2,7 @@
 
 Status date: 2026-05-07
 
-NEKOWORK / HARNESS is release-ready for local use, repository-based installation, and public npm alpha installation.
+NEKOWORK / HARNESS is release-ready for local use, repository-based installation, and public npm alpha installation. The repository is prepared for `0.1.0-alpha.1`; npm publish requires owner OTP/web auth.
 
 ## Decision
 
@@ -10,12 +10,12 @@ NEKOWORK / HARNESS is release-ready for local use, repository-based installation
 - Public alpha: `0.1.0-alpha.0`, published with `--tag alpha`.
 - `package.json` is set to `private: false` for the public alpha.
 - The canonical repo is `Ps-Neko/NEKOWORK`.
-- Current release track is `0.1.0-alpha.0`.
+- Current release track is `0.1.0-alpha.1` prepared; npm `@alpha` remains `0.1.0-alpha.0` until owner-authenticated publish completes.
 - Required local provider auth is delegated CLI auth, not long-lived API keys.
 - Core workflow invariant is Claude work -> Codex verification -> Human Gate.
 - Risk classifier, acceptance criteria artifacts, and profile safety validation are part of the release gate.
-- Remaining optional work is internal project/provider integration on request.
-- Public package metadata is published as `@ps-neko/nekowork@alpha`.
+- Remaining optional work is stable promotion and broader adoption evidence.
+- Public package metadata is published as `@ps-neko/nekowork@alpha`; `0.1.0-alpha.1` dry-run passes but actual publish is blocked by npm `EOTP` pending owner auth.
 - Dist-tag note: `latest` also points at the first alpha because it is the only published version; `npm dist-tag rm ... latest` returned `E400`.
 - See [PUBLISH-ALPHA.md](PUBLISH-ALPHA.md) for the public alpha checklist.
 
@@ -46,13 +46,13 @@ Current local verification after the decomposed workflow expansion:
 - `npm run lint`: pass
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
-- `npm test`: 239 tests pass
+- `npm test`: 243 tests pass
 - `npm run demo:quick -- --cleanup`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npm publish --dry-run --access public --tag alpha`: pass
-- `npm publish --access public --tag alpha`: published `0.1.0-alpha.0`; duplicate publish now blocks as expected
-- `npx -y @ps-neko/nekowork@alpha doctor --quick`: pass with WARN summary from Gemini auth not checked
+- `npm publish --access public --tag alpha`: `0.1.0-alpha.1` blocked by npm `EOTP` pending owner OTP/web auth
+- `npx -y @ps-neko/nekowork@alpha doctor --quick`: previously passed for `0.1.0-alpha.0` with WARN summary from Gemini auth not checked
 
 ## Install Smoke
 
@@ -128,11 +128,11 @@ Expected target outputs:
 
 ## Public npm Checklist
 
-Already completed for the first public alpha:
+Already completed for the first public alpha. Repeat the owner-authenticated publish step for `0.1.0-alpha.1`:
 
 1. Confirm the npm package name is still `@ps-neko/nekowork`.
 2. Confirm the `harness` binary is still intentional.
-3. Confirm the public alpha version is `0.1.0-alpha.0`.
+3. Confirm the public alpha version is `0.1.0-alpha.1`.
 4. Run the required gates above.
 5. Inspect `npm pack --dry-run --json` and confirm only intended files are included.
 6. Confirm npm account access and 2FA readiness with `npm whoami`.
