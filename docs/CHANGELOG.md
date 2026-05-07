@@ -5,6 +5,7 @@
 ## [Unreleased]
 
 ### Added
+- Add GitHub issue templates for alpha feedback and reproducible bug reports.
 - Add CI coverage for a fresh `npx @ps-neko/nekowork@alpha doctor --quick` smoke against the published alpha package.
 - Add an alpha.2 roadmap focused on release smoke evidence, demo assets, and external feedback.
 - Add a static terminal SVG for the one-minute README demo.
