@@ -40,6 +40,50 @@ By default, `report` writes:
 - handoff table
 - evidence file list
 
+## Example `REPORT.md`
+
+This is the shape a reviewer should expect from a short quality-profile run:
+
+```md
+# NEKOWORK Report
+
+- Session: `demo-report`
+- Status: `no_ship`
+- Verdict: `approve_with_fixes`
+- Ship ready: `false`
+- Applied: `false`
+- Human gate: `required`
+- Profile: `quality`
+- Strict quality: `enabled`
+
+## Acceptance
+
+| Criterion | Status | Evidence |
+|---|---|---|
+| AC-001: implement requested behavior | covered | `work-summary.json` |
+| AC-002: Codex independent verification | covered | `verify-summary.json` |
+| AC-003: ship readiness decision | covered | `ship-summary.json` |
+| AC-004: human gate state recorded | covered | `gate-summary.json` |
+| AC-005: project mutation applied only when explicit | missing | no `APPLIED_DIFF` marker |
+
+Coverage: `4/5`
+
+## Quality Warnings
+
+- Codex found fixable findings, so ship readiness is blocked.
+- Apply was not requested and no verified live-work diff was applied.
+
+## Evidence
+
+- `acceptance-criteria.json`
+- `work-summary.json`
+- `verify-summary.json`
+- `ship-summary.json`
+- `gate-summary.json`
+- `handoffs/03-implement.md`
+- `handoffs/05-codex-review.md`
+```
+
 ## Safety Contract
 
 `report` is inspect-only:
