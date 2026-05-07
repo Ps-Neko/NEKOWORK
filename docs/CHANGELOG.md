@@ -25,6 +25,8 @@
 - Add evidence-based review issue fields to the handoff schema.
 
 ### Changed
+- Prepare package metadata for public alpha `0.1.0-alpha.0` with `private: false`; npm publish remains blocked until owner auth is active.
+- Record public alpha dry-run publish success and live publish `ENEEDAUTH` blocker.
 - Rewrite `docs/AUDIT.md` and `docs/ARCHITECTURE.md` with clean public-facing ASCII content.
 - Link the external project demo from README, Quickstart, Porting, Demo, and Release Readiness docs.
 - Keep `review` as the legacy full cycle while making `run` the preferred decomposed wrapper for new automation.

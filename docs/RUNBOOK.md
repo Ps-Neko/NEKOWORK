@@ -91,9 +91,9 @@ Do not run this checklist unless public publish is explicitly approved.
 4. Inspect `npm pack --dry-run --json`.
 5. Confirm npm identity with `npm whoami`.
 6. Confirm account 2FA readiness.
-7. Remove `private: true` or set `private: false`.
-8. Run `npm version patch|minor|major`.
-9. Run `npm publish --access public`.
+7. Confirm `private: false`.
+8. Confirm the public alpha version, for example `0.1.0-alpha.0`.
+9. Run `npm publish --access public --tag alpha`.
 10. Update README, Quickstart, Changelog, and release notes from "future npm path" to "published npm path".
 
 ## GitHub Release Checklist

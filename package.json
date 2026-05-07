@@ -1,6 +1,6 @@
 {
   "name": "@ps-neko/nekowork",
-  "version": "0.0.3",
+  "version": "0.1.0-alpha.0",
   "description": "Local-first AI development harness for Claude Code, Codex CLI, and Gemini CLI",
   "keywords": [
     "claude",
@@ -14,7 +14,7 @@
     "multi-agent"
   ],
   "license": "MIT",
-  "private": true,
+  "private": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Ps-Neko/NEKOWORK.git"
@@ -24,7 +24,7 @@
     "node": ">=22.0.0"
   },
   "bin": {
-    "harness": "./scripts/cli.js"
+    "harness": "scripts/cli.js"
   },
   "files": [
     "agent.yaml",

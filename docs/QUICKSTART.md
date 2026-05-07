@@ -4,7 +4,7 @@ This guide gets a new user from a clean checkout to the first NEKOWORK run.
 
 ## 1. Install From Source
 
-HARNESS 0.0.3 is not published to npm yet. Use the repository path:
+HARNESS `0.1.0-alpha.0` is prepared as a public alpha candidate but is not published to npm yet. Use the repository path:
 
 ```bash
 git clone https://github.com/Ps-Neko/NEKOWORK.git harness
@@ -296,9 +296,9 @@ Remove-Item Env:GOOGLE_API_KEY -ErrorAction SilentlyContinue
 
 ## 8. Future npm Install Path
 
-The package metadata is already prepared as `@ps-neko/nekowork`, but `private: true` prevents publishing for 0.0.3.
+The package metadata is prepared as `@ps-neko/nekowork@0.1.0-alpha.0`, but publish execution requires npm owner auth.
 
-After an explicit public publish decision, the intended install paths are:
+After the public alpha is published, the intended install paths are:
 
 ```bash
 npm i --save-dev @ps-neko/nekowork
