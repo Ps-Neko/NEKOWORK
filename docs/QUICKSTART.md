@@ -328,13 +328,13 @@ Remove-Item Env:GOOGLE_API_KEY -ErrorAction SilentlyContinue
 The public alpha is published as `@ps-neko/nekowork@alpha`:
 
 ```bash
-npm i --save-dev @ps-neko/nekowork
+npm i --save-dev @ps-neko/nekowork@alpha
 ```
 
 or:
 
 ```bash
-npm i -g @ps-neko/nekowork
+npm i -g @ps-neko/nekowork@alpha
 ```
 
 For alpha pinning, prefer:

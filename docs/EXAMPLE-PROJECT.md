@@ -87,6 +87,6 @@ demo-target/
 
 ## What This Does Not Prove
 
-- Public npm installation. The package metadata is ready, but publish execution still requires npm owner auth.
+- Public npm installation. This demo intentionally exercises the source-checkout path; run the npm install smoke separately for package resolution.
 - Live provider execution. Run live provider smoke checks separately after local CLI login.
 - A production rollout. Pin a release tag or submodule commit before using the tool in a shared workflow.

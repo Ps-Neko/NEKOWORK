@@ -2,16 +2,16 @@
 
 Status date: 2026-05-07
 
-This audit summarizes the current NEKOWORK state after preparing the `0.1.0-alpha.1` alpha candidate. It replaces the older week-by-week scratch audit, which contained stale planning notes and encoding damage.
+This audit summarizes the current NEKOWORK state after publishing the `0.1.0-alpha.1` public alpha. It replaces the older week-by-week scratch audit, which contained stale planning notes and encoding damage.
 
 ## Current Status
 
 | Area | Status | Notes |
 |---|---|---|
 | Package metadata | OK | `@ps-neko/nekowork@0.1.0-alpha.1`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness` |
-| npm publish | WARN | `@ps-neko/nekowork@0.1.0-alpha.0` is published; `0.1.0-alpha.1` publish is prepared but requires owner OTP/web auth |
+| npm publish | OK | `@ps-neko/nekowork@alpha` points at `0.1.0-alpha.1` |
 | Source install | OK | Clone, local checkout, and submodule workflows are documented |
-| Public npm alpha | OK | `docs/PUBLISH-ALPHA.md` records the first alpha publish and the pending `0.1.0-alpha.1` publish attempt |
+| Public npm alpha | OK | `docs/PUBLISH-ALPHA.md` records the first alpha publish and the `0.1.0-alpha.1` alpha update |
 | CLI doctor | OK | `doctor`, `doctor --quick`, and `doctor --gemini-smoke` are available |
 | Provider auth | OK | Local delegated CLI auth is the default path |
 | Internal provider adapter | OK | `HARNESS_PROVIDER_OVERRIDE=internal` can call an explicit JSON command adapter without weakening gates |
@@ -29,7 +29,7 @@ This audit summarizes the current NEKOWORK state after preparing the `0.1.0-alph
 | Persistent wakeup | OK | `wait` resumes supported active sessions and blocks on `HUMAN_GATE` |
 | Generated docs | OK | CODEMAP output is stable ASCII and reproducible |
 | Tests | OK | Unit, integration, and e2e suites pass locally and in CI |
-| Release | WARN | `v0.1.0-alpha.0` prerelease exists; `v0.1.0-alpha.1` should be tagged after npm publish succeeds |
+| Release | WARN | `v0.1.0-alpha.0` prerelease exists; `v0.1.0-alpha.1` can be tagged from the published alpha state |
 
 ## Verification Gates
 
@@ -62,8 +62,9 @@ Current local result for this working tree:
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npm publish --dry-run --access public --tag alpha`: pass
-- `npm publish --access public --tag alpha`: `0.1.0-alpha.1` blocked by npm `EOTP` pending owner OTP/web auth
-- `npx -y @ps-neko/nekowork@alpha doctor --quick`: previously passed for `0.1.0-alpha.0` with WARN summary from Gemini auth not checked
+- `npm publish --access public --tag alpha`: `0.1.0-alpha.1` published
+- `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.1`; `latest` remains `0.1.0-alpha.0`
+- `npx -y @ps-neko/nekowork@alpha doctor --quick`: passed for `0.1.0-alpha.1` with WARN summary from non-git project root and Gemini auth not checked
 
 ## Completed Work
 
@@ -91,14 +92,13 @@ Current local result for this working tree:
 - Official packs expose curated install shapes without creating a second safety model.
 - Checked-in example fixtures now cover financial UI, CI hardening, and quality lifecycle evidence flows.
 - Third-party case studies record NEKOWORK runs against `sindresorhus/is-plain-obj`, `jshttp/basic-auth`, and `python-hyper/h11`.
-- Public npm alpha `0.1.0-alpha.0` is published and smoke-tested through `npx`; `0.1.0-alpha.1` is prepared for owner-authenticated publish.
+- Public npm alpha `0.1.0-alpha.1` is published under the `alpha` dist-tag.
 
 ## Remaining Optional Work
 
 | Item | Priority | Reason |
 |---|---|---|
-| Publish `0.1.0-alpha.1` | High | Package is prepared and dry-run passes, but npm requires owner OTP/web auth |
-| Stable `latest` promotion | Medium | `alpha` is correct; npm also points `latest` at the only published version and rejected removal with `E400`, so move it to a stable version later |
+| Stable `latest` promotion | Medium | `alpha` is correct; npm keeps `latest` on the first alpha line for now, so move it to a stable version later |
 | More third-party case studies | Low | Three public repo case studies exist; more frameworks can still improve adoption evidence later |
 | More skill catalog expansion | Low | Catalog expansion should stay selective to preserve progressive disclosure |
 
@@ -116,7 +116,6 @@ Current external readiness, excluding broader adoption evidence: **9.1 / 10**.
 
 Main deductions:
 
-- `latest` currently points at the alpha because it is the only published version; docs still recommend `@alpha` until a stable release exists.
-- `0.1.0-alpha.1` publish requires owner OTP/web auth.
+- `latest` currently remains on the first alpha; docs still recommend `@alpha` until a stable release exists.
 - Three independent real-world external project case studies exist so far.
 - Advanced surfaces exist but are intentionally secondary to the public decomposed workflow and install flow.
