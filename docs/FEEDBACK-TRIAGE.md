@@ -8,7 +8,7 @@ Use it for GitHub issues filed through:
 
 - Alpha feedback
 - Bug report
-- Direct maintainer notes that include `doctor --quick --json`, `REPORT.md`, or install output
+- Direct maintainer notes that include `check --json`, `REPORT.md`, or install output
 
 ## Triage Principles
 
@@ -22,7 +22,7 @@ Use it for GitHub issues filed through:
 
 | Class | Signals | First response |
 |---|---|---|
-| Install failure | `npx`, npm, Node version, package metadata, binary resolution | Ask for OS/shell, Node/npm, exact command, and `doctor --quick --json` |
+| Install failure | `npx`, npm, Node version, package metadata, binary resolution | Ask for OS/shell, Node/npm, exact command, and `check --json` |
 | Auth confusion | Claude/Codex/Gemini login status, API key warning, provider CLI path | Clarify delegated CLI auth and ask whether env API keys were set intentionally |
 | Evidence confusion | Missing `REPORT.md`, unclear verdict, no `NO_SHIP`, acceptance coverage confusion | Ask for session path and report summary; link report contract |
 | Safety concern | apply, commit, push, publish, deploy, secrets, destructive changes | Confirm no automatic mutation occurred; request redacted logs and gate/ship summaries |
@@ -38,7 +38,7 @@ An issue is actionable when it includes at least three of:
 - OS and shell
 - Node and npm versions
 - exact command
-- redacted `doctor --quick --json`
+- redacted `check --json`
 - redacted `REPORT.md` summary
 - session evidence file names, such as `verify-summary.json` or `ship-summary.json`
 - expected behavior and actual behavior
@@ -55,7 +55,7 @@ If the issue is about ship/apply safety, require:
 | Severity | Meaning | Examples |
 |---|---|---|
 | Critical | Safety invariant appears bypassed | automatic apply, publish, deploy, push, PR, or secret exposure |
-| High | First-run or release path is blocked for a supported setup | `npx @alpha doctor --quick` fails on supported Node/npm |
+| High | First-run or release path is blocked for a supported setup | `npx @alpha check` fails on supported Node/npm |
 | Medium | Important docs or workflow confusion with a workaround | unclear report output, install docs missing platform note |
 | Low | Enhancement or polish | copy edit, new example request, extra case-study suggestion |
 
@@ -66,7 +66,7 @@ Critical and high issues should keep `ship_ready=false` until reproduced or expl
 Start with the smallest command that matches the report:
 
 ```bash
-npx -y @ps-neko/nekowork@alpha doctor --quick --json
+npx -y @ps-neko/nekowork@alpha check --json
 ```
 
 For source checkout reports:
@@ -136,9 +136,9 @@ Next step:
 
 ## Alpha.3 Gate
 
-Do not publish `0.1.0-alpha.3` for feedback-only changes until:
+Do not publish a new alpha for feedback-only changes until:
 
 - `@alpha` smoke remains green
 - new feedback docs or templates are covered by tests
 - any release-blocker feedback is closed or documented as unresolved
-- changelog entries match the intended alpha.3 contents
+- changelog entries match the intended alpha contents

@@ -21,7 +21,7 @@
     <text x="480" y="62" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="13" fill="#c8d2dc">NEKOWORK alpha smoke</text>
   </g>
   <g font-family="Consolas, Menlo, monospace" font-size="18">
-    <text x="72" y="114" fill="#7ee787">$ npx -y @ps-neko/nekowork@alpha doctor --quick</text>
+    <text x="72" y="114" fill="#7ee787">$ npx -y @ps-neko/nekowork@alpha check</text>
     <text x="72" y="147" fill="#d7e3ec">NEKOWORK doctor</text>
     <text x="72" y="179" fill="#8fb3c8">STATUS  CHECK              MESSAGE</text>
     <text x="72" y="211" fill="#9be9a8">PASS    node               Node 22+</text>

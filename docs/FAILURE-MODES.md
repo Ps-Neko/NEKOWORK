@@ -84,7 +84,7 @@ Live mode can fail if local CLI auth is missing or expired. In that case, log in
 
 ## npm / npx Problems
 
-If `npx -y @ps-neko/nekowork@alpha doctor --quick` fails, capture:
+If `npx -y @ps-neko/nekowork@alpha check` fails, capture:
 
 - OS and shell
 - Node and npm versions

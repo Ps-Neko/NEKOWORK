@@ -18,7 +18,7 @@ This audit summarizes the current NEKOWORK state after publishing the `0.1.0-alp
 | Catalog | OK | 7 official packs, 11 agents, 10 skills, 5 hooks, 7 modules, 36 components, 9 profiles |
 | Multi-harness output | OK | Claude, Codex, Cursor, Gemini, and OpenCode builders are present |
 | Quick demo | OK | `npm run demo:quick` verifies the shortest no-API `doctor -> run -> report -> gate status` path |
-| Fresh npm alpha smoke | OK | CI runs `npx -y @ps-neko/nekowork@alpha doctor --quick --json` from a disposable directory |
+| Fresh npm alpha smoke | OK | CI runs `npx -y @ps-neko/nekowork@alpha check --json` from a disposable directory |
 | Report UX | OK | `report` writes inspect-only `REPORT.md` and `report-summary.json` from session evidence |
 | External demo | OK | `npm run demo:external` verifies a disposable target project flow |
 | Third-party case studies | OK | `docs/case-studies/` records real public repository runs for npm package, auth boundary, Python protocol, and environment configuration targets |
