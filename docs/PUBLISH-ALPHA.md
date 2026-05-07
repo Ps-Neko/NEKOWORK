@@ -104,6 +104,25 @@ Before publishing, explicitly confirm:
 - `private` removed or set to `false`
 - publish tag is `alpha`, not `latest`
 
+## Next Alpha Publish Checklist
+
+Use this checklist for `0.1.0-alpha.2` or any later alpha. Do not run it until the owner explicitly approves the publish.
+
+1. Confirm the candidate scope in [RELEASE-READINESS.md](RELEASE-READINESS.md).
+2. Move the intended changelog entries from `Unreleased` to the new version heading.
+3. Bump `package.json` to the approved alpha version.
+4. Run the required gates below.
+5. Inspect `npm pack --dry-run --json` and confirm issue templates, docs, examples, scripts, and assets are intentional.
+6. Confirm `npm whoami` is the owner account.
+7. Publish with `npm publish --access public --tag alpha`.
+8. Verify `npm view @ps-neko/nekowork@alpha version --json` returns the new version.
+9. Smoke test from a fresh directory with `npx -y @ps-neko/nekowork@alpha doctor --quick`.
+10. Create and push `v<version>`.
+11. Create a GitHub prerelease for `v<version>`.
+12. Update release docs from candidate/pending language to published language.
+
+Keep `latest` out of the public install path until a stable release exists.
+
 ## Required Gates
 
 Run:
