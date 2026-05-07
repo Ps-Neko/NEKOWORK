@@ -2,9 +2,17 @@
 
 This guide gets a new user from a clean checkout to the first NEKOWORK run.
 
-## 1. Install From Source
+## 1. Public Alpha Smoke
 
-HARNESS `0.1.0-alpha.0` is prepared as a public alpha candidate but is not published to npm yet. Use the repository path:
+The public alpha is available on npm:
+
+```bash
+npx -y @ps-neko/nekowork@alpha doctor --quick
+```
+
+## 2. Install From Source
+
+Use the repository path when you want examples, tests, or local development:
 
 ```bash
 git clone https://github.com/Ps-Neko/NEKOWORK.git harness
@@ -20,7 +28,7 @@ node scripts/cli.js doctor --quick
 
 `doctor --quick` checks Node.js, package metadata, git state, API key overrides, and provider CLI presence without running the slower freshness checks.
 
-## 2. One-Minute Demo
+## 3. One-Minute Demo
 
 Use this first when you want the shortest no-API experience:
 
@@ -294,11 +302,9 @@ Remove-Item Env:GEMINI_API_KEY -ErrorAction SilentlyContinue
 Remove-Item Env:GOOGLE_API_KEY -ErrorAction SilentlyContinue
 ```
 
-## 8. Future npm Install Path
+## 8. npm Install Path
 
-The package metadata is prepared as `@ps-neko/nekowork@0.1.0-alpha.0`, but publish execution requires npm owner auth.
-
-After the public alpha is published, the intended install paths are:
+The public alpha is published as `@ps-neko/nekowork@alpha`:
 
 ```bash
 npm i --save-dev @ps-neko/nekowork
@@ -310,7 +316,11 @@ or:
 npm i -g @ps-neko/nekowork
 ```
 
-Do not use these npm commands until a public package has actually been published.
+For alpha pinning, prefer:
+
+```bash
+npx -y @ps-neko/nekowork@alpha doctor --quick
+```
 
 ## Troubleshooting
 
