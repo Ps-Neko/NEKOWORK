@@ -67,7 +67,7 @@ Usage:
   install.sh --plan --list [--json]
 
 Options:
-  --profile <name>          profile to install (core | developer | security | product | frontend | testing | research | full)
+  --profile <name>          profile to install (core | developer | security | product | quality | frontend | testing | research | full)
   --target <name>           harness target (claude | codex | cursor | gemini | opencode)
   --harness <name>          alias for --target
   --module <id>             include an additional module, repeatable

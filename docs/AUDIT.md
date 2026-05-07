@@ -13,7 +13,7 @@ This audit summarizes the current NEKOWORK state after the `v0.0.3` repository r
 | Source install | OK | Clone, local checkout, and submodule workflows are documented |
 | CLI doctor | OK | `doctor`, `doctor --quick`, and `doctor --gemini-smoke` are available |
 | Provider auth | OK | Local delegated CLI auth is the default path |
-| Catalog | OK | 11 agents, 9 skills, 5 hooks, 7 modules, 35 components, 8 profiles |
+| Catalog | OK | 11 agents, 9 skills, 5 hooks, 7 modules, 35 components, 9 profiles |
 | Multi-harness output | OK | Claude, Codex, Cursor, Gemini, and OpenCode builders are present |
 | External demo | OK | `npm run demo:external` verifies a disposable target project flow |
 | Decomposed workflow | OK | `ask`, `team`, `work`, `verify`, `gate`, `ship`, `apply`, and `run` are available |
@@ -48,7 +48,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 226 tests pass
+- `npm test`: 227 tests pass
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
@@ -62,9 +62,11 @@ Current local result for this working tree:
 - Provider CLI path trust checks are in place.
 - `--project-root` separates NEKOWORK tool root from target project root.
 - Product principles and core invariants are documented.
+- AI development lifecycle and quality-runtime positioning are documented.
 - Standalone core invariants, CLI stages, and risk classifier docs are present.
 - The decomposed workflow keeps multi-worker handoffs read-only, uses a single executor for work, requires Codex verification, and keeps Human Gate explicit.
 - Acceptance criteria are now a required session artifact for work/verify/ship evidence.
+- Review issue schema supports evidence-based findings with claim, evidence, required fix, confidence, and gate requirement.
 - Financial and deploy-sensitive policy is gated by verify and rechecked by ship.
 - Profile safety validation prevents profile defaults from disabling Codex review, Human Gate, or single-executor mutation policy.
 - `run` wraps `work -> verify -> ship` without applying by default.

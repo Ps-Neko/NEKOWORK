@@ -8,6 +8,8 @@ NEKOWORK is the product. HARNESS is the local runtime it packages: one source ca
 
 Claude writes or plans, Codex challenges the result in a separate context, and human gates stop critical or repeated-risk changes.
 
+NEKOWORK is also a quality runtime: it combines disciplined development workflow, product-aware planning, read-only multi-agent review, independent Codex verification, Human Gate approval, and explicit apply control.
+
 Product principle:
 
 ```text
@@ -40,7 +42,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 226 tests pass
+- `npm test`: 227 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 
@@ -172,7 +174,7 @@ Advanced features such as `team-lite`, `ralph`, `wait`, instincts, cost tracking
 - Skills: 9
 - Hooks: 5
 - Modules: 7
-- Profiles: `core`, `developer`, `security`, `product`, `frontend`, `testing`, `research`, `full`
+- Profiles: `core`, `developer`, `security`, `product`, `quality`, `frontend`, `testing`, `research`, `full`
 - Harness targets: `claude`, `codex`, `cursor`, `gemini`, `opencode`
 
 Key skills:
@@ -248,6 +250,7 @@ npm pack --dry-run --json
 - [docs/RUNBOOK.md](docs/RUNBOOK.md) - operations guide
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - system architecture
 - [docs/PRODUCT-PRINCIPLES.md](docs/PRODUCT-PRINCIPLES.md) - product position, invariants, CLI phase semantics
+- [docs/AI-DEVELOPMENT-LIFECYCLE.md](docs/AI-DEVELOPMENT-LIFECYCLE.md) - quality runtime and disciplined AI development lifecycle
 - [docs/CORE-INVARIANTS.md](docs/CORE-INVARIANTS.md) - non-negotiable runtime safety rules
 - [docs/CLI-STAGES.md](docs/CLI-STAGES.md) - stage contract and compatibility transition
 - [docs/RISK-CLASSIFIER.md](docs/RISK-CLASSIFIER.md) - shared risk tags, challenge, and gate policy

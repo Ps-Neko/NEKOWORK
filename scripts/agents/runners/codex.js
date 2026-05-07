@@ -107,6 +107,8 @@ function buildPrompt(a) {
     lines.push(JSON.stringify(a.context.prd, null, 2));
     lines.push('```');
   }
+  lines.push('');
+  lines.push('Review issue fields should be evidence-based when possible: claim, evidence, required_fix, confidence, gate_required.');
   return lines.join('\n');
 }
 
@@ -149,15 +151,21 @@ function normalizeHandoff(raw) {
 
 function normalizeIssue(issue) {
   const i = issue && typeof issue === 'object' ? issue : { summary: String(issue || '') };
-  const summary = String(i.summary || i.issue || i.message || i.title || '').slice(0, 200) || 'Codex reported an issue';
+  const summary = String(i.summary || i.claim || i.issue || i.message || i.title || '').slice(0, 200) || 'Codex reported an issue';
+  const confidence = Number(i.confidence);
   const normalized = {
     severity: i.severity,
     category: i.category,
     file: i.file || i.path,
     line: Number.isInteger(i.line) ? i.line : undefined,
+    claim: i.claim,
+    evidence: i.evidence,
     summary,
     why: i.why || i.issue || i.message,
+    required_fix: i.required_fix ?? undefined,
     suggested_fix: i.suggested_fix ?? i.fix ?? null,
+    confidence: Number.isFinite(confidence) ? confidence : undefined,
+    gate_required: typeof i.gate_required === 'boolean' ? i.gate_required : undefined,
   };
   normalized.category = classifyCategory(normalized);
   normalized.severity = classifySeverity(normalized);

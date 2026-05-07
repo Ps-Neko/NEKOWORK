@@ -1,6 +1,6 @@
 {
   "$schema": "../schemas/install-profiles.schema.json",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "profiles": {
     "core": {
       "description": "Minimal NEKOWORK surface: rules, core agents, runtime hooks, platform configs, and safety gates.",
@@ -50,6 +50,29 @@
       ],
       "defaults": {
         "question_gate": true,
+        "mutation_policy": "single_executor"
+      }
+    },
+    "quality": {
+      "description": "Disciplined development profile for brainstorm, test-first planning, systematic debugging, evidence-based review, and verification before completion.",
+      "modules": [
+        "rules-core",
+        "agents-core",
+        "hooks-runtime",
+        "platform-configs",
+        "workflow-quality",
+        "codex-loop",
+        "ops-readiness"
+      ],
+      "defaults": {
+        "brainstorm_before_work": true,
+        "test_first_plan": true,
+        "systematic_debugging": true,
+        "evidence_based_review": true,
+        "verification_before_completion": true,
+        "quality_gate_required": true,
+        "require_codex_verification": true,
+        "human_gate_on_critical": true,
         "mutation_policy": "single_executor"
       }
     },

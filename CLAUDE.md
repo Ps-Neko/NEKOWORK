@@ -17,7 +17,7 @@
 - skills: 9
 - commands: 1 (legacy compat)
 - hooks: 5 (gateguard-fact-force, config-protection, quality-gate, pre-bash-dispatcher, persistent-mode)
-- profiles: core, developer, security, product, frontend, testing, research, full
+- profiles: core, developer, security, product, quality, frontend, testing, research, full
 - harnesses: claude, codex, cursor, gemini, opencode
 
 ## 에이전트 → 모델 매트릭스
