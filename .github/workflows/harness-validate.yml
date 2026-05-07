@@ -8,6 +8,35 @@ permissions:
   contents: read
 
 jobs:
+  published-alpha-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Fresh npx alpha doctor smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          workdir="$RUNNER_TEMP/nekowork-alpha-smoke"
+          mkdir -p "$workdir"
+          cd "$workdir"
+          npx -y @ps-neko/nekowork@alpha doctor --quick --json > doctor.json
+          node <<'NODE'
+          const fs = require('node:fs');
+          const report = JSON.parse(fs.readFileSync('doctor.json', 'utf8'));
+          const metadata = report.checks.find((check) => check.name === 'package metadata');
+          if (report.summary.fail !== 0) {
+            throw new Error(`doctor reported ${report.summary.fail} failure(s)`);
+          }
+          if (!metadata || !metadata.message.includes('@ps-neko/nekowork@0.1.0-alpha.1')) {
+            throw new Error(`unexpected package metadata: ${metadata?.message || '<missing>'}`);
+          }
+          console.log(`published alpha smoke: ${metadata.message}`);
+          NODE
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
