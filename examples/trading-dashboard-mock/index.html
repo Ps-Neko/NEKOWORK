@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NEKOWORK Trading Dashboard Mock</title>
+    <link rel="stylesheet" href="src/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Mock-only workspace</p>
+          <h1>Trading Dashboard</h1>
+        </div>
+        <div class="status" aria-label="Connection status">
+          <span class="status-dot"></span>
+          No broker connected
+        </div>
+      </header>
+
+      <section class="notice" aria-label="Safety notice">
+        Demo data only. Buy, sell, payment, broker, and account actions are disabled in this mock project.
+      </section>
+
+      <section class="grid">
+        <article class="panel market-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Portfolio</p>
+              <h2>$124,820.44</h2>
+            </div>
+            <span class="gain">+2.8%</span>
+          </div>
+          <canvas id="portfolioChart" width="720" height="320" aria-label="Portfolio performance chart"></canvas>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header compact">
+            <div>
+              <p class="eyebrow">Watchlist</p>
+              <h2>Mock Symbols</h2>
+            </div>
+          </div>
+          <div id="watchlist" class="watchlist"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header compact">
+            <div>
+              <p class="eyebrow">Order Ticket</p>
+              <h2>Disabled</h2>
+            </div>
+          </div>
+          <form class="ticket" aria-label="Disabled mock order ticket">
+            <label>
+              Symbol
+              <input value="NKO" disabled>
+            </label>
+            <label>
+              Quantity
+              <input value="25" disabled>
+            </label>
+            <div class="segmented" aria-label="Disabled side selector">
+              <button type="button" disabled>Buy</button>
+              <button type="button" disabled>Sell</button>
+            </div>
+            <button class="primary" type="button" disabled>Mock only</button>
+          </form>
+        </article>
+      </section>
+    </main>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>

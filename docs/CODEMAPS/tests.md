@@ -9,7 +9,8 @@
 tests/
 |-- e2e/
 |   |-- external-demo.test.js
-|   `-- review-cycle.test.js
+|   |-- review-cycle.test.js
+|   `-- trading-dashboard-example.test.js
 |-- integration/
 |   `-- build-pipeline.test.js
 |-- optional/
@@ -53,6 +54,7 @@ tests/
 |---|---|---|
 | `e2e/external-demo.test.js` | _(none)_ |  |
 | `e2e/review-cycle.test.js` | _(none)_ | E2E smoke tests for the deterministic mock review flow. |
+| `e2e/trading-dashboard-example.test.js` | _(none)_ |  |
 | `integration/build-pipeline.test.js` | _(none)_ | : install plan apply 5 state repair . . .harness/install-state.json . |
 | `optional/keychain-smoke.test.js` | _(none)_ | OS keychain . npm test (tests/optional/ ). : HARNESS_KEYCHAIN_SMOKE=1 npm run test:keychain : HARNESS_KEYCHAIN_SMOKE=1 node --test tests/opt |
 | `unit/acceptance-criteria.test.js` | _(none)_ |  |

@@ -29,6 +29,13 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 - Future npm path is prepared, but `npm publish` still requires an explicit release decision
 - Default mode: mock providers, no API keys, no provider CLI calls
 
+Current local verification:
+
+- `npm run lint`: pass
+- `npm test`: 225 tests pass
+- `npm audit --audit-level=moderate`: 0 vulnerabilities
+- `npm pack --dry-run --json`: pass
+
 ## Quick Start
 
 Requirements:
@@ -37,13 +44,29 @@ Requirements:
 - npm
 - git
 
-Run HARNESS from source:
+Beginner path:
 
 ```bash
 git clone https://github.com/Ps-Neko/NEKOWORK.git harness
 cd harness
 npm ci
 node scripts/cli.js doctor --quick
+node scripts/cli.js ask "clarify a risky or ambiguous request" --session first-ask
+node scripts/cli.js run "implement, verify, and prepare ship readiness" --session first-run
+node scripts/cli.js gate status --session first-run
+```
+
+`run` executes `work -> verify -> ship`. It does not apply by default. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
+
+Advanced path:
+
+```text
+ask -> plan -> team -> work -> verify -> gate -> ship -> apply
+```
+
+Legacy compatibility smoke:
+
+```bash
 node scripts/cli.js review "check the project setup" --no-ship --session first-smoke
 ```
 
@@ -56,6 +79,8 @@ To see the repository-based external project flow end to end:
 ```bash
 npm run demo:external
 ```
+
+To inspect a small real case-study target, see [examples/trading-dashboard-mock](examples/trading-dashboard-mock). It is a standalone static project that demonstrates a financial UI mock passing local checks while still requiring Human Gate policy.
 
 ## What You Get
 
@@ -131,6 +156,8 @@ The public alpha surface is intentionally small:
 
 Advanced features such as `team-lite`, `ralph`, `wait`, instincts, cost tracking, and the Rust supervisor are documented in [docs/ADVANCED.md](docs/ADVANCED.md).
 
+`plan` is recommended before `work` for larger changes. The current `run` command intentionally stays compact: it runs `work -> verify -> ship`, records acceptance criteria through `work`, and applies only when `--apply` is explicitly provided.
+
 ## Catalog
 
 - Agents: 11
@@ -204,6 +231,7 @@ npm pack --dry-run --json
 - [docs/QUICKSTART.md](docs/QUICKSTART.md) - first run and common paths
 - [docs/DEMO.md](docs/DEMO.md) - sample command output and generated files
 - [docs/EXAMPLE-PROJECT.md](docs/EXAMPLE-PROJECT.md) - repository-based external project demo
+- [examples/trading-dashboard-mock](examples/trading-dashboard-mock) - standalone financial UI mock target and case-study evidence
 - [docs/SECURITY.md](docs/SECURITY.md) - local-first auth and safety model
 - [docs/ADVANCED.md](docs/ADVANCED.md) - advanced workflows and runtime features
 - [docs/SETUP.md](docs/SETUP.md) - local contributor setup and live provider smoke
