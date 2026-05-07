@@ -7,6 +7,9 @@
 ### Added
 - No entries yet.
 
+### Changed
+- Align published alpha smoke, feedback templates, and demo docs around the beginner `check` command.
+
 ## [0.1.0-alpha.3] - 2026-05-08
 
 ### Added

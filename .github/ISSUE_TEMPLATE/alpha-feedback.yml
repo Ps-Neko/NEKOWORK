@@ -8,7 +8,7 @@ body:
     attributes:
       value: |
         Thanks for trying NEKOWORK. Please remove secrets, private paths, and proprietary code before pasting output.
-        The most useful alpha evidence is `doctor --quick --json` plus a short `REPORT.md` summary.
+        The most useful alpha evidence is `check --json` plus a short `REPORT.md` summary.
   - type: dropdown
     id: install_path
     attributes:
@@ -39,7 +39,7 @@ body:
     id: command
     attributes:
       label: Command you ran
-      description: Paste the exact command, for example `npx -y @ps-neko/nekowork@alpha doctor --quick`.
+      description: Paste the exact command, for example `npx -y @ps-neko/nekowork@alpha check`.
       render: shell
     validations:
       required: true
@@ -73,8 +73,8 @@ body:
   - type: textarea
     id: doctor_json
     attributes:
-      label: doctor --quick --json output
-      description: Run `npx -y @ps-neko/nekowork@alpha doctor --quick --json` and paste the redacted output.
+      label: check --json output
+      description: Run `npx -y @ps-neko/nekowork@alpha check --json` and paste the redacted output.
       render: json
     validations:
       required: false
