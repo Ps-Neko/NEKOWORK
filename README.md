@@ -24,7 +24,7 @@ NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, pr
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
-**One-minute demo:** [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) / [full report example](docs/DEMO-REPORT.md) / [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) / [alpha.2 roadmap](docs/ROADMAP.md)
+**One-minute demo:** [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) / [full report example](docs/DEMO-REPORT.md) / [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) / [roadmap](docs/ROADMAP.md)
 
 ![NEKOWORK one-minute terminal demo](docs/assets/demo-terminal.svg)
 
@@ -74,9 +74,9 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 ## Status
 
-- Current repository version: `0.1.0-alpha.1`
+- Current repository version: `0.1.0-alpha.2`
 - Current package name: `@ps-neko/nekowork`
-- Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.1`
+- Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.2`
 - Supported install path today: npm alpha, clone, submodule, or local repository integration
 - Dist-tag note: use `@alpha` until a stable release; `latest` still points at the first alpha line
 - Default mode: mock providers, no API keys, no provider CLI calls
@@ -338,7 +338,7 @@ npm run security:hardening
 npm pack --dry-run --json
 ```
 
-`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.1.tgz`. It does not publish.
+`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.2.tgz`. It does not publish.
 
 ## Documentation
 
@@ -346,7 +346,7 @@ npm pack --dry-run --json
 - [docs/WHY-NEKOWORK.md](docs/WHY-NEKOWORK.md) - comparison and product positioning
 - [docs/CATALOG-PACKS.md](docs/CATALOG-PACKS.md) - curated catalog, official packs, and case-study evidence
 - [docs/PUBLISH-ALPHA.md](docs/PUBLISH-ALPHA.md) - public npm alpha release plan
-- [docs/ROADMAP.md](docs/ROADMAP.md) - small alpha.2 roadmap and non-goals
+- [docs/ROADMAP.md](docs/ROADMAP.md) - small alpha roadmap and non-goals
 - [docs/INTERNAL-PROVIDER.md](docs/INTERNAL-PROVIDER.md) - private command adapter protocol
 - [docs/DEMO.md](docs/DEMO.md) - sample command output and generated files
 - [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md) - readable session report UX
