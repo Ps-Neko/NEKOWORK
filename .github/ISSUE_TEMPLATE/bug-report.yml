@@ -12,7 +12,7 @@ body:
     id: version
     attributes:
       label: NEKOWORK version
-      placeholder: "@ps-neko/nekowork@0.1.0-alpha.2 or git commit SHA"
+      placeholder: "@ps-neko/nekowork@0.1.0-alpha.4 or git commit SHA"
     validations:
       required: true
   - type: input
