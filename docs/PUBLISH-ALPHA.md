@@ -1,10 +1,10 @@
 # Public Alpha Publish Record
 
-NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current repository candidate is `0.1.0-alpha.1`.
+NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.1`.
 
 Do not publish from the `0.0.3` line.
 
-The repository metadata has been advanced to `0.1.0-alpha.1` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish dry-run passes, but actual publish requires owner OTP/web auth.
+The repository metadata has been advanced to `0.1.0-alpha.1` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07 and moved the `alpha` dist-tag forward.
 
 ## Registry State
 
@@ -15,11 +15,18 @@ npm view @ps-neko/nekowork version --json
 -> 0.1.0-alpha.0
 ```
 
+The default version output follows `latest`, which is not the documented alpha install path.
+
+```text
+npm view @ps-neko/nekowork@alpha version --json
+-> 0.1.0-alpha.1
+```
+
 Dist-tags:
 
 ```text
 npm view @ps-neko/nekowork dist-tags --json
--> { "alpha": "0.1.0-alpha.0", "latest": "0.1.0-alpha.0" }
+-> { "alpha": "0.1.0-alpha.1", "latest": "0.1.0-alpha.0" }
 ```
 
 The publish package shape has been checked:
@@ -29,39 +36,46 @@ npm publish --dry-run --access public --tag alpha
 -> pass
 ```
 
-The first alpha publish succeeded, and a duplicate publish attempt is correctly blocked:
+The first alpha publish succeeded, and duplicate publish attempts are correctly blocked:
 
 ```text
 npm publish --access public --tag alpha
 -> E403 previously published versions: 0.1.0-alpha.0
 ```
 
-The current alpha update is prepared with the same `alpha` dist-tag, but actual publish is blocked until owner OTP/web auth is completed:
+The alpha update was published with the same `alpha` dist-tag:
 
 ```text
 npm publish --access public --tag alpha
--> EOTP one-time password / web authentication required
+-> published 0.1.0-alpha.1
+```
+
+After publish:
+
+```text
+npm view @ps-neko/nekowork@0.1.0-alpha.1 version --json
+-> 0.1.0-alpha.1
 ```
 
 `npx` smoke passed:
 
 ```text
 npx -y @ps-neko/nekowork@alpha doctor --quick
--> WARN summary, 6 pass, 1 warn, 0 fail
+-> WARN summary, 5 pass, 2 warn, 0 fail
 ```
 
-The registry keeps `latest` on the first alpha. Attempts to remove it after 2FA returned `E400 Bad Request`:
+The registry keeps `latest` on the first alpha line. Attempts to remove it after 2FA returned `E400 Bad Request`:
 
 ```text
 npm dist-tag rm @ps-neko/nekowork latest
 -> E400 Bad Request
 ```
 
-Treat `latest` as an unavoidable first-alpha registry pointer for now. Do not promote it in docs as the stable path. When the first stable package is ready, publish or retag that stable version as `latest`.
+Treat `latest` as an unavoidable alpha-line registry pointer for now. Do not promote it in docs as the stable path. When the first stable package is ready, publish or retag that stable version as `latest`.
 
 ## Release Shape
 
-Prepared first public package:
+Published public alpha package:
 
 ```text
 name: @ps-neko/nekowork

@@ -206,4 +206,4 @@ The current release line is `0.1.0-alpha.1`:
 
 - Repository and GitHub tarball release are available.
 - Public npm alpha is published as `@ps-neko/nekowork@alpha`.
-- Clone, submodule, and local checkout integration remain the supported install paths until the package is published.
+- Clone, submodule, and local checkout integration remain supported for repository-pinned workflows.
