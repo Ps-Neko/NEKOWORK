@@ -4,7 +4,8 @@
 
 ## [Unreleased]
 
-No unreleased changes yet.
+### Added
+- Add a `motdotla/dotenv` third-party case study for environment configuration and secret-loading boundary evidence.
 
 ## [0.1.0-alpha.2] - 2026-05-08
 

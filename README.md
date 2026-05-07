@@ -20,7 +20,7 @@ NEKOWORK is not meant to become a large agent pack. Skills, hooks, profiles, and
 
 NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, profile, module, and pack must preserve the verification loop.
 
-**Public alpha evidence:** 7 packs / 9 profiles / 36 components / 5 harness targets / 6 case-study flows / 245 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
+**Public alpha evidence:** 7 packs / 9 profiles / 36 components / 5 harness targets / 7 case-study flows / 246 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -84,7 +84,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 245 tests pass
+- `npm test`: 246 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha doctor --quick`: pass with warnings only
@@ -174,7 +174,7 @@ To see the repository-based external project flow end to end:
 npm run demo:external
 ```
 
-To inspect small case-study targets, see [examples/trading-dashboard-mock](examples/trading-dashboard-mock), [examples/github-actions-hardening](examples/github-actions-hardening), [examples/quality-lifecycle-smoke](examples/quality-lifecycle-smoke), and [docs/case-studies](docs/case-studies). They demonstrate financial UI, CI workflow, quality lifecycle, npm package, auth parser, and Python protocol library flows passing local checks while still preserving Codex verification, Human Gate policy, and explicit apply control.
+To inspect small case-study targets, see [examples/trading-dashboard-mock](examples/trading-dashboard-mock), [examples/github-actions-hardening](examples/github-actions-hardening), [examples/quality-lifecycle-smoke](examples/quality-lifecycle-smoke), and [docs/case-studies](docs/case-studies). They demonstrate financial UI, CI workflow, quality lifecycle, npm package, auth parser, Python protocol library, and environment configuration flows while still preserving Codex verification, Human Gate policy, and explicit apply control.
 
 ## What You Get
 
