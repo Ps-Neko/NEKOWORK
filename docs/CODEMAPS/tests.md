@@ -37,6 +37,7 @@ tests/
     |-- portability.test.js
     |-- profile-safety.test.js
     |-- ralph.test.js
+    |-- report.test.js
     |-- risk-classifier.test.js
     |-- router.test.js
     |-- run.test.js
@@ -82,6 +83,7 @@ tests/
 | `unit/portability.test.js` | _(none)_ |  |
 | `unit/profile-safety.test.js` | _(none)_ |  |
 | `unit/ralph.test.js` | _(none)_ |  |
+| `unit/report.test.js` | _(none)_ |  |
 | `unit/risk-classifier.test.js` | _(none)_ |  |
 | `unit/router.test.js` | _(none)_ |  |
 | `unit/run.test.js` | _(none)_ |  |

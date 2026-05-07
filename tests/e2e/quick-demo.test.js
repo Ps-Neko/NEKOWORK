@@ -25,8 +25,10 @@ test('quick demo runs the shortest no-api workflow against a disposable target',
     assert.equal(result.status, 0, result.stderr || result.stdout);
     assert.match(result.stdout, /doctor \.\.\. OK/);
     assert.match(result.stdout, /run workflow \.\.\. OK/);
+    assert.match(result.stdout, /report \.\.\. OK/);
     assert.match(result.stdout, /gate status \.\.\. OK/);
     assert.ok(fs.existsSync(path.join(target, '.harness', 'state', 'sessions', 'e2e-quick-demo', 'run-summary.json')));
+    assert.ok(fs.existsSync(path.join(target, '.harness', 'state', 'sessions', 'e2e-quick-demo', 'REPORT.md')));
   } finally {
     fs.rmSync(target, { recursive: true, force: true });
   }

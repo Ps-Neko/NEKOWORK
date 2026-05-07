@@ -36,13 +36,14 @@ Use this first when you want the shortest no-API experience:
 npm run demo:quick -- --cleanup
 ```
 
-The quick demo creates a disposable target project, runs `doctor -> run -> gate status`, and removes the target when `--cleanup` is set. It uses mock providers and does not call Claude, Codex, Gemini, or paid APIs.
+The quick demo creates a disposable target project, runs `doctor -> run -> report -> gate status`, and removes the target when `--cleanup` is set. It uses mock providers and does not call Claude, Codex, Gemini, or paid APIs.
 
 Expected shape:
 
 ```text
 doctor ... OK
 run workflow ... OK
+report ... OK
 gate status ... OK
 Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false
 ```
@@ -54,10 +55,11 @@ Use this path first. It is the recommended shortest safe loop:
 ```bash
 node scripts/cli.js ask "clarify a risky or ambiguous request" --session first-ask
 node scripts/cli.js run "implement, verify, and prepare ship readiness" --session first-run
+node scripts/cli.js report --session first-run
 node scripts/cli.js gate status --session first-run
 ```
 
-`run` is the short safe wrapper. It runs `work -> verify -> ship`, does not apply by default, and stops on Human Gate. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
+`run` is the short safe wrapper. It runs `work -> verify -> ship`, does not apply by default, and stops on Human Gate. `report` writes a readable `REPORT.md` from the evidence already in the session. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
 
 ## 4. Run A Mock Review
 
@@ -152,6 +154,14 @@ node scripts/cli.js ship "prepare dashboard ship readiness" --require-clean-gate
 
 `ship` requires the prior `work` and `verify` handoffs. It does not publish, deploy, create a PR, or mutate the target project. If Codex reported fixable findings, `ship` writes a no-ship handoff and `NO_SHIP`; if Codex fully approved, it writes `SHIP_READY`. Existing `HUMAN_GATE` always blocks it.
 
+Create a readable report from the session evidence:
+
+```bash
+node scripts/cli.js report --session first-work
+```
+
+`report` is inspect-only. It writes `REPORT.md` and `report-summary.json` under the session directory and does not mutate project files.
+
 For live work that produced a captured diff, apply it only after ship readiness:
 
 ```bash
@@ -213,7 +223,7 @@ examples/github-actions-hardening/
 
 Each example has its own `npm test` and NEKOWORK case-study artifacts under `case-study/`.
 
-Recommended 0.0.3 integration:
+Recommended repository integration:
 
 ```bash
 cd <target-project>

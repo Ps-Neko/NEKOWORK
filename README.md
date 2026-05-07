@@ -22,8 +22,8 @@ NEKOWORK is not meant to become a large agent pack. Skills, hooks, profiles, and
 
 Most users should start with the Beginner path. The other paths are for explicit phase control or legacy compatibility.
 
-1. Beginner: `doctor -> ask -> run -> gate`
-2. Advanced: `ask -> plan -> team -> work -> verify -> gate -> ship -> apply`
+1. Beginner: `doctor -> ask -> run -> report -> gate`
+2. Advanced: `ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply`
 3. Legacy: `review` / `review-cycle`
 
 ## Why NEKOWORK
@@ -42,7 +42,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 243 tests pass
+- `npm test`: 244 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 
@@ -69,7 +69,7 @@ npm ci
 npm run demo:quick -- --cleanup
 ```
 
-This creates a disposable target project and runs `doctor -> run -> gate status`. It uses mock providers and does not call Claude, Codex, Gemini, or paid APIs.
+This creates a disposable target project and runs `doctor -> run -> report -> gate status`. It uses mock providers and does not call Claude, Codex, Gemini, or paid APIs.
 
 Recommended path for most users:
 
@@ -80,15 +80,16 @@ npm ci
 node scripts/cli.js doctor --quick
 node scripts/cli.js ask "clarify a risky or ambiguous request" --session first-ask
 node scripts/cli.js run "implement, verify, and prepare ship readiness" --session first-run
+node scripts/cli.js report --session first-run
 node scripts/cli.js gate status --session first-run
 ```
 
-`run` executes `work -> verify -> ship`. It does not apply by default. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
+`run` executes `work -> verify -> ship`. `report` turns the session evidence into a readable `REPORT.md`. It does not apply by default. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
 
 Advanced path:
 
 ```text
-ask -> plan -> team -> work -> verify -> gate -> ship -> apply
+ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
 ```
 
 Legacy compatibility smoke:
@@ -114,6 +115,7 @@ To inspect small case-study targets, see [examples/trading-dashboard-mock](examp
 ```text
 doctor ... OK
 run workflow ... OK
+report ... OK
 gate status ... OK
 Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false
 ```
@@ -122,6 +124,7 @@ Outputs are written under:
 
 ```text
 .harness/state/sessions/<session-id>/handoffs/
+.harness/state/sessions/<session-id>/REPORT.md
 ```
 
 ## Use It In Another Project
@@ -175,6 +178,7 @@ The public alpha surface is intentionally small:
 - `ship`: produce a ship/no-ship readiness handoff after Codex verification
 - `apply`: apply a verified `SHIP_READY` live-work diff to the target project
 - `run`: execute the decomposed wrapper, `work -> verify -> ship`, with optional apply
+- `report`: summarize session evidence into `REPORT.md` without project mutation
 - `review`: run the legacy full Claude-led/Codex-reviewed workflow
 - `review-cycle`: explicit compatibility alias for the legacy full review workflow
 - `install --plan` / `install --apply`: project generated harness surfaces
@@ -225,8 +229,10 @@ node scripts/cli.js verify "verify the implemented change" --session work-smoke
 node scripts/cli.js verify "verify quality evidence" --profile quality --strict-quality --session work-smoke
 node scripts/cli.js gate status --session work-smoke
 node scripts/cli.js ship "prepare ship readiness" --require-clean-gates --session work-smoke
+node scripts/cli.js report --session work-smoke
 node scripts/cli.js apply --session work-smoke
 node scripts/cli.js run "implement, verify, and prepare ship readiness" --session run-smoke
+node scripts/cli.js report --session run-smoke
 node scripts/cli.js review "implement and review this change" --no-ship
 node scripts/cli.js review-cycle "legacy full-cycle compatibility smoke" --no-ship
 node scripts/cli.js review "security-sensitive change" --secure --no-ship
@@ -263,6 +269,7 @@ npm pack --dry-run --json
 - [docs/PUBLISH-ALPHA.md](docs/PUBLISH-ALPHA.md) - public npm alpha release plan
 - [docs/INTERNAL-PROVIDER.md](docs/INTERNAL-PROVIDER.md) - private command adapter protocol
 - [docs/DEMO.md](docs/DEMO.md) - sample command output and generated files
+- [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md) - readable session report UX
 - [docs/EXAMPLE-PROJECT.md](docs/EXAMPLE-PROJECT.md) - repository-based external project demo
 - [docs/case-studies](docs/case-studies) - real external project run evidence
 - [examples/trading-dashboard-mock](examples/trading-dashboard-mock) - standalone financial UI mock target and case-study evidence

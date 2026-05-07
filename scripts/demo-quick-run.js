@@ -57,7 +57,7 @@ What it does:
   1. Creates a tiny disposable target project.
   2. Runs doctor --quick.
   3. Runs the compact workflow: run = work -> verify -> ship.
-  4. Prints gate status and the generated session path.
+  4. Generates a readable REPORT.md and prints gate status.
 
 The demo uses mock providers by default and does not call paid APIs.
 `);
@@ -148,6 +148,15 @@ function main() {
       target,
       '--json',
     ]);
+    runStep('report', [
+      path.join(ROOT, 'scripts/cli.js'),
+      'report',
+      '--session',
+      args.session,
+      '--project-root',
+      target,
+      '--json',
+    ]);
     runStep('gate status', [
       path.join(ROOT, 'scripts/cli.js'),
       'gate',
@@ -164,6 +173,8 @@ function main() {
       path.join(sessionDir, 'verify-summary.json'),
       path.join(sessionDir, 'ship-summary.json'),
       path.join(sessionDir, 'run-summary.json'),
+      path.join(sessionDir, 'REPORT.md'),
+      path.join(sessionDir, 'report-summary.json'),
     ]) {
       assertExists(file);
     }
@@ -171,6 +182,7 @@ function main() {
     const runSummary = JSON.parse(fs.readFileSync(path.join(sessionDir, 'run-summary.json'), 'utf8'));
     console.log('');
     console.log(`Demo completed: verdict=${runSummary.verdict}, ship_ready=${runSummary.ship_ready}, applied=${runSummary.applied}`);
+    console.log(`Report: ${path.join(sessionDir, 'REPORT.md')}`);
     console.log(`Inspect session: ${sessionDir}`);
 
     if (args.cleanup) {

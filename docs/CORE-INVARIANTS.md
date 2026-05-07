@@ -26,13 +26,14 @@ Claude work -> Codex verification -> Human Gate
 - `verify` requires prior work, runs Codex review, and triggers challenge/gates for sensitive work.
 - `gate` records explicit human approve/block decisions.
 - `ship` refuses unresolved gates and writes readiness markers only after verification.
+- `report` summarizes evidence without mutating project files.
 - `apply` is the explicit mutation command for verified live-work diffs.
 - Manifest validation rejects profiles that try to weaken core safety policy.
 
 ## Compatibility
 
-`review` remains the legacy full cycle for the `0.0.3` line. `review-cycle` is the explicit compatibility alias. New automation should prefer:
+`review` remains the legacy full cycle for the current alpha line. `review-cycle` is the explicit compatibility alias. New automation should prefer:
 
 ```text
-ask -> plan -> team -> work -> verify -> gate -> ship -> apply
+ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
 ```

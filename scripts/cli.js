@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // NEKOWORK/HARNESS CLI entrypoint.
-// Public verbs: doctor, ask, plan, team, work, verify, gate, ship, apply, run, review, review-cycle, install, validate, version.
+// Public verbs: doctor, ask, plan, team, work, verify, gate, ship, apply, run, report, review, review-cycle, install, validate, version.
 // Advanced verbs: self-review, codex-review, ralph, wait, sessions, costs, instincts.
 
 import { spawnSync } from 'node:child_process';
@@ -59,6 +59,8 @@ Review loop
                                          apply a verified SHIP_READY live-work diff to the target project
   run "<task>" [--session <id>] [--profile quality|security] [--strict-quality] [--secure] [--live] [--apply] [--allow-dirty] [--force] [--project-root <dir>] [--json]
                                          decomposed wrapper: work -> verify -> ship, optional apply
+  report --session <id> [--project-root <dir>] [--output <file>] [--stdout] [--json]
+                                         summarize session evidence into REPORT.md; inspect-only
   review "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>] [--project-root <dir>]
                                          legacy full claude-led-codex-review workflow
   review-cycle "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>] [--project-root <dir>]
@@ -582,6 +584,49 @@ function parseRunArgs(argv) {
   return opts;
 }
 
+function parseReportArgs(argv) {
+  const opts = {
+    sessionId: null,
+    projectRoot: null,
+    outputPath: null,
+    stdoutOnly: false,
+    json: false,
+  };
+  const unknown = [];
+
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--json') opts.json = true;
+    else if (a === '--stdout') opts.stdoutOnly = true;
+    else if (a === '--session') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--session requires a value');
+      opts.sessionId = value;
+    } else if (a.startsWith('--session=')) {
+      opts.sessionId = a.slice('--session='.length);
+    } else if (a === '--project-root') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--project-root requires a value');
+      opts.projectRoot = value;
+    } else if (a.startsWith('--project-root=')) {
+      opts.projectRoot = a.slice('--project-root='.length);
+    } else if (a === '--output') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--output requires a value');
+      opts.outputPath = value;
+    } else if (a.startsWith('--output=')) {
+      opts.outputPath = a.slice('--output='.length);
+    } else if (a.startsWith('--')) {
+      unknown.push(a);
+    } else {
+      unknown.push(a);
+    }
+  }
+
+  if (unknown.length) throw usageError(`unknown flag: ${unknown.join(', ')}`);
+  return opts;
+}
+
 function optionValue(argv, flag, fallback = undefined) {
   const i = argv.indexOf(flag);
   if (i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--')) return argv[i + 1];
@@ -922,6 +967,54 @@ function optionNumber(argv, flag, fallback = undefined) {
         console.log('  apply      : ' + (result.applied ? 'applied' : result.applyRequested ? `skipped (${result.applySkippedReason || 'not needed'})` : 'not requested'));
       }
       if (result.humanGate || (opts.apply && (result.noShip || result.applySkippedReason))) process.exit(3);
+      break;
+    }
+
+    case 'report': {
+      const opts = parseReportArgs(rest);
+      if (!opts.sessionId) {
+        console.error('--session is required for report');
+        process.exit(2);
+      }
+      const { reportSession } = await import('./orchestrators/report.js');
+      let result;
+      try {
+        result = reportSession({
+          ...opts,
+          projectRoot: resolveProjectRoot(opts.projectRoot),
+        });
+      } catch (e) {
+        if (/^report requires/.test(e?.message || '')) throw usageError(e.message);
+        throw e;
+      }
+      if (opts.stdoutOnly) process.stdout.write(result.markdown);
+      if (opts.json) {
+        console.log(JSON.stringify({
+          sessionId: result.sessionId,
+          status: result.status,
+          verdict: result.verdict,
+          profile: result.profile,
+          strictQuality: result.strictQuality,
+          strictQualityBlocked: result.strictQualityBlocked,
+          shipReady: result.shipReady,
+          noShip: result.noShip,
+          humanGate: result.humanGate,
+          applied: result.applied,
+          handoffs: result.handoffs,
+          qualityWarnings: result.qualityWarnings.length,
+          reportPath: result.reportPath,
+        }, null, 2));
+      } else if (!opts.stdoutOnly) {
+        console.log('=== report ===');
+        console.log('  session    : ' + result.sessionId);
+        console.log('  status     : ' + result.status);
+        console.log('  verdict    : ' + (result.verdict || 'n/a'));
+        console.log('  human gate : ' + (result.humanGate ? 'YES' : 'no'));
+        console.log('  no ship    : ' + (result.noShip ? 'YES' : 'no'));
+        console.log('  applied    : ' + (result.applied ? 'yes' : 'no'));
+        console.log('  warnings   : ' + result.qualityWarnings.length);
+        console.log('  report     : ' + path.relative(process.cwd(), result.reportPath).replace(/\\/g, '/'));
+      }
       break;
     }
 

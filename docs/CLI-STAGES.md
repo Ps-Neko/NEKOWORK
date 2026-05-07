@@ -3,7 +3,7 @@
 The long-term NEKOWORK workflow is:
 
 ```text
-ask -> plan -> team -> work -> verify -> gate -> ship -> apply
+ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
 ```
 
 ## Stage Contract
@@ -17,6 +17,7 @@ ask -> plan -> team -> work -> verify -> gate -> ship -> apply
 | `verify` | Run Codex review, optional Codex challenge, and risk gate logic. | No project mutation |
 | `gate` | Record human approval or block for an open gate. | No project mutation |
 | `ship` | Produce ship/no-ship readiness markers and handoff. | No project mutation |
+| `report` | Summarize session evidence into a readable report. | No project mutation |
 | `apply` | Apply a verified `SHIP_READY` live-work diff. | Controlled project mutation |
 
 ## Beginner And Advanced Paths
@@ -24,7 +25,7 @@ ask -> plan -> team -> work -> verify -> gate -> ship -> apply
 Most users should start with this Beginner path:
 
 ```text
-doctor -> ask -> run -> gate status
+doctor -> ask -> run -> report -> gate status
 ```
 
 `run` is the short safe wrapper. It executes `work -> verify -> ship`, does not apply by default, and stops on Human Gate.
@@ -32,7 +33,7 @@ doctor -> ask -> run -> gate status
 Advanced path:
 
 ```text
-ask -> plan -> team -> work -> verify -> gate -> ship -> apply
+ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
 ```
 
 Use the advanced path when the change needs a separate plan artifact, read-only team handoffs, explicit verification control, or a manual apply step.
@@ -49,13 +50,14 @@ harness verify "task" --profile quality --strict-quality --session <id>
 
 ## Plan And Run Policy
 
-For the `0.0.3` line:
+For the current alpha line:
 
 - `plan` is recommended before `work` for non-trivial changes.
 - `run` does not call `plan`; it remains a compact wrapper around `work -> verify -> ship`.
 - `work` always ensures `acceptance-criteria.json`, using `prd.json` when available or a task-derived minimum otherwise.
 - Future release lines may add `run --with-plan` or require an accepted plan artifact for higher-risk work.
 - `apply` is always explicit. `run` applies only with `--apply`.
+- `report` is inspect-only and can run after `ask`, `work`, `verify`, `ship`, `run`, or `apply`.
 
 ## Explicit Safety Aliases
 
