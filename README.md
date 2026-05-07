@@ -42,7 +42,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 236 tests pass
+- `npm test`: 237 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 
@@ -253,8 +253,10 @@ npm pack --dry-run --json
 
 - [docs/QUICKSTART.md](docs/QUICKSTART.md) - first run and common paths
 - [docs/WHY-NEKOWORK.md](docs/WHY-NEKOWORK.md) - comparison and product positioning
+- [docs/PUBLISH-ALPHA.md](docs/PUBLISH-ALPHA.md) - public npm alpha release plan
 - [docs/DEMO.md](docs/DEMO.md) - sample command output and generated files
 - [docs/EXAMPLE-PROJECT.md](docs/EXAMPLE-PROJECT.md) - repository-based external project demo
+- [docs/case-studies](docs/case-studies) - real external project run evidence
 - [examples/trading-dashboard-mock](examples/trading-dashboard-mock) - standalone financial UI mock target and case-study evidence
 - [examples/quality-lifecycle-smoke](examples/quality-lifecycle-smoke) - standalone quality profile and strict-quality case-study evidence
 - [docs/SECURITY.md](docs/SECURITY.md) - local-first auth and safety model

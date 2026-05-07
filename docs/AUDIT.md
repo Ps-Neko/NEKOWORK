@@ -11,12 +11,14 @@ This audit summarizes the current NEKOWORK state after the `v0.0.3` repository r
 | Package metadata | OK | `@ps-neko/nekowork@0.0.3`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness` |
 | npm publish | Held | Do not publish `0.0.3`; public npm publishing is intentionally disabled |
 | Source install | OK | Clone, local checkout, and submodule workflows are documented |
+| Public npm alpha plan | OK | `docs/PUBLISH-ALPHA.md` defines the `0.1.0-alpha.0` path; npm publish has not been executed |
 | CLI doctor | OK | `doctor`, `doctor --quick`, and `doctor --gemini-smoke` are available |
 | Provider auth | OK | Local delegated CLI auth is the default path |
 | Catalog | OK | 11 agents, 9 skills, 5 hooks, 7 modules, 35 components, 9 profiles |
 | Multi-harness output | OK | Claude, Codex, Cursor, Gemini, and OpenCode builders are present |
 | Quick demo | OK | `npm run demo:quick` verifies the shortest no-API `doctor -> run -> gate status` path |
 | External demo | OK | `npm run demo:external` verifies a disposable target project flow |
+| Third-party case study | OK | `docs/case-studies/SINDRESORHUS-IS-PLAIN-OBJ.md` records a real public repository run |
 | Decomposed workflow | OK | `ask`, `team`, `work`, `verify`, `gate`, `ship`, `apply`, and `run` are available |
 | Risk policy | OK | Shared classifier drives ask, routing traces, verify challenge/gates, and ship gate rechecks |
 | Acceptance criteria | OK | `work` ensures every session has `acceptance-criteria.json` |
@@ -50,7 +52,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 236 tests pass
+- `npm test`: 237 tests pass
 - quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass
@@ -79,13 +81,15 @@ Current local result for this working tree:
 - The disposable external project demo proves the repository-based target-project flow end to end.
 - The quick run demo proves the one-command no-API first experience.
 - Checked-in example fixtures now cover financial UI, CI hardening, and quality lifecycle evidence flows.
+- A third-party case study records a NEKOWORK run against `sindresorhus/is-plain-obj`.
+- Public npm alpha publishing is planned for a future `0.1.0-alpha.0`; `0.0.3` remains private.
 
 ## Remaining Optional Work
 
 | Item | Priority | Reason |
 |---|---|---|
-| Future public npm publish decision | High, when desired | Converts repository alpha into an installable package after a new explicit release decision |
-| Real external project case study | Medium | Requires a named third-party or production-like target repository; checked-in examples and disposable demos are complete |
+| Future public npm publish execution | High, when desired | Requires npm login, owner approval, and a new public alpha version such as `0.1.0-alpha.0` |
+| More third-party case studies | Medium | One public repo case study exists; more languages/frameworks would improve adoption evidence |
 | Internal provider adapter | Low until requested | Only useful for private infrastructure |
 | More skill catalog expansion | Low | Should stay selective to preserve progressive disclosure |
 
@@ -99,11 +103,10 @@ Current local result for this working tree:
 
 ## External Readiness Score
 
-Current external readiness, excluding npm publish and third-party adoption evidence: **8.4 / 10**.
+Current external readiness, excluding npm publish execution and broader adoption evidence: **8.7 / 10**.
 
 Main deductions:
 
 - No public npm package yet.
-- No independent real-world external project case study yet.
-- Checked-in case-study fixtures exist, but third-party adoption evidence is still separate.
+- Only one independent real-world external project case study so far.
 - Advanced surfaces exist but are intentionally secondary to the public decomposed workflow and install flow.
