@@ -2,16 +2,16 @@
 
 Status date: 2026-05-08
 
-NEKOWORK / HARNESS is release-ready for local use, repository-based installation, and public npm alpha installation. The repository and npm alpha are both at `0.1.0-alpha.3`.
+NEKOWORK / HARNESS is release-ready for local use, repository-based installation, and public npm alpha installation. The repository and npm alpha are both at `0.1.0-alpha.4`.
 
 ## Decision
 
 - Decision: do not publish 0.0.3 to npm.
-- Public alpha: `0.1.0-alpha.3`, published with `--tag alpha`.
+- Public alpha: `0.1.0-alpha.4`, published with `--tag alpha`.
 - `package.json` is set to `private: false` for the public alpha.
 - The canonical repo is `Ps-Neko/NEKOWORK`.
-- Current release track is `0.1.0-alpha.3`; npm `@alpha` points at this version.
-- GitHub prerelease: `v0.1.0-alpha.3`.
+- Current release track is `0.1.0-alpha.4`; npm `@alpha` points at this version.
+- GitHub prerelease: `v0.1.0-alpha.4`.
 - Required local provider auth is delegated CLI auth, not long-lived API keys.
 - Core workflow invariant is Claude work -> Codex verification -> Human Gate.
 - Risk classifier, acceptance criteria artifacts, and profile safety validation are part of the release gate.
@@ -22,16 +22,16 @@ NEKOWORK / HARNESS is release-ready for local use, repository-based installation
 
 GitHub Release:
 
-- https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.3
+- https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.4
 
-## 0.1.0-alpha.3 Release Scope
+## 0.1.0-alpha.4 Release Scope
 
-The `0.1.0-alpha.3` release scope is first-run trust UX and documentation hardening:
+The `0.1.0-alpha.4` release scope is first-run install trust and release-surface version consistency:
 
-- README first screen explains unverified-change prevention, Human Gate, and explicit apply
-- beginner `check` and `init` CLI aliases
-- Safety Guarantees, Failure Modes, Trust Model, and Why Not Autopilot docs
-- third-party dotenv case study and alpha feedback triage docs from the post-alpha.2 line
+- `agent.yaml` version matches `package.json`
+- version consistency is covered by unit tests
+- npm `init` guidance is documented as the shortest target-project install path
+- `published-alpha-smoke` uses the beginner `check` command
 - no catalog expansion unless a new surface directly strengthens verification evidence
 
 Release exit criteria:
@@ -39,7 +39,7 @@ Release exit criteria:
 - required gates below pass locally
 - `published-alpha-smoke` passes in GitHub Actions
 - `npm pack --dry-run --json` contains only intended files
-- changelog `0.1.0-alpha.3` entries match the release contents
+- changelog `0.1.0-alpha.4` entries match the release contents
 - `latest` remains documented as non-stable; install examples continue to use `@alpha`
 
 ## Required Gates
@@ -69,14 +69,14 @@ Current local verification after the decomposed workflow expansion:
 - `npm run lint`: pass
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
-- `npm test`: 251 tests pass
+- `npm test`: 252 tests pass
 - `npm run demo:quick -- --cleanup`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npm publish --dry-run --access public --tag alpha`: pass
-- `npm publish --access public --tag alpha`: `0.1.0-alpha.3` published
-- `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.3`; `latest` remains `0.1.0-alpha.0`
-- `npx -y @ps-neko/nekowork@alpha check`: passed for `0.1.0-alpha.3` with WARN summary from non-git project root and Gemini auth not checked
+- `npm publish --access public --tag alpha`: `0.1.0-alpha.4` published
+- `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.4`; `latest` remains `0.1.0-alpha.0`
+- `npx -y @ps-neko/nekowork@alpha check`: passed for `0.1.0-alpha.4` with WARN summary from non-git project root and Gemini auth not checked
 - GitHub Actions `published-alpha-smoke`: validates the fresh `npx @alpha` path against the published package
 
 ## Install Smoke
@@ -84,11 +84,13 @@ Current local verification after the decomposed workflow expansion:
 For the default developer profile:
 
 ```bash
+npx -y @ps-neko/nekowork@alpha init --profile developer --project-root <target>
+npx -y @ps-neko/nekowork@alpha check --project-root <target>
 node scripts/install-plan.js --list --json
 node scripts/install-plan.js --pack quality --json
 node scripts/install-plan.js --profile developer --json
 node scripts/portability/simulate-port.js <target> --profile developer --json
-node scripts/install-apply.js --profile developer --project-root <target>
+node scripts/cli.js init --profile developer --project-root <target>
 node scripts/cli.js plan "release readiness smoke" --project-root <target>
 node scripts/cli.js run "release readiness decomposed smoke" --project-root <target> --session release-run-smoke
 ```
@@ -156,7 +158,7 @@ Expected target outputs:
 
 ## Public npm Checklist
 
-Already completed for `0.1.0-alpha.3`. Repeat this checklist for the next public alpha:
+Already completed for `0.1.0-alpha.4`. Repeat this checklist for the next public alpha:
 
 1. Confirm the npm package name is still `@ps-neko/nekowork`.
 2. Confirm the `harness` binary is still intentional.

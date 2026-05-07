@@ -18,7 +18,20 @@ Released scope:
 - Keep the external feedback path for alpha users to paste `check --json` and `REPORT.md` summaries.
 - Preserve the current catalog size unless a new agent, skill, hook, or pack directly strengthens verification evidence.
 
-## 0.1.0-alpha.4 Candidate
+## 0.1.0-alpha.4
+
+Status: released.
+
+Goal: keep first-run install evidence internally consistent.
+
+Released scope:
+
+- Keep `agent.yaml` and `package.json` versions aligned.
+- Cover release-surface version consistency with a unit test.
+- Make `npx @alpha init --project-root .` the shortest documented target-project install path.
+- Keep `@alpha check` smoke evidence green across local and GitHub Actions gates.
+
+## 0.1.0-alpha.5 Candidate
 
 Goal: gather external feedback and keep the release path boring.
 

@@ -51,6 +51,7 @@ tests/
     |-- team.test.js
     |-- token-vault.test.js
     |-- verify.test.js
+    |-- version-consistency.test.js
     |-- wait.test.js
     `-- work.test.js
 ```
@@ -99,6 +100,7 @@ tests/
 | `unit/team.test.js` | _(none)_ |  |
 | `unit/token-vault.test.js` | _(none)_ |  |
 | `unit/verify.test.js` | _(none)_ |  |
+| `unit/version-consistency.test.js` | _(none)_ |  |
 | `unit/wait.test.js` | _(none)_ |  |
 | `unit/work.test.js` | _(none)_ |  |
 

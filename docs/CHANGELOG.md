@@ -8,7 +8,17 @@
 - No entries yet.
 
 ### Changed
+- No entries yet.
+
+## [0.1.0-alpha.4] - 2026-05-08
+
+### Added
+- Add release-surface version consistency coverage, bringing the suite to 252 tests.
+
+### Changed
 - Align published alpha smoke, feedback templates, and demo docs around the beginner `check` command.
+- Align `agent.yaml`, setup, porting, demo, and runbook release references with the package version.
+- Document `npx @alpha init --project-root .` as the shortest target-project install path.
 
 ## [0.1.0-alpha.3] - 2026-05-08
 

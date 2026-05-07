@@ -30,7 +30,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 7 packs / 9 profiles / 36 components / 5 harness targets / 7 case-study flows / 251 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
+**Public alpha evidence:** 7 packs / 9 profiles / 36 components / 5 harness targets / 7 case-study flows / 252 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -57,10 +57,11 @@ node scripts/cli.js gate status --session first-run
 
 The simple path maps to the full evidence loop: `check = doctor --quick`, and `run = work -> verify -> ship`.
 
-To add generated harness surfaces to another local repository from a source checkout:
+To add generated harness surfaces to another local repository:
 
 ```bash
-node /path/to/harness/scripts/cli.js init --profile developer --project-root /path/to/my-project
+cd /path/to/my-project
+npx -y @ps-neko/nekowork@alpha init --profile developer --project-root .
 ```
 
 ## Example Report
@@ -139,9 +140,9 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 ## Status
 
-- Current repository version: `0.1.0-alpha.3`
+- Current repository version: `0.1.0-alpha.4`
 - Current package name: `@ps-neko/nekowork`
-- Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.3`
+- Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.4`
 - Supported install path today: npm alpha, clone, submodule, or local repository integration
 - Dist-tag note: use `@alpha` until a stable release; `latest` still points at the first alpha line
 - Default mode: mock providers, no API keys, no provider CLI calls
@@ -149,7 +150,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 251 tests pass
+- `npm test`: 252 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
@@ -217,10 +218,11 @@ node scripts/cli.js gate status --session first-run
 
 `run` executes `work -> verify -> ship`. `report` turns the session evidence into a readable `REPORT.md`. It does not apply by default. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
 
-To initialize another local repository from this checkout:
+To initialize another local repository with the published alpha:
 
 ```bash
-node /path/to/harness/scripts/cli.js init --profile developer --project-root /path/to/my-project
+cd /path/to/my-project
+npx -y @ps-neko/nekowork@alpha init --profile developer --project-root .
 ```
 
 Advanced path:
@@ -268,7 +270,15 @@ Outputs are written under:
 
 ## Use It In Another Project
 
-Recommended repository install shape:
+Shortest npm alpha install shape:
+
+```bash
+cd <target-project>
+npx -y @ps-neko/nekowork@alpha init --profile developer --project-root .
+npx -y @ps-neko/nekowork@alpha check --project-root .
+```
+
+Repository-pinned install shape:
 
 ```bash
 cd <target-project>
@@ -411,7 +421,7 @@ npm run security:hardening
 npm pack --dry-run --json
 ```
 
-`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.3.tgz`. It does not publish.
+`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.4.tgz`. It does not publish.
 
 ## Documentation
 
