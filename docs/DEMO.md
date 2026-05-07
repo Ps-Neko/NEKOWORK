@@ -8,7 +8,7 @@ This demo uses mock providers. It does not call Claude, Codex, Gemini, or paid A
 npm run demo:quick -- --cleanup
 ```
 
-This is the shortest demo path. It creates a disposable target project, runs `doctor --quick`, runs `run = work -> verify -> ship`, generates `REPORT.md`, checks `gate status`, and removes the target when `--cleanup` is set.
+This is the shortest demo path. It creates a disposable target project, runs `check`, runs `run = work -> verify -> ship`, generates `REPORT.md`, checks `gate status`, and removes the target when `--cleanup` is set.
 
 Expected shape:
 
@@ -28,7 +28,7 @@ This transcript is the README-friendly demo path. It uses mock providers, so it 
 ![NEKOWORK one-minute terminal demo](assets/demo-terminal.svg)
 
 ```text
-$ npx -y @ps-neko/nekowork@alpha doctor --quick
+$ npx -y @ps-neko/nekowork@alpha check
 NEKOWORK doctor
 STATUS  CHECK              MESSAGE
 PASS    node               Node 22+
@@ -67,7 +67,7 @@ The quick demo writes:
 npm run demo:external
 ```
 
-This creates a tiny disposable target project, applies the `developer` profile, runs `doctor --quick`, and writes a planning session into the target project's `.harness/` directory. See [EXAMPLE-PROJECT.md](EXAMPLE-PROJECT.md) for details.
+This creates a tiny disposable target project, applies the `developer` profile, runs `check`, and writes a planning session into the target project's `.harness/` directory. See [EXAMPLE-PROJECT.md](EXAMPLE-PROJECT.md) for details.
 
 ## Command
 

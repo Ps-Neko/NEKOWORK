@@ -63,7 +63,7 @@ body:
     id: logs
     attributes:
       label: Relevant output
-      description: Paste redacted logs, `doctor --quick --json`, or report summaries.
+      description: Paste redacted logs, `check --json`, or report summaries.
       render: text
     validations:
       required: false
