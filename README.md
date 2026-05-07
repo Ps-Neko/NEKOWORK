@@ -26,6 +26,8 @@ NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `
 
 **One-minute demo:** [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) / [full report example](docs/DEMO-REPORT.md) / [alpha.2 roadmap](docs/ROADMAP.md)
 
+![NEKOWORK one-minute terminal demo](docs/assets/demo-terminal.svg)
+
 ## Example Report
 
 `report` is the main trust surface. It turns session evidence into a readable `REPORT.md`:

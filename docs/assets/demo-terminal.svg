@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="610" viewBox="0 0 960 610" role="img" aria-labelledby="title desc">
+  <title id="title">NEKOWORK one-minute terminal demo</title>
+  <desc id="desc">Terminal transcript showing npx alpha doctor, quick demo, and report output.</desc>
+  <defs>
+    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101820"/>
+      <stop offset="1" stop-color="#18252f"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#091018" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <rect width="960" height="610" rx="0" fill="#eef2f5"/>
+  <g filter="url(#shadow)">
+    <rect x="40" y="36" width="880" height="538" rx="8" fill="url(#frame)"/>
+    <rect x="40" y="36" width="880" height="42" rx="8" fill="#24313b"/>
+    <rect x="40" y="69" width="880" height="9" fill="#24313b"/>
+    <circle cx="66" cy="57" r="6" fill="#ef6a5f"/>
+    <circle cx="86" cy="57" r="6" fill="#f4bd4f"/>
+    <circle cx="106" cy="57" r="6" fill="#61c554"/>
+    <text x="480" y="62" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="13" fill="#c8d2dc">NEKOWORK alpha smoke</text>
+  </g>
+  <g font-family="Consolas, Menlo, monospace" font-size="18">
+    <text x="72" y="114" fill="#7ee787">$ npx -y @ps-neko/nekowork@alpha doctor --quick</text>
+    <text x="72" y="147" fill="#d7e3ec">NEKOWORK doctor</text>
+    <text x="72" y="179" fill="#8fb3c8">STATUS  CHECK              MESSAGE</text>
+    <text x="72" y="211" fill="#9be9a8">PASS    node               Node 22+</text>
+    <text x="72" y="243" fill="#9be9a8">PASS    package metadata   @ps-neko/nekowork@0.1.0-alpha.1</text>
+    <text x="72" y="275" fill="#9be9a8">PASS    api key env        no delegated-provider API key overrides</text>
+    <text x="72" y="307" fill="#ffd166">WARN    gemini cli         auth status is not checked non-interactively</text>
+    <text x="72" y="339" fill="#d7e3ec">summary: WARN (5 pass, 2 warn, 0 fail)</text>
+
+    <text x="72" y="387" fill="#7ee787">$ npm run demo:quick -- --cleanup</text>
+    <text x="72" y="419" fill="#d7e3ec">NEKOWORK quick run demo</text>
+    <text x="72" y="451" fill="#9be9a8">doctor OK  /  run workflow OK  /  report OK  /  gate status OK</text>
+    <text x="72" y="483" fill="#d7e3ec">Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false</text>
+
+    <text x="72" y="531" fill="#7ee787">$ node scripts/cli.js report --session quick-demo --stdout</text>
+    <text x="72" y="563" fill="#d7e3ec">Status: no_ship  /  Human gate: clear  /  Evidence: work, verify, ship</text>
+  </g>
+</svg>

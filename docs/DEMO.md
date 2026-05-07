@@ -25,6 +25,8 @@ Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false
 
 This transcript is the README-friendly demo path. It uses mock providers, so it is safe to run on a fresh checkout without Claude, Codex, Gemini, or API keys.
 
+![NEKOWORK one-minute terminal demo](assets/demo-terminal.svg)
+
 ```text
 $ npx -y @ps-neko/nekowork@alpha doctor --quick
 NEKOWORK doctor
