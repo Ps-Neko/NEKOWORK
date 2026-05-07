@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+These entries are the current `0.1.0-alpha.2` candidate scope. Do not move them to a version heading until the owner approves the next npm alpha publish.
+
 ### Added
 - Add GitHub issue templates for alpha feedback and reproducible bug reports.
 - Add CI coverage for a fresh `npx @ps-neko/nekowork@alpha doctor --quick` smoke against the published alpha package.

@@ -11,7 +11,7 @@ Goal: make the published package and first-run story easier to trust from the ou
 Planned scope:
 
 - Keep fresh `npx @ps-neko/nekowork@alpha doctor --quick` smoke coverage in CI.
-- Add a real terminal recording or generated terminal SVG for the one-minute demo path.
+- Keep the generated terminal SVG for the one-minute demo path.
 - Keep README focused on evidence, report output, Human Gate, and explicit apply.
 - Keep the external feedback path for alpha users to paste `doctor --quick --json` and `REPORT.md` summaries.
 - Preserve the current catalog size unless a new agent, skill, hook, or pack directly strengthens verification evidence.

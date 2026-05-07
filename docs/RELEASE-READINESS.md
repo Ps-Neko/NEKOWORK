@@ -24,6 +24,24 @@ GitHub Release:
 
 - https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.1
 
+## 0.1.0-alpha.2 Candidate Scope
+
+Do not bump `package.json` until the owner is ready to publish the next npm alpha. The current candidate scope is documentation, evidence, and feedback-loop hardening only:
+
+- fresh `npx @ps-neko/nekowork@alpha doctor --quick --json` smoke coverage in CI
+- static one-minute terminal demo SVG in README and `docs/DEMO.md`
+- alpha feedback and bug report issue forms
+- README evidence links for report, demo, feedback, and roadmap
+- no catalog expansion unless a new surface directly strengthens verification evidence
+
+Candidate exit criteria:
+
+- required gates below pass locally
+- `published-alpha-smoke` passes in GitHub Actions
+- `npm pack --dry-run --json` contains only intended files
+- changelog Unreleased entries match the intended alpha.2 contents
+- `latest` remains documented as non-stable; install examples continue to use `@alpha`
+
 ## Required Gates
 
 Run these before a release tag or public package decision:
@@ -142,7 +160,7 @@ Already completed for `0.1.0-alpha.1`. Repeat this checklist for the next public
 
 1. Confirm the npm package name is still `@ps-neko/nekowork`.
 2. Confirm the `harness` binary is still intentional.
-3. Confirm the public alpha version is `0.1.0-alpha.1`.
+3. Bump `package.json` to the next public alpha version only when publish is approved.
 4. Run the required gates above.
 5. Inspect `npm pack --dry-run --json` and confirm only intended files are included.
 6. Confirm npm account access and 2FA readiness with `npm whoami`.
