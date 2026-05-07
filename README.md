@@ -32,17 +32,17 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 ## Status
 
-- Current version: `0.0.3` alpha
+- Current version: `0.1.0-alpha.0` public alpha candidate
 - Current package name: `@ps-neko/nekowork`
-- npm publishing: do not publish `0.0.3`; disabled by `private: true`
+- npm publishing: prepared for `npm publish --access public --tag alpha`, but not published until npm owner auth is available
 - Supported install path today: clone, submodule, or local repository integration
-- Future npm path is prepared, but `npm publish` requires a new explicit release decision
+- Future npm path is prepared; final publish requires `npm whoami` to succeed
 - Default mode: mock providers, no API keys, no provider CLI calls
 
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 237 tests pass
+- `npm test`: 238 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 
@@ -120,7 +120,7 @@ Outputs are written under:
 
 ## Use It In Another Project
 
-Recommended 0.0.3 shape:
+Recommended repository install shape:
 
 ```bash
 cd <target-project>
@@ -247,7 +247,7 @@ npm run security:hardening
 npm pack --dry-run --json
 ```
 
-`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.0.3.tgz`. It does not publish.
+`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.0.tgz`. It does not publish.
 
 ## Documentation
 

@@ -8,10 +8,10 @@ This audit summarizes the current NEKOWORK state after the `v0.0.3` repository r
 
 | Area | Status | Notes |
 |---|---|---|
-| Package metadata | OK | `@ps-neko/nekowork@0.0.3`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness` |
-| npm publish | Held | Do not publish `0.0.3`; public npm publishing is intentionally disabled |
+| Package metadata | OK | `@ps-neko/nekowork@0.1.0-alpha.0`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness` |
+| npm publish | Blocked on auth | Public alpha metadata is prepared; `npm whoami` currently returns `ENEEDAUTH` |
 | Source install | OK | Clone, local checkout, and submodule workflows are documented |
-| Public npm alpha plan | OK | `docs/PUBLISH-ALPHA.md` defines the `0.1.0-alpha.0` path; npm publish has not been executed |
+| Public npm alpha plan | OK | `docs/PUBLISH-ALPHA.md` defines the `0.1.0-alpha.0` path; npm publish has not been executed because npm owner auth is unavailable |
 | CLI doctor | OK | `doctor`, `doctor --quick`, and `doctor --gemini-smoke` are available |
 | Provider auth | OK | Local delegated CLI auth is the default path |
 | Catalog | OK | 11 agents, 9 skills, 5 hooks, 7 modules, 35 components, 9 profiles |
@@ -52,13 +52,15 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 237 tests pass
+- `npm test`: 238 tests pass
 - quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
+- `npm publish --dry-run --access public --tag alpha`: pass
+- `npm publish --access public --tag alpha`: blocked by `ENEEDAUTH`
 
 ## Completed Work
 
@@ -82,20 +84,20 @@ Current local result for this working tree:
 - The quick run demo proves the one-command no-API first experience.
 - Checked-in example fixtures now cover financial UI, CI hardening, and quality lifecycle evidence flows.
 - A third-party case study records a NEKOWORK run against `sindresorhus/is-plain-obj`.
-- Public npm alpha publishing is planned for a future `0.1.0-alpha.0`; `0.0.3` remains private.
+- Public npm alpha metadata is prepared for `0.1.0-alpha.0`; publish execution remains blocked on npm owner auth.
 
 ## Remaining Optional Work
 
 | Item | Priority | Reason |
 |---|---|---|
-| Future public npm publish execution | High, when desired | Requires npm login, owner approval, and a new public alpha version such as `0.1.0-alpha.0` |
+| Public npm publish execution | High | Requires npm owner login and 2FA readiness |
 | More third-party case studies | Medium | One public repo case study exists; more languages/frameworks would improve adoption evidence |
 | Internal provider adapter | Low until requested | Only useful for private infrastructure |
 | More skill catalog expansion | Low | Should stay selective to preserve progressive disclosure |
 
 ## Explicit Non-Goals
 
-- No public npm publish for `0.0.3`; future npm publishing requires owner approval.
+- No public npm publish for `0.0.3`; public alpha publish requires npm owner auth.
 - No automatic promotion of learned instincts without human confirmation.
 - No tmux-first runtime import from OMC.
 - No bulk import of large external skill catalogs.
@@ -103,10 +105,10 @@ Current local result for this working tree:
 
 ## External Readiness Score
 
-Current external readiness, excluding npm publish execution and broader adoption evidence: **8.7 / 10**.
+Current external readiness, excluding npm publish execution and broader adoption evidence: **8.8 / 10**.
 
 Main deductions:
 
-- No public npm package yet.
+- No public npm package yet because npm owner auth is not active on this machine.
 - Only one independent real-world external project case study so far.
 - Advanced surfaces exist but are intentionally secondary to the public decomposed workflow and install flow.

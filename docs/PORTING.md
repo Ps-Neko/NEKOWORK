@@ -1,6 +1,6 @@
 # Porting NEKOWORK Into Another Project
 
-NEKOWORK 0.0.3 is a repository-based alpha. It is not published to npm, so use a submodule or local checkout until public npm publishing is explicitly approved.
+NEKOWORK `0.1.0-alpha.0` is prepared as a public alpha candidate. It is not published to npm yet, so use a submodule or local checkout until npm owner auth is available and the alpha is published.
 
 ## Local Demo First
 

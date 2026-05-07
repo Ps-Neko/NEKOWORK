@@ -198,8 +198,8 @@ Builders project the catalog into tool-specific files:
 
 ## Release State
 
-The current release line is `0.0.3`:
+The current release line is `0.1.0-alpha.0`:
 
 - Repository and GitHub tarball release are available.
-- Public npm publishing is disabled with `private: true`.
-- Clone, submodule, and local checkout integration are the supported install paths.
+- Public npm metadata is prepared, but publish execution is blocked until npm owner auth is available.
+- Clone, submodule, and local checkout integration remain the supported install paths until the package is published.

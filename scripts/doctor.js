@@ -126,13 +126,20 @@ function checkPackageMetadata(root) {
       return fail('package metadata', `unexpected package name: ${pkg.name}`);
     }
     if (!pkg.version) return fail('package metadata', 'missing package version');
-    if (pkg.private !== true) {
-      return warn('package metadata', `${pkg.name}@${pkg.version}; private is not true`);
+    if (pkg.private === true) {
+      return pass('package metadata', `${pkg.name}@${pkg.version}; private publish disabled`);
     }
-    return pass('package metadata', `${pkg.name}@${pkg.version}; private publish disabled`);
+    if (pkg.private === false && isPublicAlphaVersion(pkg.version)) {
+      return pass('package metadata', `${pkg.name}@${pkg.version}; public alpha publish candidate`);
+    }
+    return warn('package metadata', `${pkg.name}@${pkg.version}; publish guard is not explicit`);
   } catch (error) {
     return fail('package metadata', `cannot read package.json: ${error.message}`);
   }
+}
+
+function isPublicAlphaVersion(version) {
+  return /^\d+\.\d+\.\d+-alpha\.\d+$/.test(String(version));
 }
 
 function checkGitWorktree(projectRoot, runCommand) {
@@ -257,7 +264,7 @@ Usage:
 
 Checks:
   - Node.js version
-  - package metadata and private publish guard
+  - package metadata and publish guard
   - git worktree
   - delegated-provider API key environment overrides
   - Claude/Codex/Gemini CLI presence and auth where non-interactive status exists

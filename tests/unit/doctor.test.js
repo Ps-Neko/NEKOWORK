@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { buildDoctorReport, parseDoctorArgs, renderDoctorReport } from '../../scripts/doctor.js';
 
-function makeRoot(pkg = { name: '@ps-neko/nekowork', version: '0.0.3', private: true }) {
+function makeRoot(pkg = { name: '@ps-neko/nekowork', version: '0.1.0-alpha.0', private: false }) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-doctor-root-'));
   fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify(pkg, null, 2));
   return root;
@@ -45,7 +45,7 @@ test('doctor report passes core checks without provider CLIs in quick mode', () 
 });
 
 test('doctor reports node and package failures', () => {
-  const root = makeRoot({ name: '@wrong/name', version: '0.0.3', private: true });
+  const root = makeRoot({ name: '@wrong/name', version: '0.1.0-alpha.0', private: false });
   const report = buildDoctorReport({
     harnessRoot: root,
     projectRoot: root,
@@ -74,6 +74,20 @@ test('doctor flags delegated API key environment overrides', () => {
   const check = report.checks.find((item) => item.name === 'api key env');
   assert.equal(check.status, 'WARN');
   assert.match(check.message, /OPENAI_API_KEY/);
+});
+
+test('doctor still accepts private repository alpha metadata', () => {
+  const root = makeRoot({ name: '@ps-neko/nekowork', version: '0.0.3', private: true });
+  const report = buildDoctorReport({
+    harnessRoot: root,
+    projectRoot: root,
+    env: { PATH: '' },
+    nodeVersion: '22.1.0',
+    quick: true,
+    runCommand: runCommandPass,
+  });
+
+  assert.ok(report.checks.some((check) => check.name === 'package metadata' && check.status === 'PASS'));
 });
 
 test('doctor freshness failures affect overall status', () => {

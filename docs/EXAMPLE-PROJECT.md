@@ -87,6 +87,6 @@ demo-target/
 
 ## What This Does Not Prove
 
-- Public npm installation. The package is still `private: true`.
+- Public npm installation. The package metadata is ready, but publish execution still requires npm owner auth.
 - Live provider execution. Run live provider smoke checks separately after local CLI login.
 - A production rollout. Pin a release tag or submodule commit before using the tool in a shared workflow.
