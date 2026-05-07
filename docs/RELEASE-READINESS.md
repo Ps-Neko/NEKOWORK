@@ -25,6 +25,7 @@ node scripts/cli.js doctor
 node scripts/cli.js doctor --quick --gemini-smoke
 npm run lint
 npm test
+npm run demo:quick -- --cleanup
 npm run demo:external -- --cleanup
 npm audit --audit-level=moderate
 node scripts/repair.js --check
@@ -41,7 +42,8 @@ Current local verification after the decomposed workflow expansion:
 - `npm run lint`: pass
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
-- `npm test`: 235 tests pass
+- `npm test`: 236 tests pass
+- `npm run demo:quick -- --cleanup`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 
@@ -58,7 +60,7 @@ node scripts/cli.js plan "release readiness smoke" --project-root <target>
 node scripts/cli.js run "release readiness decomposed smoke" --project-root <target> --session release-run-smoke
 ```
 
-The disposable equivalent is:
+The disposable install equivalent is:
 
 ```bash
 npm run demo:external -- --cleanup
@@ -74,6 +76,19 @@ Expected target outputs:
 - `.cursor/hooks.json`
 - `.gemini/GEMINI.md`
 - `.opencode/config.json`
+
+The one-command workflow equivalent is:
+
+```bash
+npm run demo:quick -- --cleanup
+```
+
+Expected quick-demo outputs:
+
+- `.harness/state/sessions/<session>/work-summary.json`
+- `.harness/state/sessions/<session>/verify-summary.json`
+- `.harness/state/sessions/<session>/ship-summary.json`
+- `.harness/state/sessions/<session>/run-summary.json`
 
 ## Full Builder Smoke
 

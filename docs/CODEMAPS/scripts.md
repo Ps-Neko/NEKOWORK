@@ -76,6 +76,7 @@ scripts/
 |-- build-opencode.js
 |-- cli.js
 |-- demo-external-project.js
+|-- demo-quick-run.js
 |-- demo-review.js
 |-- doctor.js
 |-- install-apply.js
@@ -121,6 +122,7 @@ scripts/
 | `core/subprocess.js` | `spawnAndCollect` |  |
 | `daemon/wait.js` | `buildResumePlan`, `parseActiveFile`, `processWakeups`, `tick` | Persistent wait daemon. It watches wakeup.json files created by the persistent-mode hook and resumes only sessions that declare a safe engin |
 | `demo-external-project.js` | _(none)_ | Create a tiny target project and run the repository-based NEKOWORK porting path. |
+| `demo-quick-run.js` | _(none)_ | Run the shortest NEKOWORK experience against a disposable target project. |
 | `demo-review.js` | _(none)_ | claude-led-codex-review (Week 1 ). LLM 7 / / round . ("git push ") ship . |
 | `doctor.js` | `buildDoctorReport`, `parseDoctorArgs`, `renderDoctorReport` |  |
 | `install-apply.js` | _(none)_ | HARNESS install --apply : plan harness (agent.yaml harnesses ) install-state . (idempotent). git checkout . |

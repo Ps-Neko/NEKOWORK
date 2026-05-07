@@ -11,6 +11,7 @@ tests/
 |   |-- external-demo.test.js
 |   |-- github-actions-hardening-example.test.js
 |   |-- quality-lifecycle-example.test.js
+|   |-- quick-demo.test.js
 |   |-- review-cycle.test.js
 |   `-- trading-dashboard-example.test.js
 |-- integration/
@@ -57,6 +58,7 @@ tests/
 | `e2e/external-demo.test.js` | _(none)_ |  |
 | `e2e/github-actions-hardening-example.test.js` | _(none)_ |  |
 | `e2e/quality-lifecycle-example.test.js` | _(none)_ |  |
+| `e2e/quick-demo.test.js` | _(none)_ |  |
 | `e2e/review-cycle.test.js` | _(none)_ | E2E smoke tests for the deterministic mock review flow. |
 | `e2e/trading-dashboard-example.test.js` | _(none)_ |  |
 | `integration/build-pipeline.test.js` | _(none)_ | : install plan apply 5 state repair . . .harness/install-state.json . |
