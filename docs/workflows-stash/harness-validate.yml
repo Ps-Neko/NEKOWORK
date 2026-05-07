@@ -1,7 +1,5 @@
 name: harness-validate
 
-# 매 push / PR 마다 매니페스트·카탈로그·테스트 빠른 검증. 5분 이내 완료 목표.
-
 on:
   push:
   pull_request:
@@ -10,18 +8,49 @@ permissions:
   contents: read
 
 jobs:
+  published-alpha-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Fresh npx alpha doctor smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          workdir="$RUNNER_TEMP/nekowork-alpha-smoke"
+          mkdir -p "$workdir"
+          cd "$workdir"
+          npx -y @ps-neko/nekowork@alpha doctor --quick --json > doctor.json
+          node <<'NODE'
+          const fs = require('node:fs');
+          const report = JSON.parse(fs.readFileSync('doctor.json', 'utf8'));
+          const metadata = report.checks.find((check) => check.name === 'package metadata');
+          if (report.summary.fail !== 0) {
+            throw new Error(`doctor reported ${report.summary.fail} failure(s)`);
+          }
+          if (!metadata || !metadata.message.includes('@ps-neko/nekowork@0.1.0-alpha.1')) {
+            throw new Error(`unexpected package metadata: ${metadata?.message || '<missing>'}`);
+          }
+          console.log(`published alpha smoke: ${metadata.message}`);
+          NODE
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
+
       - uses: actions/setup-node@v6
         with:
           node-version: '22'
-          cache: 'npm'
+          cache: npm
+
       - run: npm ci --no-audit --no-fund
 
-      - name: 매니페스트·카탈로그 검증
+      - name: Validate manifests and catalog
         run: |
           node scripts/install-plan.js --profile core --verbose
           node scripts/install-plan.js --profile developer
@@ -31,14 +60,16 @@ jobs:
           node scripts/ci/catalog.js
           node scripts/ci/check-markers.js
 
-      - name: 단위 테스트
-        run: |
-          npm test
+      - name: Security hardening gate
+        run: npm run security:hardening
 
-      - name: 의존성 감사
+      - name: Unit and integration tests
+        run: npm test
+
+      - name: Dependency audit
         run: npm audit --audit-level=moderate
 
-      - name: 빌드 산출물
+      - name: Build projections
         run: |
           node scripts/build-claude.js
           node scripts/build-codex.js
