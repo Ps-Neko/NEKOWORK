@@ -15,22 +15,36 @@ tests/
 |-- optional/
 |   `-- keychain-smoke.test.js
 `-- unit/
+    |-- acceptance-criteria.test.js
+    |-- apply.test.js
+    |-- ask.test.js
     |-- auth-guard.test.js
+    |-- cli-options.test.js
     |-- codex-isolation.test.js
     |-- core-utils.test.js
     |-- costs.test.js
     |-- doctor.test.js
     |-- execution-workspace.test.js
+    |-- gate.test.js
     |-- git-mutation-guard.test.js
     |-- instincts.test.js
     |-- orchestrator.test.js
     |-- portability.test.js
+    |-- profile-safety.test.js
+    |-- ralph.test.js
+    |-- risk-classifier.test.js
     |-- router.test.js
+    |-- run.test.js
     |-- runners-extract.test.js
     |-- security-hardening.test.js
     |-- severity.test.js
+    |-- ship.test.js
     |-- team-lite.test.js
-    `-- token-vault.test.js
+    |-- team.test.js
+    |-- token-vault.test.js
+    |-- verify.test.js
+    |-- wait.test.js
+    `-- work.test.js
 ```
 
 ## JS Exports
@@ -41,20 +55,34 @@ tests/
 | `e2e/review-cycle.test.js` | _(none)_ | E2E smoke tests for the deterministic mock review flow. |
 | `integration/build-pipeline.test.js` | _(none)_ | : install plan apply 5 state repair . . .harness/install-state.json . |
 | `optional/keychain-smoke.test.js` | _(none)_ | OS keychain . npm test (tests/optional/ ). : HARNESS_KEYCHAIN_SMOKE=1 npm run test:keychain : HARNESS_KEYCHAIN_SMOKE=1 node --test tests/opt |
+| `unit/acceptance-criteria.test.js` | _(none)_ |  |
+| `unit/apply.test.js` | _(none)_ |  |
+| `unit/ask.test.js` | _(none)_ |  |
 | `unit/auth-guard.test.js` | _(none)_ |  |
+| `unit/cli-options.test.js` | _(none)_ |  |
 | `unit/codex-isolation.test.js` | _(none)_ | Codex Claude . 2 "Claude , Codex " . codex buildPrompt Claude /agent body prompt leak . |
 | `unit/core-utils.test.js` | _(none)_ |  |
 | `unit/costs.test.js` | _(none)_ |  |
 | `unit/doctor.test.js` | _(none)_ |  |
 | `unit/execution-workspace.test.js` | _(none)_ |  |
+| `unit/gate.test.js` | _(none)_ |  |
 | `unit/git-mutation-guard.test.js` | _(none)_ |  |
 | `unit/instincts.test.js` | _(none)_ |  |
 | `unit/orchestrator.test.js` | _(none)_ | review . mock provider . node:test based orchestrator checks. |
 | `unit/portability.test.js` | _(none)_ |  |
+| `unit/profile-safety.test.js` | _(none)_ |  |
+| `unit/ralph.test.js` | _(none)_ |  |
+| `unit/risk-classifier.test.js` | _(none)_ |  |
 | `unit/router.test.js` | _(none)_ |  |
+| `unit/run.test.js` | _(none)_ |  |
 | `unit/runners-extract.test.js` | _(none)_ | live runner JSON / prompt . Claude/Codex CLI ( ). |
 | `unit/security-hardening.test.js` | _(none)_ |  |
 | `unit/severity.test.js` | _(none)_ |  |
+| `unit/ship.test.js` | _(none)_ |  |
 | `unit/team-lite.test.js` | _(none)_ |  |
+| `unit/team.test.js` | _(none)_ |  |
 | `unit/token-vault.test.js` | _(none)_ |  |
+| `unit/verify.test.js` | _(none)_ |  |
+| `unit/wait.test.js` | _(none)_ |  |
+| `unit/work.test.js` | _(none)_ |  |
 

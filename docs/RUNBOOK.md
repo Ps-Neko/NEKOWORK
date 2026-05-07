@@ -34,6 +34,15 @@ Then run:
 npm test
 ```
 
+Profile changes must also preserve the profile safety validator:
+
+- every profile keeps the core modules
+- no profile can disable Codex verification or Human Gate
+- mutation policy cannot become parallel or unrestricted by profile default
+- outbound network cannot become unrestricted by profile default
+
+The validator runs through `npm run lint`.
+
 ## Project Install Smoke
 
 Use a temporary target project:
@@ -43,12 +52,14 @@ node scripts/portability/simulate-port.js <target> --profile developer --verbose
 node scripts/install-apply.js --profile developer --project-root <target>
 node scripts/cli.js doctor --project-root <target> --quick
 node scripts/cli.js plan "release smoke" --project-root <target> --session release-smoke
+node scripts/cli.js run "release decomposed smoke" --project-root <target> --session release-run-smoke
 ```
 
 Expected target outputs:
 
 - `.harness/install-state.json`
 - `.harness/state/sessions/release-smoke/`
+- `.harness/state/sessions/release-run-smoke/run-summary.json`
 - `.claude/`
 - `.codex/config.toml`
 - `.cursor/hooks.json`
@@ -102,6 +113,7 @@ Advanced workflows are documented in [ADVANCED.md](ADVANCED.md):
 
 - `team-lite`
 - `ralph`
+- `wait`
 - `instincts`
 - cost tracking
 - Rust runtime

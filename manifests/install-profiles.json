@@ -1,9 +1,9 @@
 {
   "$schema": "../schemas/install-profiles.schema.json",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "profiles": {
     "core": {
-      "description": "최소 필수: 룰, 에이전트, 훅 런타임, 플랫폼 설정. claude-led-codex-review 풀사이클 동작 가능.",
+      "description": "Minimal NEKOWORK surface: rules, core agents, runtime hooks, platform configs, and safety gates.",
       "modules": [
         "rules-core",
         "agents-core",
@@ -12,7 +12,7 @@
       ]
     },
     "developer": {
-      "description": "core + 품질 게이트 + Codex 검증 루프. 일상 개발용 기본 프로파일.",
+      "description": "Daily development profile with quality workflow, Codex loop, and release readiness helpers.",
       "modules": [
         "rules-core",
         "agents-core",
@@ -24,7 +24,7 @@
       ]
     },
     "security": {
-      "description": "core + Codex 검증 강제. auth/crypto/payment 영역 작업용. --secure 디폴트.",
+      "description": "Secure development profile that keeps Codex verification and human gates active for sensitive work.",
       "modules": [
         "rules-core",
         "agents-core",
@@ -39,8 +39,52 @@
         "outbound_network": "deny"
       }
     },
+    "product": {
+      "description": "Product planning profile for question gates, scope review, acceptance criteria, and handoff-first planning.",
+      "modules": [
+        "rules-core",
+        "agents-core",
+        "hooks-runtime",
+        "platform-configs",
+        "workflow-quality"
+      ],
+      "defaults": {
+        "question_gate": true,
+        "mutation_policy": "single_executor"
+      }
+    },
+    "frontend": {
+      "description": "Frontend profile for UI mockups, component review, accessibility checks, and Codex-reviewed implementation.",
+      "modules": [
+        "rules-core",
+        "agents-core",
+        "hooks-runtime",
+        "platform-configs",
+        "workflow-quality",
+        "codex-loop"
+      ],
+      "defaults": {
+        "question_gate": true,
+        "ui_mock_data_first": true
+      }
+    },
+    "testing": {
+      "description": "Testing profile for test planning, regression review, coverage-oriented handoffs, and quality gates.",
+      "modules": [
+        "rules-core",
+        "agents-core",
+        "hooks-runtime",
+        "platform-configs",
+        "workflow-quality",
+        "codex-loop"
+      ],
+      "defaults": {
+        "test_plan_required": true,
+        "mutation_policy": "single_executor"
+      }
+    },
     "research": {
-      "description": "core + 사내 RAG / Context7 / Exa 결합. 사내 RAG PoC 환경용.",
+      "description": "Research profile for read-only investigation handoffs and optional external knowledge surfaces.",
       "modules": [
         "rules-core",
         "agents-core",
@@ -49,10 +93,10 @@
         "workflow-quality",
         "ops-readiness"
       ],
-      "post_install_note": "Day 1 MVP 에는 rag-bridge 모듈 미포함. Q3 확장 예정."
+      "post_install_note": "External research connectors remain opt-in and cannot weaken core safety gates."
     },
     "full": {
-      "description": "현재 정의된 모든 모듈 (0.0.2 = 7개). 향후 확장 시 자동 포함.",
+      "description": "All stable modules in the current release, still bounded by NEKOWORK core safety invariants.",
       "modules": [
         "rules-core",
         "agents-core",

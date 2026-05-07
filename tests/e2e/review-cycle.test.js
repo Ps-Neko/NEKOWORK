@@ -118,7 +118,7 @@ test('CLI version matches package.json', () => {
 test('CLI help exposes public and advanced verbs', () => {
   const r = run(['scripts/cli.js']);
   const out = r.stdout + r.stderr;
-  for (const verb of ['install', 'review', 'plan', 'doctor', 'ralph', 'wait', 'sessions', 'costs', 'instincts', 'version']) {
+  for (const verb of ['install', 'ask', 'team', 'work', 'verify', 'gate', 'ship', 'apply', 'run', 'review', 'review-cycle', 'plan', 'doctor', 'ralph', 'wait', 'sessions', 'costs', 'instincts', 'version']) {
     assert.match(out, new RegExp(verb), `verb "${verb}" not shown`);
   }
 });
@@ -141,6 +141,72 @@ test('CLI plan stops before implement', () => {
   assert.match(stages, /01-ideate\.md/);
   assert.match(stages, /02-plan\.md/);
   assert.doesNotMatch(stages, /03-implement\.md/);
+});
+
+test('CLI decomposed work verify ship path writes no-ship readiness', () => {
+  const sessionId = 'e2e-cli-work-verify-ship';
+  const work = run(['scripts/cli.js', 'work', 'implement one thing', '--session', sessionId, '--json']);
+  assert.equal(work.status, 0, work.stderr);
+
+  const verify = run(['scripts/cli.js', 'verify', 'verify one thing', '--session', sessionId, '--json']);
+  assert.equal(verify.status, 0, verify.stderr);
+
+  const gate = run(['scripts/cli.js', 'gate', 'status', '--session', sessionId, '--json']);
+  assert.equal(gate.status, 0, gate.stderr);
+  assert.equal(JSON.parse(gate.stdout).status, 'clear');
+
+  const ship = run(['scripts/cli.js', 'ship', 'prepare ship readiness', '--session', sessionId, '--json']);
+  assert.equal(ship.status, 0, ship.stderr);
+  const result = JSON.parse(ship.stdout);
+  assert.equal(result.shipReady, false);
+  assert.equal(result.noShip, true);
+  assert.equal(result.humanGate, false);
+
+  const sessionDir = path.join(SANDBOX, '.harness', 'state', 'sessions', sessionId);
+  assert.ok(fs.existsSync(path.join(sessionDir, 'handoffs', '07-ship.json')));
+  assert.ok(fs.existsSync(path.join(sessionDir, 'ship-summary.json')));
+  assert.ok(fs.existsSync(path.join(sessionDir, 'NO_SHIP')));
+});
+
+test('CLI run wrapper writes run summary', () => {
+  const sessionId = 'e2e-cli-run';
+  const r = run(['scripts/cli.js', 'run', 'run wrapper smoke', '--session', sessionId, '--json']);
+  assert.equal(r.status, 0, r.stderr);
+  const result = JSON.parse(r.stdout);
+  assert.equal(result.stoppedAt, 'ship');
+  assert.equal(result.noShip, true);
+  assert.equal(result.applied, false);
+
+  const sessionDir = path.join(SANDBOX, '.harness', 'state', 'sessions', sessionId);
+  assert.ok(fs.existsSync(path.join(sessionDir, 'run-summary.json')));
+  assert.ok(fs.existsSync(path.join(sessionDir, 'ship-summary.json')));
+});
+
+test('CLI review-cycle alias writes legacy review summary', () => {
+  const sessionId = 'e2e-cli-review-cycle';
+  const r = run(['scripts/cli.js', 'review-cycle', 'legacy alias smoke', '--session', sessionId, '--fast', '--no-ship', '--no-codex']);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /legacy-full-review-cycle/);
+
+  const sessionDir = path.join(SANDBOX, '.harness', 'state', 'sessions', sessionId);
+  const summary = JSON.parse(fs.readFileSync(path.join(sessionDir, 'review-summary.json'), 'utf8'));
+  assert.equal(summary.mode, 'legacy-full-review-cycle');
+  assert.equal(summary.compatibility_command, 'review-cycle');
+  assert.equal(summary.recommended_wrapper, 'run');
+  assert.equal(summary.no_ship, true);
+});
+
+test('CLI ralph can use the decomposed run engine', () => {
+  const sessionId = 'e2e-cli-ralph-run';
+  const r = run(['scripts/cli.js', 'ralph', 'ralph run engine smoke', '--session', sessionId, '--engine', 'run', '--max-iter', '1']);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /"engine": "run"/);
+
+  const sessionDir = path.join(SANDBOX, '.harness', 'state', 'sessions', sessionId);
+  const summary = JSON.parse(fs.readFileSync(path.join(sessionDir, 'ralph-summary.json'), 'utf8'));
+  assert.equal(summary.engine, 'run');
+  assert.equal(summary.reason, 'max_iter');
+  assert.ok(fs.existsSync(path.join(SANDBOX, '.harness', 'state', 'sessions', `${sessionId}-i1`, 'run-summary.json')));
 });
 
 test('CLI --project-root writes session state to external project root', () => {

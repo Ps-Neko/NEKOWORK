@@ -65,6 +65,29 @@ test('--no-ship 이면 단계 7 없음', async () => {
   assert.ok(!r.handoffs.find(h => h.stage === 'ship'), 'ship skipped');
 });
 
+test('legacy review writes review-summary.json', async () => {
+  const sessionId = 'unit-review-summary';
+  const sessionDir = path.join(ROOT, '.harness', 'state', 'sessions', sessionId);
+  fs.rmSync(sessionDir, { recursive: true, force: true });
+
+  const r = await reviewCycle({
+    task: 'legacy summary smoke',
+    sessionId,
+    harnessRoot: ROOT,
+    fast: true,
+    noShip: true,
+    noCodex: true,
+  });
+
+  const summary = JSON.parse(fs.readFileSync(path.join(r.sessionDir, 'review-summary.json'), 'utf8'));
+  assert.equal(summary.mode, 'legacy-full-review-cycle');
+  assert.equal(summary.compatibility_command, 'review-cycle');
+  assert.equal(summary.recommended_wrapper, 'run');
+  assert.equal(summary.no_ship, true);
+  assert.equal(summary.no_codex, true);
+  assert.deepEqual(summary.stages, r.handoffs.map(h => h.stage));
+});
+
 test('stopAfter=plan 이면 implement 이전에 멈춘다', async () => {
   const r = await reviewCycle({
     task: '계획만 작성',

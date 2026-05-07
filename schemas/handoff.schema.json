@@ -8,7 +8,7 @@
   "additionalProperties": false,
   "properties": {
     "stage": {
-      "enum": ["ideate", "plan", "implement", "self-review", "codex-review", "codex-challenge", "ship"]
+      "enum": ["question-gate", "ideate", "plan", "implement", "self-review", "codex-review", "codex-challenge", "ship"]
     },
     "agent": { "type": "string" },
     "round": { "type": "integer", "minimum": 1 },
@@ -40,6 +40,34 @@
       "type": "number",
       "minimum": 0,
       "maximum": 1
+    },
+    "risk_level": {
+      "enum": ["low", "medium", "high", "critical"]
+    },
+    "questions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "success_criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "desc"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "desc": { "type": "string", "minLength": 1 },
+          "passes": { "type": "boolean" },
+          "source": { "type": "string" }
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "requires_human_gate": {
+      "type": "boolean"
     },
     "prdSeed": {
       "type": "object",

@@ -1,6 +1,195 @@
 # Advanced Features
 
-The public alpha path focuses on `doctor`, `plan`, `review`, and install/apply. This page keeps the larger runtime surface discoverable without crowding the first-run docs.
+The public alpha path focuses on `doctor`, `ask`, `plan`, `team`, `work`, `verify`, `gate`, `ship`, `apply`, `run`, `review`, `review-cycle`, and install/apply. This page keeps the larger runtime surface discoverable without crowding the first-run docs.
+
+## team
+
+`team` is the public read-only team handoff command:
+
+```bash
+node scripts/cli.js team "split and review this change" --workers planner,research,security,test --no-write --session team-smoke
+```
+
+Rules:
+
+- Workers create handoffs only.
+- No worker runs the `implement` stage.
+- All live Claude calls run in non-interactive handoff mode and are protected by the git mutation guard.
+- The next mutating step must be a single executor work/review cycle.
+
+Outputs:
+
+- `.harness/state/sessions/<id>/team.json`
+- `.harness/state/sessions/<id>/team-summary.json`
+- `.harness/state/sessions/<id>/handoffs/`
+
+## work
+
+`work` is the public single-executor implementation phase:
+
+```bash
+node scripts/cli.js work "implement the accepted plan" --single-executor --session work-smoke
+```
+
+Rules:
+
+- Only the `executor` agent runs.
+- Acceptance criteria are required as a session artifact and are written to `acceptance-criteria.json`.
+- Codex review does not run in this command.
+- Ship does not run in this command.
+- Mock mode writes an implement handoff only.
+- Live mode uses an isolated git worktree and persists a diff under the session.
+- The target project is not mutated directly by `work`.
+
+Outputs:
+
+- `.harness/state/sessions/<id>/work-summary.json`
+- `.harness/state/sessions/<id>/acceptance-criteria.json`
+- `.harness/state/sessions/<id>/handoffs/03-implement.md`
+- `.harness/state/sessions/<id>/handoffs/03-implement.json`
+- `.harness/state/sessions/<id>/diffs/` when live execution produces a diff
+
+## verify
+
+`verify` is the public Codex-only verification phase:
+
+```bash
+node scripts/cli.js verify "verify the accepted work" --session work-smoke
+node scripts/cli.js verify "verify sensitive auth work" --session work-smoke --secure
+```
+
+Rules:
+
+- A prior `work` handoff in the same session is required.
+- Codex review always runs.
+- Codex challenge runs when `--secure` is set or sensitive task/file names are detected.
+- The shared risk classifier decides challenge and Human Gate policy.
+- Implement does not run.
+- Ship does not run.
+- Critical or blocking findings write `HUMAN_GATE`.
+
+Outputs:
+
+- `.harness/state/sessions/<id>/verify-summary.json`
+- `.harness/state/sessions/<id>/handoffs/05-codex-review.md`
+- `.harness/state/sessions/<id>/handoffs/06-codex-challenge.md` when secure/challenge is active
+- `.harness/state/sessions/<id>/HUMAN_GATE` when Codex blocks or reports critical findings
+
+## gate
+
+`gate` is the explicit human decision phase:
+
+```bash
+node scripts/cli.js gate status --session work-smoke
+node scripts/cli.js gate approve --session work-smoke --reason "Reviewed and accepted the risk"
+node scripts/cli.js gate block --session work-smoke --reason "Release risk rejected"
+```
+
+Rules:
+
+- `status` inspects `HUMAN_GATE`, `GATE_APPROVED`, and `GATE_BLOCKED`.
+- `approve` requires an open `HUMAN_GATE` and a reason.
+- `block` requires an existing session and a reason.
+- Approval does not delete `HUMAN_GATE`; it records `GATE_APPROVED` for audit.
+- An explicit block records `GATE_BLOCKED` and keeps `ship` stopped.
+- The target project is not mutated by this command.
+
+Outputs:
+
+- `.harness/state/sessions/<id>/GATE_APPROVED` when approved
+- `.harness/state/sessions/<id>/GATE_BLOCKED` when blocked
+- `.harness/state/sessions/<id>/gate-summary.json`
+- `.harness/state/sessions/<id>/gate-events.jsonl`
+
+## ship
+
+`ship` is the public ship/no-ship readiness phase:
+
+```bash
+node scripts/cli.js ship "prepare ship readiness" --require-clean-gates --session work-smoke
+```
+
+Rules:
+
+- A prior `work` handoff in the same session is required.
+- A prior `verify`/`codex-review` handoff in the same session is required.
+- Existing `HUMAN_GATE` blocks ship unless `gate approve` recorded a later approval.
+- Blocking or critical Codex findings write or preserve `HUMAN_GATE`.
+- Financial and deploy-sensitive risk policy is rechecked before readiness.
+- `approve_with_fixes` creates a no-ship handoff rather than a ready marker.
+- The target project is not mutated by this command.
+
+Outputs:
+
+- `.harness/state/sessions/<id>/ship-summary.json`
+- `.harness/state/sessions/<id>/handoffs/07-ship.md` when not human-gated
+- `.harness/state/sessions/<id>/SHIP_READY` when Codex verification is fully approved
+- `.harness/state/sessions/<id>/NO_SHIP` when fixable findings remain
+
+## apply
+
+`apply` is the explicit project-mutation phase for live work diffs:
+
+```bash
+node scripts/cli.js apply --session work-smoke
+node scripts/cli.js apply --session work-smoke --allow-dirty
+```
+
+Rules:
+
+- A prior `work` handoff in the same session is required.
+- A prior `verify`/`codex-review` handoff in the same session is required.
+- `SHIP_READY` is required.
+- `NO_SHIP`, open `HUMAN_GATE`, or `GATE_BLOCKED` stops apply.
+- A captured diff from `work --live` is required.
+- The project must be a git worktree.
+- The project worktree must be clean, excluding `.harness/` session state, unless `--allow-dirty` is used.
+- `APPLIED_DIFF` makes apply idempotent unless `--force` is used.
+
+Outputs:
+
+- `.harness/state/sessions/<id>/APPLIED_DIFF`
+- `.harness/state/sessions/<id>/apply-summary.json`
+
+## run
+
+`run` is the public convenience wrapper for the decomposed pipeline:
+
+```bash
+node scripts/cli.js run "implement and verify this change" --session run-smoke
+node scripts/cli.js run "sensitive auth change" --session run-smoke --secure
+node scripts/cli.js run "live change" --session run-smoke --live --apply
+```
+
+Rules:
+
+- Runs `work -> verify -> ship`.
+- Does not apply by default.
+- `--secure` is forwarded to `verify`.
+- `--live` is forwarded to `work`, `verify`, and `ship`.
+- `--apply` runs `apply` only when `ship` produced `SHIP_READY`.
+- Open gates stop the run with exit code 3.
+- `NO_SHIP` skips apply and leaves a no-ship readiness handoff.
+
+Outputs:
+
+- `.harness/state/sessions/<id>/run-summary.json`
+- all normal `work`, `verify`, `ship`, and optional `apply` outputs
+
+## review-cycle
+
+`review-cycle` is the explicit compatibility alias for the legacy full workflow:
+
+```bash
+node scripts/cli.js review-cycle "legacy full-cycle smoke" --no-ship
+```
+
+Rules:
+
+- It is equivalent to `review` in the `0.0.3` line.
+- It keeps the old `ideate -> plan -> implement -> self-review -> codex-review -> codex-challenge -> ship` behavior discoverable while new automation migrates to `run` or the decomposed commands.
+- It writes `review-summary.json` with `mode: legacy-full-review-cycle`.
+- It may use legacy live-review behavior, so new controlled project mutation should prefer `work --live -> verify -> ship -> apply`.
 
 ## team-lite
 
@@ -18,6 +207,14 @@ Stages:
 - `team-verify`
 - `team-fix`
 
+Product rule:
+
+- Team stages produce handoffs and coordination state.
+- Multi-worker phases are read-only by default.
+- Project file mutation belongs to a single executor phase in the main work/review path.
+- Codex verification and human gate policy still apply after team output is used.
+- `team-lite.json` records `mode: advanced-team-lite-handoff`, `mutation: read-only-handoffs`, and `target_project_mutated: false`.
+
 Outputs:
 
 - `.harness/state/sessions/<id>/team-lite.json`
@@ -27,13 +224,43 @@ Outputs:
 
 ## ralph
 
-`ralph` is an explicit opt-in loop that repeats until PRD acceptance criteria pass or a human gate is hit.
+`ralph` is an explicit opt-in loop that repeats until PRD acceptance criteria pass, a human gate is hit, a cost cap stops it, or `--max-iter` is reached.
 
 ```bash
-node scripts/cli.js ralph "finish the acceptance criteria" --max-iter 5 --no-ship
+node scripts/cli.js ralph "finish the acceptance criteria" --max-iter 5
+node scripts/cli.js ralph "finish using the decomposed flow" --engine run --max-iter 5
 ```
 
+Rules:
+
+- The default engine is `review`, preserving the legacy full review-cycle behavior.
+- `--engine run` repeats the decomposed `run` wrapper instead: `work -> verify -> ship`.
+- Ralph never applies by default; even with the run engine, project mutation still belongs to an explicit `apply` path outside the loop.
+- Each iteration writes a child session such as `<ralph-session>-i1`.
+- The parent session writes `ralph-summary.json` with the selected engine and iteration sessions.
+
 Use it only when repeated local iteration is desired. It is not part of the basic quickstart.
+
+## wait
+
+`wait` is the persistent wakeup daemon for explicit active sessions:
+
+```bash
+node scripts/cli.js wait status
+node scripts/cli.js wait start
+node scripts/cli.js wait stop
+```
+
+Rules:
+
+- The persistent-mode hook writes `wakeup.json` only when a session has an `active` file.
+- The daemon parses `active` and resumes only supported modes: `ralph`, `run`, and `review-cycle`.
+- Ralph active sessions may resume with either `engine: review` or `engine: run`.
+- `HUMAN_GATE` stops resume and writes `wait-summary.json` instead.
+- Failed resume attempts keep `wakeup.json` and add a short backoff.
+- Successful or blocked decisions append `wait-events.jsonl`.
+
+This is still an advanced opt-in surface. It does not bypass gates and does not apply diffs by itself.
 
 ## instincts
 

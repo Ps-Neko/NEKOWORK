@@ -8,6 +8,18 @@ NEKOWORK packages the HARNESS runtime: one source catalog, `agent.yaml`, project
 
 Claude writes or plans, Codex challenges the result in a separate context, and human gates stop critical or repeated-risk changes.
 
+Product principle:
+
+```text
+NEKOWORK = Claude work -> Codex verification -> Human Gate
+```
+
+NEKOWORK is not meant to become a large agent pack. Skills, hooks, profiles, and team modes are added only when they preserve the verification loop.
+
+## Why NEKOWORK
+
+NEKOWORK is for teams that want AI-assisted development without making the agent catalog the product. The default path keeps local auth, inspectable handoffs, single-executor writes, independent Codex verification, and Human Gate decisions in front of risky ship/apply steps.
+
 ## Status
 
 - Current version: `0.0.3` alpha
@@ -104,11 +116,20 @@ Use API-key paths only with explicit opt-in, for example `HARNESS_AUTH_ALLOW_ENV
 The public alpha surface is intentionally small:
 
 - `doctor`: inspect local readiness
+- `ask`: clarify goal, scope, risk, and success criteria without provider calls
 - `plan`: create a planning handoff
-- `review`: run the Claude-led/Codex-reviewed workflow
+- `team`: create read-only handoffs from multiple worker perspectives
+- `work`: let a single executor produce an implement handoff and isolated diff
+- `verify`: run Codex-only verification on a prior work handoff
+- `gate`: inspect, approve, or block a human gate for a session
+- `ship`: produce a ship/no-ship readiness handoff after Codex verification
+- `apply`: apply a verified `SHIP_READY` live-work diff to the target project
+- `run`: execute the decomposed wrapper, `work -> verify -> ship`, with optional apply
+- `review`: run the legacy full Claude-led/Codex-reviewed workflow
+- `review-cycle`: explicit compatibility alias for the legacy full review workflow
 - `install --plan` / `install --apply`: project generated harness surfaces
 
-Advanced features such as `team-lite`, `ralph`, instincts, cost tracking, and the Rust supervisor are documented in [docs/ADVANCED.md](docs/ADVANCED.md).
+Advanced features such as `team-lite`, `ralph`, `wait`, instincts, cost tracking, and the Rust supervisor are documented in [docs/ADVANCED.md](docs/ADVANCED.md).
 
 ## Catalog
 
@@ -116,7 +137,7 @@ Advanced features such as `team-lite`, `ralph`, instincts, cost tracking, and th
 - Skills: 9
 - Hooks: 5
 - Modules: 7
-- Profiles: `core`, `developer`, `security`, `research`, `full`
+- Profiles: `core`, `developer`, `security`, `product`, `frontend`, `testing`, `research`, `full`
 - Harness targets: `claude`, `codex`, `cursor`, `gemini`, `opencode`
 
 Key skills:
@@ -140,8 +161,17 @@ node scripts/install-plan.js --list
 node scripts/install-plan.js --profile developer
 node scripts/install-apply.js --profile developer --project-root <target>
 
+node scripts/cli.js ask "clarify a risky or ambiguous request"
 node scripts/cli.js plan "draft a safe implementation plan"
+node scripts/cli.js team "collect read-only worker handoffs" --workers planner,research,security,test --no-write
+node scripts/cli.js work "implement the planned change with one executor" --single-executor --session work-smoke
+node scripts/cli.js verify "verify the implemented change" --session work-smoke
+node scripts/cli.js gate status --session work-smoke
+node scripts/cli.js ship "prepare ship readiness" --require-clean-gates --session work-smoke
+node scripts/cli.js apply --session work-smoke
+node scripts/cli.js run "implement, verify, and prepare ship readiness" --session run-smoke
 node scripts/cli.js review "implement and review this change" --no-ship
+node scripts/cli.js review-cycle "legacy full-cycle compatibility smoke" --no-ship
 node scripts/cli.js review "security-sensitive change" --secure --no-ship
 
 npm run lint
@@ -181,6 +211,11 @@ npm pack --dry-run --json
 - [docs/RELEASE-READINESS.md](docs/RELEASE-READINESS.md) - release and publish gates
 - [docs/RUNBOOK.md](docs/RUNBOOK.md) - operations guide
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - system architecture
+- [docs/PRODUCT-PRINCIPLES.md](docs/PRODUCT-PRINCIPLES.md) - product position, invariants, CLI phase semantics
+- [docs/CORE-INVARIANTS.md](docs/CORE-INVARIANTS.md) - non-negotiable runtime safety rules
+- [docs/CLI-STAGES.md](docs/CLI-STAGES.md) - stage contract and compatibility transition
+- [docs/RISK-CLASSIFIER.md](docs/RISK-CLASSIFIER.md) - shared risk tags, challenge, and gate policy
+- [docs/examples/TRADING-DASHBOARD-MOCK.md](docs/examples/TRADING-DASHBOARD-MOCK.md) - financial mockup flow with Human Gate
 - [docs/AUDIT.md](docs/AUDIT.md) - readiness and remaining debt
 - [docs/CHANGELOG.md](docs/CHANGELOG.md) - project history
 - [SOUL.md](SOUL.md), [RULES.md](RULES.md), [AGENTS.md](AGENTS.md) - project principles and agent rules

@@ -13,6 +13,7 @@ import path from 'node:path';
 import { dispatch } from '../agents/dispatch.js';
 import { applyExecutionDiff, withExecutionWorkspace } from '../core/execution-workspace.js';
 import { record as instinctRecord } from '../lib/instincts.js';
+import { isSensitiveWork } from '../lib/risk-classifier.js';
 
 const STAGE_INDEX = {
   ideate: '01', plan: '02', implement: '03', 'self-review': '04',
@@ -22,7 +23,8 @@ const STAGE_INDEX = {
 const ROUND_LIMIT = Number(process.env.HARNESS_REVIEW_ROUND_LIMIT || 3);
 // 단어 경계(\b)는 [A-Za-z0-9_] 사이에 매칭하지 않으므로 'session_id' 의 'session' 처럼
 // _ 로 이어진 경우는 매칭 안 됨. 변형은 별도 패턴으로 명시한다.
-export const SENSITIVE_PATTERNS = [
+export { SENSITIVE_PATTERNS } from '../lib/risk-classifier.js';
+const LEGACY_SENSITIVE_PATTERNS = [
   // 인증 / 세션 / 시크릿
   /\bauth\b/i, /\bcrypto\b/i, /\bpayment\b/i, /\bsession\b/i,
   /\bpermission\b/i, /\boauth\b/i, /\bjwt\b/i, /\bpassword\b/i, /\bsecret\b/i,
@@ -54,6 +56,15 @@ export async function reviewCycle(opts) {
   if (noCodex && secureRequested) {
     throw new Error('--no-codex 와 --secure 는 함께 쓸 수 없습니다. 보안 검증이 필요하면 Codex 단계를 유지하세요.');
   }
+
+  const summaryBase = {
+    task: opts.task,
+    live,
+    fast,
+    noShip,
+    noCodex,
+    secureRequested,
+  };
 
   const log = (msg) => console.log(`[review:${sessionId}] ${msg}`);
 
@@ -114,23 +125,27 @@ export async function reviewCycle(opts) {
     fs.writeFileSync(path.join(sessionDir, 'prd.json'), JSON.stringify(h2.prdSeed, null, 2));
   }
   if (opts.stopAfter === 'plan') {
-    return {
+    const result = {
       sessionId,
       sessionDir,
+      mode: 'legacy-full-review-cycle',
       handoffs,
       files: dedupe(h2.files || []),
       secureActive: false,
       verdict: 'planned',
       humanGate: false,
       stoppedAt: 'plan',
+      targetProjectMutated: false,
     };
+    writeReviewSummary(sessionDir, result, summaryBase);
+    return result;
   }
   const prd = readPrd(sessionDir);
   let currentDiff = opts.diff || '';
+  let targetProjectMutated = false;
 
   // sensitive path 감지
-  const sensitiveHit = (h2.files || []).some(f => SENSITIVE_PATTERNS.some(re => re.test(f))) ||
-                       SENSITIVE_PATTERNS.some(re => re.test(opts.task));
+  const sensitiveHit = isSensitiveWork({ task: opts.task, files: h2.files || [] });
 
   // ---- 3. implement ----
   log('3 implement');
@@ -157,9 +172,9 @@ export async function reviewCycle(opts) {
     writeHandoff(hSelf);
     lastVerdict = hSelf.verdict;
     if (hasCritical(hSelf.issues) || reviewRound >= ROUND_LIMIT) {
-      if (hasCritical(hSelf.issues)) return humanGate(sessionDir, 'critical 발견 (단계 4)', sessionId, handoffs);
+      if (hasCritical(hSelf.issues)) return humanGate(sessionDir, 'critical 발견 (단계 4)', sessionId, handoffs, summaryBase);
       if (reviewRound >= ROUND_LIMIT && lastVerdict !== 'approve') {
-        return humanGate(sessionDir, `round ≥ ${ROUND_LIMIT}, verdict=${lastVerdict}`, sessionId, handoffs);
+        return humanGate(sessionDir, `round ≥ ${ROUND_LIMIT}, verdict=${lastVerdict}`, sessionId, handoffs, summaryBase);
       }
     }
     if (lastVerdict === 'approve') break;
@@ -179,16 +194,20 @@ export async function reviewCycle(opts) {
     break;
   }
   if (opts.stopAfter === 'self-review') {
-    return {
+    const result = {
       sessionId,
       sessionDir,
+      mode: 'legacy-full-review-cycle',
       handoffs,
       files: dedupe(allFiles),
       secureActive: false,
       verdict: lastVerdict || 'approve',
       humanGate: false,
       stoppedAt: 'self-review',
+      targetProjectMutated: false,
     };
+    writeReviewSummary(sessionDir, result, summaryBase);
+    return result;
   }
 
   // ---- 5 + 6. codex-review + codex-challenge (병렬 실행) ----
@@ -224,25 +243,29 @@ export async function reviewCycle(opts) {
 
     writeHandoff(h5);
     if (hasCritical(h5.issues)) {
-      return humanGate(sessionDir, 'codex-review 에서 critical 발견', sessionId, handoffs);
+      return humanGate(sessionDir, 'codex-review 에서 critical 발견', sessionId, handoffs, summaryBase);
     }
     if (opts.stopAfter === 'codex-review') {
-      return {
+      const result = {
         sessionId,
         sessionDir,
+        mode: 'legacy-full-review-cycle',
         handoffs,
         files: dedupe(allFiles),
         secureActive: wantChallenge,
         verdict: h5.verdict || 'approve',
         humanGate: false,
         stoppedAt: 'codex-review',
+        targetProjectMutated: false,
       };
+      writeReviewSummary(sessionDir, result, summaryBase);
+      return result;
     }
 
     if (h6) {
       writeHandoff(h6);
       if (hasCritical(h6.issues)) {
-        return humanGate(sessionDir, 'codex-challenge 에서 critical 발견', sessionId, handoffs);
+        return humanGate(sessionDir, 'codex-challenge 에서 critical 발견', sessionId, handoffs, summaryBase);
       }
     } else {
       log(`6 codex-challenge skipped${fast ? ' (--fast)' : ' (sensitive 미감지, --secure 미지정)'}`);
@@ -254,9 +277,10 @@ export async function reviewCycle(opts) {
       const applied = applyExecutionDiff(projectRoot, currentDiff);
       if (applied) {
         fs.writeFileSync(path.join(sessionDir, 'APPLIED_DIFF'), `applied_at: ${new Date().toISOString()}\n`);
+        targetProjectMutated = true;
       }
     } catch (e) {
-      return humanGate(sessionDir, `live executor diff apply failed: ${e.message}`, sessionId, handoffs);
+      return humanGate(sessionDir, `live executor diff apply failed: ${e.message}`, sessionId, handoffs, summaryBase);
     }
   }
 
@@ -272,15 +296,20 @@ export async function reviewCycle(opts) {
     writeHandoff(h7);
   }
 
-  return {
+  const result = {
     sessionId,
     sessionDir,
+    mode: 'legacy-full-review-cycle',
     handoffs,
     files: dedupe(allFiles),
     secureActive: wantChallenge,
     verdict: 'approve',
     humanGate: false,
+    stoppedAt: noShip ? 'codex-review' : 'ship',
+    targetProjectMutated,
   };
+  writeReviewSummary(sessionDir, result, summaryBase);
+  return result;
 }
 
 // ----------------
@@ -345,11 +374,50 @@ function hasCritical(issues) {
   return Array.isArray(issues) && issues.some(i => i.severity === 'critical');
 }
 
-function humanGate(sessionDir, reason, sessionId, handoffs) {
+function humanGate(sessionDir, reason, sessionId, handoffs, summaryBase = {}) {
   const f = path.join(sessionDir, 'HUMAN_GATE');
   fs.writeFileSync(f, `reason: ${reason}\nat: ${new Date().toISOString()}\n`);
   console.error(`[review] HUMAN_GATE: ${reason}`);
-  return { sessionId, sessionDir, handoffs, humanGate: true, reason };
+  const result = {
+    sessionId,
+    sessionDir,
+    mode: 'legacy-full-review-cycle',
+    handoffs,
+    humanGate: true,
+    reason,
+    verdict: 'block',
+    stoppedAt: 'human-gate',
+    targetProjectMutated: false,
+  };
+  writeReviewSummary(sessionDir, result, summaryBase);
+  return result;
+}
+
+function writeReviewSummary(sessionDir, result, summary = {}) {
+  fs.writeFileSync(path.join(sessionDir, 'review-summary.json'), JSON.stringify({
+    sessionId: result.sessionId,
+    task: summary.task || null,
+    mode: 'legacy-full-review-cycle',
+    compatibility_command: 'review-cycle',
+    recommended_wrapper: 'run',
+    live: Boolean(summary.live),
+    fast: Boolean(summary.fast),
+    no_ship: Boolean(summary.noShip),
+    no_codex: Boolean(summary.noCodex),
+    secure_requested: Boolean(summary.secureRequested),
+    secure_active: Boolean(result.secureActive),
+    human_gate: Boolean(result.humanGate),
+    reason: result.reason || null,
+    stopped_at: result.stoppedAt || (result.humanGate ? 'human-gate' : 'ship'),
+    verdict: result.verdict || (result.humanGate ? 'block' : 'approve'),
+    handoff_count: result.handoffs?.length || 0,
+    stages: (result.handoffs || []).map(h => h.stage),
+    files: result.files || [],
+    target_project_mutated: Boolean(result.targetProjectMutated),
+    next_step: result.humanGate
+      ? 'resolve the human gate before continuing'
+      : 'prefer run/work/verify/ship for new decomposed workflows',
+  }, null, 2));
 }
 
 function dedupe(arr) { return [...new Set(arr)]; }

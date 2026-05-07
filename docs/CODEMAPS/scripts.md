@@ -39,16 +39,27 @@ scripts/
 |-- daemon/
 |   `-- wait.js
 |-- lib/
+|   |-- acceptance-criteria.js
 |   |-- costs.js
 |   |-- instincts.js
 |   |-- keychain.js
+|   |-- profile-safety.js
+|   |-- risk-classifier.js
 |   |-- router.js
 |   |-- severity.js
 |   `-- token-vault.js
 |-- orchestrators/
+|   |-- apply.js
+|   |-- ask.js
+|   |-- gate.js
 |   |-- ralph.js
 |   |-- review.js
-|   `-- team-lite.js
+|   |-- run.js
+|   |-- ship.js
+|   |-- team-lite.js
+|   |-- team.js
+|   |-- verify.js
+|   `-- work.js
 |-- portability/
 |   `-- simulate-port.js
 |-- verify/
@@ -98,7 +109,7 @@ scripts/
 | `ci/validate-hooks.js` | _(none)_ | hooks/hooks.json schemas/hooks.schema.json . |
 | `ci/validate-manifests.js` | _(none)_ | agent.yaml + manifests/install-{profiles,modules,components}.json . 1) schema 2) |
 | `ci/validate-skills.js` | _(none)_ | skills/<name>/SKILL.md frontmatter schemas/skill.schema.json . agent.yaml skills . |
-| `cli.js` | _(none)_ | NEKOWORK/HARNESS CLI entrypoint. Public verbs: doctor, plan, review, install, validate, version. Advanced verbs: self-review, codex-review,  |
+| `cli.js` | _(none)_ | NEKOWORK/HARNESS CLI entrypoint. Public verbs: doctor, ask, plan, team, work, verify, gate, ship, apply, run, review, review-cycle, install, |
 | `core/auth-guard.js` | ` BLOCKED_ENV `, `assertDelegatedCliAuth` |  |
 | `core/build-roots.js` | `buildRoots` |  |
 | `core/cli-resolver.js` | `assertProviderCliTrust`, `isPathInside`, `resolveCli`, `resolveProviderCli` |  |
@@ -107,21 +118,32 @@ scripts/
 | `core/install-state.js` | `ZERO_SHA`, `assertInstallState`, `buildInstallState`, `buildStateComponent`, `installStatePath`, `loadInstallState`, `sha256`, `sha256OfCatalog`, `sha256OfDir`, `writeInstallState` |  |
 | `core/json-extractor.js` | `extractJson`, `parseJsonObject` |  |
 | `core/subprocess.js` | `spawnAndCollect` |  |
-| `daemon/wait.js` | _(none)_ | `harness wait --start` . : - .harness/state/sessions/*/wakeup.json (10 ). - ralph review . - rate-limit / cost cap 1 backoff. / . . |
+| `daemon/wait.js` | `buildResumePlan`, `parseActiveFile`, `processWakeups`, `tick` | Persistent wait daemon. It watches wakeup.json files created by the persistent-mode hook and resumes only sessions that declare a safe engin |
 | `demo-external-project.js` | _(none)_ | Create a tiny target project and run the repository-based NEKOWORK porting path. |
 | `demo-review.js` | _(none)_ | claude-led-codex-review (Week 1 ). LLM 7 / / round . ("git push ") ship . |
 | `doctor.js` | `buildDoctorReport`, `parseDoctorArgs`, `renderDoctorReport` |  |
 | `install-apply.js` | _(none)_ | HARNESS install --apply : plan harness (agent.yaml harnesses ) install-state . (idempotent). git checkout . |
 | `install-plan.js` | `plan` | HARNESS install --plan: dry-run manifest planner. |
+| `lib/acceptance-criteria.js` | `buildDefaultAcceptanceCriteria`, `ensureAcceptanceCriteria`, `normalizeAcceptanceCriteria`, `readAcceptanceCriteria` |  |
 | `lib/costs.js` | `list`, `record`, `summarize` | . USD ~/.harness/costs.jsonl append. CLI : harness costs --since=7d ( --since=1h, 30m, all). |
 | `lib/instincts.js` | `get`, `list`, `promote`, `prune`, `ready`, `record` | continuous-learning-v2 . review ( + + verdict ) ~/.harness/instincts/<id>.json . " " . |
 | `lib/keychain.js` | `get`, `isAvailable`, `list`, `remove`, `set` | scripts/lib/keychain.js OS keychain wrapper (@napi-rs/keyring sync API). macOS Keychain / Windows Credential Manager / Linux Secret Service. |
+| `lib/profile-safety.js` | `CORE_PROFILE_MODULES`, `validateProfileSafety` |  |
+| `lib/risk-classifier.js` | `SENSITIVE_PATTERNS`, `classifyRisk`, `gateReasonFromFindings`, `humanGatePolicy`, `isSensitiveWork` |  |
 | `lib/router.js` | `decide`, `trace` | . : stage, task, files, ecoMode, riskLevel : { agent, model, provider, rationale, alternatives } SKILL claude-led-codex-review Stage Routing |
 | `lib/severity.js` | `classifyCategory`, `classifySeverity`, `deriveVerdict`, `riskLevel`, `severityCounts` | Severity / category + blast radius . REVIEW.md . . |
 | `lib/token-vault.js` | `audit`, `backend`, `list`, `load`, `redact`, `remove`, `save` | scripts/lib/token-vault.js auth.token_store: os-keychain (default) encrypted-file. : HARNESS_TOKEN_STORE_KIND=os-keychain keychain only ( th |
-| `orchestrators/ralph.js` | `ralphLoop` | ralph . PRD AC PASS review . . . |
-| `orchestrators/review.js` | `SENSITIVE_PATTERNS`, `reviewCycle` | 7 review . claude-led-codex-review SKILL Stage Routing . : - 5/6 verdict block critical/high fix loop (executor , round++) - round = 3. crit |
+| `orchestrators/apply.js` | `applyCycle`, `latestStageHandoff`, `readApplyGitStatus`, `readDiffForHandoff`, `readPriorHandoffs` |  |
+| `orchestrators/ask.js` | `askGate`, `buildQuestionGate`, `classifyAskTask` |  |
+| `orchestrators/gate.js` | `approveGate`, `blockGate`, `gateCommand`, `gateStatus`, `markerTime`, `readMarker` |  |
+| `orchestrators/ralph.js` | `defaultPrd`, `normalizeEngine`, `ralphLoop` | Persistent Ralph loop. It repeats an execution engine until PRD acceptance criteria pass, a human gate stops the run, cost cap is hit, or ma |
+| `orchestrators/review.js` | ` SENSITIVE_PATTERNS `, `reviewCycle` | 7 review . claude-led-codex-review SKILL Stage Routing . : - 5/6 verdict block critical/high fix loop (executor , round++) - round = 3. crit |
+| `orchestrators/run.js` | `runCycle` |  |
+| `orchestrators/ship.js` | `finalVerificationVerdict`, `humanGateReason`, `latestStageHandoff`, `readPriorHandoffs`, `shipCycle` |  |
 | `orchestrators/team-lite.js` | `TEAM_LITE_STAGES`, `assertTaskGraph`, `createTasks`, `teamLiteCycle` |  |
+| `orchestrators/team.js` | `DEFAULT_WORKERS`, `WORKER_SPECS`, `parseWorkers`, `teamCycle` |  |
+| `orchestrators/verify.js` | `gateReasonFromFindings`, `latestStageHandoff`, `readDiffForHandoff`, `readPriorHandoffs`, `verifyCycle` |  |
+| `orchestrators/work.js` | `nextRound`, `readPriorHandoffs`, `workCycle` |  |
 | `portability/simulate-port.js` | _(none)_ | PoC . PORTING.md 30 dry-run . : --target < > ( ) --profile <name> ( : research) positional target: node scripts/portability/simulate-port.js |
 | `repair.js` | _(none)_ | HARNESS repair : install-state.json / sha256 . install-apply . - state . - . - sha256 ( ) . - --check . exit 1. |
 | `sync-claude-md.js` | _(none)_ | CLAUDE.md / .claude/CLAUDE.md HARNESS:START~HARNESS:END agent.yaml + package.json + manifests . ( ) . (idempotent). "## " . |

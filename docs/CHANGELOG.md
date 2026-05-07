@@ -7,10 +7,28 @@
 ### Added
 - Add `npm run demo:external` to create a disposable target project and verify repository-based porting end to end.
 - Add `docs/EXAMPLE-PROJECT.md` and e2e coverage for the external project demo.
+- Add product principles and core invariants for the Claude work -> Codex verification -> Human Gate runtime.
+- Add decomposed public workflow commands: `ask`, `team`, `work`, `verify`, `gate`, `ship`, `apply`, and `run`.
+- Add `review-cycle` as an explicit compatibility alias for the legacy full review workflow.
+- Add `ralph --engine run` so Ralph can repeat the decomposed `work -> verify -> ship` path.
+- Add `wait` wakeup processing for supported active sessions with human-gate blocking and resume backoff.
+- Add product, frontend, and testing install profiles.
+- Add shared risk classifier, acceptance criteria artifact enforcement, and profile safety validation.
+- Add standalone `CORE-INVARIANTS`, `CLI-STAGES`, and `RISK-CLASSIFIER` docs.
+- Add trading dashboard mock example for financial UI gating.
 
 ### Changed
 - Rewrite `docs/AUDIT.md` and `docs/ARCHITECTURE.md` with clean public-facing ASCII content.
 - Link the external project demo from README, Quickstart, Porting, Demo, and Release Readiness docs.
+- Keep `review` as the legacy full cycle while making `run` the preferred decomposed wrapper for new automation.
+- Make `team-lite` explicitly read-only handoff oriented.
+- Accept explicit safety intent flags: `team --no-write`, `work --single-executor`, and `ship --require-clean-gates`.
+- Recheck risk policy in `verify` and `ship` so financial/deploy-sensitive work cannot skip Human Gate.
+- Refresh Quickstart, Advanced, Architecture, Release Readiness, Audit, Runbook, and generated CODEMAP docs for the expanded alpha surface.
+
+### Security
+- Preserve single-executor mutation, Codex verification, Human Gate, and explicit apply as non-bypassable workflow invariants.
+- Refresh transitive dependency lockfile entries so `npm audit --audit-level=moderate` reports 0 vulnerabilities.
 
 ## [0.0.3] - 2026-05-03
 

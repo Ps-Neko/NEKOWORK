@@ -11,7 +11,7 @@ import { runCodex } from './runners/codex.js';
 import { runGemini } from './runners/gemini.js';
 import { decide as routeDecide, trace as routeTrace } from '../lib/router.js';
 import { record as costRecord } from '../lib/costs.js';
-import { riskLevel } from '../lib/severity.js';
+import { classifyRisk } from '../lib/risk-classifier.js';
 
 const RUNNERS = {
   mock: runMock,
@@ -57,7 +57,7 @@ export async function dispatch(opts) {
         task: opts.task,
         files: opts.context?.files || [],
         ecoMode: !!process.env.HARNESS_ECO,
-        riskLevel: riskLevel(opts.context?.files || [], opts.task || ''),
+        riskLevel: classifyRisk({ task: opts.task || '', files: opts.context?.files || [] }).risk,
         harnessRoot,
       });
       decision.provider = provider;
@@ -72,7 +72,7 @@ export async function dispatch(opts) {
     stage: opts.stage,
     task: opts.task,
     model: fm.model,
-    sandbox: fm.sandbox,
+    sandbox: opts.sandboxOverride || fm.sandbox,
     networkAccess: fm.network_access,
     disallowedTools: fm.disallowedTools || [],
     promptBody: body,

@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import YAML from 'yaml';
+import { validateProfileSafety } from '../lib/profile-safety.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
@@ -66,6 +67,10 @@ for (const [pid, p] of Object.entries(profiles.profiles)) {
     }
   }
 }
+
+const profileSafety = validateProfileSafety(profiles);
+errors.push(...profileSafety.errors);
+warnings.push(...profileSafety.warnings);
 
 // 7. 매니페스트 modules 와 install-modules 동기화
 const manifestModules = new Set(manifest.modules || []);
