@@ -43,6 +43,33 @@ body:
       render: shell
     validations:
       required: true
+  - type: dropdown
+    id: feedback_class
+    attributes:
+      label: Feedback class
+      description: Pick the closest category. Maintainers may adjust during triage.
+      options:
+        - install failure
+        - auth confusion
+        - evidence/report confusion
+        - safety concern
+        - platform mismatch
+        - product request
+        - other
+    validations:
+      required: true
+  - type: dropdown
+    id: severity_guess
+    attributes:
+      label: Severity guess
+      description: Critical means a safety invariant may have been bypassed.
+      options:
+        - low
+        - medium
+        - high
+        - critical
+    validations:
+      required: false
   - type: textarea
     id: doctor_json
     attributes:
@@ -80,6 +107,14 @@ body:
       description: Include error messages, unclear docs, or missing expectations.
     validations:
       required: false
+  - type: textarea
+    id: target_status
+    attributes:
+      label: Target project status
+      description: For ship/apply concerns, paste redacted `git status --short` and whether `apply` was requested.
+      render: text
+    validations:
+      required: false
   - type: checkboxes
     id: safety
     attributes:
@@ -87,4 +122,3 @@ body:
       options:
         - label: I removed secrets, credentials, private paths, and proprietary source code from pasted output.
           required: true
-

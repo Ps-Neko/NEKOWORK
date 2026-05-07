@@ -10,6 +10,7 @@ tests/
 |-- e2e/
 |   |-- case-studies-doc.test.js
 |   |-- external-demo.test.js
+|   |-- feedback-triage-doc.test.js
 |   |-- github-actions-hardening-example.test.js
 |   |-- quality-lifecycle-example.test.js
 |   |-- quick-demo.test.js
@@ -59,6 +60,7 @@ tests/
 |---|---|---|
 | `e2e/case-studies-doc.test.js` | _(none)_ |  |
 | `e2e/external-demo.test.js` | _(none)_ |  |
+| `e2e/feedback-triage-doc.test.js` | _(none)_ |  |
 | `e2e/github-actions-hardening-example.test.js` | _(none)_ |  |
 | `e2e/quality-lifecycle-example.test.js` | _(none)_ |  |
 | `e2e/quick-demo.test.js` | _(none)_ |  |
