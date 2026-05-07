@@ -5,7 +5,8 @@
 ## [Unreleased]
 
 ### Added
-- Add `npm run demo:quick` for the shortest no-API `doctor -> run -> gate status` first experience.
+- Add `report` to write inspect-only `REPORT.md` and `report-summary.json` from session evidence.
+- Add `npm run demo:quick` for the shortest no-API `doctor -> run -> report -> gate status` first experience.
 - Add `docs/WHY-NEKOWORK.md` to clarify NEKOWORK's comparison against agent-pack, discipline, team, and autopilot tools.
 - Add `docs/PUBLISH-ALPHA.md` and a third-party `sindresorhus/is-plain-obj` case study.
 - Add a third-party `jshttp/basic-auth` security-profile case study.

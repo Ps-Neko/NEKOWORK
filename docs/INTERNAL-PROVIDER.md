@@ -70,7 +70,7 @@ The command must return a JSON handoff object on stdout:
 Internal providers are capabilities, not a new architecture. They must preserve the NEKOWORK loop:
 
 ```text
-ask -> plan -> team -> work -> verify -> gate -> ship -> apply
+ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
 ```
 
 The adapter cannot weaken these rules:
@@ -79,6 +79,7 @@ The adapter cannot weaken these rules:
 - Only one executor may mutate project files in a work cycle.
 - Codex verification remains the independent verification path unless an explicit test harness is exercising mock behavior.
 - Human Gate remains non-bypassable for risky changes.
+- `report` remains inspect-only.
 - `apply` remains explicit and evidence-based.
 
 For non-interactive handoff mode, the git mutation guard rejects unexpected provider-side workspace changes. Workspace-write behavior is limited to phases that explicitly request `execution_mode: "workspace-write"`.

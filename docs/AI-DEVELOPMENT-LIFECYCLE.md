@@ -54,10 +54,11 @@ ask
   -> verify
   -> gate
   -> ship
+  -> report
   -> apply
 ```
 
-Quality enters early through `ask` and `plan`, not only at the final review step. Team mode collects multiple perspectives, but the write phase stays single-executor. Verification is independent, gate decisions are explicit, and apply requires evidence.
+Quality enters early through `ask` and `plan`, not only at the final review step. Team mode collects multiple perspectives, but the write phase stays single-executor. Verification is independent, gate decisions are explicit, `report` makes evidence readable, and apply requires evidence.
 
 ## Quality Profile
 

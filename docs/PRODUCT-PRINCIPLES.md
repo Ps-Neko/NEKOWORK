@@ -44,7 +44,7 @@ See [CORE-INVARIANTS.md](CORE-INVARIANTS.md) for the standalone invariant contra
 The decomposed workflow is:
 
 ```text
-ask -> plan -> team -> work -> verify -> gate -> ship -> apply
+ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
 ```
 
 The phases mean:
@@ -60,10 +60,11 @@ The phases mean:
 | `review` | Compatibility full cycle for `ideate -> plan -> implement -> self-review -> codex-review -> codex-challenge -> ship`. | Legacy full loop |
 | `review-cycle` | Explicit alias for the legacy `review` behavior during migration. | Legacy full loop |
 | `ship` | Prepare a ship/no-ship readiness handoff after gates pass. | No project mutation |
+| `report` | Summarize session evidence into readable audit output. | No project mutation |
 | `apply` | Apply a verified `SHIP_READY` live-work diff to the target project. | Controlled project mutation |
 | `run` | Convenience wrapper for `work -> verify -> ship`, optional `apply`. | Wrapper; mutation only with `--apply` |
 
-For the `0.0.3` line, `review` remains the legacy full cycle, and `review-cycle` is an explicit compatibility alias:
+For the current alpha line, `review` remains the legacy full cycle, and `review-cycle` is an explicit compatibility alias:
 
 ```text
 ideate -> plan -> implement -> self-review -> codex-review -> codex-challenge -> ship
@@ -74,7 +75,7 @@ Do not silently change that meaning. New wrappers and aliases should make the tr
 ```text
 short term:  ask + existing review cycle
 mid term:    work + verify + ship split mutation from verification and readiness
-long term:   ask -> plan -> team -> work -> verify -> gate -> ship -> apply
+long term:   ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
 ```
 
 See [CLI-STAGES.md](CLI-STAGES.md) for the standalone stage contract and compatibility window.
@@ -140,7 +141,7 @@ harness work "<task>" --single-executor --session <id>
 harness work "<task>" --profile quality --session <id>
 ```
 
-`work` is the single-executor mutation phase. In the `0.0.3` line it is deliberately conservative:
+`work` is the single-executor mutation phase. In the current alpha line it is deliberately conservative:
 
 - only the `executor` agent runs
 - mock mode writes an implement handoff only
@@ -213,6 +214,23 @@ harness ship "<task>" --require-clean-gates --session <id>
 - writes `SHIP_READY` only after a fully approved verification verdict
 - writes `NO_SHIP` when fixable Codex findings remain
 - does not publish, deploy, create a PR, or mutate project files
+
+## Report Mode
+
+The public command is:
+
+```bash
+harness report --session <id>
+```
+
+`report` is the readable evidence phase:
+
+- reads only the requested session directory
+- summarizes summaries, markers, handoffs, quality warnings, and acceptance coverage
+- writes `REPORT.md` and `report-summary.json`
+- does not call providers
+- does not inspect or mutate project source files
+- does not replace Human Gate, `ship`, or `apply`
 
 ## Apply Mode
 

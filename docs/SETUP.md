@@ -114,7 +114,7 @@ Workflow file pushes may require a token with `workflow` scope. The local harnes
 
 ## Rust Runtime
 
-The Rust runtime is optional for 0.0.3:
+The Rust runtime is optional for the current alpha:
 
 ```bash
 npm run verify:runtime

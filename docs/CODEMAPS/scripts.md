@@ -55,6 +55,7 @@ scripts/
 |   |-- ask.js
 |   |-- gate.js
 |   |-- ralph.js
+|   |-- report.js
 |   |-- review.js
 |   |-- run.js
 |   |-- ship.js
@@ -113,7 +114,7 @@ scripts/
 | `ci/validate-hooks.js` | _(none)_ | hooks/hooks.json schemas/hooks.schema.json . |
 | `ci/validate-manifests.js` | _(none)_ | agent.yaml + manifests/install-{profiles,modules,components}.json . 1) schema 2) |
 | `ci/validate-skills.js` | _(none)_ | skills/<name>/SKILL.md frontmatter schemas/skill.schema.json . agent.yaml skills . |
-| `cli.js` | _(none)_ | NEKOWORK/HARNESS CLI entrypoint. Public verbs: doctor, ask, plan, team, work, verify, gate, ship, apply, run, review, review-cycle, install, |
+| `cli.js` | _(none)_ | NEKOWORK/HARNESS CLI entrypoint. Public verbs: doctor, ask, plan, team, work, verify, gate, ship, apply, run, report, review, review-cycle,  |
 | `core/auth-guard.js` | ` BLOCKED_ENV `, `assertDelegatedCliAuth` |  |
 | `core/build-roots.js` | `buildRoots` |  |
 | `core/cli-resolver.js` | `assertProviderCliTrust`, `isPathInside`, `resolveCli`, `resolveProviderCli` |  |
@@ -143,6 +144,7 @@ scripts/
 | `orchestrators/ask.js` | `askGate`, `buildQuestionGate`, `classifyAskTask` |  |
 | `orchestrators/gate.js` | `approveGate`, `blockGate`, `gateCommand`, `gateStatus`, `markerTime`, `readMarker` |  |
 | `orchestrators/ralph.js` | `defaultPrd`, `normalizeEngine`, `ralphLoop` | Persistent Ralph loop. It repeats an execution engine until PRD acceptance criteria pass, a human gate stops the run, cost cap is hit, or ma |
+| `orchestrators/report.js` | `deriveStatus`, `readSessionEvidence`, `reportSession` |  |
 | `orchestrators/review.js` | ` SENSITIVE_PATTERNS `, `reviewCycle` | 7 review . claude-led-codex-review SKILL Stage Routing . : - 5/6 verdict block critical/high fix loop (executor , round++) - round = 3. crit |
 | `orchestrators/run.js` | `runCycle` |  |
 | `orchestrators/ship.js` | `finalVerificationVerdict`, `humanGateReason`, `latestStageHandoff`, `readPriorHandoffs`, `shipCycle` |  |

@@ -8,7 +8,7 @@ This demo uses mock providers. It does not call Claude, Codex, Gemini, or paid A
 npm run demo:quick -- --cleanup
 ```
 
-This is the shortest demo path. It creates a disposable target project, runs `doctor --quick`, runs `run = work -> verify -> ship`, checks `gate status`, and removes the target when `--cleanup` is set.
+This is the shortest demo path. It creates a disposable target project, runs `doctor --quick`, runs `run = work -> verify -> ship`, generates `REPORT.md`, checks `gate status`, and removes the target when `--cleanup` is set.
 
 Expected shape:
 
@@ -16,8 +16,16 @@ Expected shape:
 NEKOWORK quick run demo
 doctor ... OK
 run workflow ... OK
+report ... OK
 gate status ... OK
 Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false
+```
+
+The quick demo writes:
+
+```text
+.harness/state/sessions/<session>/REPORT.md
+.harness/state/sessions/<session>/report-summary.json
 ```
 
 ## External Project Demo

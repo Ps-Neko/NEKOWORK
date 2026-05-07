@@ -17,10 +17,11 @@ This audit summarizes the current NEKOWORK state after preparing the `0.1.0-alph
 | Internal provider adapter | OK | `HARNESS_PROVIDER_OVERRIDE=internal` can call an explicit JSON command adapter without weakening gates |
 | Catalog | OK | 11 agents, 10 skills, 5 hooks, 7 modules, 36 components, 9 profiles |
 | Multi-harness output | OK | Claude, Codex, Cursor, Gemini, and OpenCode builders are present |
-| Quick demo | OK | `npm run demo:quick` verifies the shortest no-API `doctor -> run -> gate status` path |
+| Quick demo | OK | `npm run demo:quick` verifies the shortest no-API `doctor -> run -> report -> gate status` path |
+| Report UX | OK | `report` writes inspect-only `REPORT.md` and `report-summary.json` from session evidence |
 | External demo | OK | `npm run demo:external` verifies a disposable target project flow |
 | Third-party case studies | OK | `docs/case-studies/` records real public repository runs for npm package, auth boundary, and Python protocol targets |
-| Decomposed workflow | OK | `ask`, `team`, `work`, `verify`, `gate`, `ship`, `apply`, and `run` are available |
+| Decomposed workflow | OK | `ask`, `team`, `work`, `verify`, `gate`, `ship`, `report`, `apply`, and `run` are available |
 | Risk policy | OK | Shared classifier drives ask, routing traces, verify challenge/gates, and ship gate rechecks |
 | Acceptance criteria | OK | `work` ensures every session has `acceptance-criteria.json` |
 | Profile safety | OK | Manifest/catalog validators reject profiles that weaken core gates |
@@ -53,7 +54,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 243 tests pass
+- `npm test`: 244 tests pass
 - quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass
@@ -86,6 +87,7 @@ Current local result for this working tree:
 - Release docs, setup docs, runbook, quickstart, porting guide, and CODEMAP docs are readable for external users.
 - The disposable external project demo proves the repository-based target-project flow end to end.
 - The quick run demo proves the one-command no-API first experience.
+- `report` gives public alpha users a readable inspect-only session artifact without applying or mutating project files.
 - Checked-in example fixtures now cover financial UI, CI hardening, and quality lifecycle evidence flows.
 - Third-party case studies record NEKOWORK runs against `sindresorhus/is-plain-obj`, `jshttp/basic-auth`, and `python-hyper/h11`.
 - Public npm alpha `0.1.0-alpha.0` is published and smoke-tested through `npx`; `0.1.0-alpha.1` is prepared for owner-authenticated publish.

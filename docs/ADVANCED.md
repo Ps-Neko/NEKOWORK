@@ -174,7 +174,7 @@ Rules:
 Policy:
 
 - `run` is the short safe wrapper for new users.
-- `run` does not call `plan` in the `0.0.3` line.
+- `run` does not call `plan` in the current alpha line.
 - `plan` is recommended before `work` for larger changes.
 - `work` still records `acceptance-criteria.json`, so `run` preserves success criteria evidence.
 - `apply` is always explicit; use `run --apply` only after live work can produce a captured diff.
@@ -183,6 +183,28 @@ Outputs:
 
 - `.harness/state/sessions/<id>/run-summary.json`
 - all normal `work`, `verify`, `ship`, and optional `apply` outputs
+
+## report
+
+`report` turns existing session evidence into a readable inspect-only report:
+
+```bash
+node scripts/cli.js report --session run-smoke
+node scripts/cli.js report --session run-smoke --stdout
+node scripts/cli.js report --session run-smoke --output docs/session-report.md
+```
+
+Rules:
+
+- Reads summaries, markers, acceptance criteria, and handoffs from `.harness/state/sessions/<id>/`.
+- Writes `REPORT.md` and `report-summary.json` by default.
+- Does not call providers, run git commands, apply diffs, or mutate target project files.
+- Can run after `ask`, `work`, `verify`, `ship`, `run`, or `apply`.
+
+Outputs:
+
+- `.harness/state/sessions/<id>/REPORT.md`
+- `.harness/state/sessions/<id>/report-summary.json`
 
 ## review-cycle
 
@@ -194,7 +216,7 @@ node scripts/cli.js review-cycle "legacy full-cycle smoke" --no-ship
 
 Rules:
 
-- It is equivalent to `review` in the `0.0.3` line.
+- It is equivalent to `review` in the current alpha line.
 - It keeps the old `ideate -> plan -> implement -> self-review -> codex-review -> codex-challenge -> ship` behavior discoverable while new automation migrates to `run` or the decomposed commands.
 - It writes `review-summary.json` with `mode: legacy-full-review-cycle`.
 - It may use legacy live-review behavior, so new controlled project mutation should prefer `work --live -> verify -> ship -> apply`.
@@ -280,7 +302,7 @@ node scripts/cli.js instincts ready --blocked
 node scripts/cli.js instincts promote <id>
 ```
 
-Promotion requires confidence `1.0`; automatic promotion without human confirmation is outside the 0.0.3 release scope.
+Promotion requires confidence `1.0`; automatic promotion without human confirmation is outside the current alpha release scope.
 
 ## Cost Tracking
 
@@ -304,7 +326,7 @@ Verify it with:
 npm run verify:runtime
 ```
 
-The Node CLI remains the primary 0.0.3 user path.
+The Node CLI remains the primary alpha user path.
 
 ## Full Builder Surface
 

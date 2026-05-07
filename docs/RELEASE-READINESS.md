@@ -46,7 +46,7 @@ Current local verification after the decomposed workflow expansion:
 - `npm run lint`: pass
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
-- `npm test`: 243 tests pass
+- `npm test`: 244 tests pass
 - `npm run demo:quick -- --cleanup`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
@@ -96,6 +96,8 @@ Expected quick-demo outputs:
 - `.harness/state/sessions/<session>/verify-summary.json`
 - `.harness/state/sessions/<session>/ship-summary.json`
 - `.harness/state/sessions/<session>/run-summary.json`
+- `.harness/state/sessions/<session>/REPORT.md`
+- `.harness/state/sessions/<session>/report-summary.json`
 
 ## Full Builder Smoke
 
