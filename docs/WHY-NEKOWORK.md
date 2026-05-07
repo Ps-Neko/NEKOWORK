@@ -40,7 +40,7 @@ NEKOWORK should not be judged only by catalog size. A fairer split is:
 | Catalog quality | Validated agents, skills, hooks, modules, and profiles |
 | Catalog consistency | Every pack resolves to a safety-checked profile |
 | Multi-surface support | Claude, Codex, Cursor, Gemini, OpenCode |
-| External evidence | Six case-study flows across UI, CI, package, auth, Python protocol, and quality lifecycle targets |
+| External evidence | Seven case-study flows across UI, CI, package, auth, Python protocol, environment configuration, and quality lifecycle targets |
 | Verification-loop fit | Core product requirement |
 
 The catalog is small by design:

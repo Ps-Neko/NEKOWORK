@@ -19,8 +19,8 @@ Packs are public install aliases over validated profiles. They make the catalog 
 10 skills
 5 hooks
 5 harness targets
-6 case-study flows
-245 tests
+7 case-study flows
+246 tests
 ```
 
 Harness targets:
@@ -38,6 +38,7 @@ quality lifecycle smoke
 npm package boundary
 auth parser boundary
 Python protocol parser boundary
+environment configuration boundary
 ```
 
 ## Official Packs
