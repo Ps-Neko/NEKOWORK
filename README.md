@@ -45,6 +45,8 @@ Evidence:
 - gate-summary.json
 ```
 
+See the full report contract and example artifact in [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md), and the one-minute terminal transcript in [docs/DEMO.md](docs/DEMO.md).
+
 ## Compared With Agent Packs
 
 | Tool pattern | Optimizes for | NEKOWORK optimizes for |

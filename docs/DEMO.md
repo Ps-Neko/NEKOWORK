@@ -21,6 +21,37 @@ gate status ... OK
 Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false
 ```
 
+## One-minute Terminal Transcript
+
+This transcript is the README-friendly demo path. It uses mock providers, so it is safe to run on a fresh checkout without Claude, Codex, Gemini, or API keys.
+
+```text
+$ npx -y @ps-neko/nekowork@alpha doctor --quick
+NEKOWORK doctor
+STATUS  CHECK              MESSAGE
+PASS    node               Node 22+
+PASS    package metadata   @ps-neko/nekowork
+PASS    api key env        no delegated-provider API key overrides detected
+summary: PASS
+
+$ npm run demo:quick -- --cleanup
+NEKOWORK quick run demo
+doctor ... OK
+run workflow ... OK
+report ... OK
+gate status ... OK
+Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false
+
+$ node scripts/cli.js report --session quick-demo --stdout
+# NEKOWORK Report
+Status: no_ship
+Verdict: approve_with_fixes
+Ship ready: false
+Human gate: clear
+Applied: false
+Evidence: work-summary.json, verify-summary.json, ship-summary.json
+```
+
 The quick demo writes:
 
 ```text
