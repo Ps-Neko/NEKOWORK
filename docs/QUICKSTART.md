@@ -176,13 +176,14 @@ npm run demo:external -- --cleanup
 
 See [EXAMPLE-PROJECT.md](EXAMPLE-PROJECT.md) for the full walkthrough and expected outputs.
 
-For a small checked-in case-study target, inspect:
+For small checked-in case-study targets, inspect:
 
 ```text
 examples/trading-dashboard-mock/
+examples/github-actions-hardening/
 ```
 
-It is a static mock project with its own `npm test` and NEKOWORK case-study artifacts under `case-study/`.
+Each example has its own `npm test` and NEKOWORK case-study artifacts under `case-study/`.
 
 Recommended 0.0.3 integration:
 

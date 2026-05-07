@@ -17,6 +17,7 @@
 - Add standalone `CORE-INVARIANTS`, `CLI-STAGES`, and `RISK-CLASSIFIER` docs.
 - Add trading dashboard mock example for financial UI gating.
 - Add `examples/trading-dashboard-mock`, a standalone static case-study target with local mock-boundary checks.
+- Add `examples/github-actions-hardening`, a standalone CI workflow hardening target with local YAML policy checks.
 
 ### Changed
 - Rewrite `docs/AUDIT.md` and `docs/ARCHITECTURE.md` with clean public-facing ASCII content.
