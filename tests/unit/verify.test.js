@@ -147,6 +147,51 @@ test('verify records warning-level evidence and AC coverage checks for quality p
     assert.equal(summary.profile, 'quality');
     assert.equal(summary.evidence_warning_required, true);
     assert.ok(summary.quality_warnings.length >= 2);
+    assert.equal(summary.strict_quality, false);
+    assert.ok(summary.acceptance_coverage.some(row => row.id === 'AC-001' && row.status === 'missing'));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('strict quality escalates quality warnings to a fix-required verdict', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-verify-strict-quality-'));
+  const dispatcher = async (args) => ({
+    stage: args.stage,
+    agent: args.agent,
+    round: args.context.round,
+    session_id: args.sessionId,
+    timestamp: new Date().toISOString(),
+    duration_ms: 1,
+    provider: 'mock',
+    model: 'gpt-5-codex',
+    decided: `${args.stage} approved without AC evidence`,
+    files: ['src/example.ts'],
+    verdict: 'approve',
+    issues: [{ severity: 'high', category: 'correctness', file: 'src/example.ts', summary: 'needs rollback check' }],
+  });
+
+  try {
+    const { sessionDir } = seedImplementSession(projectRoot, 'unit-verify-strict-quality');
+    const r = await verifyCycle({
+      task: 'verify strict quality',
+      sessionId: 'unit-verify-strict-quality',
+      harnessRoot: ROOT,
+      projectRoot,
+      profile: 'quality',
+      strictQuality: true,
+      dispatcher,
+    });
+
+    assert.equal(r.strictQuality, true);
+    assert.equal(r.strictQualityBlocked, true);
+    assert.equal(r.verdict, 'approve_with_fixes');
+    const codex = JSON.parse(fs.readFileSync(path.join(sessionDir, 'handoffs', '05-codex-review.json'), 'utf8'));
+    assert.equal(codex.verdict, 'approve_with_fixes');
+    assert.ok(codex.issues.some(issue => /strict quality/.test(issue.summary)));
+    const summary = JSON.parse(fs.readFileSync(path.join(sessionDir, 'verify-summary.json'), 'utf8'));
+    assert.equal(summary.strict_quality, true);
+    assert.equal(summary.strict_quality_blocked, true);
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }

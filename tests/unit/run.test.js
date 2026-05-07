@@ -99,6 +99,31 @@ test('run skips requested apply when ship is not ready', async () => {
   }
 });
 
+test('run forwards strict quality policy into verify', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-run-strict-quality-'));
+  const calls = [];
+  try {
+    const r = await runCycle({
+      task: 'run strict quality',
+      sessionId: 'unit-run-strict-quality',
+      harnessRoot: ROOT,
+      projectRoot,
+      profile: 'quality',
+      strictQuality: true,
+      dispatcher: dispatcher(calls, { reviewVerdict: 'approve' }),
+    });
+
+    assert.equal(r.verify.strictQuality, true);
+    assert.equal(r.verify.strictQualityBlocked, true);
+    assert.equal(r.noShip, true);
+    const summary = JSON.parse(fs.readFileSync(path.join(r.sessionDir, 'run-summary.json'), 'utf8'));
+    assert.equal(summary.strict_quality, true);
+    assert.equal(summary.strict_quality_blocked, true);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 test('run applies when requested and ship is ready', async () => {
   const projectRoot = createGitProject();
   const calls = [];

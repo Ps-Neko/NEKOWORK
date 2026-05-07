@@ -1,5 +1,6 @@
 const EVIDENCE_PROFILES = new Set(['quality', 'security']);
 const QUALITY_PROFILES = new Set(['quality']);
+const PRODUCT_PROFILES = new Set(['product']);
 
 export function normalizeProfileName(profile) {
   const value = String(profile || '').trim().toLowerCase();
@@ -12,6 +13,8 @@ export function profilePolicy(profile) {
     profile: name,
     evidenceWarningRequired: EVIDENCE_PROFILES.has(name),
     acceptanceCoverageWarning: QUALITY_PROFILES.has(name),
+    strictQualitySupported: EVIDENCE_PROFILES.has(name) || QUALITY_PROFILES.has(name),
+    productChecklistRequired: PRODUCT_PROFILES.has(name),
     checklist: buildQualityChecklist(name),
   };
 }
@@ -36,6 +39,16 @@ export function buildQualityChecklist(profile) {
       'evidence-based critical/high findings',
       'Codex challenge for sensitive work',
       'Human Gate on critical findings',
+    ];
+  }
+  if (name === 'product') {
+    return [
+      'target user identified',
+      'MVP scope defined',
+      'non-goals protected',
+      'launch/readiness risk identified',
+      'QA acceptance criteria defined',
+      'UX confusion risk checked',
     ];
   }
   return [];
@@ -64,31 +77,58 @@ export function evidenceFieldWarnings(handoffs = [], profile) {
 }
 
 export function acceptanceCoverageWarnings(criteria = [], handoffs = [], profile) {
+  return acceptanceCoverage(criteria, handoffs, profile)
+    .filter(row => row.status === 'missing')
+    .map(row => `${row.id || 'AC'} lacks explicit verification evidence`);
+}
+
+export function acceptanceCoverage(criteria = [], handoffs = [], profile) {
   const policy = profilePolicy(profile);
   if (!policy.acceptanceCoverageWarning) return [];
 
-  const evidenceText = handoffs
-    .filter(Boolean)
-    .map(h => [
-      h.decided,
-      h.rejected,
-      h.risks,
-      h.remaining,
-      ...(h.issues || []).flatMap(i => [i.summary, i.claim, i.evidence, i.why, i.required_fix, i.suggested_fix]),
-    ].filter(Boolean).join('\n'))
-    .join('\n')
-    .toLowerCase();
+  const evidence = collectEvidence(handoffs);
 
   return (criteria || [])
     .filter(ac => ac?.id || ac?.desc)
-    .filter(ac => {
-      const id = String(ac.id || '').toLowerCase();
-      const desc = String(ac.desc || '').toLowerCase();
-      return !((id && evidenceText.includes(id)) || (desc && evidenceText.includes(desc)));
-    })
-    .map(ac => `${ac.id || 'AC'} lacks explicit verification evidence`);
+    .map(ac => {
+      const id = String(ac.id || '').trim();
+      const desc = String(ac.desc || '').trim();
+      const match = findCoverageMatch({ id, desc }, evidence);
+      return {
+        id: id || 'AC',
+        desc: desc || '',
+        status: match ? 'covered' : 'missing',
+        evidence: match?.evidence || 'No explicit verification evidence found in Codex review/challenge handoffs.',
+        source: match?.source || 'quality-warning',
+      };
+    });
 }
 
 function shouldRequireEvidence(issue = {}) {
   return ['critical', 'high'].includes(issue.severity) || issue.gate_required === true;
+}
+
+function collectEvidence(handoffs = []) {
+  const rows = [];
+  for (const handoff of handoffs.filter(Boolean)) {
+    const source = handoff.stage || 'handoff';
+    for (const value of [handoff.decided, handoff.rejected, handoff.risks, handoff.remaining]) {
+      if (value) rows.push({ source, evidence: String(value) });
+    }
+    for (const issue of handoff.issues || []) {
+      for (const value of [issue.summary, issue.claim, issue.evidence, issue.why, issue.required_fix, issue.suggested_fix]) {
+        if (value) rows.push({ source, evidence: String(value) });
+      }
+    }
+  }
+  return rows;
+}
+
+function findCoverageMatch(ac, evidenceRows) {
+  const id = ac.id.toLowerCase();
+  const desc = ac.desc.toLowerCase();
+  return evidenceRows.find(row => {
+    const evidence = row.evidence.toLowerCase();
+    return (id && evidence.includes(id)) || (desc && evidence.includes(desc));
+  }) || null;
 }

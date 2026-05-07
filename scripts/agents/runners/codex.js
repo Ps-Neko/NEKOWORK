@@ -107,6 +107,9 @@ function buildPrompt(a) {
   if (a.context?.evidencePolicy?.evidenceWarningRequired) {
     lines.push('## Evidence Requirements');
     lines.push('For critical, high, or gate-required findings, include claim, evidence, required_fix, confidence, and gate_required.');
+    if (a.context.evidencePolicy.strictQuality) {
+      lines.push('Strict quality mode is active: missing evidence or acceptance coverage can block ship readiness.');
+    }
   }
   if (a.context?.priorHandoffs?.length) {
     lines.push('## 이전 단계 핸드오프 (5필드만)');

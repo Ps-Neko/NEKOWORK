@@ -42,7 +42,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 231 tests pass
+- `npm test`: 235 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 
@@ -90,7 +90,7 @@ To see the repository-based external project flow end to end:
 npm run demo:external
 ```
 
-To inspect small case-study targets, see [examples/trading-dashboard-mock](examples/trading-dashboard-mock) and [examples/github-actions-hardening](examples/github-actions-hardening). They demonstrate financial UI and CI workflow changes passing local checks while still requiring Human Gate policy.
+To inspect small case-study targets, see [examples/trading-dashboard-mock](examples/trading-dashboard-mock), [examples/github-actions-hardening](examples/github-actions-hardening), and [examples/quality-lifecycle-smoke](examples/quality-lifecycle-smoke). They demonstrate financial UI, CI workflow, and quality lifecycle changes passing local checks while still preserving Codex verification, Human Gate policy, and explicit apply control.
 
 ## What You Get
 
@@ -168,6 +168,8 @@ Advanced features such as `team-lite`, `ralph`, `wait`, instincts, cost tracking
 
 `plan` is recommended before `work` for larger changes. The current `run` command intentionally stays compact: it runs `work -> verify -> ship`, records acceptance criteria through `work`, and applies only when `--apply` is explicitly provided.
 
+Use `--profile quality` or `--profile security` on `work`, `verify`, and `run` when a task needs stronger evidence prompts. Add `--strict-quality` to `verify` or `run` when missing evidence or acceptance coverage should become a fix-required verdict before ship.
+
 ## Catalog
 
 - Agents: 11
@@ -203,6 +205,7 @@ node scripts/cli.js plan "draft a safe implementation plan"
 node scripts/cli.js team "collect read-only worker handoffs" --workers planner,research,security,test --no-write
 node scripts/cli.js work "implement the planned change with one executor" --single-executor --session work-smoke
 node scripts/cli.js verify "verify the implemented change" --session work-smoke
+node scripts/cli.js verify "verify quality evidence" --profile quality --strict-quality --session work-smoke
 node scripts/cli.js gate status --session work-smoke
 node scripts/cli.js ship "prepare ship readiness" --require-clean-gates --session work-smoke
 node scripts/cli.js apply --session work-smoke
@@ -242,6 +245,7 @@ npm pack --dry-run --json
 - [docs/DEMO.md](docs/DEMO.md) - sample command output and generated files
 - [docs/EXAMPLE-PROJECT.md](docs/EXAMPLE-PROJECT.md) - repository-based external project demo
 - [examples/trading-dashboard-mock](examples/trading-dashboard-mock) - standalone financial UI mock target and case-study evidence
+- [examples/quality-lifecycle-smoke](examples/quality-lifecycle-smoke) - standalone quality profile and strict-quality case-study evidence
 - [docs/SECURITY.md](docs/SECURITY.md) - local-first auth and safety model
 - [docs/ADVANCED.md](docs/ADVANCED.md) - advanced workflows and runtime features
 - [docs/SETUP.md](docs/SETUP.md) - local contributor setup and live provider smoke
@@ -256,6 +260,7 @@ npm pack --dry-run --json
 - [docs/RISK-CLASSIFIER.md](docs/RISK-CLASSIFIER.md) - shared risk tags, challenge, and gate policy
 - [docs/examples/TRADING-DASHBOARD-MOCK.md](docs/examples/TRADING-DASHBOARD-MOCK.md) - financial mockup flow with Human Gate
 - [docs/examples/GITHUB-ACTIONS-HARDENING.md](docs/examples/GITHUB-ACTIONS-HARDENING.md) - CI workflow hardening flow with Human Gate
+- [docs/examples/QUALITY-LIFECYCLE-SMOKE.md](docs/examples/QUALITY-LIFECYCLE-SMOKE.md) - quality profile flow with evidence and acceptance coverage
 - [docs/AUDIT.md](docs/AUDIT.md) - readiness and remaining debt
 - [docs/CHANGELOG.md](docs/CHANGELOG.md) - project history
 - [SOUL.md](SOUL.md), [RULES.md](RULES.md), [AGENTS.md](AGENTS.md) - project principles and agent rules

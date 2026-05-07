@@ -5,7 +5,7 @@ import addFormats from 'ajv-formats';
 import { dispatch } from '../agents/dispatch.js';
 import { ensureAcceptanceCriteria } from '../lib/acceptance-criteria.js';
 import { classifyRisk, gateReasonFromFindings } from '../lib/risk-classifier.js';
-import { acceptanceCoverageWarnings, evidenceFieldWarnings, profilePolicy } from '../lib/profile-policy.js';
+import { acceptanceCoverage, acceptanceCoverageWarnings, evidenceFieldWarnings, profilePolicy } from '../lib/profile-policy.js';
 
 const STAGE_INDEX = { 'codex-review': '05', 'codex-challenge': '06' };
 
@@ -41,6 +41,7 @@ export async function verifyCycle(opts) {
     evidencePolicy: {
       evidenceWarningRequired: policy.evidenceWarningRequired,
       acceptanceCoverageWarning: policy.acceptanceCoverageWarning,
+      strictQuality: Boolean(opts.strictQuality && policy.strictQualitySupported),
     },
     prd,
     acceptanceCriteria: acceptance.criteria,
@@ -96,10 +97,23 @@ export async function verifyCycle(opts) {
   const gateReason = gateReasonFromFindings([h5, h6].filter(Boolean)) ||
     (classification.requiresHumanGate ? `risk policy requires human gate (${classification.tags.join(',') || classification.risk})` : null);
   if (gateReason) writeHumanGate(sessionDir, gateReason);
+  const verificationHandoffs = [h5, h6].filter(Boolean);
+  const coverage = acceptanceCoverage(acceptance.criteria, verificationHandoffs, policy.profile);
   const qualityWarnings = [
-    ...evidenceFieldWarnings([h5, h6].filter(Boolean), policy.profile),
-    ...acceptanceCoverageWarnings(acceptance.criteria, [h5, h6].filter(Boolean), policy.profile),
+    ...evidenceFieldWarnings(verificationHandoffs, policy.profile),
+    ...acceptanceCoverageWarnings(acceptance.criteria, verificationHandoffs, policy.profile),
   ];
+  const strictQuality = Boolean(opts.strictQuality && policy.strictQualitySupported);
+  const strictQualityBlocked = Boolean(strictQuality && qualityWarnings.length);
+  if (strictQualityBlocked) {
+    h5.issues = [
+      ...(h5.issues || []),
+      strictQualityIssue(qualityWarnings),
+    ];
+    h5.verdict = h5.verdict === 'block' ? 'block' : 'approve_with_fixes';
+    h5.remaining = appendText(h5.remaining, 'Resolve strict quality warnings before ship.');
+    writeHandoff(handoffDir, h5);
+  }
 
   const result = {
     sessionId,
@@ -113,7 +127,10 @@ export async function verifyCycle(opts) {
     profile: policy.profile,
     qualityChecklist: policy.checklist,
     qualityWarnings,
-    verdict: finalVerdict([h5, h6].filter(Boolean)),
+    acceptanceCoverage: coverage,
+    strictQuality,
+    strictQualityBlocked,
+    verdict: finalVerdict(verificationHandoffs),
   };
   writeSummary(sessionDir, result, opts.task, latestImplement, diff, acceptance, classification);
   return result;
@@ -165,6 +182,19 @@ function readDiffForHandoff(sessionDir, handoff) {
   return '';
 }
 
+function strictQualityIssue(warnings) {
+  return {
+    severity: 'high',
+    category: 'test',
+    summary: 'strict quality warnings require fixes before ship',
+    claim: 'Strict quality mode found missing evidence or acceptance coverage.',
+    evidence: warnings.join('; '),
+    required_fix: 'Resolve the quality warnings, rerun verify, then rerun ship.',
+    confidence: 1,
+    gate_required: false,
+  };
+}
+
 function nextRound(handoffs, stage) {
   const rounds = handoffs
     .filter(h => h.stage === stage)
@@ -197,6 +227,9 @@ function writeSummary(sessionDir, result, task, implementHandoff, diff, acceptan
     profile: result.profile || null,
     quality_checklist: result.qualityChecklist || [],
     quality_warnings: result.qualityWarnings || [],
+    strict_quality: Boolean(result.strictQuality),
+    strict_quality_blocked: Boolean(result.strictQualityBlocked),
+    acceptance_coverage: result.acceptanceCoverage || [],
     evidence_warning_required: Boolean(result.profile && ['quality', 'security'].includes(result.profile)),
     risk_level: classification?.risk || null,
     risk_tags: classification?.tags || [],
@@ -210,6 +243,10 @@ function writeSummary(sessionDir, result, task, implementHandoff, diff, acceptan
     target_project_mutated: false,
     next_step: result.humanGate ? 'human review required' : 'fix findings or prepare an apply/ship gate',
   }, null, 2));
+}
+
+function appendText(a = '', b = '') {
+  return [a, b].filter(Boolean).join(a && b ? ' ' : '');
 }
 
 function writeHandoff(handoffDir, h) {

@@ -24,6 +24,11 @@ test('CLI accepts explicit safety alias flags for team and work', () => {
     assert.match(work.stdout, /"stage": "implement"/);
     const workSummary = JSON.parse(fs.readFileSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-work', 'work-summary.json'), 'utf8'));
     assert.equal(workSummary.profile, 'quality');
+
+    const verify = runCli(['verify', 'strict quality smoke', '--profile', 'quality', '--strict-quality', '--session', 'unit-cli-work', '--project-root', projectRoot, '--json']);
+    assert.equal(verify.status, 0, verify.stderr || verify.stdout);
+    assert.match(verify.stdout, /"strictQuality": true/);
+    assert.match(verify.stdout, /"strictQualityBlocked": true/);
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }

@@ -154,13 +154,14 @@ test('codex buildPrompt includes evidence policy and acceptance criteria', () =>
       profile: 'quality',
       acceptanceCriteria: [{ id: 'AC-001', desc: 'Parser rejects bad input' }],
       qualityChecklist: ['evidence-based review findings'],
-      evidencePolicy: { evidenceWarningRequired: true },
+      evidencePolicy: { evidenceWarningRequired: true, strictQuality: true },
     },
   });
   assert.match(p, /Acceptance Criteria/);
   assert.match(p, /AC-001/);
   assert.match(p, /Evidence Requirements/);
   assert.match(p, /required_fix/);
+  assert.match(p, /Strict quality mode is active/);
 });
 
 test('큰 diff 는 30000자에서 잘림 (codex)', () => {

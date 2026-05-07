@@ -37,6 +37,16 @@ ask -> plan -> team -> work -> verify -> gate -> ship -> apply
 
 Use the advanced path when the change needs a separate plan artifact, read-only team handoffs, explicit verification control, or a manual apply step.
 
+Quality-sensitive runs can add profile policy:
+
+```bash
+harness ask "task" --profile quality
+harness work "task" --profile quality --session <id>
+harness verify "task" --profile quality --strict-quality --session <id>
+```
+
+`--strict-quality` turns missing evidence or acceptance coverage warnings into a fix-required verification verdict.
+
 ## Plan And Run Policy
 
 For the `0.0.3` line:

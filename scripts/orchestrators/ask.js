@@ -102,12 +102,14 @@ export async function askGate(opts) {
 }
 
 function writeAskArtifacts(sessionDir, handoffDir, sessionId, task, handoff) {
+  const policy = profilePolicy(handoff.profile);
   fs.writeFileSync(path.join(sessionDir, 'ask.json'), JSON.stringify({
     sessionId,
     task,
     generated_at: handoff.timestamp,
     risk_level: handoff.risk_level,
     profile: handoff.profile || null,
+    profile_checklist: policy.checklist,
     requires_human_gate: handoff.requires_human_gate,
     questions: handoff.questions,
     success_criteria: handoff.success_criteria,
