@@ -6,6 +6,7 @@
 
 ### Added
 - Add a `motdotla/dotenv` third-party case study for environment configuration and secret-loading boundary evidence.
+- Add alpha feedback triage guidance and issue-template classification fields.
 
 ## [0.1.0-alpha.2] - 2026-05-08
 
