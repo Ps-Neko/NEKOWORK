@@ -5,8 +5,20 @@
 ## [Unreleased]
 
 ### Added
+- No entries yet.
+
+## [0.1.0-alpha.3] - 2026-05-08
+
+### Added
 - Add a `motdotla/dotenv` third-party case study for environment configuration and secret-loading boundary evidence.
 - Add alpha feedback triage guidance and issue-template classification fields.
+- Add beginner `check` and `init` CLI aliases for first-run health checks and install apply.
+- Add Safety Guarantees, Failure Modes, Trust Model, and Why Not Autopilot docs.
+- Add trust-doc and CLI alias tests, bringing the suite to 251 tests.
+
+### Changed
+- Rewrite the README first screen around unverified-change prevention, Human Gate, explicit apply, and no-surprise safety.
+- Add a direct competitor choice table and clearer selective-catalog framing.
 
 ## [0.1.0-alpha.2] - 2026-05-08
 

@@ -7,7 +7,7 @@ This guide gets a new user from a clean checkout to the first NEKOWORK run.
 The public alpha is available on npm:
 
 ```bash
-npx -y @ps-neko/nekowork@alpha doctor --quick
+npx -y @ps-neko/nekowork@alpha check
 ```
 
 ## 2. Install From Source
@@ -348,7 +348,7 @@ npm i -g @ps-neko/nekowork@alpha
 For alpha pinning, prefer:
 
 ```bash
-npx -y @ps-neko/nekowork@alpha doctor --quick
+npx -y @ps-neko/nekowork@alpha check
 ```
 
 ## Troubleshooting

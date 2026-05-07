@@ -1,6 +1,6 @@
 {
   "name": "@ps-neko/nekowork",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Local-first AI development harness for Claude Code, Codex CLI, and Gemini CLI",
   "keywords": [
     "claude",
