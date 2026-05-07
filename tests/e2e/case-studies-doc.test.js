@@ -45,3 +45,18 @@ test('python protocol case study records non-node strict-quality evidence', () =
   assert.match(doc, /pyproject\.toml/);
   assert.match(doc, /No package source files were modified/);
 });
+
+test('dotenv case study records configuration-boundary security evidence', () => {
+  const file = path.join(ROOT, 'docs', 'case-studies', 'MOTDOTLA-DOTENV.md');
+  const doc = fs.readFileSync(file, 'utf8');
+
+  assert.match(doc, /https:\/\/github\.com\/motdotla\/dotenv/);
+  assert.match(doc, /10f5c0fb341089a16defab128a0cfe9e548c49ec/);
+  assert.match(doc, /npm test/);
+  assert.match(doc, /pass: 197/);
+  assert.match(doc, /fail: 2/);
+  assert.match(doc, /profile": "security/);
+  assert.match(doc, /codex_challenge_run: true/);
+  assert.match(doc, /configuration and environment-loading boundary/);
+  assert.match(doc, /No package source files were modified/);
+});

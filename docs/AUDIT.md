@@ -21,7 +21,7 @@ This audit summarizes the current NEKOWORK state after publishing the `0.1.0-alp
 | Fresh npm alpha smoke | OK | CI runs `npx -y @ps-neko/nekowork@alpha doctor --quick --json` from a disposable directory |
 | Report UX | OK | `report` writes inspect-only `REPORT.md` and `report-summary.json` from session evidence |
 | External demo | OK | `npm run demo:external` verifies a disposable target project flow |
-| Third-party case studies | OK | `docs/case-studies/` records real public repository runs for npm package, auth boundary, and Python protocol targets |
+| Third-party case studies | OK | `docs/case-studies/` records real public repository runs for npm package, auth boundary, Python protocol, and environment configuration targets |
 | Decomposed workflow | OK | `ask`, `team`, `work`, `verify`, `gate`, `ship`, `report`, `apply`, and `run` are available |
 | Risk policy | OK | Shared classifier drives ask, routing traces, verify challenge/gates, and ship gate rechecks |
 | Acceptance criteria | OK | `work` ensures every session has `acceptance-criteria.json` |
@@ -55,7 +55,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 245 tests pass
+- `npm test`: 246 tests pass
 - quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass
@@ -92,7 +92,7 @@ Current local result for this working tree:
 - `report` gives public alpha users a readable inspect-only session artifact without applying or mutating project files.
 - Official packs expose curated install shapes without creating a second safety model.
 - Checked-in example fixtures now cover financial UI, CI hardening, and quality lifecycle evidence flows.
-- Third-party case studies record NEKOWORK runs against `sindresorhus/is-plain-obj`, `jshttp/basic-auth`, and `python-hyper/h11`.
+- Third-party case studies record NEKOWORK runs against `sindresorhus/is-plain-obj`, `jshttp/basic-auth`, `python-hyper/h11`, and `motdotla/dotenv`.
 - Public npm alpha `0.1.0-alpha.2` is published under the `alpha` dist-tag.
 
 ## Remaining Optional Work
@@ -100,7 +100,7 @@ Current local result for this working tree:
 | Item | Priority | Reason |
 |---|---|---|
 | Stable `latest` promotion | Medium | `alpha` is correct; npm keeps `latest` on the first alpha line for now, so move it to a stable version later |
-| More third-party case studies | Low | Three public repo case studies exist; more frameworks can still improve adoption evidence later |
+| More third-party case studies | Low | Four public repo case studies exist; more frameworks can still improve adoption evidence later |
 | More skill catalog expansion | Low | Catalog expansion should stay selective to preserve progressive disclosure |
 
 ## Explicit Non-Goals
@@ -118,5 +118,5 @@ Current external readiness, excluding broader adoption evidence: **9.1 / 10**.
 Main deductions:
 
 - `latest` currently remains on the first alpha; docs still recommend `@alpha` until a stable release exists.
-- Three independent real-world external project case studies exist so far.
+- Four independent real-world external project case studies exist so far.
 - Advanced surfaces exist but are intentionally secondary to the public decomposed workflow and install flow.
