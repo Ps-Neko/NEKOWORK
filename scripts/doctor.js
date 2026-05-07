@@ -130,7 +130,7 @@ function checkPackageMetadata(root) {
       return pass('package metadata', `${pkg.name}@${pkg.version}; private publish disabled`);
     }
     if (pkg.private === false && isPublicAlphaVersion(pkg.version)) {
-      return pass('package metadata', `${pkg.name}@${pkg.version}; public alpha publish candidate`);
+      return pass('package metadata', `${pkg.name}@${pkg.version}; public alpha package`);
     }
     return warn('package metadata', `${pkg.name}@${pkg.version}; publish guard is not explicit`);
   } catch (error) {
