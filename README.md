@@ -20,6 +20,40 @@ NEKOWORK is not meant to become a large agent pack. Skills, hooks, profiles, and
 
 NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, profile, module, and pack must preserve the verification loop.
 
+**Public alpha evidence:** 7 packs · 9 profiles · 36 components · 5 harness targets · 6 case-study flows · 245 tests · 0 moderate+ npm audit issues
+
+NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
+
+## Example Report
+
+`report` is the main trust surface. It turns session evidence into a readable `REPORT.md`:
+
+```text
+Verdict: approve_with_fixes
+Ship ready: false
+Human gate: required
+Applied: false
+Profile: quality
+Strict quality: enabled
+Acceptance coverage: 4/5
+Quality warnings: 2
+
+Evidence:
+- work-summary.json
+- verify-summary.json
+- ship-summary.json
+- gate-summary.json
+```
+
+## Compared With Agent Packs
+
+| Tool pattern | Optimizes for | NEKOWORK optimizes for |
+|---|---|---|
+| Large Claude Code packs | More agents, commands, skills | Curated verification loop |
+| Team simulation | More specialist perspectives | Read-only team plus one executor |
+| Autopilot | Fast autonomous execution | Report, gate, explicit apply |
+| Discipline workflows | Better development habits | Evidence-backed ship decision |
+
 ## Three Paths
 
 Most users should start with the Beginner path. The other paths are for explicit phase control or legacy compatibility.
@@ -48,14 +82,28 @@ Current local verification:
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 
-Public alpha evidence:
+## Case-study Evidence
 
-- 7 official packs
-- 9 install profiles
-- 7 modules and 36 components
-- 11 agents, 10 skills, 5 hooks
-- 5 harness targets: Claude, Codex, Cursor, Gemini, OpenCode
-- 6 case-study flows: financial UI, CI hardening, quality lifecycle, npm package, auth parser, Python protocol
+| Flow | Risk type | Evidence produced |
+|---|---|---|
+| Financial UI mock | UI/product risk | report + Human Gate |
+| GitHub Actions hardening | CI/security risk | security findings + no-ship/ship evidence |
+| Quality lifecycle smoke | quality risk | strict-quality + acceptance coverage |
+| npm package boundary | package/release risk | pack/audit evidence |
+| Auth parser boundary | auth/security risk | parser boundary evidence |
+| Python protocol parser | protocol correctness risk | test-backed verification |
+
+## Official Packs
+
+| Pack | Adds | Use when |
+|---|---|---|
+| `core` | minimal verification runtime | first install or repo smoke |
+| `quality` | acceptance coverage, strict evidence prompts | feature work needs proof |
+| `security` | auth/secrets/deploy risk prompts | sensitive changes |
+| `frontend` | UI mockup, component review, accessibility checks | product-facing UI work |
+| `testing` | regression planning and coverage handoffs | test confidence is the main risk |
+| `release` | ship/no-ship evidence | pre-release checks |
+| `enterprise` | full catalog with all gates | high-control teams |
 
 ## Quick Start
 
