@@ -37,6 +37,7 @@ test('product and quality profiles add question templates', () => {
   assert.equal(product.profile, 'product');
   assert.ok(product.questions.some(q => /MVP scope/.test(q)));
   assert.ok(product.questions.some(q => /non-goal/.test(q)));
+  assert.equal(validateHandoff(product), true, JSON.stringify(validateHandoff.errors));
 
   const quality = buildQuestionGate('refactor parser', { profile: 'quality' });
   assert.equal(quality.profile, 'quality');
@@ -57,11 +58,33 @@ test('ask writes question-gate artifacts into the target project session', async
 
     assert.equal(path.resolve(r.sessionDir), path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-ask'));
     assert.ok(fs.existsSync(path.join(r.sessionDir, 'ask.json')));
+    const ask = JSON.parse(fs.readFileSync(path.join(r.sessionDir, 'ask.json'), 'utf8'));
+    assert.deepEqual(ask.profile_checklist, []);
     assert.ok(fs.existsSync(path.join(r.sessionDir, 'handoffs', '00-question-gate.json')));
     assert.ok(fs.existsSync(path.join(r.sessionDir, 'handoffs', '00-question-gate.md')));
     assert.equal(r.handoff.risk_level, 'high');
     assert.equal(r.handoff.success_criteria.length, 3);
     assert.equal(validateHandoff(r.handoff), true, JSON.stringify(validateHandoff.errors));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('ask writes product profile checklist for product question gate', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-ask-product-profile-'));
+  try {
+    const r = await askGate({
+      task: 'scope a new dashboard',
+      sessionId: 'unit-ask-product',
+      harnessRoot: ROOT,
+      projectRoot,
+      profile: 'product',
+    });
+
+    const ask = JSON.parse(fs.readFileSync(path.join(r.sessionDir, 'ask.json'), 'utf8'));
+    assert.equal(ask.profile, 'product');
+    assert.ok(ask.profile_checklist.includes('target user identified'));
+    assert.ok(ask.profile_checklist.includes('QA acceptance criteria defined'));
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }

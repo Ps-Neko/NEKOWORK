@@ -45,7 +45,7 @@ Review loop
                                          read-only multi-worker handoffs; no project mutation
   work "<task>" [--profile quality|security] [--single-executor] [--session <id>] [--project-root <dir>] [--live] [--json]
                                          single executor implement handoff; live mode captures isolated diff
-  verify "<task>" --session <id> [--profile quality|security] [--secure] [--project-root <dir>] [--live] [--json]
+  verify "<task>" --session <id> [--profile quality|security] [--strict-quality] [--secure] [--project-root <dir>] [--live] [--json]
                                          Codex-only verification of a prior work handoff
   gate status --session <id> [--project-root <dir>] [--json]
                                          inspect HUMAN_GATE / approval / block state
@@ -57,7 +57,7 @@ Review loop
                                          ship/no-ship readiness handoff; blocked by HUMAN_GATE
   apply --session <id> [--project-root <dir>] [--allow-dirty] [--force] [--json]
                                          apply a verified SHIP_READY live-work diff to the target project
-  run "<task>" [--session <id>] [--profile quality|security] [--secure] [--live] [--apply] [--allow-dirty] [--force] [--project-root <dir>] [--json]
+  run "<task>" [--session <id>] [--profile quality|security] [--strict-quality] [--secure] [--live] [--apply] [--allow-dirty] [--force] [--project-root <dir>] [--json]
                                          decomposed wrapper: work -> verify -> ship, optional apply
   review "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>] [--project-root <dir>]
                                          legacy full claude-led-codex-review workflow
@@ -355,6 +355,7 @@ function parseVerifyArgs(argv) {
     profile: null,
     live: false,
     secure: false,
+    strictQuality: false,
     json: false,
   };
   const unknown = [];
@@ -364,6 +365,7 @@ function parseVerifyArgs(argv) {
     if (a === '--json') opts.json = true;
     else if (a === '--live') opts.live = true;
     else if (a === '--secure') opts.secure = true;
+    else if (a === '--strict-quality') opts.strictQuality = true;
     else if (a === '--profile') {
       const value = argv[++i];
       if (!value || value.startsWith('--')) throw usageError('--profile requires a value');
@@ -532,6 +534,7 @@ function parseRunArgs(argv) {
     profile: null,
     live: false,
     secure: false,
+    strictQuality: false,
     apply: false,
     allowDirty: false,
     force: false,
@@ -544,6 +547,7 @@ function parseRunArgs(argv) {
     if (a === '--json') opts.json = true;
     else if (a === '--live') opts.live = true;
     else if (a === '--secure') opts.secure = true;
+    else if (a === '--strict-quality') opts.strictQuality = true;
     else if (a === '--profile') {
       const value = argv[++i];
       if (!value || value.startsWith('--')) throw usageError('--profile requires a value');
@@ -731,6 +735,9 @@ function optionNumber(argv, flag, fallback = undefined) {
           humanGate: result.humanGate,
           reason: result.reason,
           codexChallenge: Boolean(result.codexChallenge),
+          strictQuality: result.strictQuality,
+          strictQualityBlocked: result.strictQualityBlocked,
+          qualityWarnings: result.qualityWarnings || [],
         }, null, 2));
       } else {
         console.log('=== verify ===');
@@ -738,6 +745,8 @@ function optionNumber(argv, flag, fallback = undefined) {
         console.log('  verdict    : ' + result.verdict);
         console.log('  secure     : ' + (result.secureActive ? 'active' : 'off'));
         console.log('  challenge  : ' + (result.codexChallenge ? 'yes' : 'no'));
+        console.log('  strict     : ' + (result.strictQuality ? (result.strictQualityBlocked ? 'blocked' : 'passed') : 'off'));
+        console.log('  warnings   : ' + (result.qualityWarnings?.length || 0));
         console.log('  human gate : ' + (result.humanGate ? `YES (${result.reason})` : 'no'));
         console.log('  ship       : not run');
       }
@@ -898,6 +907,8 @@ function optionNumber(argv, flag, fallback = undefined) {
           applyRequested: result.applyRequested,
           applySkippedReason: result.applySkippedReason,
           applied: result.applied,
+          strictQuality: result.verify?.strictQuality,
+          strictQualityBlocked: result.verify?.strictQualityBlocked,
         }, null, 2));
       } else {
         console.log('=== run ===');
@@ -907,6 +918,7 @@ function optionNumber(argv, flag, fallback = undefined) {
         console.log('  human gate : ' + (result.humanGate ? 'YES' : 'no'));
         console.log('  no ship    : ' + (result.noShip ? 'YES' : 'no'));
         console.log('  ship ready : ' + (result.shipReady ? 'yes' : 'no'));
+        console.log('  strict     : ' + (result.verify?.strictQuality ? (result.verify?.strictQualityBlocked ? 'blocked' : 'passed') : 'off'));
         console.log('  apply      : ' + (result.applied ? 'applied' : result.applyRequested ? `skipped (${result.applySkippedReason || 'not needed'})` : 'not requested'));
       }
       if (result.humanGate || (opts.apply && (result.noShip || result.applySkippedReason))) process.exit(3);

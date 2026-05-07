@@ -48,7 +48,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 231 tests pass
+- `npm test`: 235 tests pass
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
@@ -74,6 +74,7 @@ Current local result for this working tree:
 - `team-lite`, `ralph`, `wait`, instincts, costs, and Rust runtime remain documented as advanced surfaces.
 - Release docs, setup docs, runbook, quickstart, porting guide, and CODEMAP docs are readable for external users.
 - The disposable external project demo proves the repository-based target-project flow end to end.
+- Checked-in example fixtures now cover financial UI, CI hardening, and quality lifecycle evidence flows.
 
 ## Remaining Optional Work
 
@@ -100,4 +101,5 @@ Main deductions:
 
 - No public npm package yet.
 - No independent real-world external project case study yet.
+- Checked-in case-study fixtures exist, but third-party adoption evidence is still separate.
 - Advanced surfaces exist but are intentionally secondary to the public decomposed workflow and install flow.

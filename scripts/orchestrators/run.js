@@ -18,6 +18,7 @@ export async function runCycle(opts) {
     projectRoot,
     live: !!opts.live,
     profile: opts.profile,
+    strictQuality: !!opts.strictQuality,
     dispatcher: opts.dispatcher,
   };
 
@@ -114,6 +115,8 @@ function writeSummary(sessionDir, result) {
     acceptance_required: true,
     acceptance_count: result.work?.handoff ? readAcceptanceCount(sessionDir) : 0,
     profile: result.work?.handoff?.profile || result.verify?.profile || null,
+    strict_quality: Boolean(result.verify?.strictQuality),
+    strict_quality_blocked: Boolean(result.verify?.strictQualityBlocked),
     verify_verdict: result.verify?.verdict || null,
     verify_human_gate: Boolean(result.verify?.humanGate),
     ship_ready: result.shipReady,

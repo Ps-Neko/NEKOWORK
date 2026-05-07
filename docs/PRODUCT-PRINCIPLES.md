@@ -137,6 +137,7 @@ The public command is:
 ```bash
 harness work "<task>" --session <id>
 harness work "<task>" --single-executor --session <id>
+harness work "<task>" --profile quality --session <id>
 ```
 
 `work` is the single-executor mutation phase. In the `0.0.3` line it is deliberately conservative:
@@ -158,6 +159,7 @@ The public command is:
 
 ```bash
 harness verify "<task>" --session <id>
+harness verify "<task>" --profile quality --strict-quality --session <id>
 ```
 
 `verify` is the Codex-only verification phase:
@@ -167,6 +169,9 @@ harness verify "<task>" --session <id>
 - runs `codex-review`
 - runs `codex-challenge` for `--secure` or sensitive work
 - expects findings to include evidence whenever possible: claim, evidence, required fix, confidence, and gate requirement
+- records quality/security evidence warnings when profile policy asks for them
+- records structured `acceptance_coverage` for the `quality` profile
+- can escalate quality warnings into a fix-required verdict with `--strict-quality`
 - writes `HUMAN_GATE` for critical or blocking findings
 - does not implement
 - does not ship
