@@ -9,6 +9,7 @@ import { runMock } from './runners/mock.js';
 import { runClaude } from './runners/claude.js';
 import { runCodex } from './runners/codex.js';
 import { runGemini } from './runners/gemini.js';
+import { runInternal } from './runners/internal.js';
 import { decide as routeDecide, trace as routeTrace } from '../lib/router.js';
 import { record as costRecord } from '../lib/costs.js';
 import { classifyRisk } from '../lib/risk-classifier.js';
@@ -18,6 +19,7 @@ const RUNNERS = {
   claude: runClaude,
   codex: runCodex,
   gemini: runGemini,
+  internal: runInternal,
 };
 
 /**
@@ -45,7 +47,9 @@ export async function dispatch(opts) {
   const fm = YAML.parse(fmMatch[1]);
   const body = raw.slice(fmMatch[0].length).trim();
 
-  const provider = opts.providerOverride || (opts.live ? fm.provider : 'mock');
+  const provider = opts.providerOverride
+    || process.env.HARNESS_PROVIDER_OVERRIDE
+    || (opts.live ? fm.provider : 'mock');
   const runner = RUNNERS[provider];
   if (!runner) throw new Error(`알 수 없는 provider: ${provider}`);
 

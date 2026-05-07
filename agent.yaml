@@ -1,7 +1,7 @@
 spec_version: gitagent/0.1.0
 name: nekowork
 runtime_name: harness
-version: 0.1.0-alpha.0
+version: 0.1.0-alpha.1
 description: "NEKOWORK HARNESS - Local-first multi-AI development verification runtime"
 license: MIT
 homepage: https://github.com/Ps-Neko/NEKOWORK
@@ -26,6 +26,7 @@ skills:
   - claude-led-codex-review
   - plan-eng-review
   - tdd-workflow
+  - acceptance-coverage
   - review
   - ship
   - security-hardening
@@ -97,7 +98,7 @@ profiles:
     - full
 
 modules:
-  # 0.0.3 catalog: 7 modules. Future modules stay selective/profile-driven.
+  # Current catalog: 7 modules. Future modules stay selective/profile-driven.
   - rules-core
   - agents-core
   - hooks-runtime

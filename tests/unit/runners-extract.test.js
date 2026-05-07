@@ -17,6 +17,11 @@ import {
   _buildPrompt as _buildGeminiPrompt,
   _parseGeminiOutput,
 } from '../../scripts/agents/runners/gemini.js';
+import {
+  _buildInternalCommand,
+  _buildInternalPrompt,
+  _parseInternalResponse,
+} from '../../scripts/agents/runners/internal.js';
 
 test('extractJson: ```json 펜스 블록', () => {
   const text = 'before\n```json\n{"verdict":"approve","issues":[]}\n```\nafter';
@@ -252,5 +257,44 @@ test('gemini parseGeminiOutput unwraps response JSON', () => {
   }));
   assert.equal(parsed.decided, 'OK');
   assert.deepEqual(parsed.files, ['a.md']);
+  assert.equal(parsed.verdict, 'approve');
+});
+
+test('internal provider command requires explicit executable and JSON args', () => {
+  assert.throws(
+    () => _buildInternalCommand({}),
+    /HARNESS_INTERNAL_PROVIDER_COMMAND/,
+  );
+
+  const command = _buildInternalCommand({
+    HARNESS_INTERNAL_PROVIDER_COMMAND: 'internal-provider',
+    HARNESS_INTERNAL_PROVIDER_ARGS_JSON: '["--json","--safe"]',
+  });
+  assert.equal(command.bin, 'internal-provider');
+  assert.deepEqual(command.args, ['--json', '--safe']);
+});
+
+test('internal provider prompt uses stable JSON protocol', () => {
+  const prompt = _buildInternalPrompt({
+    agent: 'codex-reviewer',
+    stage: 'codex-review',
+    task: 'review parser boundary',
+    model: 'codex',
+    sandbox: 'read-only',
+    networkAccess: false,
+    promptBody: 'Review carefully.',
+    context: { profile: 'quality' },
+  });
+  const parsed = JSON.parse(prompt);
+  assert.equal(parsed.protocol, 'nekowork.internal-provider.v1');
+  assert.equal(parsed.stage, 'codex-review');
+  assert.equal(parsed.task, 'review parser boundary');
+  assert.equal(parsed.context.profile, 'quality');
+  assert.match(parsed.system, /handoff\.schema\.json/);
+});
+
+test('internal provider response parser extracts handoff JSON', () => {
+  const parsed = _parseInternalResponse('log\n```json\n{"decided":"OK","files":[],"verdict":"approve"}\n```');
+  assert.equal(parsed.decided, 'OK');
   assert.equal(parsed.verdict, 'approve');
 });

@@ -8,13 +8,13 @@
 
 ## 자동 갱신 영역
 
-<!-- HARNESS:START version=0.1.0-alpha.0 -->
+<!-- HARNESS:START version=0.1.0-alpha.1 -->
 <!-- 이 영역은 scripts/sync-claude-md.js 가 자동 갱신한다. 직접 편집 금지. -->
 
 ## 카탈로그 요약
 
 - agents: 11
-- skills: 9
+- skills: 10
 - commands: 1 (legacy compat)
 - hooks: 5 (gateguard-fact-force, config-protection, quality-gate, pre-bash-dispatcher, persistent-mode)
 - profiles: core, developer, security, product, quality, frontend, testing, research, full

@@ -121,6 +121,11 @@
       "source": "skills/tdd-workflow/",
       "target": { "claude": ".claude/skills/tdd-workflow/" }
     },
+    "skill:acceptance-coverage": {
+      "type": "skill",
+      "source": "skills/acceptance-coverage/",
+      "target": { "claude": ".claude/skills/acceptance-coverage/" }
+    },
     "skill:review": {
       "type": "skill",
       "source": "skills/review/",

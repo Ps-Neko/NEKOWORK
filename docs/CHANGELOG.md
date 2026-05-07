@@ -9,6 +9,10 @@
 - Add `docs/WHY-NEKOWORK.md` to clarify NEKOWORK's comparison against agent-pack, discipline, team, and autopilot tools.
 - Add `docs/PUBLISH-ALPHA.md` and a third-party `sindresorhus/is-plain-obj` case study.
 - Add a third-party `jshttp/basic-auth` security-profile case study.
+- Add a third-party `python-hyper/h11` Python protocol case study.
+- Add an opt-in internal provider command adapter.
+- Add the focused `acceptance-coverage` quality evidence skill.
+- Prepare public alpha `@ps-neko/nekowork@0.1.0-alpha.1` with the updated adapter, case study, and catalog evidence; actual npm publish requires owner OTP/web auth.
 - Add `npm run demo:external` to create a disposable target project and verify repository-based porting end to end.
 - Add `docs/EXAMPLE-PROJECT.md` and e2e coverage for the external project demo.
 - Add product principles and core invariants for the Claude work -> Codex verification -> Human Gate runtime.
