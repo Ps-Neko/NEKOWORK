@@ -11,6 +11,7 @@ NEKOWORK / HARNESS is release-ready for local use, repository-based installation
 - `package.json` is set to `private: false` for the public alpha.
 - The canonical repo is `Ps-Neko/NEKOWORK`.
 - Current release track is `0.1.0-alpha.1`; npm `@alpha` points at this version.
+- GitHub prerelease: `v0.1.0-alpha.1`.
 - Required local provider auth is delegated CLI auth, not long-lived API keys.
 - Core workflow invariant is Claude work -> Codex verification -> Human Gate.
 - Risk classifier, acceptance criteria artifacts, and profile safety validation are part of the release gate.
@@ -18,6 +19,10 @@ NEKOWORK / HARNESS is release-ready for local use, repository-based installation
 - Public package metadata is published as `@ps-neko/nekowork@alpha`.
 - Dist-tag note: `latest` remains on the first alpha line; use `@alpha` until a stable release exists.
 - See [PUBLISH-ALPHA.md](PUBLISH-ALPHA.md) for the public alpha checklist.
+
+GitHub Release:
+
+- https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.1
 
 ## Required Gates
 

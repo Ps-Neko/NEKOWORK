@@ -29,7 +29,7 @@ This audit summarizes the current NEKOWORK state after publishing the `0.1.0-alp
 | Persistent wakeup | OK | `wait` resumes supported active sessions and blocks on `HUMAN_GATE` |
 | Generated docs | OK | CODEMAP output is stable ASCII and reproducible |
 | Tests | OK | Unit, integration, and e2e suites pass locally and in CI |
-| Release | WARN | `v0.1.0-alpha.0` prerelease exists; `v0.1.0-alpha.1` can be tagged from the published alpha state |
+| Release | OK | `v0.1.0-alpha.1` is tagged and published as a GitHub prerelease |
 
 ## Verification Gates
 
