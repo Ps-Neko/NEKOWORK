@@ -9,9 +9,9 @@ This audit summarizes the current NEKOWORK state after the `v0.0.3` repository r
 | Area | Status | Notes |
 |---|---|---|
 | Package metadata | OK | `@ps-neko/nekowork@0.1.0-alpha.0`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness` |
-| npm publish | Blocked on auth | Public alpha metadata is prepared; `npm whoami` currently returns `ENEEDAUTH` |
+| npm publish | OK | `@ps-neko/nekowork@0.1.0-alpha.0` is published on npm |
 | Source install | OK | Clone, local checkout, and submodule workflows are documented |
-| Public npm alpha plan | OK | `docs/PUBLISH-ALPHA.md` defines the `0.1.0-alpha.0` path; npm publish has not been executed because npm owner auth is unavailable |
+| Public npm alpha | OK | `docs/PUBLISH-ALPHA.md` records the `0.1.0-alpha.0` publish and npx smoke |
 | CLI doctor | OK | `doctor`, `doctor --quick`, and `doctor --gemini-smoke` are available |
 | Provider auth | OK | Local delegated CLI auth is the default path |
 | Catalog | OK | 11 agents, 9 skills, 5 hooks, 7 modules, 35 components, 9 profiles |
@@ -60,7 +60,8 @@ Current local result for this working tree:
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npm publish --dry-run --access public --tag alpha`: pass
-- `npm publish --access public --tag alpha`: blocked by `ENEEDAUTH`
+- `npm publish --access public --tag alpha`: published `0.1.0-alpha.0`; duplicate publish now blocks as expected
+- `npx -y @ps-neko/nekowork@alpha doctor --quick`: pass with WARN summary from Gemini auth not checked
 
 ## Completed Work
 
@@ -84,20 +85,20 @@ Current local result for this working tree:
 - The quick run demo proves the one-command no-API first experience.
 - Checked-in example fixtures now cover financial UI, CI hardening, and quality lifecycle evidence flows.
 - A third-party case study records a NEKOWORK run against `sindresorhus/is-plain-obj`.
-- Public npm alpha metadata is prepared for `0.1.0-alpha.0`; publish execution remains blocked on npm owner auth.
+- Public npm alpha `0.1.0-alpha.0` is published and smoke-tested through `npx`.
 
 ## Remaining Optional Work
 
 | Item | Priority | Reason |
 |---|---|---|
-| Public npm publish execution | High | Requires npm owner login and 2FA readiness |
+| Remove accidental `latest` dist-tag | High | `alpha` is correct, but npm also points `latest` at `0.1.0-alpha.0`; removing it requires npm 2FA approval |
 | More third-party case studies | Medium | One public repo case study exists; more languages/frameworks would improve adoption evidence |
 | Internal provider adapter | Low until requested | Only useful for private infrastructure |
 | More skill catalog expansion | Low | Should stay selective to preserve progressive disclosure |
 
 ## Explicit Non-Goals
 
-- No public npm publish for `0.0.3`; public alpha publish requires npm owner auth.
+- No public npm publish for `0.0.3`; public alpha starts at `0.1.0-alpha.0`.
 - No automatic promotion of learned instincts without human confirmation.
 - No tmux-first runtime import from OMC.
 - No bulk import of large external skill catalogs.
@@ -105,10 +106,10 @@ Current local result for this working tree:
 
 ## External Readiness Score
 
-Current external readiness, excluding npm publish execution and broader adoption evidence: **8.8 / 10**.
+Current external readiness, excluding broader adoption evidence: **9.0 / 10**.
 
 Main deductions:
 
-- No public npm package yet because npm owner auth is not active on this machine.
+- `latest` currently points at the alpha and should be removed before treating the package as a stable default install.
 - Only one independent real-world external project case study so far.
 - Advanced surfaces exist but are intentionally secondary to the public decomposed workflow and install flow.

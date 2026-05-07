@@ -32,11 +32,11 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 ## Status
 
-- Current version: `0.1.0-alpha.0` public alpha candidate
+- Current version: `0.1.0-alpha.0` public alpha
 - Current package name: `@ps-neko/nekowork`
-- npm publishing: prepared for `npm publish --access public --tag alpha`, but not published until npm owner auth is available
-- Supported install path today: clone, submodule, or local repository integration
-- Future npm path is prepared; final publish requires `npm whoami` to succeed
+- npm publishing: published as `@ps-neko/nekowork@alpha`
+- Supported install path today: npm alpha, clone, submodule, or local repository integration
+- Dist-tag note: `alpha` is published; `latest` currently also points at the alpha and should be removed with npm 2FA when convenient
 - Default mode: mock providers, no API keys, no provider CLI calls
 
 Current local verification:
@@ -55,6 +55,12 @@ Requirements:
 - git
 
 Fastest no-API demo:
+
+```bash
+npx -y @ps-neko/nekowork@alpha doctor --quick
+```
+
+Repository demo:
 
 ```bash
 git clone https://github.com/Ps-Neko/NEKOWORK.git harness

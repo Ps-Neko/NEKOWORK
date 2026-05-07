@@ -1,25 +1,25 @@
-# Public Alpha Publish Plan
+# Public Alpha Publish Record
 
-NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is prepared as the public alpha candidate `0.1.0-alpha.0`.
+NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`.
 
 Do not publish from the `0.0.3` line.
 
-The repository metadata has been advanced to `0.1.0-alpha.0` with `private: false`. Actual publish is still blocked until `npm whoami` succeeds for an owner account.
+The repository metadata has been advanced to `0.1.0-alpha.0` with `private: false`. Public alpha publish succeeded on 2026-05-07.
 
-## Current Registry State
+## Registry State
 
 Checked on 2026-05-07:
 
 ```text
 npm view @ps-neko/nekowork version --json
--> E404 Not Found
+-> 0.1.0-alpha.0
 ```
 
-The package name is not publicly visible on npm from this environment. The machine is also not logged in:
+Dist-tags:
 
 ```text
-npm whoami
--> ENEEDAUTH
+npm view @ps-neko/nekowork dist-tags --json
+-> { "alpha": "0.1.0-alpha.0", "latest": "0.1.0-alpha.0" }
 ```
 
 The publish package shape has been checked:
@@ -29,11 +29,24 @@ npm publish --dry-run --access public --tag alpha
 -> pass
 ```
 
-Actual publish is still blocked by auth:
+Actual publish succeeded, and a duplicate publish attempt is correctly blocked:
 
 ```text
 npm publish --access public --tag alpha
--> ENEEDAUTH
+-> E403 previously published versions: 0.1.0-alpha.0
+```
+
+`npx` smoke passed:
+
+```text
+npx -y @ps-neko/nekowork@alpha doctor --quick
+-> WARN summary, 6 pass, 1 warn, 0 fail
+```
+
+The remaining npm registry cleanup is dist-tag only. Removing `latest` requires an npm 2FA browser challenge:
+
+```bash
+npm dist-tag rm @ps-neko/nekowork latest
 ```
 
 ## Release Shape
@@ -82,25 +95,23 @@ npm publish --dry-run --access public --tag alpha
 
 Inspect the `npm pack --dry-run --json` file list before publishing.
 
-## Publish Commands
+## Published Commands
 
-Only after npm owner auth is active:
+Published with:
 
 ```bash
 npm publish --access public --tag alpha
 ```
 
-Then smoke test from a fresh temporary directory:
+Smoke test:
 
 ```bash
-npx @ps-neko/nekowork@alpha doctor --quick
+npx -y @ps-neko/nekowork@alpha doctor --quick
 ```
 
 If the `harness` bin cannot run correctly through `npx`, do not promote the package.
 
 ## Post-Publish Work
 
-- Add README npm install path.
-- Add release notes.
-- Tag the commit.
+- Remove the accidental `latest` dist-tag after npm 2FA approval.
 - Keep source/submodule install docs for users who want repository-pinned workflows.

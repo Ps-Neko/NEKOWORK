@@ -2,7 +2,7 @@
 
 Start with [QUICKSTART.md](QUICKSTART.md) if this is your first run. This page is the deeper contributor setup guide.
 
-NEKOWORK `0.1.0-alpha.0` is prepared as a public alpha candidate but is not published to npm yet. Use a source checkout, submodule, or local repository integration until npm owner auth is available and the alpha is published.
+NEKOWORK `0.1.0-alpha.0` is published as `@ps-neko/nekowork@alpha`. Use a source checkout, submodule, or local repository integration when you need examples, tests, or repository-pinned workflows.
 
 ## Requirements
 
