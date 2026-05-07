@@ -2,6 +2,14 @@
 
 This example shows how NEKOWORK handles a financial UI request without treating it like a normal low-risk mockup.
 
+The checked-in standalone target project lives at:
+
+```text
+examples/trading-dashboard-mock/
+```
+
+It includes a static dashboard, local fixture data, a zero-dependency mock-boundary test, and case-study artifacts under `case-study/`.
+
 ## Request
 
 ```text

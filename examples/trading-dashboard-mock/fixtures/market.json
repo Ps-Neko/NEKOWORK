@@ -1,0 +1,9 @@
+{
+  "portfolio": [118.2, 119.4, 121.1, 120.3, 122.6, 124.0, 123.2, 125.7, 127.4, 126.9, 129.1, 131.3],
+  "symbols": [
+    { "symbol": "NKO", "name": "Neko Systems", "price": 142.35, "change": 2.41 },
+    { "symbol": "VRFY", "name": "Verify Labs", "price": 88.12, "change": 1.26 },
+    { "symbol": "GATE", "name": "Gatehold Inc.", "price": 54.67, "change": 0.74 },
+    { "symbol": "MOCK", "name": "Mock Market ETF", "price": 203.19, "change": 3.08 }
+  ]
+}

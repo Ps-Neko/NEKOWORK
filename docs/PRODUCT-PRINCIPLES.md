@@ -212,6 +212,8 @@ harness apply --session <id>
 - records `APPLIED_DIFF`
 - leaves commit, push, PR, release, publish, and deploy to the human
 
+`apply` is never implicit in the default beginner path. It only runs when the user explicitly asks for it through `apply` or `run --apply`.
+
 ## Run Mode
 
 The public command is:
@@ -229,6 +231,8 @@ harness run "<task>" --session <id>
 - applies only with explicit `--apply`
 - stops on human gates
 - writes `run-summary.json`
+
+`run` is the short safe wrapper for new users. It is intentionally narrower than the full long-term workflow: it does not run `plan` yet, but it records acceptance criteria through `work` and preserves the same Codex verification and Human Gate policy. `plan` remains recommended before `work` for larger changes and may become a required accepted artifact in a later release line.
 
 ## Ralph Mode
 

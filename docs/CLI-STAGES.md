@@ -19,6 +19,34 @@ ask -> plan -> team -> work -> verify -> gate -> ship -> apply
 | `ship` | Produce ship/no-ship readiness markers and handoff. | No project mutation |
 | `apply` | Apply a verified `SHIP_READY` live-work diff. | Controlled project mutation |
 
+## Beginner And Advanced Paths
+
+Beginner path:
+
+```text
+doctor -> ask -> run -> gate status
+```
+
+`run` is the short safe wrapper. It executes `work -> verify -> ship`, does not apply by default, and stops on Human Gate.
+
+Advanced path:
+
+```text
+ask -> plan -> team -> work -> verify -> gate -> ship -> apply
+```
+
+Use the advanced path when the change needs a separate plan artifact, read-only team handoffs, explicit verification control, or a manual apply step.
+
+## Plan And Run Policy
+
+For the `0.0.3` line:
+
+- `plan` is recommended before `work` for non-trivial changes.
+- `run` does not call `plan`; it remains a compact wrapper around `work -> verify -> ship`.
+- `work` always ensures `acceptance-criteria.json`, using `prd.json` when available or a task-derived minimum otherwise.
+- Future release lines may add `run --with-plan` or require an accepted plan artifact for higher-risk work.
+- `apply` is always explicit. `run` applies only with `--apply`.
+
 ## Explicit Safety Aliases
 
 These flags are accepted as public intent markers:

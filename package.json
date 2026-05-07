@@ -37,6 +37,7 @@
     "schemas/",
     "scripts/",
     "bridge/",
+    "examples/",
     "docs/",
     "SOUL.md",
     "RULES.md",

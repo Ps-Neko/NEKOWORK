@@ -1,0 +1,9 @@
+{
+  "name": "nekowork-trading-dashboard-mock",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node scripts/check.mjs"
+  }
+}

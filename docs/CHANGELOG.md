@@ -16,6 +16,7 @@
 - Add shared risk classifier, acceptance criteria artifact enforcement, and profile safety validation.
 - Add standalone `CORE-INVARIANTS`, `CLI-STAGES`, and `RISK-CLASSIFIER` docs.
 - Add trading dashboard mock example for financial UI gating.
+- Add `examples/trading-dashboard-mock`, a standalone static case-study target with local mock-boundary checks.
 
 ### Changed
 - Rewrite `docs/AUDIT.md` and `docs/ARCHITECTURE.md` with clean public-facing ASCII content.
@@ -24,6 +25,7 @@
 - Make `team-lite` explicitly read-only handoff oriented.
 - Accept explicit safety intent flags: `team --no-write`, `work --single-executor`, and `ship --require-clean-gates`.
 - Recheck risk policy in `verify` and `ship` so financial/deploy-sensitive work cannot skip Human Gate.
+- Clarify the beginner Golden Path, the advanced decomposed path, and the `run`/`apply` safety boundary.
 - Refresh Quickstart, Advanced, Architecture, Release Readiness, Audit, Runbook, and generated CODEMAP docs for the expanded alpha surface.
 
 ### Security

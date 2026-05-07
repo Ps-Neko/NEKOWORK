@@ -20,7 +20,19 @@ node scripts/cli.js doctor --quick
 
 `doctor --quick` checks Node.js, package metadata, git state, API key overrides, and provider CLI presence without running the slower freshness checks.
 
-## 2. Run A Mock Review
+## 2. Beginner Path
+
+Use this path when you want the shortest safe loop:
+
+```bash
+node scripts/cli.js ask "clarify a risky or ambiguous request" --session first-ask
+node scripts/cli.js run "implement, verify, and prepare ship readiness" --session first-run
+node scripts/cli.js gate status --session first-run
+```
+
+`run` is the short safe wrapper. It runs `work -> verify -> ship`, does not apply by default, and stops on Human Gate. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
+
+## 3. Run A Mock Review
 
 Mock mode is the default. It does not call Claude, Codex, Gemini, or any paid API.
 
@@ -129,7 +141,7 @@ node scripts/cli.js run "implement and verify a change" --session first-run
 
 `run` executes `work -> verify -> ship`. It does not apply by default. Add `--apply` only when live work produced a captured diff and you want the verified `SHIP_READY` diff applied.
 
-## 3. Inspect The Install Catalog
+## 4. Inspect The Install Catalog
 
 ```bash
 node scripts/install-plan.js --list
@@ -148,7 +160,7 @@ Profiles:
 - `research`: research-oriented profile
 - `full`: every current module
 
-## 4. Use HARNESS In A Target Project
+## 5. Use HARNESS In A Target Project
 
 For a disposable end-to-end target project demo:
 
@@ -163,6 +175,14 @@ npm run demo:external -- --cleanup
 ```
 
 See [EXAMPLE-PROJECT.md](EXAMPLE-PROJECT.md) for the full walkthrough and expected outputs.
+
+For a small checked-in case-study target, inspect:
+
+```text
+examples/trading-dashboard-mock/
+```
+
+It is a static mock project with its own `npm test` and NEKOWORK case-study artifacts under `case-study/`.
 
 Recommended 0.0.3 integration:
 
@@ -200,7 +220,7 @@ Expected outputs in the target project:
 - `.gemini/GEMINI.md`
 - `.opencode/config.json`
 
-## 5. Turn On Live Provider Calls
+## 6. Turn On Live Provider Calls
 
 Live mode uses local CLI sessions by default.
 

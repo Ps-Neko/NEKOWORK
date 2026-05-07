@@ -171,6 +171,14 @@ Rules:
 - Open gates stop the run with exit code 3.
 - `NO_SHIP` skips apply and leaves a no-ship readiness handoff.
 
+Policy:
+
+- `run` is the short safe wrapper for new users.
+- `run` does not call `plan` in the `0.0.3` line.
+- `plan` is recommended before `work` for larger changes.
+- `work` still records `acceptance-criteria.json`, so `run` preserves success criteria evidence.
+- `apply` is always explicit; use `run --apply` only after live work can produce a captured diff.
+
 Outputs:
 
 - `.harness/state/sessions/<id>/run-summary.json`
