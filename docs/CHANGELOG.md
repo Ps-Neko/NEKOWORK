@@ -26,7 +26,7 @@
 
 ### Changed
 - Publish public alpha `@ps-neko/nekowork@0.1.0-alpha.0` and record `npx @alpha` smoke success.
-- Record remaining npm dist-tag cleanup for the accidental `latest` tag.
+- Record npm's first-alpha `latest` behavior and the `E400` response when trying to remove that tag.
 - Rewrite `docs/AUDIT.md` and `docs/ARCHITECTURE.md` with clean public-facing ASCII content.
 - Link the external project demo from README, Quickstart, Porting, Demo, and Release Readiness docs.
 - Keep `review` as the legacy full cycle while making `run` the preferred decomposed wrapper for new automation.

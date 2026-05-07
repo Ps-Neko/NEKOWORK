@@ -36,7 +36,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 - Current package name: `@ps-neko/nekowork`
 - npm publishing: published as `@ps-neko/nekowork@alpha`
 - Supported install path today: npm alpha, clone, submodule, or local repository integration
-- Dist-tag note: `alpha` is published; `latest` currently also points at the alpha and should be removed with npm 2FA when convenient
+- Dist-tag note: `alpha` is published; `latest` also points at the first alpha because it is the only published version
 - Default mode: mock providers, no API keys, no provider CLI calls
 
 Current local verification:

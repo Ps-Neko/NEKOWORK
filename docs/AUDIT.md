@@ -91,7 +91,7 @@ Current local result for this working tree:
 
 | Item | Priority | Reason |
 |---|---|---|
-| Remove accidental `latest` dist-tag | High | `alpha` is correct, but npm also points `latest` at `0.1.0-alpha.0`; removing it requires npm 2FA approval |
+| Stable `latest` promotion | Medium | `alpha` is correct; npm also points `latest` at the only published version and rejected removal with `E400`, so move it to a stable version later |
 | More third-party case studies | Medium | One public repo case study exists; more languages/frameworks would improve adoption evidence |
 | Internal provider adapter | Low until requested | Only useful for private infrastructure |
 | More skill catalog expansion | Low | Should stay selective to preserve progressive disclosure |
@@ -110,6 +110,6 @@ Current external readiness, excluding broader adoption evidence: **9.0 / 10**.
 
 Main deductions:
 
-- `latest` currently points at the alpha and should be removed before treating the package as a stable default install.
+- `latest` currently points at the alpha because it is the only published version; docs still recommend `@alpha` until a stable release exists.
 - Only one independent real-world external project case study so far.
 - Advanced surfaces exist but are intentionally secondary to the public decomposed workflow and install flow.
