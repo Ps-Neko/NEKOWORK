@@ -67,6 +67,7 @@
     "validate:all": "npm run validate:agents && npm run validate:skills && npm run validate:hooks && npm run validate:manifests",
     "install:plan": "node scripts/install-plan.js",
     "install:apply": "node scripts/install-apply.js",
+    "demo:quick": "node scripts/demo-quick-run.js",
     "demo:external": "node scripts/demo-external-project.js",
     "verify:claude": "node scripts/verify/claude-live.js",
     "verify:codex": "node scripts/verify/codex-live.js",

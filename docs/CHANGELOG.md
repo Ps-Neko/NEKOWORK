@@ -5,6 +5,8 @@
 ## [Unreleased]
 
 ### Added
+- Add `npm run demo:quick` for the shortest no-API `doctor -> run -> gate status` first experience.
+- Add `docs/WHY-NEKOWORK.md` to clarify NEKOWORK's comparison against agent-pack, discipline, team, and autopilot tools.
 - Add `npm run demo:external` to create a disposable target project and verify repository-based porting end to end.
 - Add `docs/EXAMPLE-PROJECT.md` and e2e coverage for the external project demo.
 - Add product principles and core invariants for the Claude work -> Codex verification -> Human Gate runtime.

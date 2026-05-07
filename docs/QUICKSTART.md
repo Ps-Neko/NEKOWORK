@@ -20,7 +20,26 @@ node scripts/cli.js doctor --quick
 
 `doctor --quick` checks Node.js, package metadata, git state, API key overrides, and provider CLI presence without running the slower freshness checks.
 
-## 2. Beginner Path
+## 2. One-Minute Demo
+
+Use this first when you want the shortest no-API experience:
+
+```bash
+npm run demo:quick -- --cleanup
+```
+
+The quick demo creates a disposable target project, runs `doctor -> run -> gate status`, and removes the target when `--cleanup` is set. It uses mock providers and does not call Claude, Codex, Gemini, or paid APIs.
+
+Expected shape:
+
+```text
+doctor ... OK
+run workflow ... OK
+gate status ... OK
+Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false
+```
+
+## 3. Beginner Path
 
 Use this path first. It is the recommended shortest safe loop:
 
@@ -32,7 +51,7 @@ node scripts/cli.js gate status --session first-run
 
 `run` is the short safe wrapper. It runs `work -> verify -> ship`, does not apply by default, and stops on Human Gate. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
 
-## 3. Run A Mock Review
+## 4. Run A Mock Review
 
 Mock mode is the default. It does not call Claude, Codex, Gemini, or any paid API.
 
@@ -141,7 +160,7 @@ node scripts/cli.js run "implement and verify a change" --session first-run
 
 `run` executes `work -> verify -> ship`. It does not apply by default. Add `--apply` only when live work produced a captured diff and you want the verified `SHIP_READY` diff applied.
 
-## 4. Inspect The Install Catalog
+## 5. Inspect The Install Catalog
 
 ```bash
 node scripts/install-plan.js --list
@@ -161,7 +180,7 @@ Profiles:
 - `research`: research-oriented profile
 - `full`: every current module
 
-## 5. Use HARNESS In A Target Project
+## 6. Use HARNESS In A Target Project
 
 For a disposable end-to-end target project demo:
 
@@ -222,7 +241,7 @@ Expected outputs in the target project:
 - `.gemini/GEMINI.md`
 - `.opencode/config.json`
 
-## 6. Turn On Live Provider Calls
+## 7. Turn On Live Provider Calls
 
 Live mode uses local CLI sessions by default.
 
@@ -275,7 +294,7 @@ Remove-Item Env:GEMINI_API_KEY -ErrorAction SilentlyContinue
 Remove-Item Env:GOOGLE_API_KEY -ErrorAction SilentlyContinue
 ```
 
-## 6. Future npm Install Path
+## 8. Future npm Install Path
 
 The package metadata is already prepared as `@ps-neko/nekowork`, but `private: true` prevents publishing for 0.0.3.
 

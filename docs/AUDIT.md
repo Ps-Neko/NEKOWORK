@@ -15,6 +15,7 @@ This audit summarizes the current NEKOWORK state after the `v0.0.3` repository r
 | Provider auth | OK | Local delegated CLI auth is the default path |
 | Catalog | OK | 11 agents, 9 skills, 5 hooks, 7 modules, 35 components, 9 profiles |
 | Multi-harness output | OK | Claude, Codex, Cursor, Gemini, and OpenCode builders are present |
+| Quick demo | OK | `npm run demo:quick` verifies the shortest no-API `doctor -> run -> gate status` path |
 | External demo | OK | `npm run demo:external` verifies a disposable target project flow |
 | Decomposed workflow | OK | `ask`, `team`, `work`, `verify`, `gate`, `ship`, `apply`, and `run` are available |
 | Risk policy | OK | Shared classifier drives ask, routing traces, verify challenge/gates, and ship gate rechecks |
@@ -35,6 +36,7 @@ node scripts/cli.js doctor
 node scripts/cli.js doctor --quick --gemini-smoke
 npm run lint
 npm test
+npm run demo:quick -- --cleanup
 npm run demo:external -- --cleanup
 npm audit --audit-level=moderate
 node scripts/repair.js --check
@@ -48,7 +50,8 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 235 tests pass
+- `npm test`: 236 tests pass
+- quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
@@ -74,6 +77,7 @@ Current local result for this working tree:
 - `team-lite`, `ralph`, `wait`, instincts, costs, and Rust runtime remain documented as advanced surfaces.
 - Release docs, setup docs, runbook, quickstart, porting guide, and CODEMAP docs are readable for external users.
 - The disposable external project demo proves the repository-based target-project flow end to end.
+- The quick run demo proves the one-command no-API first experience.
 - Checked-in example fixtures now cover financial UI, CI hardening, and quality lifecycle evidence flows.
 
 ## Remaining Optional Work

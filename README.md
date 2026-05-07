@@ -42,7 +42,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 235 tests pass
+- `npm test`: 236 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 
@@ -53,6 +53,17 @@ Requirements:
 - Node.js 22+
 - npm
 - git
+
+Fastest no-API demo:
+
+```bash
+git clone https://github.com/Ps-Neko/NEKOWORK.git harness
+cd harness
+npm ci
+npm run demo:quick -- --cleanup
+```
+
+This creates a disposable target project and runs `doctor -> run -> gate status`. It uses mock providers and does not call Claude, Codex, Gemini, or paid APIs.
 
 Recommended path for most users:
 
@@ -95,12 +106,10 @@ To inspect small case-study targets, see [examples/trading-dashboard-mock](examp
 ## What You Get
 
 ```text
-[review:first-smoke] 1 ideate
-[review:first-smoke] 2 plan
-[review:first-smoke] 3 implement
-[review:first-smoke] 4 self-review
-[review:first-smoke] 5 codex-review
-[review:first-smoke] 7 ship skipped (--no-ship)
+doctor ... OK
+run workflow ... OK
+gate status ... OK
+Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false
 ```
 
 Outputs are written under:
@@ -196,6 +205,7 @@ Key skills:
 ```bash
 node scripts/cli.js doctor
 node scripts/cli.js doctor --quick --gemini-smoke
+npm run demo:quick
 node scripts/install-plan.js --list
 node scripts/install-plan.js --profile developer
 node scripts/install-apply.js --profile developer --project-root <target>
@@ -242,6 +252,7 @@ npm pack --dry-run --json
 ## Documentation
 
 - [docs/QUICKSTART.md](docs/QUICKSTART.md) - first run and common paths
+- [docs/WHY-NEKOWORK.md](docs/WHY-NEKOWORK.md) - comparison and product positioning
 - [docs/DEMO.md](docs/DEMO.md) - sample command output and generated files
 - [docs/EXAMPLE-PROJECT.md](docs/EXAMPLE-PROJECT.md) - repository-based external project demo
 - [examples/trading-dashboard-mock](examples/trading-dashboard-mock) - standalone financial UI mock target and case-study evidence

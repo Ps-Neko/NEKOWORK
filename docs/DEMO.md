@@ -2,6 +2,24 @@
 
 This demo uses mock providers. It does not call Claude, Codex, Gemini, or paid APIs.
 
+## Quick Run Demo
+
+```bash
+npm run demo:quick -- --cleanup
+```
+
+This is the shortest demo path. It creates a disposable target project, runs `doctor --quick`, runs `run = work -> verify -> ship`, checks `gate status`, and removes the target when `--cleanup` is set.
+
+Expected shape:
+
+```text
+NEKOWORK quick run demo
+doctor ... OK
+run workflow ... OK
+gate status ... OK
+Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false
+```
+
 ## External Project Demo
 
 ```bash
