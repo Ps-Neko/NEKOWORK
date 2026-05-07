@@ -60,6 +60,12 @@ for (const [mid, m] of Object.entries(modules.modules)) {
 }
 
 // 6. 프로파일 ↔ 모듈 일관성
+for (const [packId, pack] of Object.entries(profiles.packs || {})) {
+  if (!profiles.profiles[pack.profile]) {
+    errors.push(`pack "${packId}" references missing profile: ${pack.profile}`);
+  }
+}
+
 for (const [pid, p] of Object.entries(profiles.profiles)) {
   for (const mid of p.modules) {
     if (!modules.modules[mid]) {
@@ -110,6 +116,7 @@ console.log(`  commands     선언 ${manifest.commands?.length || 0}, 파일 ${c
 console.log(`  modules      ${Object.keys(modules.modules).length}`);
 console.log(`  components   ${Object.keys(components.components).length}`);
 console.log(`  profiles     ${Object.keys(profiles.profiles).length}`);
+console.log(`  packs        ${Object.keys(profiles.packs || {}).length}`);
 console.log('');
 
 function countExisting(dir, list, ext) {

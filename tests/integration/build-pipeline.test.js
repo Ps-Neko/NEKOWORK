@@ -104,9 +104,20 @@ test('install plan: --list exposes selectable catalog', () => {
   const catalog = JSON.parse(r.stdout);
   assert.equal(catalog.default_profile, 'developer');
   assert.ok(catalog.targets.some(t => t.name === 'claude'));
+  assert.ok(catalog.packs.some(p => p.name === 'security' && p.profile === 'security'));
   assert.ok(catalog.profiles.some(p => p.name === 'security'));
   assert.ok(catalog.modules.some(m => m.name === 'codex-loop'));
   assert.ok(catalog.components.some(c => c.name === 'skill:claude-led-codex-review'));
+});
+
+test('install plan: official pack aliases resolve to safe profiles', () => {
+  const r = run('scripts/install-plan.js', ['--pack', 'release', '--json']);
+  assert.equal(r.status, 0, `pack plan failed: ${r.stderr}`);
+  const plan = JSON.parse(r.stdout);
+  assert.equal(plan.pack, 'release');
+  assert.equal(plan.profile, 'developer');
+  assert.match(plan.pack_workflow, /run -> report -> gate -> ship/);
+  assert.ok(plan.modules.includes('codex-loop'));
 });
 
 test('install plan: unknown target/module/component filters fail fast', () => {
@@ -116,10 +127,12 @@ test('install plan: unknown target/module/component filters fail fast', () => {
     [['--without-module', 'nope'], /unknown module: nope/],
     [['--component', 'nope:thing'], /unknown component: nope:thing/],
     [['--without-component', 'nope:thing'], /unknown component: nope:thing/],
+    [['--pack', 'nope'], /unknown pack: nope/],
+    [['--profile', 'core', '--pack', 'security'], /--profile and --pack cannot be used together/],
   ];
 
   for (const [args, pattern] of cases) {
-    const r = run('scripts/install-plan.js', ['--profile', 'core', ...args]);
+    const r = run('scripts/install-plan.js', args.some(arg => arg === '--profile' || arg === '--pack') ? args : ['--profile', 'core', ...args]);
     assert.equal(r.status, 1, `expected failure for ${args.join(' ')}`);
     assert.match(r.stderr, pattern);
   }

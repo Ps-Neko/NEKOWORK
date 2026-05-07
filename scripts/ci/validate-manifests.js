@@ -63,6 +63,11 @@ const componentsDoc = loaded['manifests/install-components.json'];
 const manifest = loaded['agent.yaml'];
 
 if (profilesDoc && modulesDoc) {
+  for (const [packId, pack] of Object.entries(profilesDoc.packs || {})) {
+    if (!profilesDoc.profiles?.[pack.profile]) {
+      errors.push(`pack "${packId}" references missing profile "${pack.profile}"`);
+    }
+  }
   for (const [pid, p] of Object.entries(profilesDoc.profiles || {})) {
     for (const mid of p.modules || []) {
       if (!modulesDoc.modules?.[mid]) {

@@ -18,6 +18,8 @@ NEKOWORK = Claude work -> Codex verification -> Human Gate
 
 NEKOWORK is not meant to become a large agent pack. Skills, hooks, profiles, and team modes are added only when they preserve the verification loop.
 
+NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, profile, module, and pack must preserve the verification loop.
+
 ## Three Paths
 
 Most users should start with the Beginner path. The other paths are for explicit phase control or legacy compatibility.
@@ -42,9 +44,18 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 244 tests pass
+- `npm test`: 245 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
+
+Public alpha evidence:
+
+- 7 official packs
+- 9 install profiles
+- 7 modules and 36 components
+- 11 agents, 10 skills, 5 hooks
+- 5 harness targets: Claude, Codex, Cursor, Gemini, OpenCode
+- 6 case-study flows: financial UI, CI hardening, quality lifecycle, npm package, auth parser, Python protocol
 
 ## Quick Start
 
@@ -189,6 +200,16 @@ Advanced features such as `team-lite`, `ralph`, `wait`, instincts, cost tracking
 
 Use `--profile quality` or `--profile security` on `work`, `verify`, and `run` when a task needs stronger evidence prompts. Add `--strict-quality` to `verify` or `run` when missing evidence or acceptance coverage should become a fix-required verdict before ship.
 
+Use official packs when choosing an install shape:
+
+```bash
+node scripts/install-plan.js --list
+node scripts/install-plan.js --pack quality
+node scripts/install-plan.js --pack security --target codex --json
+```
+
+Packs are aliases over validated profiles. They add clearer product packaging without weakening the core gates.
+
 ## Catalog
 
 - Agents: 11
@@ -196,6 +217,7 @@ Use `--profile quality` or `--profile security` on `work`, `verify`, and `run` w
 - Hooks: 5
 - Modules: 7
 - Profiles: `core`, `developer`, `security`, `product`, `quality`, `frontend`, `testing`, `research`, `full`
+- Official packs: `core`, `quality`, `security`, `frontend`, `testing`, `release`, `enterprise`
 - Harness targets: `claude`, `codex`, `cursor`, `gemini`, `opencode`
 
 Key skills:
@@ -218,6 +240,7 @@ node scripts/cli.js doctor
 node scripts/cli.js doctor --quick --gemini-smoke
 npm run demo:quick
 node scripts/install-plan.js --list
+node scripts/install-plan.js --pack quality
 node scripts/install-plan.js --profile developer
 node scripts/install-apply.js --profile developer --project-root <target>
 
@@ -266,6 +289,7 @@ npm pack --dry-run --json
 
 - [docs/QUICKSTART.md](docs/QUICKSTART.md) - first run and common paths
 - [docs/WHY-NEKOWORK.md](docs/WHY-NEKOWORK.md) - comparison and product positioning
+- [docs/CATALOG-PACKS.md](docs/CATALOG-PACKS.md) - curated catalog, official packs, and case-study evidence
 - [docs/PUBLISH-ALPHA.md](docs/PUBLISH-ALPHA.md) - public npm alpha release plan
 - [docs/INTERNAL-PROVIDER.md](docs/INTERNAL-PROVIDER.md) - private command adapter protocol
 - [docs/DEMO.md](docs/DEMO.md) - sample command output and generated files

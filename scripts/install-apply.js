@@ -19,6 +19,7 @@ const ROOT = path.resolve(__dirname, '..');
 function parseArgs(argv) {
   const args = {
     profile: null,
+    pack: null,
     harness: null,
     force: false,
     dryRun: false,
@@ -31,6 +32,7 @@ function parseArgs(argv) {
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--profile') args.profile = takeValue(argv, i++, a);
+    else if (a === '--pack') args.pack = takeValue(argv, i++, a);
     else if (a === '--harness' || a === '--target') args.harness = takeValue(argv, i++, a);
     else if (a === '--module' || a === '--with-module') args.modules.push(takeValue(argv, i++, a));
     else if (a === '--without-module') args.withoutModules.push(takeValue(argv, i++, a));
@@ -59,7 +61,7 @@ function printHelp() {
 HARNESS install --apply
 
 사용법:
-  install.sh --apply [--profile <name>] [--harness <name>] [--module <id>] [--component <id>] [--project-root <dir>] [--force] [--dry-run]
+  install.sh --apply [--profile <name>] [--pack <name>] [--harness <name>] [--module <id>] [--component <id>] [--project-root <dir>] [--force] [--dry-run]
 
 옵션:
   --profile <name>          프로파일 선택 (기본: agent.yaml profiles.default)
@@ -153,7 +155,7 @@ async function main() {
   // 4. state 기록
   console.log('');
   console.log('=> state 기록');
-  recordState(args.profile || manifest.profiles?.default || 'developer', harnessDefs, builders, targetRoot);
+  recordState(resolveInstallProfile(args, manifest), harnessDefs, builders, targetRoot);
 
   // 5. 마커 검증
   console.log('');
@@ -170,6 +172,7 @@ async function main() {
 function planArgs(args) {
   return [
     ...(args.profile ? ['--profile', args.profile] : []),
+    ...(args.pack ? ['--pack', args.pack] : []),
     ...(args.harness ? ['--target', args.harness] : []),
     ...(args.projectRoot ? ['--project-root', args.projectRoot] : []),
     ...args.modules.flatMap(v => ['--module', v]),
@@ -177,6 +180,16 @@ function planArgs(args) {
     ...args.components.flatMap(v => ['--component', v]),
     ...args.withoutComponents.flatMap(v => ['--without-component', v]),
   ];
+}
+
+function resolveInstallProfile(args, manifest) {
+  if (args.profile) return args.profile;
+  if (args.pack) {
+    const profilesDoc = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifests', 'install-profiles.json'), 'utf8'));
+    const pack = profilesDoc.packs?.[args.pack];
+    if (pack?.profile) return pack.profile;
+  }
+  return manifest.profiles?.default || 'developer';
 }
 
 main().catch((e) => {

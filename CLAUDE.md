@@ -17,6 +17,7 @@
 - skills: 10
 - commands: 1 (legacy compat)
 - hooks: 5 (gateguard-fact-force, config-protection, quality-gate, pre-bash-dispatcher, persistent-mode)
+- packs: core, quality, security, frontend, testing, release, enterprise
 - profiles: core, developer, security, product, quality, frontend, testing, research, full
 - harnesses: claude, codex, cursor, gemini, opencode
 
@@ -40,12 +41,14 @@
 
 ```bash
 harness install --plan --profile core      # 설치 dry-run
+harness install --plan --pack quality      # curated pack dry-run
 harness ask "<task>"                       # question gate, no project mutation
 harness team "<task>"                      # read-only worker handoffs
 harness work "<task>"                      # single executor implement handoff
 harness verify "<task>" --session <id>     # Codex-only verification
 harness gate status --session <id>         # inspect or resolve HUMAN_GATE state
 harness ship "<task>" --session <id>       # ship/no-ship readiness handoff
+harness report --session <id>              # readable evidence report
 harness apply --session <id>               # apply verified SHIP_READY live-work diff
 harness run "<task>" --session <id>        # work -> verify -> ship, optional --apply
 harness review "<task>" [--secure|--fast|--no-ship]  # legacy full cycle

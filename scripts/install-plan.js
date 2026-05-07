@@ -15,6 +15,7 @@ const ROOT = path.resolve(__dirname, '..');
 function parseArgs(argv) {
   const args = {
     profile: null,
+    pack: null,
     harness: null,
     json: false,
     list: false,
@@ -29,6 +30,7 @@ function parseArgs(argv) {
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--profile') args.profile = takeValue(argv, i++, a);
+    else if (a === '--pack') args.pack = takeValue(argv, i++, a);
     else if (a === '--harness' || a === '--target') args.harness = takeValue(argv, i++, a);
     else if (a === '--module' || a === '--with-module') args.modules.push(takeValue(argv, i++, a));
     else if (a === '--without-module') args.withoutModules.push(takeValue(argv, i++, a));
@@ -63,11 +65,12 @@ function printHelp() {
 HARNESS install --plan
 
 Usage:
-  install.sh --plan [--profile <name>] [--target <name>] [--module <id>] [--component <id>] [--project-root <dir>] [--json] [--verbose]
+  install.sh --plan [--profile <name>] [--pack <name>] [--target <name>] [--module <id>] [--component <id>] [--project-root <dir>] [--json] [--verbose]
   install.sh --plan --list [--json]
 
 Options:
   --profile <name>          profile to install (core | developer | security | product | quality | frontend | testing | research | full)
+  --pack <name>             official pack alias (core | quality | security | frontend | testing | release | enterprise)
   --target <name>           harness target (claude | codex | cursor | gemini | opencode)
   --harness <name>          alias for --target
   --module <id>             include an additional module, repeatable
@@ -84,6 +87,7 @@ Options:
 Examples:
   ./install.sh --plan --list
   ./install.sh --plan --profile core
+  ./install.sh --plan --pack security
   ./install.sh --plan --profile developer --target claude --json
   ./install.sh --plan --profile core --module codex-loop --without-component hook:persistent-mode
 `);
@@ -143,7 +147,9 @@ function plan(profileName, filters = {}) {
   const modulesDoc = readJson('manifests/install-modules.json');
   const componentsDoc = readJson('manifests/install-components.json');
 
-  const resolvedProfile = profileName || manifest.profiles?.default || 'core';
+  const packName = filters.pack || null;
+  const pack = resolvePack(profilesDoc, packName, profileName);
+  const resolvedProfile = profileName || pack?.profile || manifest.profiles?.default || 'core';
   const profile = profilesDoc.profiles[resolvedProfile];
   if (!profile) {
     throw new Error(`unknown profile: ${resolvedProfile}. available: ${Object.keys(profilesDoc.profiles).join(', ')}`);
@@ -195,6 +201,9 @@ function plan(profileName, filters = {}) {
 
   return {
     harness_version: manifest.version,
+    pack: packName || null,
+    pack_description: pack?.description || null,
+    pack_workflow: pack?.workflow || null,
     profile: resolvedProfile,
     profile_description: profile.description,
     profile_defaults: profile.defaults || null,
@@ -233,6 +242,20 @@ function validateSelections({ manifest, modulesDoc, componentsDoc, filters }) {
   }
 }
 
+function resolvePack(profilesDoc, packName, profileName) {
+  if (!packName) return null;
+  if (profileName) throw new Error('--profile and --pack cannot be used together');
+  const packs = profilesDoc.packs || {};
+  const pack = packs[packName];
+  if (!pack) {
+    throw new Error(`unknown pack: ${packName}. available: ${Object.keys(packs).join(', ')}`);
+  }
+  if (!profilesDoc.profiles[pack.profile]) {
+    throw new Error(`pack "${packName}" references unknown profile: ${pack.profile}`);
+  }
+  return pack;
+}
+
 function pushComponentRows(componentRows, moduleName, cid, comp, harnessFilter) {
   const targets = comp.target || {};
   const harnesses = Object.keys(targets);
@@ -269,8 +292,10 @@ function printPlan(p) {
   const bold = (s) => process.stdout.isTTY ? `\x1b[1m${s}\x1b[0m` : s;
   console.log('');
   console.log(bold(`HARNESS install --plan  (v${p.harness_version})`));
+  if (p.pack) console.log('  pack         : ' + p.pack);
   console.log('  profile      : ' + p.profile);
   console.log('  description  : ' + p.profile_description);
+  if (p.pack_workflow) console.log('  workflow     : ' + p.pack_workflow);
   if (p.harness_filter) console.log('  target       : ' + p.harness_filter);
   if (p.target_root) console.log('  target root  : ' + p.target_root);
   if (p.selected_modules.length) console.log('  with modules : ' + p.selected_modules.join(', '));
@@ -315,6 +340,13 @@ function listCatalog() {
       output_dir: h.output_dir,
       builder: h.builder,
     })),
+    packs: Object.entries(profilesDoc.packs || {}).map(([name, p]) => ({
+      name,
+      description: p.description,
+      profile: p.profile,
+      workflow: p.workflow,
+      use_when: p.use_when || null,
+    })),
     profiles: Object.entries(profilesDoc.profiles).map(([name, p]) => ({
       name,
       description: p.description,
@@ -350,6 +382,14 @@ function printCatalog(catalog) {
     console.log(`  - ${t.name.padEnd(8)} ${t.output_dir.padEnd(12)} ${t.builder}`);
   }
   console.log('');
+
+  if (catalog.packs.length) {
+    console.log(bold('Official Packs'));
+    for (const p of catalog.packs) {
+      console.log(`  - ${p.name.padEnd(10)} profile=${p.profile.padEnd(10)} ${p.workflow}`);
+    }
+    console.log('');
+  }
 
   console.log(bold('Profiles'));
   for (const p of catalog.profiles) {

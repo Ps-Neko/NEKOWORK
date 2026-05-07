@@ -46,7 +46,7 @@ Current local verification after the decomposed workflow expansion:
 - `npm run lint`: pass
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
-- `npm test`: 244 tests pass
+- `npm test`: 245 tests pass
 - `npm run demo:quick -- --cleanup`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
@@ -60,6 +60,7 @@ For the default developer profile:
 
 ```bash
 node scripts/install-plan.js --list --json
+node scripts/install-plan.js --pack quality --json
 node scripts/install-plan.js --profile developer --json
 node scripts/portability/simulate-port.js <target> --profile developer --json
 node scripts/install-apply.js --profile developer --project-root <target>

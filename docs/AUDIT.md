@@ -15,7 +15,7 @@ This audit summarizes the current NEKOWORK state after preparing the `0.1.0-alph
 | CLI doctor | OK | `doctor`, `doctor --quick`, and `doctor --gemini-smoke` are available |
 | Provider auth | OK | Local delegated CLI auth is the default path |
 | Internal provider adapter | OK | `HARNESS_PROVIDER_OVERRIDE=internal` can call an explicit JSON command adapter without weakening gates |
-| Catalog | OK | 11 agents, 10 skills, 5 hooks, 7 modules, 36 components, 9 profiles |
+| Catalog | OK | 7 official packs, 11 agents, 10 skills, 5 hooks, 7 modules, 36 components, 9 profiles |
 | Multi-harness output | OK | Claude, Codex, Cursor, Gemini, and OpenCode builders are present |
 | Quick demo | OK | `npm run demo:quick` verifies the shortest no-API `doctor -> run -> report -> gate status` path |
 | Report UX | OK | `report` writes inspect-only `REPORT.md` and `report-summary.json` from session evidence |
@@ -54,7 +54,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 244 tests pass
+- `npm test`: 245 tests pass
 - quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass
@@ -88,6 +88,7 @@ Current local result for this working tree:
 - The disposable external project demo proves the repository-based target-project flow end to end.
 - The quick run demo proves the one-command no-API first experience.
 - `report` gives public alpha users a readable inspect-only session artifact without applying or mutating project files.
+- Official packs expose curated install shapes without creating a second safety model.
 - Checked-in example fixtures now cover financial UI, CI hardening, and quality lifecycle evidence flows.
 - Third-party case studies record NEKOWORK runs against `sindresorhus/is-plain-obj`, `jshttp/basic-auth`, and `python-hyper/h11`.
 - Public npm alpha `0.1.0-alpha.0` is published and smoke-tested through `npx`; `0.1.0-alpha.1` is prepared for owner-authenticated publish.
