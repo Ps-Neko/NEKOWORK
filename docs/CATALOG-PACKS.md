@@ -19,7 +19,7 @@ Packs are public install aliases over validated profiles. They make the catalog 
 10 skills
 5 hooks
 5 tool targets
-7 case-study flows
+8 case-study flows
 293 tests
 ```
 
@@ -39,6 +39,7 @@ npm package boundary
 auth parser boundary
 Python protocol parser boundary
 environment configuration boundary
+local diary app validation
 ```
 
 ## Official Packs

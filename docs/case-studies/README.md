@@ -17,3 +17,4 @@ Case studies must keep the NEKOWORK invariants visible:
 - [jshttp/basic-auth](JSHTTP-BASIC-AUTH.md): third-party public auth parser, security-profile run, Codex review plus challenge, no-ship evidence.
 - [python-hyper/h11](PYTHON-HYPER-H11.md): third-party public Python HTTP/1.1 protocol library, quality-profile run, strict quality no-ship evidence.
 - [motdotla/dotenv](MOTDOTLA-DOTENV.md): third-party public environment configuration loader, security-profile run, Windows path failures plus no-ship evidence.
+- [Diary local app](DIARY-LOCAL-APP.md): user-provided local full-stack app produced with the NEKOWORK skill/process, validated with tests, typecheck, and lint.

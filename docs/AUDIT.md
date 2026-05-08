@@ -21,7 +21,7 @@ This audit summarizes the current NEKOWORK state after publishing the `0.1.0-alp
 | Fresh npm alpha smoke | OK | CI runs `npx -y @ps-neko/nekowork@alpha check --json` from a disposable directory |
 | Report UX | OK | `report` writes inspect-only `REPORT.md` and `report-summary.json` from session evidence |
 | External demo | OK | `npm run demo:external` verifies a disposable target project flow |
-| Third-party case studies | OK | `docs/case-studies/` records real public repository runs for npm package, auth boundary, Python protocol, and environment configuration targets |
+| Third-party case studies | OK | `docs/case-studies/` records real public repository runs for npm package, auth boundary, Python protocol, and environment configuration targets, plus a user-provided local Diary app validation |
 | Decomposed workflow | OK | `ask`, `team`, `work`, `verify`, `gate`, `ship`, `report`, `apply`, and `run` are available |
 | Risk policy | OK | Shared classifier drives ask, routing traces, verify challenge/gates, and ship gate rechecks |
 | Acceptance criteria | OK | `work` ensures every session has `acceptance-criteria.json` |
@@ -93,7 +93,7 @@ Current local result for this working tree:
 - `report` gives public alpha users a readable inspect-only session artifact without applying or mutating project files.
 - Official packs expose curated install shapes without creating a second safety model.
 - Checked-in example fixtures now cover financial UI, CI hardening, and quality lifecycle evidence flows.
-- Third-party case studies record NEKOWORK runs against `sindresorhus/is-plain-obj`, `jshttp/basic-auth`, `python-hyper/h11`, and `motdotla/dotenv`.
+- Third-party case studies record NEKOWORK runs against `sindresorhus/is-plain-obj`, `jshttp/basic-auth`, `python-hyper/h11`, and `motdotla/dotenv`; local generated-app evidence records the user-provided Diary app validation.
 - Public npm alpha `0.1.0-alpha.8` is published under the `alpha` dist-tag.
 
 ## Remaining Optional Work
@@ -119,5 +119,5 @@ Current external readiness, excluding broader adoption evidence: **9.2 / 10**.
 Main deductions:
 
 - `latest` currently remains on the first alpha; docs still recommend `@alpha` until a stable release exists.
-- Four independent real-world external project case studies exist so far.
+- Four independent real-world external project case studies exist so far, plus one user-provided local generated-app validation.
 - Advanced surfaces exist but are intentionally secondary to the public decomposed workflow and install flow.
