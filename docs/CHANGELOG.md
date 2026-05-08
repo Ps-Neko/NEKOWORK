@@ -4,7 +4,12 @@
 
 ## [Unreleased]
 
+## [0.1.0-alpha.8] - 2026-05-08
+
 ### Added
+- Add bounded `auto` mode for apply-before-boundary autonomy: route, build, verify, repair fixable no-ship findings within budget, report, then stop before apply.
+- Add `docs/AUTONOMY.md` and `auto-summary.json` report evidence for cautious, normal, and aggressive autonomy levels.
+- Add `docs/PARALLEL-CANDIDATES.md` and `docs/PR-PREP.md` as the alpha.9/alpha.10 verified autopilot tracks.
 - Add the `productivity` pack/profile for brainstorm, plan, TDD, debug, execute, verify, report, and finish routines over the safe build loop.
 - Add verified productivity catalog pack aliases for `team`, `debugging`, `maintenance`, `pr`, and `catalog-plus`.
 - Add manifest/schema-backed build mode safety policy in `manifests/build-modes.json`.
@@ -13,6 +18,8 @@
 
 ### Changed
 - Extract the `build` command surface from `scripts/cli.js` into a dedicated CLI command module.
+- Expose bounded autonomy as a public `auto` command while keeping apply, commit, push, publish, and deploy explicit.
+- Reposition the first screen and package metadata around "Verified Autopilot for AI code changes."
 - Generalize `build` mode override protection from `safe`-only checks to risk-aware lower-safety downgrade checks.
 - Validate build mode safety ordering through `validate:manifests`.
 

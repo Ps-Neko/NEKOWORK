@@ -1,14 +1,22 @@
 # Product Principles
 
-NEKOWORK is not a large agent pack. It is a local-first AI development runtime where Claude produces work, Codex verifies it from a separate context, and human gates stop risky changes.
+NEKOWORK is not a large agent pack. It is a verified autopilot for AI code changes: agents can plan, build, verify, and repair before the apply boundary, Codex verifies from a separate context, and human gates stop risky changes.
 
 ## Position
 
 ```text
-NEKOWORK = fast AI build -> Codex verification -> Human Gate -> explicit apply
+NEKOWORK = verified autopilot -> Codex verification -> Human Gate -> explicit apply
 ```
 
 Agent catalogs, skill packs, hooks, profiles, build modes, and team execution are useful only when they strengthen that verification loop.
+
+The product promise is:
+
+```text
+Autonomous until apply.
+Verified before ship.
+Human-controlled at the boundary.
+```
 
 NEKOWORK also acts as a local-first AI development quality runtime:
 
@@ -76,6 +84,7 @@ The phases mean:
 | `apply` | Apply a verified `SHIP_READY` live-work diff to the target project. | Controlled project mutation |
 | `run` | Convenience wrapper for `work -> verify -> ship`, optional `apply`. | Wrapper; mutation only with `--apply` |
 | `build` | One-command builder wrapper with default `auto` routing plus `fast`, `safe`, `team`, `tdd`, and `release` modes. Risky overrides require `--force-mode`. | Wrapper; same apply controls |
+| `auto` | Bounded autonomy wrapper for build, verify, fixable repair, report, and apply-boundary stop. | Wrapper; never accepts `--apply` |
 
 For the current alpha line, `review` remains the legacy full cycle, and `review-cycle` is an explicit compatibility alias:
 

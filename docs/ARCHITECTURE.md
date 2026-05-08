@@ -1,6 +1,6 @@
 # Architecture
 
-NEKOWORK is the product and public name. It packages a local runtime with one canonical catalog and projects that catalog into multiple agent surfaces. The `harness` binary remains a legacy/internal CLI alias.
+NEKOWORK is the product and public name. It is a verified autopilot for AI code changes with one canonical catalog projected into multiple agent surfaces. The `harness` binary remains a legacy/internal CLI alias.
 
 ## Core Idea
 
@@ -88,6 +88,7 @@ node scripts/cli.js report --session work-smoke --project-root <target>
 node scripts/cli.js apply --session work-smoke --project-root <target>
 node scripts/cli.js run "decomposed wrapper" --session run-smoke --project-root <target>
 node scripts/cli.js build "safe builder wrapper" --mode team --session build-smoke --project-root <target>
+node scripts/cli.js auto "bounded autonomy before apply" --level normal --session auto-smoke --project-root <target>
 node scripts/cli.js review "change request" --no-ship --project-root <target>
 node scripts/cli.js review-cycle "legacy full-cycle request" --no-ship --project-root <target>
 ```
@@ -205,8 +206,8 @@ Builders project the catalog into tool-specific files:
 
 ## Release State
 
-The current repository release line is `0.1.0-alpha.7`:
+The current repository release line is `0.1.0-alpha.8` candidate:
 
 - Repository and GitHub tarball release are available.
-- Public npm alpha is published as `@ps-neko/nekowork@alpha` and currently points at `0.1.0-alpha.7`.
+- Public npm alpha is published as `@ps-neko/nekowork@alpha` and currently points at `0.1.0-alpha.7`; alpha.8 publish is pending owner OTP/web auth.
 - Clone, submodule, and local checkout integration remain supported for repository-pinned workflows.

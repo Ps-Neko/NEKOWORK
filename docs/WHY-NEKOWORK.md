@@ -1,6 +1,6 @@
 # Why NEKOWORK
 
-NEKOWORK is not another Claude Code power pack. It is a local-first AI development runtime that helps agents build quickly, then turns their work into auditable, gated, explicitly applied changes.
+NEKOWORK is not another Claude Code power pack. It is a verified autopilot for AI code changes: agents build and repair before the apply boundary, Codex verifies the result, and the human controls final apply.
 
 ## Position
 
@@ -9,13 +9,13 @@ Superpowers teaches the agent discipline.
 Everything Claude Code gives the agent a broad operating environment.
 GStack turns the agent into a startup-style team.
 OMC makes the agent run more autonomously.
-NEKOWORK lets the agent build, prove, gate, and apply safely.
+NEKOWORK lets the agent build, repair, prove, gate, and apply safely.
 ```
 
 NEKOWORK can absorb useful ideas from those systems, but only as capabilities. The architecture stays fixed around:
 
 ```text
-fast AI build -> Codex verification -> report -> Human Gate -> explicit apply
+verified autopilot -> Codex verification -> report -> Human Gate -> explicit apply
 ```
 
 NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, profile, build mode, module, and pack must preserve the verification loop.
@@ -38,7 +38,7 @@ NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, pr
 | Large agent catalog | Many roles, skills, and commands | Keep catalogs selective; make verification the product |
 | Discipline workflow | TDD, planning, debugging, review method | Add `quality` profile, evidence policy, and strict quality gates |
 | Team simulation | Many specialists thinking in parallel | Keep `team` read-only and preserve one executor for writes |
-| Autopilot UX | Fast one-command execution | Use `build` as the mode wrapper over `run`; apply remains explicit |
+| Autopilot UX | Fast one-command execution | Use bounded `auto` to build, verify, repair, report, and stop before apply |
 | Cross-tool setup | Many harness surfaces | Project one source catalog into Claude, Codex, Cursor, Gemini, and OpenCode |
 
 ## Catalog Interpretation
@@ -64,6 +64,7 @@ but a curated builder catalog for reportable, gated, explicitly applied changes
 ## What NEKOWORK Optimizes For
 
 - Local delegated auth, not static API keys by default.
+- Verified autopilot flow for build, verify, fixable repair, report, and apply-boundary control.
 - One-command build modes for fast, safe, team, TDD, and release flows.
 - Inspectable session artifacts and handoffs.
 - Read-only multi-agent thinking.
@@ -84,8 +85,8 @@ but a curated builder catalog for reportable, gated, explicitly applied changes
 English:
 
 ```text
-NEKOWORK is a local-first AI development runtime for fast, verified code changes.
-It helps agents build quickly, then makes their changes prove themselves
+NEKOWORK is a verified autopilot for AI code changes.
+It helps agents build and repair quickly, then makes their changes prove themselves
 through independent verification, Human Gate decisions, and explicit apply control.
 ```
 

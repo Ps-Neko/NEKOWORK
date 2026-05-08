@@ -30,6 +30,7 @@ scripts/
 |   `-- validate-skills.js
 |-- cli/
 |   `-- commands/
+|       |-- auto-command.js
 |       `-- build-command.js
 |-- core/
 |   |-- auth-guard.js
@@ -59,6 +60,7 @@ scripts/
 |-- orchestrators/
 |   |-- apply.js
 |   |-- ask.js
+|   |-- auto.js
 |   |-- build.js
 |   |-- gate.js
 |   |-- ralph.js
@@ -122,6 +124,7 @@ scripts/
 | `ci/validate-manifests.js` | _(none)_ | agent.yaml + manifests/install-{profiles,modules,components}.json . 1) schema 2) |
 | `ci/validate-skills.js` | _(none)_ | skills/<name>/SKILL.md frontmatter schemas/skill.schema.json . agent.yaml skills . |
 | `cli.js` | _(none)_ | NEKOWORK CLI entrypoint. The `harness` bin remains a legacy/internal alias. Public verbs: check, init, doctor, ask, plan, team, work, verify |
+| `cli/commands/auto-command.js` | `parseAutoArgs`, `runAutoCommand` |  |
 | `cli/commands/build-command.js` | `parseBuildArgs`, `runBuildCommand` |  |
 | `core/auth-guard.js` | ` BLOCKED_ENV `, `assertDelegatedCliAuth` |  |
 | `core/build-roots.js` | `buildRoots` |  |
@@ -153,6 +156,7 @@ scripts/
 | `lib/token-vault.js` | `audit`, `backend`, `list`, `load`, `redact`, `remove`, `save` | scripts/lib/token-vault.js auth.token_store: os-keychain (default) encrypted-file. : HARNESS_TOKEN_STORE_KIND=os-keychain keychain only ( th |
 | `orchestrators/apply.js` | `applyCycle`, `latestStageHandoff`, `readApplyGitStatus`, `readDiffForHandoff`, `readPriorHandoffs` |  |
 | `orchestrators/ask.js` | `askGate`, `buildQuestionGate`, `classifyAskTask` |  |
+| `orchestrators/auto.js` | `autoCycle`, `autoPlan`, `normalizeAutoLevel` |  |
 | `orchestrators/build.js` | `buildCycle`, `buildModePreset`, `buildPlan`, `normalizeBuildMode` |  |
 | `orchestrators/gate.js` | `approveGate`, `blockGate`, `gateCommand`, `gateStatus`, `markerTime`, `readMarker` |  |
 | `orchestrators/ralph.js` | `defaultPrd`, `normalizeEngine`, `ralphLoop` | Persistent Ralph loop. It repeats an execution engine until PRD acceptance criteria pass, a human gate stops the run, cost cap is hit, or ma |

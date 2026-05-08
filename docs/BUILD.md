@@ -10,6 +10,14 @@ nekowork gate status --session latest
 
 Drop down to `ask`, `plan`, `team`, `work`, `verify`, `ship`, and `apply` only when you need phase-level control.
 
+Use `auto` when you want bounded autonomy before apply:
+
+```bash
+nekowork auto "fix failing tests safely" --level normal
+```
+
+`auto` wraps `build`, repeats fixable no-ship work within a level budget, writes `auto-summary.json`, generates `REPORT.md`, and stops before apply.
+
 Preview the planned mode without running workers:
 
 ```bash

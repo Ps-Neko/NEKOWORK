@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 // NEKOWORK CLI entrypoint. The `harness` bin remains a legacy/internal alias.
-// Public verbs: check, init, doctor, ask, plan, team, work, verify, gate, ship, apply, run, build, report, review, review-cycle, install, validate, version.
+// Public verbs: check, init, doctor, ask, plan, team, work, verify, gate, ship, apply, run, build, auto, report, review, review-cycle, install, validate, version.
 // Advanced verbs: self-review, codex-review, ralph, wait, sessions, costs, instincts.
 
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runAutoCommand } from './cli/commands/auto-command.js';
 import { runBuildCommand } from './cli/commands/build-command.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -69,6 +70,8 @@ Review loop
                                          decomposed wrapper: work -> verify -> ship, optional apply
   build "<task>" [--mode auto|fast|safe|team|tdd|release] [--dry-run] [--explain] [--force-mode] [--session <id>] [--live] [--apply] [--project-root <dir>] [--json]
                                          one-command builder wrapper; auto mode routes task intent safely
+  auto "<task>" [--level cautious|normal|aggressive] [--budget N] [--mode auto|fast|safe|team|tdd|release] [--dry-run] [--explain] [--session <id>] [--live] [--project-root <dir>] [--json]
+                                         bounded autonomy before apply: route, build, verify, repair within budget, report, stop
   report --session <id> [--project-root <dir>] [--output <file>] [--stdout] [--json]
                                          summarize session evidence into REPORT.md; inspect-only
   review "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>] [--project-root <dir>]
@@ -1001,6 +1004,17 @@ function checkArgs(argv) {
 
     case 'build': {
       const result = await runBuildCommand({
+        argv: rest,
+        harnessRoot: ROOT,
+        resolveProjectRoot,
+        usageError,
+      });
+      if (result.exitCode) process.exit(result.exitCode);
+      break;
+    }
+
+    case 'auto': {
+      const result = await runAutoCommand({
         argv: rest,
         harnessRoot: ROOT,
         resolveProjectRoot,
