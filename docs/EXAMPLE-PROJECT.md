@@ -81,7 +81,7 @@ demo-target/
 ## What This Proves
 
 - NEKOWORK can stay outside the target project as a tool root.
-- Generated harness surfaces are written into the target project.
+- Generated NEKOWORK tool surfaces are written into the target project.
 - Session state is written under the target project's `.harness/`.
 - The default planning flow works without live provider calls.
 

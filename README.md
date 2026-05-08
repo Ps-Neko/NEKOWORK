@@ -2,11 +2,13 @@
 
 Verified Autopilot for AI code changes.
 
-[![harness-validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
+[![validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
 AI builds. Codex verifies. You approve the boundary.
 
 NEKOWORK plans, edits, verifies, repairs, and prepares ship-ready AI code changes. Final apply remains human-controlled.
+
+Note: "Verified" means independently reviewed with recorded evidence, not mathematically proven correctness. NEKOWORK combines Codex review, test evidence, risk policy, Human Gate, and explicit apply boundaries.
 
 It runs:
 
@@ -30,7 +32,7 @@ Verified before ship.
 Human-controlled at the boundary.
 ```
 
-NEKOWORK packages a local runtime with one source catalog, `agent.yaml`, projected into Claude Code, Codex CLI, Cursor, Gemini CLI, and OpenCode surfaces. The `harness` CLI remains a legacy/internal alias for `nekowork`.
+NEKOWORK packages a local runtime with one source catalog, `agent.yaml`, projected into Claude Code, Codex CLI, Cursor, Gemini CLI, and OpenCode surfaces. Use `nekowork` as the public CLI; `harness` remains a legacy/internal alias.
 
 NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profile, module, and pack must:
 
@@ -39,19 +41,39 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 14 packs / 11 profiles / 36 components / 5 harness targets / 7 case-study flows / 290 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
+**Public alpha evidence:** 291 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 7 case-study flows / 5 starter packs
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
 For bounded autonomy before that boundary, use `auto`: it can route, build, verify, repair fixable findings within a budget, write a report, and then stop before apply.
 
-Next track: `auto --parallel-candidates N` will let isolated candidate workers propose patches, then NEKOWORK will compare them into one canonical ship candidate before Codex verification and Human Gate.
+Next track: alpha.9 focuses on evidence and product-surface clarity before adding parallel candidate writers.
 
 **Latest alpha evidence:** [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) / [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) / [smoke transcript](docs/DEMO.md#one-minute-terminal-transcript) / [report artifact](docs/DEMO-REPORT.md)
 
 **One-minute demo:** [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) / [full report example](docs/DEMO-REPORT.md) / [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) / [roadmap](docs/ROADMAP.md)
 
 ![NEKOWORK one-minute terminal demo](docs/assets/demo-terminal.svg)
+
+## One Command. One Blocked Risk.
+
+```bash
+npx -y @ps-neko/nekowork@alpha auto "add OPENAI_API_KEY fallback for Codex auth"
+```
+
+Typical blocked-risk evidence:
+
+```text
+Risk: provider-auth / long-lived-secret
+Codex verdict: request_changes
+Human Gate: required
+Ship ready: false
+Applied: false
+
+Blocked because NEKOWORK defaults to delegated CLI auth and rejects long-lived provider API key paths unless the human explicitly opts in.
+```
+
+That is the thesis: the autopilot can keep working before the boundary, but risky ship/apply decisions stay evidence-backed and human-controlled.
 
 ## 30-Second First Run
 
@@ -94,7 +116,7 @@ The simple paths map to the evidence loop: `check = doctor --quick`, `build = au
 
 Use `build --dry-run` when you want to preview auto routing, mode, profile, workers, stages, and apply policy before running providers or writing session state. Use `build --explain` when you want the same routing rationale and evidence list after a real build.
 
-To add generated harness surfaces to another local repository:
+To add generated NEKOWORK tool surfaces to another local repository:
 
 ```bash
 cd /path/to/my-project
@@ -162,14 +184,15 @@ Apply command: node scripts/cli.js apply --session first-work
 
 `apply` still does not commit, push, publish, deploy, or create a PR. It only applies the verified `SHIP_READY` diff when gates are clear and the target worktree is clean.
 
-## Compared With Agent Packs
+## Evidence, Not Agent Count
 
-| Tool pattern | Optimizes for | NEKOWORK optimizes for |
-|---|---|---|
-| Large Claude Code packs | More agents, commands, skills | Curated verification loop |
-| Team simulation | More specialist perspectives | Read-only team plus one executor |
-| Autopilot | Fast autonomous execution | verified autonomy until apply, report, gate, explicit apply |
-| Discipline workflows | Better development habits | Evidence-backed ship decision |
+| Trust question | NEKOWORK evidence |
+|---|---|
+| Did the tool record why ship was blocked? | `NO_SHIP`, `REPORT.md`, `gate-summary.json` |
+| Did it keep apply human-controlled? | `auto` rejects `--apply`; `apply` is a separate command |
+| Did it separate executor and verifier? | `work -> verify` with Codex review evidence |
+| Did it block risky mode downgrades? | manifest-backed build mode safety order |
+| Did it avoid long-lived provider API keys by default? | delegated CLI auth and API-key override guard |
 
 ## When To Choose NEKOWORK
 
@@ -187,12 +210,13 @@ Use other AI development tools when they fit your preferred authoring flow. Use 
 
 ## Three Paths
 
-Most users should start with the Beginner path. The other paths are for explicit phase control or legacy compatibility.
+Most users should start with the Autopilot path. The other paths are for explicit phase control. Legacy compatibility remains available without being the main product path.
 
-1. Beginner verified autopilot: `check -> auto -> report -> gate`
-2. One-pass safe build: `check -> build -> report -> gate`
+1. Autopilot: `check -> auto -> report -> gate`
+2. Controlled Build: `check -> build -> report -> gate`
 3. Advanced: `ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply`
-4. Legacy: `review` / `review-cycle`
+
+Legacy: `review` / `review-cycle`
 
 ## Why NEKOWORK
 
@@ -202,7 +226,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 - Current repository version: `0.1.0-alpha.8` public alpha
 - Current package name: `@ps-neko/nekowork`
-- Published CLI names: `nekowork` and `harness`
+- Published CLI name: `nekowork` (`harness` remains a legacy/internal alias)
 - Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.8`
 - Current npm alpha.8 status: published on 2026-05-08 under the `alpha` dist-tag
 - Supported install path today: npm alpha, clone, submodule, or local repository integration
@@ -212,7 +236,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 290 tests pass
+- `npm test`: 291 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
@@ -229,24 +253,17 @@ Current local verification:
 | Python protocol parser | protocol correctness risk | test-backed verification |
 | Dotenv configuration boundary | config/security risk | no-secret parser evidence |
 
-## Official Packs
+## Starter Packs
+
+Start with these five public packs. The full catalog remains available in [docs/CATALOG-PACKS.md](docs/CATALOG-PACKS.md) for advanced users.
 
 | Pack | Adds | Use when |
 |---|---|---|
 | `core` | minimal verification runtime | first install or repo smoke |
 | `builder` | safe build modes entrypoint | one-command build with verification and gates |
 | `productivity` | planning, TDD, debugging, finish routines | daily AI-assisted development |
-| `team` | read-only role handoffs | you want team-style review before one executor writes |
-| `debugging` | failing-test and regression triage | the task starts from a bug or unclear root cause |
-| `maintenance` | dependency, refactor, migration, cleanup routines | routine upkeep still needs verification |
-| `pr` | diff review, test evidence, changelog, risk notes | preparing or reviewing a PR |
-| `catalog-plus` | richest curated catalog surface | evaluating the full NEKOWORK catalog |
-| `quality` | acceptance coverage, strict evidence prompts | feature work needs proof |
 | `security` | auth/secrets/deploy risk prompts | sensitive changes |
-| `frontend` | UI mockup, component review, accessibility checks | product-facing UI work |
-| `testing` | regression planning and coverage handoffs | test confidence is the main risk |
 | `release` | ship/no-ship evidence | pre-release checks |
-| `enterprise` | full catalog with all gates | high-control teams |
 
 ## Quick Start Details
 
@@ -352,7 +369,7 @@ The public alpha surface is intentionally small:
 - `report`: summarize session evidence into `REPORT.md` without project mutation
 - `review`: run the legacy full Claude-led/Codex-reviewed workflow
 - `review-cycle`: explicit compatibility alias for the legacy full review workflow
-- `install --plan` / `install --apply`: project generated harness surfaces
+- `install --plan` / `install --apply`: project generated NEKOWORK tool surfaces
 
 Advanced features such as `team-lite`, `ralph`, `wait`, instincts, cost tracking, and the Rust supervisor are documented in [docs/ADVANCED.md](docs/ADVANCED.md).
 
@@ -371,24 +388,22 @@ Use official packs when choosing an install shape:
 ```bash
 node scripts/install-plan.js --list
 node scripts/install-plan.js --pack productivity
-node scripts/install-plan.js --pack team
-node scripts/install-plan.js --pack pr
 node scripts/install-plan.js --pack builder
-node scripts/install-plan.js --pack quality
 node scripts/install-plan.js --pack security --target codex --json
+node scripts/install-plan.js --pack release
 ```
 
-Packs are aliases over validated profiles. They add clearer product packaging without weakening the core gates. `productivity` is the shortest daily discipline pack: brainstorm, plan, TDD, debug, execute, verify, report, and finish over the same safe build loop. `team`, `debugging`, `maintenance`, `pr`, and `catalog-plus` make the catalog feel richer while still resolving to safety-checked profiles.
+Packs are aliases over validated profiles. They add clearer product packaging without weakening the core gates. `productivity` is the shortest daily discipline pack: brainstorm, plan, TDD, debug, execute, verify, report, and finish over the same safe build loop. Advanced packs remain available in [docs/CATALOG-PACKS.md](docs/CATALOG-PACKS.md).
 
-## Catalog
+## Advanced Catalog
 
 - Agents: 11
 - Skills: 10
 - Hooks: 5
 - Modules: 7
 - Profiles: `core`, `developer`, `builder`, `productivity`, `security`, `product`, `quality`, `frontend`, `testing`, `research`, `full`
-- Official packs: `core`, `builder`, `productivity`, `team`, `debugging`, `maintenance`, `pr`, `catalog-plus`, `quality`, `security`, `frontend`, `testing`, `release`, `enterprise`
-- Harness targets: `claude`, `codex`, `cursor`, `gemini`, `opencode`
+- Full pack catalog: see [docs/CATALOG-PACKS.md](docs/CATALOG-PACKS.md)
+- Tool targets: `claude`, `codex`, `cursor`, `gemini`, `opencode`
 
 Key skills:
 

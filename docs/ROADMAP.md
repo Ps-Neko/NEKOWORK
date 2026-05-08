@@ -98,6 +98,29 @@ Non-goals:
 
 Status: planned.
 
+Goal: prove the verified autopilot thesis with a smaller public surface before adding more autonomy.
+
+Planned scope:
+
+- Put a risk-blocking transcript near the README first screen.
+- Define "Verified" as independently reviewed and evidence-backed, not mathematically proven.
+- Expose starter packs first and move the full pack catalog to advanced docs.
+- Keep Quickstart centered on `auto -> report -> gate`.
+- Reduce public `harness` naming in docs while preserving the legacy/internal alias.
+- Compare NEKOWORK by evidence surfaces, not by agent count.
+- Seek at least one external user run with a public transcript or quote.
+
+Non-goals:
+
+- No new agent catalog expansion.
+- No new autonomy mode.
+- No automatic apply, commit, push, publish, deploy, or PR creation.
+- No rename of `.harness` or the `harness` compatibility alias during alpha.9.
+
+## 0.1.0-alpha.10
+
+Status: planned.
+
 Goal: add isolated parallel candidate writers without allowing shared-worktree multi-agent writes.
 
 Planned scope:
@@ -115,7 +138,7 @@ Non-goals:
 - No candidate majority vote as a replacement for Codex verification.
 - No automatic apply, commit, push, publish, deploy, or PR creation.
 
-## 0.1.0-alpha.10
+## 0.1.0-alpha.11
 
 Status: planned.
 

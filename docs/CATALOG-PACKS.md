@@ -18,12 +18,12 @@ Packs are public install aliases over validated profiles. They make the catalog 
 11 agents
 10 skills
 5 hooks
-5 harness targets
+5 tool targets
 7 case-study flows
-290 tests
+291 tests
 ```
 
-Harness targets:
+Tool targets:
 
 ```text
 Claude, Codex, Cursor, Gemini, OpenCode

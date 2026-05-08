@@ -36,7 +36,7 @@ NEKOWORK may write local evidence and generated harness files:
 - `.harness/state/sessions/<session>/`
 - handoff markdown and JSON summaries
 - `REPORT.md` when `report` is requested
-- generated harness surfaces during `init` / `install --apply`
+- generated NEKOWORK tool surfaces during `init` / `install --apply`
 - gate markers such as `HUMAN_GATE`, `HUMAN_APPROVED`, and `NO_SHIP`
 
 Those files are local project artifacts. They are not automatically committed or pushed.
