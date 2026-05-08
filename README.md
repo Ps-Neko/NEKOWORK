@@ -30,7 +30,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 8 packs / 10 profiles / 36 components / 5 harness targets / 7 case-study flows / 279 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
+**Public alpha evidence:** 9 packs / 11 profiles / 36 components / 5 harness targets / 7 case-study flows / 279 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -337,12 +337,13 @@ Use official packs when choosing an install shape:
 
 ```bash
 node scripts/install-plan.js --list
+node scripts/install-plan.js --pack productivity
 node scripts/install-plan.js --pack builder
 node scripts/install-plan.js --pack quality
 node scripts/install-plan.js --pack security --target codex --json
 ```
 
-Packs are aliases over validated profiles. They add clearer product packaging without weakening the core gates.
+Packs are aliases over validated profiles. They add clearer product packaging without weakening the core gates. `productivity` is the shortest Superpowers-style routine pack: brainstorm, plan, TDD, debug, execute, verify, report, and finish over the same safe build loop.
 
 ## Catalog
 
@@ -350,8 +351,8 @@ Packs are aliases over validated profiles. They add clearer product packaging wi
 - Skills: 10
 - Hooks: 5
 - Modules: 7
-- Profiles: `core`, `developer`, `builder`, `security`, `product`, `quality`, `frontend`, `testing`, `research`, `full`
-- Official packs: `core`, `builder`, `quality`, `security`, `frontend`, `testing`, `release`, `enterprise`
+- Profiles: `core`, `developer`, `builder`, `productivity`, `security`, `product`, `quality`, `frontend`, `testing`, `research`, `full`
+- Official packs: `core`, `builder`, `productivity`, `quality`, `security`, `frontend`, `testing`, `release`, `enterprise`
 - Harness targets: `claude`, `codex`, `cursor`, `gemini`, `opencode`
 
 Key skills:

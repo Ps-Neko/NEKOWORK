@@ -90,6 +90,7 @@ profiles:
     - core
     - developer
     - builder
+    - productivity
     - security
     - product
     - quality

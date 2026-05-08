@@ -4,6 +4,9 @@
 
 ## [Unreleased]
 
+### Added
+- Add the `productivity` pack/profile for brainstorm, plan, TDD, debug, execute, verify, report, and finish routines over the safe build loop.
+
 ### Changed
 - Extract the `build` command surface from `scripts/cli.js` into a dedicated CLI command module.
 - Generalize `build` mode override protection from `safe`-only checks to risk-aware lower-safety downgrade checks.

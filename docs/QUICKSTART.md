@@ -198,6 +198,7 @@ node scripts/cli.js run "implement and verify a change" --session first-run
 
 ```bash
 node scripts/install-plan.js --list
+node scripts/install-plan.js --pack productivity
 node scripts/install-plan.js --pack quality
 node scripts/install-plan.js --profile developer
 node scripts/install-plan.js --profile developer --target claude --json
@@ -208,6 +209,7 @@ Profiles:
 - `core`: minimal rules, agents, hooks, and platform configs
 - `developer`: daily development, quality workflow, Codex loop, ops-readiness
 - `builder`: one-command build modes with verification, gates, and explicit apply
+- `productivity`: brainstorm, plan, TDD, debug, execute, verify, report, and finish routines over the safe build loop
 - `security`: secure review defaults
 - `product`: question gate, scope review, acceptance criteria
 - `quality`: disciplined workflow, test-first planning, evidence-based review
@@ -220,6 +222,7 @@ Official packs:
 
 - `core`: minimal verification runtime
 - `builder`: Safe Build Modes entrypoint
+- `productivity`: Superpowers-style daily development routines over the safe build loop
 - `quality`: disciplined workflow and acceptance coverage evidence
 - `security`: sensitive work, Codex challenge, and Human Gate policy
 - `frontend`: UI mockups, component review, and accessibility-oriented checks

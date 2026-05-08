@@ -105,19 +105,22 @@ test('install plan: --list exposes selectable catalog', () => {
   assert.equal(catalog.default_profile, 'developer');
   assert.ok(catalog.targets.some(t => t.name === 'claude'));
   assert.ok(catalog.packs.some(p => p.name === 'security' && p.profile === 'security'));
+  assert.ok(catalog.packs.some(p => p.name === 'productivity' && p.profile === 'productivity'));
   assert.ok(catalog.profiles.some(p => p.name === 'security'));
+  assert.ok(catalog.profiles.some(p => p.name === 'productivity'));
   assert.ok(catalog.modules.some(m => m.name === 'codex-loop'));
   assert.ok(catalog.components.some(c => c.name === 'skill:claude-led-codex-review'));
 });
 
 test('install plan: official pack aliases resolve to safe profiles', () => {
-  const r = run('scripts/install-plan.js', ['--pack', 'release', '--json']);
+  const r = run('scripts/install-plan.js', ['--pack', 'productivity', '--json']);
   assert.equal(r.status, 0, `pack plan failed: ${r.stderr}`);
   const plan = JSON.parse(r.stdout);
-  assert.equal(plan.pack, 'release');
-  assert.equal(plan.profile, 'developer');
-  assert.match(plan.pack_workflow, /run -> report -> gate -> ship/);
+  assert.equal(plan.pack, 'productivity');
+  assert.equal(plan.profile, 'productivity');
+  assert.match(plan.pack_workflow, /build/);
   assert.ok(plan.modules.includes('codex-loop'));
+  assert.ok(plan.modules.includes('workflow-quality'));
 });
 
 test('install plan: unknown target/module/component filters fail fast', () => {

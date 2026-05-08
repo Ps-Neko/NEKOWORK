@@ -14,6 +14,12 @@
       "workflow": "build \"<task>\" --mode auto|fast|safe|team|tdd|release -> report -> gate",
       "use_when": "Use when NEKOWORK should be the single AI development runtime from task to verified ship readiness."
     },
+    "productivity": {
+      "description": "Daily development productivity pack for brainstorm, plan, TDD, debug, execute, verify, report, and finish routines inside the safe build loop.",
+      "profile": "productivity",
+      "workflow": "build \"<task>\" --mode auto -> report -> gate; use --mode tdd|team|release when the routine calls for it",
+      "use_when": "Use when you want Superpowers-style development discipline and quick routines without bypassing Codex verification, Human Gate, or explicit apply."
+    },
     "quality": {
       "description": "Disciplined development pack for test-first planning, evidence warnings, and strict quality checks.",
       "profile": "quality",
@@ -87,6 +93,31 @@
       "defaults": {
         "build_command": true,
         "default_build_mode": "auto",
+        "require_codex_verification": true,
+        "human_gate_on_critical": true,
+        "mutation_policy": "single_executor",
+        "apply_default": "explicit"
+      }
+    },
+    "productivity": {
+      "description": "Daily productive development profile for brainstorm, planning, TDD, debugging, execution, verification, reports, and finish checks over the safe build loop.",
+      "modules": [
+        "rules-core",
+        "agents-core",
+        "hooks-runtime",
+        "platform-configs",
+        "workflow-quality",
+        "codex-loop",
+        "ops-readiness"
+      ],
+      "defaults": {
+        "brainstorm_before_work": true,
+        "plan_before_code": true,
+        "tdd_when_applicable": true,
+        "systematic_debugging": true,
+        "verification_before_completion": true,
+        "report_after_build": true,
+        "finish_check_required": true,
         "require_codex_verification": true,
         "human_gate_on_critical": true,
         "mutation_policy": "single_executor",
