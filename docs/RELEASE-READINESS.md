@@ -2,7 +2,7 @@
 
 Status date: 2026-05-08
 
-NEKOWORK / HARNESS is release-ready for local use, repository-based installation, and public npm alpha installation. The current public npm alpha is `0.1.0-alpha.6`.
+NEKOWORK is release-ready for local use, repository-based installation, and public npm alpha installation. The current public npm alpha is `0.1.0-alpha.6`.
 
 ## Decision
 

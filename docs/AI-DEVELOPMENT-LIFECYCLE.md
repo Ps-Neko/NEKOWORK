@@ -1,6 +1,6 @@
 # AI Development Lifecycle
 
-NEKOWORK is a local-first AI development OS and quality runtime. Its job is not to collect every useful agent feature; its job is to make AI development fast, disciplined, high-quality, independently verified, and human-gated.
+NEKOWORK is a local-first AI development runtime for fast, verified code changes. Its job is not to collect every useful agent feature; its job is to make AI development fast, disciplined, high-quality, independently verified, and human-gated.
 
 ## Position
 
@@ -12,7 +12,7 @@ Fast build loop
 + read-only multi-agent thinking
 + Codex verification
 + Human Gate and explicit apply
-= NEKOWORK gated AI development OS
+= NEKOWORK gated AI development runtime
 ```
 
 The short slogan remains:

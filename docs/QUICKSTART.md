@@ -216,7 +216,7 @@ Profiles:
 Official packs:
 
 - `core`: minimal verification runtime
-- `builder`: one-command AI development OS entrypoint
+- `builder`: Safe Build Modes entrypoint
 - `quality`: disciplined workflow and acceptance coverage evidence
 - `security`: sensitive work, Codex challenge, and Human Gate policy
 - `frontend`: UI mockups, component review, and accessibility-oriented checks

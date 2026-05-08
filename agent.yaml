@@ -2,7 +2,7 @@ spec_version: gitagent/0.1.0
 name: nekowork
 runtime_name: harness
 version: 0.1.0-alpha.6
-description: "NEKOWORK HARNESS - Local-first AI development OS and quality runtime"
+description: "NEKOWORK - Local-first AI development runtime for fast, verified code changes"
 license: MIT
 homepage: https://github.com/Ps-Neko/NEKOWORK
 # authors: contributor 목록은 git 히스토리로 갈음. 별도 명시 안 함.

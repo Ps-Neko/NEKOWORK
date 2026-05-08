@@ -2,7 +2,7 @@
 
 # AUTH-MIGRATION — API key → 위임/OAuth/vault 3계층 전환
 
-> 대상: NEKOWORK / HARNESS 0.0.x → 0.1.x.
+> 대상: NEKOWORK 0.0.x → 0.1.x.
 > 목적: provider 인증을 boundary-first 정책에 맞춰 정합화. **API key 일괄 제거가 아니라 `delegated-first, OAuth-where-possible, vault-elsewhere`**.
 
 ## 0. 왜 바꾸나

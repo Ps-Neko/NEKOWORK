@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+- Clarify the naming contract: NEKOWORK remains the product and `nekowork` the primary CLI, while `harness` is a legacy/internal alias.
+- Reword public positioning around local-first AI development runtime and Safe Build Modes instead of promoting an OS name.
+
 ## [0.1.0-alpha.6] - 2026-05-08
 
 ### Added
@@ -12,7 +16,7 @@
 - Add `build-summary.json` to report evidence and support `--session latest` for report/gate inspection.
 
 ### Changed
-- Position NEKOWORK as an AI development OS and quality runtime, not only a verification harness.
+- Position NEKOWORK as an AI development runtime with Safe Build Modes, not only a verification harness.
 - Make the one-minute demo and beginner path `build` centered.
 
 ## [0.1.0-alpha.5] - 2026-05-08

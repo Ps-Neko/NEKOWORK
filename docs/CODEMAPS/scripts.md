@@ -116,7 +116,7 @@ scripts/
 | `ci/validate-hooks.js` | _(none)_ | hooks/hooks.json schemas/hooks.schema.json . |
 | `ci/validate-manifests.js` | _(none)_ | agent.yaml + manifests/install-{profiles,modules,components}.json . 1) schema 2) |
 | `ci/validate-skills.js` | _(none)_ | skills/<name>/SKILL.md frontmatter schemas/skill.schema.json . agent.yaml skills . |
-| `cli.js` | _(none)_ | NEKOWORK/HARNESS CLI entrypoint. Public verbs: check, init, doctor, ask, plan, team, work, verify, gate, ship, apply, run, build, report, re |
+| `cli.js` | _(none)_ | NEKOWORK CLI entrypoint. The `harness` bin remains a legacy/internal alias. Public verbs: check, init, doctor, ask, plan, team, work, verify |
 | `core/auth-guard.js` | ` BLOCKED_ENV `, `assertDelegatedCliAuth` |  |
 | `core/build-roots.js` | `buildRoots` |  |
 | `core/cli-resolver.js` | `assertProviderCliTrust`, `isPathInside`, `resolveCli`, `resolveProviderCli` |  |

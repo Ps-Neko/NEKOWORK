@@ -46,7 +46,7 @@ environment configuration boundary
 | Pack | Profile | Best For | Representative Workflow |
 |---|---|---|---|
 | `core` | `core` | Minimal verification runtime | `doctor -> ask -> run -> report -> gate` |
-| `builder` | `builder` | One-command AI development OS entrypoint | `build "<task>" --mode fast|safe|team|tdd|release -> report -> gate` |
+| `builder` | `builder` | Safe Build Modes entrypoint | `build "<task>" --mode fast|safe|team|tdd|release -> report -> gate` |
 | `quality` | `quality` | Disciplined development and evidence coverage | `ask --profile quality -> run --profile quality --strict-quality -> report` |
 | `security` | `security` | Auth, secrets, permissions, deploy, financial, or data-sensitive changes | `ask --profile security -> run --profile security --secure --strict-quality -> report -> gate` |
 | `frontend` | `frontend` | UI mockups, component review, accessibility-oriented checks | `ask --profile product -> team -> run -> report` |
@@ -76,5 +76,5 @@ selective builder catalog
 + evidence report
 + Human Gate
 + explicit apply
-= local-first AI development OS and quality runtime
+= local-first AI development runtime with safe build modes
 ```

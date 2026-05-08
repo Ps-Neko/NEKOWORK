@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// NEKOWORK/HARNESS CLI entrypoint.
+// NEKOWORK CLI entrypoint. The `harness` bin remains a legacy/internal alias.
 // Public verbs: check, init, doctor, ask, plan, team, work, verify, gate, ship, apply, run, build, report, review, review-cycle, install, validate, version.
 // Advanced verbs: self-review, codex-review, ralph, wait, sessions, costs, instincts.
 
@@ -25,7 +25,10 @@ function resolveProjectRoot(value) {
 
 function help() {
   console.log(`
-harness <verb> [args]
+nekowork <verb> [args]
+
+Legacy alias:
+  harness <verb> [args]
 
 Install / verify
   check [--project-root <dir>] [--gemini-smoke] [--json] [--full]
@@ -80,7 +83,7 @@ Options:
               API keys are not needed for the default delegated CLI path.
   --project-root <dir>
               target project root for session/state/git work. Agents/schemas are read
-              from the HARNESS install root.
+              from the NEKOWORK install root.
   default     mock provider; no API keys or provider CLIs required
 
 Advanced
