@@ -5,6 +5,7 @@
 ## [Unreleased]
 
 ### Changed
+- Extract the `build` command surface from `scripts/cli.js` into a dedicated CLI command module.
 - Generalize `build` mode override protection from `safe`-only checks to risk-aware lower-safety downgrade checks.
 
 ## [0.1.0-alpha.7] - 2026-05-08
