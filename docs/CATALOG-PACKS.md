@@ -1,6 +1,6 @@
 # Catalog Packs
 
-NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, module, profile, and pack must preserve the verification loop:
+NEKOWORK is not a large agent bundle. It is a verified productivity catalog: each pack exists to help users plan, build, debug, review, or release work while preserving Codex verification, Human Gate, and explicit apply.
 
 ```text
 fast AI build -> Codex verification -> report -> Human Gate -> explicit apply
@@ -20,7 +20,7 @@ Packs are public install aliases over validated profiles. They make the catalog 
 5 hooks
 5 harness targets
 7 case-study flows
-280 tests
+281 tests
 ```
 
 Harness targets:
@@ -77,7 +77,7 @@ node scripts/install-apply.js --pack core --project-root <target>
 
 ## Positioning
 
-NEKOWORK does not try to be the largest catalog. It is a curated catalog for a reportable evidence pipeline:
+NEKOWORK is a curated catalog for a reportable evidence pipeline:
 
 ```text
 selective verified productivity catalog
