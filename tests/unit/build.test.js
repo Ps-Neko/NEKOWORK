@@ -10,13 +10,104 @@ import { validateProfileSafety } from '../../scripts/lib/profile-safety.js';
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
 test('build mode presets keep verification defaults explicit', () => {
-  assert.equal(normalizeBuildMode(null), 'fast');
+  assert.equal(normalizeBuildMode(null), 'auto');
+  assert.equal(buildModePreset('auto').mode, 'auto');
   assert.equal(buildModePreset('fast').profile, 'quality');
   assert.equal(buildModePreset('safe').profile, 'security');
   assert.equal(buildModePreset('safe').secure, true);
   assert.equal(buildModePreset('tdd').strictQuality, true);
   assert.equal(buildModePreset('team').team, true);
   assert.throws(() => normalizeBuildMode('autopilot'), /unknown build mode/);
+});
+
+test('build auto dry-run routes auth-sensitive work to safe mode with workers', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-build-auto-auth-dry-run-'));
+  const calls = [];
+  try {
+    const r = await buildCycle({
+      task: 'add OAuth login with JWT refresh token support',
+      sessionId: 'unit-build-auto-auth-dry-run',
+      harnessRoot: ROOT,
+      projectRoot,
+      dryRun: true,
+      dispatcher: dispatcher(calls),
+    });
+
+    assert.equal(r.dryRun, true);
+    assert.equal(r.requestedMode, 'auto');
+    assert.equal(r.mode, 'safe');
+    assert.equal(r.autoMode, true);
+    assert.equal(r.profile, 'security');
+    assert.equal(r.strictQuality, true);
+    assert.equal(r.secure, true);
+    assert.equal(r.teamRun, true);
+    assert.deepEqual(r.teamWorkers, ['planner', 'security', 'test']);
+    assert.equal(r.intelligence.taskType, 'security-sensitive');
+    assert.equal(r.intelligence.recommendedMode, 'safe');
+    assert.ok(r.intelligence.acceptanceCriteria.length >= 4);
+    assert.ok(r.intelligence.miniPlan.some(line => /Codex challenge/.test(line)));
+    assert.deepEqual(calls, []);
+    assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-build-auto-auth-dry-run')));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('build auto routes docs to fast and tests to tdd', () => {
+  const docsPlan = buildPlan({
+    task: 'fix README typo and clarify docs',
+    mode: 'auto',
+    sessionId: 'unit-build-auto-docs',
+  });
+  assert.equal(docsPlan.mode, 'fast');
+  assert.equal(docsPlan.profile, 'quality');
+  assert.equal(docsPlan.teamRun, false);
+  assert.equal(docsPlan.intelligence.taskType, 'documentation');
+
+  const testPlan = buildPlan({
+    task: 'add regression tests for parser coverage',
+    mode: 'auto',
+    sessionId: 'unit-build-auto-tests',
+  });
+  assert.equal(testPlan.mode, 'tdd');
+  assert.equal(testPlan.strictQuality, true);
+  assert.equal(testPlan.teamRun, true);
+  assert.deepEqual(testPlan.teamWorkers, ['planner', 'test']);
+});
+
+test('build auto writes intelligence artifacts and preserves safe loop', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-build-auto-safe-'));
+  const calls = [];
+  try {
+    const r = await buildCycle({
+      task: 'implement OAuth token validation',
+      mode: 'auto',
+      sessionId: 'unit-build-auto-safe',
+      harnessRoot: ROOT,
+      projectRoot,
+      dispatcher: dispatcher(calls, { reviewVerdict: 'approve', challengeVerdict: 'approve' }),
+    });
+
+    assert.equal(r.mode, 'safe');
+    assert.equal(r.requestedMode, 'auto');
+    assert.equal(r.profile, 'security');
+    assert.equal(r.secure, true);
+    assert.deepEqual(calls.map(c => c.stage), ['plan', 'self-review', 'plan', 'implement', 'codex-review', 'codex-challenge', 'ship']);
+    assert.ok(calls.slice(0, 3).every(c => c.executionMode === 'read-only'));
+
+    const summary = readSummary(r.sessionDir);
+    assert.equal(summary.auto_mode, true);
+    assert.equal(summary.requested_mode, 'auto');
+    assert.equal(summary.build_intelligence.recommended_mode, 'safe');
+    assert.ok(fs.existsSync(path.join(r.sessionDir, 'build-intelligence.json')));
+    assert.ok(fs.existsSync(path.join(r.sessionDir, 'build-plan.json')));
+
+    const acceptance = JSON.parse(fs.readFileSync(path.join(r.sessionDir, 'acceptance-criteria.json'), 'utf8'));
+    assert.equal(acceptance.source, 'build-intelligence-v0');
+    assert.ok(acceptance.criteria.length >= 4);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
 });
 
 test('build fast wraps run without implicit apply', async () => {

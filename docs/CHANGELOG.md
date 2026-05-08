@@ -5,6 +5,7 @@
 ## [Unreleased]
 
 ### Added
+- Add Build Intelligence v0 for `build --mode auto`, including task classification, safe preset routing, worker selection, acceptance criteria, mini plan, and self-check artifacts.
 - Add `build --dry-run` to preview mode presets, stages, workers, and apply policy without creating session state.
 
 ### Changed

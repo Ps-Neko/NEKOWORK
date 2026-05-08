@@ -29,7 +29,7 @@ GitHub Release:
 The `0.1.0-alpha.6` release scope is the safe builder mode runtime:
 
 - `build` is the beginner all-in-one entrypoint
-- build modes are documented: `fast`, `safe`, `team`, `tdd`, and `release`
+- build modes are documented: default `auto` routing plus `fast`, `safe`, `team`, `tdd`, and `release`
 - `build` records `build-summary.json` and leaves `apply` explicit
 - `team` mode runs read-only handoffs before the single executor
 - `safe` and `tdd` modes strengthen verification and evidence requirements
@@ -71,7 +71,7 @@ Current local verification after the decomposed workflow expansion:
 - `npm run lint`: pass
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
-- `npm test`: 267 tests pass
+- `npm test`: 272 tests pass
 - `npm run demo:quick -- --cleanup`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass

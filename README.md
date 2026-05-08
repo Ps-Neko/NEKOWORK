@@ -30,7 +30,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 8 packs / 10 profiles / 36 components / 5 harness targets / 7 case-study flows / 267 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
+**Public alpha evidence:** 8 packs / 10 profiles / 36 components / 5 harness targets / 7 case-study flows / 272 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -46,8 +46,8 @@ Use the current npm alpha for the published health smoke:
 
 ```bash
 npx -y @ps-neko/nekowork@alpha check
-npx -y @ps-neko/nekowork@alpha build "implement this safely" --mode fast --dry-run
-npx -y @ps-neko/nekowork@alpha build "implement this safely" --mode fast --session first-build
+npx -y @ps-neko/nekowork@alpha build "implement this safely" --dry-run
+npx -y @ps-neko/nekowork@alpha build "implement this safely" --session first-build
 npx -y @ps-neko/nekowork@alpha report --session latest
 ```
 
@@ -57,7 +57,7 @@ Use a source checkout for local development:
 
 ```bash
 node scripts/cli.js check
-node scripts/cli.js build "implement this safely" --mode fast --session first-build
+node scripts/cli.js build "implement this safely" --session first-build
 node scripts/cli.js report --session latest
 node scripts/cli.js gate status --session latest
 ```
@@ -71,9 +71,9 @@ node scripts/cli.js report --session first-run
 node scripts/cli.js gate status --session first-run
 ```
 
-The simple paths map to the evidence loop: `check = doctor --quick`, `build = mode presets over run`, and `run = work -> verify -> ship`.
+The simple paths map to the evidence loop: `check = doctor --quick`, `build = auto routing plus mode presets over run`, and `run = work -> verify -> ship`.
 
-Use `build --dry-run` when you want to preview mode, profile, workers, stages, and apply policy before running providers or writing session state.
+Use `build --dry-run` when you want to preview auto routing, mode, profile, workers, stages, and apply policy before running providers or writing session state.
 
 To add generated harness surfaces to another local repository:
 
@@ -188,7 +188,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 267 tests pass
+- `npm test`: 272 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
@@ -316,7 +316,7 @@ The public alpha surface is intentionally small:
 - `ship`: produce a ship/no-ship readiness handoff after Codex verification
 - `apply`: apply a verified `SHIP_READY` live-work diff to the target project
 - `run`: execute the decomposed wrapper, `work -> verify -> ship`, with optional apply
-- `build`: one-command builder wrapper with `fast`, `safe`, `team`, `tdd`, `release`, and `--dry-run` preview
+- `build`: one-command builder wrapper with default `auto` routing, explicit `fast`, `safe`, `team`, `tdd`, `release`, and `--dry-run` preview
 - `report`: summarize session evidence into `REPORT.md` without project mutation
 - `review`: run the legacy full Claude-led/Codex-reviewed workflow
 - `review-cycle`: explicit compatibility alias for the legacy full review workflow
@@ -326,7 +326,7 @@ Advanced features such as `team-lite`, `ralph`, `wait`, instincts, cost tracking
 
 `plan` is recommended before `work` for larger changes. The current `run` command intentionally stays compact: it runs `work -> verify -> ship`, records acceptance criteria through `work`, and applies only when `--apply` is explicitly provided.
 
-Use `build "<task>" --mode fast` when NEKOWORK should be the single entrypoint. Use `--mode safe` for security-sensitive work, `--mode team` for read-only multi-perspective planning before implementation, `--mode tdd` for strict acceptance evidence, and `--mode release` for readiness-focused work. `build` still uses one executor for writes, Codex verification before ship, and explicit apply only.
+Use `build "<task>"` when NEKOWORK should be the single entrypoint. It defaults to `--mode auto`, classifies the task, selects `fast`, `safe`, `team`, `tdd`, or `release`, records build intelligence, and still uses one executor for writes, Codex verification before ship, and explicit apply only. Use an explicit `--mode` when you need to override the router.
 
 Use `--profile quality` or `--profile security` on `work`, `verify`, and `run` when a task needs stronger evidence prompts. Add `--strict-quality` to `verify`, `run`, or `build` when missing evidence or acceptance coverage should become a fix-required verdict before ship.
 

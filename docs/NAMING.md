@@ -13,7 +13,7 @@ NEKOWORK keeps one public product name and one main command surface.
 | Primary CLI | `nekowork` | Preferred command name in docs and examples. |
 | Legacy CLI alias | `harness` | Supported for compatibility and internal scripts, but not the main public name. |
 | Main command | `build` | Beginner entrypoint for Safe Build Modes. |
-| Main product surface | Safe Build Modes | `fast`, `safe`, `team`, `tdd`, and `release`. |
+| Main product surface | Safe Build Modes | Default `auto` routing plus `fast`, `safe`, `team`, `tdd`, and `release`. |
 | Main pack/profile | `builder` | Kept as the install alias for build-centered setup. |
 
 ## Product Copy

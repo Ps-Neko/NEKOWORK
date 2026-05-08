@@ -83,6 +83,40 @@ test('CLI build --dry-run previews plan without creating a session', () => {
   }
 });
 
+test('CLI build defaults to auto mode and reports selected safe preset', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-build-auto-'));
+  try {
+    const build = runCli(['build', 'add OAuth login safely', '--dry-run', '--session', 'unit-cli-build-auto', '--project-root', projectRoot, '--json']);
+    assert.equal(build.status, 0, build.stderr || build.stdout);
+    const preview = JSON.parse(build.stdout);
+    assert.equal(preview.requestedMode, 'auto');
+    assert.equal(preview.autoMode, true);
+    assert.equal(preview.mode, 'safe');
+    assert.equal(preview.profile, 'security');
+    assert.equal(preview.secure, true);
+    assert.equal(preview.teamRun, true);
+    assert.deepEqual(preview.teamWorkers, ['planner', 'security', 'test']);
+    assert.equal(preview.intelligence.taskType, 'security-sensitive');
+    assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-build-auto')));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('CLI build --mode auto routes release work to release preset', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-build-auto-release-'));
+  try {
+    const build = runCli(['build', 'prepare changelog and npm package release notes', '--mode', 'auto', '--dry-run', '--session', 'unit-cli-build-auto-release', '--project-root', projectRoot, '--json']);
+    assert.equal(build.status, 0, build.stderr || build.stdout);
+    const preview = JSON.parse(build.stdout);
+    assert.equal(preview.mode, 'release');
+    assert.equal(preview.profile, 'quality');
+    assert.equal(preview.intelligence.taskType, 'release-readiness');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 function runCli(args) {
   return spawnSync(process.execPath, [CLI, ...args], {
     cwd: ROOT,

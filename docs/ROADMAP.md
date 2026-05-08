@@ -55,3 +55,23 @@ Non-goals:
 ## Stable Release Track
 
 Promote a stable release only after the alpha install path has repeated smoke evidence, external feedback, and no known moderate+ audit issues. Until then, docs should keep recommending `@alpha`.
+
+## Build Intelligence Track
+
+Status: in progress.
+
+Goal: make `nekowork build "<task>"` smart enough that users do not need to know the safe mode flags first.
+
+Current scope:
+
+- Default `build` routing is `--mode auto`.
+- Auto mode classifies task intent and risk.
+- Auto mode selects `fast`, `safe`, `team`, `tdd`, or `release`.
+- Auto mode selects read-only workers when useful.
+- Auto mode records acceptance criteria, a mini plan, and post-build self-check prompts as session evidence.
+
+Non-goals:
+
+- No automatic apply, commit, push, publish, deploy, or PR creation.
+- No parallel project-file writes.
+- No provider call during `--dry-run`.

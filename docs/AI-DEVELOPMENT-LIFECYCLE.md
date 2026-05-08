@@ -66,7 +66,8 @@ Quality enters early through `ask` and `plan`, not only at the final review step
 For the one-command product experience, `build` selects a safe preset over the same loop:
 
 ```bash
-nekowork build "implement feature" --mode fast
+nekowork build "implement feature"
+nekowork build "let NEKOWORK choose the safe mode" --mode auto
 nekowork build "auth-sensitive change" --mode safe
 nekowork build "scope through QA first" --mode team
 nekowork build "test-first change" --mode tdd

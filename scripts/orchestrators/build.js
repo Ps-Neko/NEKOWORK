@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { runCycle } from './run.js';
 import { teamCycle } from './team.js';
+import { normalizeAcceptanceCriteria } from '../lib/acceptance-criteria.js';
+import { analyzeBuildIntent } from '../lib/build-intelligence.js';
 
 const MODE_PRESETS = {
   fast: {
@@ -42,16 +44,25 @@ const MODE_PRESETS = {
   },
 };
 
+const AUTO_PRESET = {
+  profile: null,
+  strictQuality: false,
+  secure: false,
+  team: false,
+  description: 'task-aware mode routing before the safe build loop',
+};
+
 export function normalizeBuildMode(mode) {
-  const value = String(mode || 'fast').trim().toLowerCase();
-  if (!MODE_PRESETS[value]) {
-    throw new Error(`unknown build mode: ${value}. available: ${Object.keys(MODE_PRESETS).join(', ')}`);
+  const value = String(mode || 'auto').trim().toLowerCase();
+  if (value !== 'auto' && !MODE_PRESETS[value]) {
+    throw new Error(`unknown build mode: ${value}. available: ${availableModes().join(', ')}`);
   }
   return value;
 }
 
 export function buildModePreset(mode) {
   const normalized = normalizeBuildMode(mode);
+  if (normalized === 'auto') return { mode: 'auto', ...AUTO_PRESET };
   return { mode: normalized, ...MODE_PRESETS[normalized] };
 }
 
@@ -66,6 +77,8 @@ export async function buildCycle(opts) {
 
   const config = resolveBuildConfig(opts);
   const { preset, sessionId, profile, strictQuality, secure } = config;
+  const sessionDir = path.join(projectRoot, '.harness', 'state', 'sessions', sessionId);
+  writeIntelligenceArtifacts(sessionDir, opts.task, config);
 
   let team = null;
   if (config.teamRun) {
@@ -99,6 +112,9 @@ export async function buildCycle(opts) {
     sessionId,
     sessionDir: run.sessionDir,
     mode: preset.mode,
+    requestedMode: config.requestedMode,
+    autoMode: config.autoMode,
+    intelligence: config.intelligence,
     profile,
     strictQuality,
     secure,
@@ -124,7 +140,10 @@ export function buildPlan(opts) {
     task: opts.task,
     sessionId,
     mode: preset.mode,
+    requestedMode: config.requestedMode,
+    autoMode: config.autoMode,
     modeDescription: preset.description,
+    intelligence: config.intelligence,
     profile,
     strictQuality,
     secure,
@@ -173,16 +192,24 @@ export function buildPlan(opts) {
 }
 
 function resolveBuildConfig(opts) {
-  const preset = buildModePreset(opts.mode);
+  const requestedMode = normalizeBuildMode(opts.mode);
+  const intelligence = requestedMode === 'auto'
+    ? analyzeBuildIntent({ task: opts.task })
+    : null;
+  const selectedMode = intelligence?.recommendedMode || requestedMode;
+  const preset = buildModePreset(selectedMode);
   const sessionId = opts.sessionId || `build-${Date.now()}`;
-  const profile = opts.profile || preset.profile;
-  const strictQuality = opts.strictQuality || preset.strictQuality;
-  const secure = opts.secure || preset.secure;
-  const teamRun = Boolean(preset.team || opts.team);
-  const teamWorkers = opts.workers || preset.workers || '';
+  const profile = opts.profile || intelligence?.profile || preset.profile;
+  const strictQuality = Boolean(opts.strictQuality || intelligence?.strictQuality || preset.strictQuality);
+  const secure = Boolean(opts.secure || intelligence?.secure || intelligence?.requiresCodexChallenge || preset.secure);
+  const teamRun = Boolean(preset.team || intelligence?.team || opts.team);
+  const teamWorkers = opts.workers || (intelligence?.workers || []).join(',') || preset.workers || '';
 
   return {
     preset,
+    requestedMode,
+    autoMode: requestedMode === 'auto',
+    intelligence,
     sessionId,
     profile,
     strictQuality,
@@ -192,8 +219,38 @@ function resolveBuildConfig(opts) {
   };
 }
 
+function availableModes() {
+  return ['auto', ...Object.keys(MODE_PRESETS)];
+}
+
 function splitWorkers(workers) {
   return String(workers || '').split(',').map(w => w.trim()).filter(Boolean);
+}
+
+function writeIntelligenceArtifacts(sessionDir, task, config) {
+  if (!config.autoMode || !config.intelligence) return;
+  fs.mkdirSync(sessionDir, { recursive: true });
+  fs.writeFileSync(path.join(sessionDir, 'build-intelligence.json'), JSON.stringify(config.intelligence, null, 2));
+
+  const criteria = normalizeAcceptanceCriteria(config.intelligence.acceptanceCriteria, 'build-intelligence-v0');
+  fs.writeFileSync(path.join(sessionDir, 'acceptance-criteria.json'), JSON.stringify({
+    source: 'build-intelligence-v0',
+    generated: true,
+    required: true,
+    criteria,
+    updated_at: new Date().toISOString(),
+  }, null, 2));
+
+  fs.writeFileSync(path.join(sessionDir, 'build-plan.json'), JSON.stringify({
+    source: 'build-intelligence-v0',
+    task,
+    selected_mode: config.preset.mode,
+    requested_mode: config.requestedMode,
+    mini_plan: config.intelligence.miniPlan,
+    self_check: config.intelligence.selfCheck,
+    reasons: config.intelligence.reasons,
+    updated_at: new Date().toISOString(),
+  }, null, 2));
 }
 
 function writeSummary(result, preset) {
@@ -202,7 +259,18 @@ function writeSummary(result, preset) {
   fs.writeFileSync(path.join(result.sessionDir, 'build-summary.json'), JSON.stringify({
     sessionId: result.sessionId,
     mode: result.mode,
+    requested_mode: result.requestedMode,
+    auto_mode: result.autoMode,
     mode_description: preset.description,
+    build_intelligence: result.intelligence ? {
+      version: result.intelligence.version,
+      task_type: result.intelligence.taskType,
+      recommended_mode: result.intelligence.recommendedMode,
+      risk: result.intelligence.risk,
+      tags: result.intelligence.tags,
+      reasons: result.intelligence.reasons,
+      workers: result.intelligence.workers,
+    } : null,
     profile: result.profile,
     strict_quality: result.strictQuality,
     secure: result.secure,

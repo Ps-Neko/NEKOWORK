@@ -3,7 +3,7 @@
 `build` is NEKOWORK's productivity-first entrypoint. Start here when you want one command to move from a task to verified ship readiness:
 
 ```bash
-nekowork build "implement this safely" --mode fast
+nekowork build "implement this safely"
 nekowork report --session latest
 nekowork gate status --session latest
 ```
@@ -13,20 +13,41 @@ Drop down to `ask`, `plan`, `team`, `work`, `verify`, `ship`, and `apply` only w
 Preview the planned mode without running workers:
 
 ```bash
-nekowork build "implement this safely" --mode team --dry-run
+nekowork build "implement this safely" --dry-run
 ```
 
-`--dry-run` does not create a session, call providers, write handoffs, or mutate the target project. It only resolves the build mode, profile, stages, workers, and safety invariants.
+`--dry-run` does not create a session, call providers, write handoffs, or mutate the target project. It only resolves the build mode, profile, stages, workers, task intelligence, and safety invariants.
+
+By default, `build` uses `--mode auto`. Auto mode classifies the task, chooses one of the safe build presets, selects any needed read-only workers, creates acceptance criteria, and records a mini plan for the single executor.
 
 ## Mode Contract
 
 | Mode | Purpose | Internal Behavior | Apply |
 |---|---|---|---|
+| `auto` | Task-aware routing | classifies intent, selects `fast`, `safe`, `team`, `tdd`, or `release`, and records build intelligence | Explicit only |
 | `fast` | Quick implementation | `run = work -> verify -> ship` with quality profile | Explicit only |
 | `safe` | Risky or sensitive changes | security profile, strict quality, Codex challenge, Human Gate policy | Explicit only |
 | `team` | Parallel thinking before work | read-only team handoffs, then one executor through `run` | Explicit only |
 | `tdd` | Test-first work | quality profile with strict acceptance and evidence checks | Explicit only |
 | `release` | Release readiness | quality profile with ship/report evidence before apply | Explicit only |
+
+## Auto Mode Routing
+
+`auto` is the default:
+
+```bash
+nekowork build "add OAuth login" --dry-run --json
+```
+
+Example routing:
+
+| Task signal | Selected mode | Extra behavior |
+|---|---|---|
+| docs, README, typo | `fast` | no read-only team phase |
+| auth, token, secret, payment, financial, database, CI/deploy risk | `safe` | security profile, strict quality, Codex challenge, selected security/test workers |
+| UI, dashboard, product scope, accessibility | `team` | planner/product/design/security/test read-only handoffs before work |
+| tests, coverage, regression, TDD | `tdd` | strict acceptance evidence and test worker perspective |
+| release notes, changelog, npm package, versioning | `release` | readiness-focused evidence and report path |
 
 ## Dry-run Preview
 
@@ -34,14 +55,16 @@ Dry-run output shows the same preset resolution used by real builds:
 
 ```text
 === build dry-run ===
-  mode       : team
-  profile    : quality
+  mode       : safe (auto)
+  profile    : security
+  task type  : security-sensitive
+  risk       : high (security)
   apply      : not requested
 
 Stages:
-  - team: run (planner,product,security,test)
+  - team: run (planner,security,test)
   - work: run
-  - verify: run
+  - verify: run (with challenge)
   - ship: run
   - apply: skip
 ```
@@ -79,8 +102,8 @@ It preserves the same core rules as the decomposed workflow:
 Fast path:
 
 ```bash
-nekowork build "add a small validated change" --mode fast --dry-run
-nekowork build "add a small validated change" --mode fast --session work-1
+nekowork build "add a small validated change" --dry-run
+nekowork build "add a small validated change" --session work-1
 nekowork report --session work-1
 ```
 

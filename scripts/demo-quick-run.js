@@ -14,7 +14,7 @@ function parseArgs(argv) {
   const args = {
     cleanup: false,
     profile: null,
-    mode: 'team',
+    mode: 'auto',
     session: 'demo-quick-run',
     target: null,
     task: 'demo quick build: prepare a safe quality smoke change',
@@ -54,12 +54,12 @@ function printHelp() {
   console.log(`NEKOWORK quick run demo
 
 Usage:
-  node scripts/demo-quick-run.js [--mode team] [--profile <profile>] [--session <id>] [--target <dir>] [--task <text>] [--cleanup]
+  node scripts/demo-quick-run.js [--mode auto] [--profile <profile>] [--session <id>] [--target <dir>] [--task <text>] [--cleanup]
 
 What it does:
   1. Creates a tiny disposable target project.
   2. Runs doctor --quick.
-  3. Runs the builder workflow: build = mode preset over run.
+  3. Runs the builder workflow: build = auto routing or explicit mode preset over run.
   4. Generates a readable REPORT.md and prints gate status.
 
 The demo uses mock providers by default and does not call paid APIs.
