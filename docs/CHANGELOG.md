@@ -10,10 +10,10 @@
 ### Changed
 - No entries yet.
 
-## [0.1.0-alpha.5] - 2026-05-08
+## [0.1.0-alpha.5] - Candidate
 
 ### Added
-- Add release-surface version consistency coverage, bringing the suite to 252 tests.
+- Add release-surface version consistency coverage, bringing the suite to 253 tests.
 
 ### Changed
 - Align published alpha smoke, feedback templates, and demo docs around the beginner `check` command.
