@@ -189,20 +189,21 @@ Outputs:
 `build` is the public one-command builder wrapper:
 
 ```bash
-node scripts/cli.js build "implement this safely" --mode fast --dry-run
-node scripts/cli.js build "implement this safely" --mode fast --session build-smoke
+node scripts/cli.js build "implement this safely" --dry-run
+node scripts/cli.js build "implement this safely" --session build-smoke
 node scripts/cli.js build "auth-sensitive change" --mode safe --session auth-smoke
 node scripts/cli.js build "scope with team thinking" --mode team --session team-smoke
 ```
 
 Rules:
 
+- `auto` is the default and routes the task to `fast`, `safe`, `team`, `tdd`, or `release`.
 - `fast` runs the compact safe path through `run`.
 - `safe` uses the security profile, strict quality, and Codex challenge.
 - `team` creates read-only team handoffs before the single executor runs.
 - `tdd` uses strict quality and acceptance evidence.
 - `release` focuses on ship/readiness and report evidence.
-- `--dry-run` previews preset resolution, stages, workers, and safety invariants without writing session state.
+- `--dry-run` previews auto routing, preset resolution, stages, workers, and safety invariants without writing session state.
 - `apply` is never implicit; use `--apply` only for verified live-work diffs.
 
 Outputs:

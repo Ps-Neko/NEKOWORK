@@ -41,6 +41,7 @@ scripts/
 |   `-- wait.js
 |-- lib/
 |   |-- acceptance-criteria.js
+|   |-- build-intelligence.js
 |   |-- costs.js
 |   |-- instincts.js
 |   |-- keychain.js
@@ -133,6 +134,7 @@ scripts/
 | `install-apply.js` | _(none)_ | HARNESS install --apply : plan harness (agent.yaml harnesses ) install-state . (idempotent). git checkout . |
 | `install-plan.js` | `plan` | HARNESS install --plan: dry-run manifest planner. |
 | `lib/acceptance-criteria.js` | `buildDefaultAcceptanceCriteria`, `ensureAcceptanceCriteria`, `normalizeAcceptanceCriteria`, `readAcceptanceCriteria` |  |
+| `lib/build-intelligence.js` | `analyzeBuildIntent` |  |
 | `lib/costs.js` | `list`, `record`, `summarize` | . USD ~/.harness/costs.jsonl append. CLI : harness costs --since=7d ( --since=1h, 30m, all). |
 | `lib/instincts.js` | `get`, `list`, `promote`, `prune`, `ready`, `record` | continuous-learning-v2 . review ( + + verdict ) ~/.harness/instincts/<id>.json . " " . |
 | `lib/keychain.js` | `get`, `isAvailable`, `list`, `remove`, `set` | scripts/lib/keychain.js OS keychain wrapper (@napi-rs/keyring sync API). macOS Keychain / Windows Credential Manager / Linux Secret Service. |

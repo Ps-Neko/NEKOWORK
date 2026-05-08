@@ -8,8 +8,8 @@ The public alpha is available on npm:
 
 ```bash
 npx -y @ps-neko/nekowork@alpha check
-npx -y @ps-neko/nekowork@alpha build "implement this safely" --mode fast --dry-run
-npx -y @ps-neko/nekowork@alpha build "implement this safely" --mode fast --session first-build
+npx -y @ps-neko/nekowork@alpha build "implement this safely" --dry-run
+npx -y @ps-neko/nekowork@alpha build "implement this safely" --session first-build
 npx -y @ps-neko/nekowork@alpha report --session latest
 ```
 
@@ -66,14 +66,14 @@ Use this path first. It is the recommended shortest safe loop:
 
 ```bash
 node scripts/cli.js check
-node scripts/cli.js build "implement, verify, and prepare ship readiness" --mode fast --session first-build
+node scripts/cli.js build "implement, verify, and prepare ship readiness" --session first-build
 node scripts/cli.js report --session latest
 node scripts/cli.js gate status --session latest
 ```
 
 Use the decomposed `work -> verify -> ship` path only when you need phase-level control. See [BUILD.md](BUILD.md) for build modes and invariants.
 
-`build --dry-run` previews mode, profile, workers, stages, and apply policy without creating a session. `run` is the short safe wrapper. It runs `work -> verify -> ship`, does not apply by default, and stops on Human Gate. `report` writes a readable `REPORT.md` from the evidence already in the session. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
+`build --dry-run` previews auto routing, mode, profile, workers, stages, and apply policy without creating a session. `run` is the short safe wrapper. It runs `work -> verify -> ship`, does not apply by default, and stops on Human Gate. `report` writes a readable `REPORT.md` from the evidence already in the session. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
 
 ## 4. Run A Mock Review
 

@@ -66,8 +66,8 @@ Review loop
                                          apply a verified SHIP_READY live-work diff to the target project
   run "<task>" [--session <id>] [--profile quality|security] [--strict-quality] [--secure] [--live] [--apply] [--allow-dirty] [--force] [--project-root <dir>] [--json]
                                          decomposed wrapper: work -> verify -> ship, optional apply
-  build "<task>" [--mode fast|safe|team|tdd|release] [--dry-run] [--session <id>] [--live] [--apply] [--project-root <dir>] [--json]
-                                         one-command builder wrapper; --dry-run previews stages without executing
+  build "<task>" [--mode auto|fast|safe|team|tdd|release] [--dry-run] [--session <id>] [--live] [--apply] [--project-root <dir>] [--json]
+                                         one-command builder wrapper; auto mode routes task intent safely
   report --session <id> [--project-root <dir>] [--output <file>] [--stdout] [--json]
                                          summarize session evidence into REPORT.md; inspect-only
   review "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>] [--project-root <dir>]
@@ -135,7 +135,10 @@ function buildJsonOutput(result) {
       sessionId: result.sessionId,
       task: result.task,
       mode: result.mode,
+      requestedMode: result.requestedMode,
+      autoMode: result.autoMode,
       modeDescription: result.modeDescription,
+      intelligence: result.intelligence,
       profile: result.profile,
       strictQuality: result.strictQuality,
       secure: result.secure,
@@ -152,6 +155,9 @@ function buildJsonOutput(result) {
   return {
     sessionId: result.sessionId,
     mode: result.mode,
+    requestedMode: result.requestedMode,
+    autoMode: result.autoMode,
+    intelligence: result.intelligence,
     profile: result.profile,
     strictQuality: result.strictQuality,
     secure: result.secure,
@@ -168,12 +174,16 @@ function buildJsonOutput(result) {
 function printBuildPlan(result) {
   console.log('=== build dry-run ===');
   console.log('  session    : ' + result.sessionId);
-  console.log('  mode       : ' + result.mode);
+  console.log('  mode       : ' + (result.autoMode ? `${result.mode} (auto)` : result.mode));
   console.log('  profile    : ' + (result.profile || 'none'));
   console.log('  strict     : ' + (result.strictQuality ? 'yes' : 'no'));
   console.log('  secure     : ' + (result.secure ? 'yes' : 'no'));
   console.log('  live       : ' + (result.live ? 'yes' : 'no'));
   console.log('  apply      : ' + (result.applyRequested ? 'requested, still gated' : 'not requested'));
+  if (result.intelligence) {
+    console.log('  task type  : ' + result.intelligence.taskType);
+    console.log('  risk       : ' + result.intelligence.risk + (result.intelligence.tags.length ? ` (${result.intelligence.tags.join(',')})` : ''));
+  }
   console.log('');
   console.log('Stages:');
   for (const stage of result.stages) {
@@ -186,6 +196,13 @@ function printBuildPlan(result) {
     console.log(`  - ${stage.stage}: ${status}${details}`);
   }
   console.log('');
+  if (result.intelligence) {
+    console.log('Why:');
+    for (const reason of result.intelligence.reasons) {
+      console.log('  - ' + reason);
+    }
+    console.log('');
+  }
   console.log('Safety:');
   for (const invariant of result.safetyInvariants) {
     console.log('  - ' + invariant);
@@ -663,7 +680,7 @@ function parseRunArgs(argv) {
 function parseBuildArgs(argv) {
   const opts = {
     task: '',
-    mode: 'fast',
+    mode: 'auto',
     sessionId: null,
     projectRoot: null,
     profile: null,
@@ -675,6 +692,7 @@ function parseBuildArgs(argv) {
     apply: false,
     allowDirty: false,
     force: false,
+    dryRun: false,
     json: false,
   };
   const unknown = [];
@@ -1141,7 +1159,7 @@ function checkArgs(argv) {
     case 'build': {
       const opts = parseBuildArgs(rest);
       if (!opts.task) {
-        console.error('task is required. Example: nekowork build "implement and verify dashboard" --mode fast');
+        console.error('task is required. Example: nekowork build "implement and verify dashboard"');
         process.exit(2);
       }
       const { buildCycle } = await import('./orchestrators/build.js');
@@ -1163,7 +1181,11 @@ function checkArgs(argv) {
       } else {
         console.log('=== build ===');
         console.log('  session    : ' + result.sessionId);
-        console.log('  mode       : ' + result.mode);
+        console.log('  mode       : ' + (result.autoMode ? `${result.mode} (auto)` : result.mode));
+        if (result.intelligence) {
+          console.log('  task type  : ' + result.intelligence.taskType);
+          console.log('  risk       : ' + result.intelligence.risk + (result.intelligence.tags.length ? ` (${result.intelligence.tags.join(',')})` : ''));
+        }
         console.log('  profile    : ' + (result.profile || 'none'));
         console.log('  team       : ' + (result.team ? `read-only (${result.team.workers.join(',')})` : 'off'));
         console.log('  stopped at : ' + result.run?.stoppedAt);

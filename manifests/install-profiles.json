@@ -11,7 +11,7 @@
     "builder": {
       "description": "Productivity pack for one-command build modes that still verify, gate, and require explicit apply.",
       "profile": "builder",
-      "workflow": "build \"<task>\" --mode fast|safe|team|tdd|release -> report -> gate",
+      "workflow": "build \"<task>\" --mode auto|fast|safe|team|tdd|release -> report -> gate",
       "use_when": "Use when NEKOWORK should be the single AI development runtime from task to verified ship readiness."
     },
     "quality": {
@@ -86,7 +86,7 @@
       ],
       "defaults": {
         "build_command": true,
-        "default_build_mode": "fast",
+        "default_build_mode": "auto",
         "require_codex_verification": true,
         "human_gate_on_critical": true,
         "mutation_policy": "single_executor",

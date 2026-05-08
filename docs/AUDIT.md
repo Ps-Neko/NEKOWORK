@@ -55,7 +55,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 267 tests pass
+- `npm test`: 272 tests pass
 - quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass
@@ -70,7 +70,7 @@ Current local result for this working tree:
 ## Completed Work
 
 - Local-first provider auth policy implemented and documented.
-- `build` is the beginner entrypoint with `fast`, `safe`, `team`, `tdd`, and `release` modes over the safe run/report/gate loop.
+- `build` is the beginner entrypoint with default `auto` routing plus `fast`, `safe`, `team`, `tdd`, and `release` modes over the safe run/report/gate loop.
 - Internal provider command adapter implemented and documented without bypassing verification, Human Gate, or apply controls.
 - `acceptance-coverage` skill added as a focused quality evidence helper.
 - API-key override warnings and guards are in place.
