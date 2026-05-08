@@ -67,8 +67,22 @@ test('README defines verified autopilot without overclaiming proof', () => {
   const readme = read('README.md');
 
   assert.match(readme, /Verified Autopilot for AI code changes/);
+  assert.match(readme, /\[한국어\]\(README\.ko\.md\)/);
   assert.match(readme, /"Verified" means independently reviewed with recorded evidence, not mathematically proven correctness/);
   assert.match(readme, /One Command\. One Blocked Risk\./);
   assert.match(readme, /Codex verdict: request_changes/);
   assert.match(readme, /Applied: false/);
+});
+
+test('Korean README keeps the GitHub landing page thesis and install path', () => {
+  const ko = read('README.ko.md');
+
+  assert.match(ko, /\[English\]\(README\.md\)/);
+  assert.match(ko, /AI 코드 변경을 위한 검증형 오토파일럿/);
+  assert.match(ko, /AI가 만들고, Codex가 검증하고, 사람은 최종 경계를 승인합니다/);
+  assert.match(ko, /npx -y @ps-neko\/nekowork@alpha check/);
+  assert.match(ko, /Risk: provider-auth \/ long-lived-secret/);
+  assert.match(ko, /Applied: false/);
+  assert.match(ko, /Tests: 293 pass/);
+  assert.match(ko, /docs\/EXTERNAL-RUN\.md/);
 });
