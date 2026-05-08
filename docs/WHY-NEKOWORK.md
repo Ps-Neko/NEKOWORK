@@ -5,14 +5,11 @@ NEKOWORK is not another Claude Code power pack. It is a verified autopilot for A
 ## Position
 
 ```text
-Superpowers teaches the agent discipline.
-Everything Claude Code gives the agent a broad operating environment.
-GStack turns the agent into a startup-style team.
-OMC makes the agent run more autonomously.
-NEKOWORK lets the agent build, repair, prove, gate, and apply safely.
+Use your favorite AI authoring workflow to generate stronger work.
+Use NEKOWORK when that work needs evidence, independent review, gate decisions, and controlled apply.
 ```
 
-NEKOWORK can absorb useful ideas from those systems, but only as capabilities. The architecture stays fixed around:
+NEKOWORK can absorb useful ideas from other systems, but only as capabilities. The architecture stays fixed around:
 
 ```text
 verified autopilot -> Codex verification -> report -> Human Gate -> explicit apply
@@ -20,16 +17,15 @@ verified autopilot -> Codex verification -> report -> Human Gate -> explicit app
 
 NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, profile, build mode, module, and pack must preserve the verification loop.
 
-## When To Choose What
+## Evidence-Based Comparison
 
-| Use case | Prefer |
+| Question | NEKOWORK evidence |
 |---|---|
-| You want Claude Code to follow stronger TDD and discipline habits | Superpowers |
-| You want the broadest Claude Code skill and command environment | Everything Claude Code |
-| You want startup-style team simulation across planning, implementation, QA, and release | GStack |
-| You want autonomous multi-agent execution | OMC |
-| You want one AI development runtime with safe build modes and controlled apply | NEKOWORK |
-| You want AI-generated changes verified, gated, reported, and explicitly applied | NEKOWORK |
+| Did the tool record why ship was blocked? | `NO_SHIP`, `REPORT.md`, `gate-summary.json` |
+| Did it keep apply human-controlled? | `auto` rejects `--apply`; `apply` is a separate command |
+| Did it separate executor and verifier? | `work -> verify` with Codex review evidence |
+| Did it block risky mode downgrades? | manifest-backed build mode safety order |
+| Did it avoid long-lived provider API keys by default? | delegated CLI auth and API-key override guard |
 
 ## Comparison
 
@@ -39,7 +35,7 @@ NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, pr
 | Discipline workflow | TDD, planning, debugging, review method | Add `quality` profile, evidence policy, and strict quality gates |
 | Team simulation | Many specialists thinking in parallel | Keep `team` read-only and preserve one executor for writes |
 | Autopilot UX | Fast one-command execution | Use bounded `auto` to build, verify, repair, report, and stop before apply |
-| Cross-tool setup | Many harness surfaces | Project one source catalog into Claude, Codex, Cursor, Gemini, and OpenCode |
+| Cross-tool setup | Many tool surfaces | Project one source catalog into Claude, Codex, Cursor, Gemini, and OpenCode |
 
 ## Catalog Interpretation
 
@@ -93,7 +89,7 @@ through independent verification, Human Gate decisions, and explicit apply contr
 Korean:
 
 ```text
-NEKOWORK는 AI 개발을 위한 로컬 우선 품질 런타임입니다.
-AI가 만든 변경을 독립 검증, Human Gate, 명시적 apply를 거쳐
-감사 가능한 변경으로 통과시킵니다.
+NEKOWORK는 AI 코드 변경을 위한 검증형 오토파일럿입니다.
+AI가 빠르게 만들고 고칠 수 있게 하되, 독립 검증, Human Gate,
+명시적 apply 통제를 거쳐 증거 기반 변경만 통과시킵니다.
 ```

@@ -1,6 +1,6 @@
 # PR Prep
 
-Planned for `0.1.0-alpha.10`.
+Planned for `0.1.0-alpha.11`.
 
 `pr-prep` will turn a verified session into review-ready artifacts without creating a pull request or pushing code.
 

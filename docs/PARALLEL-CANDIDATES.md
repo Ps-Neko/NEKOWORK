@@ -1,6 +1,6 @@
 # Parallel Candidate Writers
 
-Planned for `0.1.0-alpha.9`.
+Planned for `0.1.0-alpha.10`.
 
 `auto --parallel-candidates N` will make NEKOWORK feel more autonomous without allowing unsafe shared-worktree writes.
 

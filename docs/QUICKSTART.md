@@ -38,7 +38,7 @@ cd /path/to/my-project
 npx -y @ps-neko/nekowork@alpha init --profile developer --project-root .
 ```
 
-`init` is the beginner alias for `install --apply`. It writes generated harness surfaces and install state to the target project. It does not commit, push, publish, or deploy.
+`init` is the beginner alias for `install --apply`. It writes generated NEKOWORK tool surfaces and install state to the target project. It does not commit, push, publish, or deploy.
 
 ## 3. One-Minute Demo
 
@@ -219,33 +219,24 @@ Profiles:
 - `research`: research-oriented profile
 - `full`: every current module
 
-Official packs:
+Starter packs:
 
 - `core`: minimal verification runtime
 - `builder`: Safe Build Modes entrypoint
 - `productivity`: daily development discipline routines over the safe build loop
-- `team`: read-only team thinking before one executor writes
-- `debugging`: systematic bug, failing test, and regression triage
-- `maintenance`: dependency upgrade, refactor, migration, and cleanup routines
-- `pr`: PR readiness evidence, changelog notes, and risk notes
-- `catalog-plus`: richest curated catalog surface with all gates intact
-- `quality`: disciplined workflow and acceptance coverage evidence
 - `security`: sensitive work, Codex challenge, and Human Gate policy
-- `frontend`: UI mockups, component review, and accessibility-oriented checks
-- `testing`: regression planning and coverage-oriented handoffs
 - `release`: release readiness over the developer profile
-- `enterprise`: full stable catalog with all gates intact
+
+The full advanced pack catalog remains available in [CATALOG-PACKS.md](CATALOG-PACKS.md).
 
 ## Which Pack Should I Start With?
 
 - Use `productivity` for daily planning, debugging, TDD, and finish checks.
-- Use `team` when you want read-only role review before implementation.
-- Use `debugging` when the task starts with a failing test or regression.
-- Use `pr` before opening or updating a pull request.
 - Use `security` for auth, secrets, deploy, data, or financial-risk changes.
-- Use `catalog-plus` when evaluating the full curated NEKOWORK surface.
+- Use `release` for ship/no-ship evidence before release work.
+- Use [CATALOG-PACKS.md](CATALOG-PACKS.md) when you need team, debugging, maintenance, PR, frontend, testing, or enterprise pack aliases.
 
-## 6. Use HARNESS In A Target Project
+## 6. Use NEKOWORK In A Target Project
 
 For a disposable end-to-end target project demo:
 
@@ -283,7 +274,7 @@ Run a non-destructive preflight:
 node .harness-tool/scripts/portability/simulate-port.js . --profile developer --verbose
 ```
 
-Apply generated harness surfaces:
+Apply generated NEKOWORK tool surfaces:
 
 ```bash
 node .harness-tool/scripts/install-apply.js --profile developer --project-root .

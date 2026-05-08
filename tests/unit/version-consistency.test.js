@@ -23,7 +23,7 @@ function packNamesFromTable(text, heading) {
   return [...section.matchAll(/^\|\s*`([^`]+)`\s*\|/gm)].map(match => match[1]);
 }
 
-test('release surfaces distinguish repository candidate and published alpha', () => {
+test('release surfaces record repository version and published alpha', () => {
   const pkg = JSON.parse(read('package.json'));
   const manifest = YAML.parse(read('agent.yaml'));
   const readme = read('README.md');
@@ -50,12 +50,25 @@ test('package exposes product and runtime CLI names', () => {
 test('official pack docs match install profile manifest', () => {
   const profiles = JSON.parse(read('manifests/install-profiles.json'));
   const packNames = Object.keys(profiles.packs);
-  const readmePacks = packNamesFromTable(read('README.md'), 'Official Packs');
+  const readme = read('README.md');
+  const readmeStarterPacks = packNamesFromTable(readme, 'Starter Packs');
   const catalog = read('docs/CATALOG-PACKS.md');
   const catalogPacks = packNamesFromTable(catalog, 'Official Packs');
+  const expectedStarterPacks = ['core', 'builder', 'productivity', 'security', 'release'];
 
-  assert.deepEqual(readmePacks, packNames);
+  assert.deepEqual(readmeStarterPacks, expectedStarterPacks);
   assert.deepEqual(catalogPacks, packNames);
   assert.match(catalog, new RegExp(`${packNames.length} official packs`));
-  assert.match(read('README.md'), new RegExp(`${packNames.length} packs /`));
+  assert.match(readme, /5 starter packs/);
+  assert.doesNotMatch(readme, new RegExp(`${packNames.length} packs /`));
+});
+
+test('README defines verified autopilot without overclaiming proof', () => {
+  const readme = read('README.md');
+
+  assert.match(readme, /Verified Autopilot for AI code changes/);
+  assert.match(readme, /"Verified" means independently reviewed with recorded evidence, not mathematically proven correctness/);
+  assert.match(readme, /One Command\. One Blocked Risk\./);
+  assert.match(readme, /Codex verdict: request_changes/);
+  assert.match(readme, /Applied: false/);
 });
