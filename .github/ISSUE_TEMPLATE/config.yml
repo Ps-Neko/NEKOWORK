@@ -6,4 +6,6 @@ contact_links:
   - name: Release readiness
     url: https://github.com/Ps-Neko/NEKOWORK/blob/main/docs/RELEASE-READINESS.md
     about: Check current alpha release evidence and gates.
-
+  - name: External run evidence kit
+    url: https://github.com/Ps-Neko/NEKOWORK/blob/main/docs/EXTERNAL-RUN.md
+    about: Share a real run transcript, report trust card, and optional public quote.
