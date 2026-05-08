@@ -1,23 +1,24 @@
 # AI Development Lifecycle
 
-NEKOWORK is a local-first AI development quality runtime. Its job is not to collect every useful agent feature; its job is to make AI development disciplined, high-quality, independently verified, and human-gated.
+NEKOWORK is a local-first AI development OS and quality runtime. Its job is not to collect every useful agent feature; its job is to make AI development fast, disciplined, high-quality, independently verified, and human-gated.
 
 ## Position
 
 ```text
-Good development habits
+Fast build loop
++ good development habits
 + quality rules, hooks, and skills
 + product-aware scope control
 + read-only multi-agent thinking
 + Codex verification
 + Human Gate and explicit apply
-= NEKOWORK gated AI development runtime
+= NEKOWORK gated AI development OS
 ```
 
 The short slogan remains:
 
 ```text
-Claude work -> Codex verification -> Human Gate
+fast AI build -> Codex verification -> Human Gate -> explicit apply
 ```
 
 ## Product Rules
@@ -29,6 +30,7 @@ Claude work -> Codex verification -> Human Gate
 5. Multiple agents may think, but only one executor writes.
 6. Rich skills, hooks, and rules may improve quality, but cannot weaken safety.
 7. Apply is explicit and evidence-based.
+8. Build modes may improve speed, but cannot bypass verification or gates.
 
 ## Absorption Model
 
@@ -40,6 +42,7 @@ External project ideas are absorbed as capabilities, not as a new architecture:
 | Rich agent environment | Skills, hooks, rules, MCP, memory, scanner-style checks | Profile/module based selective install |
 | Product questioning | Product, design, QA, release, and scope control questions | `ask`, `plan`, and `product` profile |
 | Team orchestration | Multiple perspectives and parallel review | `team` read-only handoffs |
+| Productivity/autopilot-lite | One command for implementation, verification, and readiness | `build` modes over `run`; apply remains explicit |
 | NEKOWORK core | Codex verification, Human Gate, controlled apply | Non-bypassable runtime invariants |
 
 Capabilities can expand. The architecture cannot weaken the verification loop.
@@ -59,6 +62,16 @@ ask
 ```
 
 Quality enters early through `ask` and `plan`, not only at the final review step. Team mode collects multiple perspectives, but the write phase stays single-executor. Verification is independent, gate decisions are explicit, `report` makes evidence readable, and apply requires evidence.
+
+For the one-command product experience, `build` selects a safe preset over the same loop:
+
+```bash
+nekowork build "implement feature" --mode fast
+nekowork build "auth-sensitive change" --mode safe
+nekowork build "scope through QA first" --mode team
+nekowork build "test-first change" --mode tdd
+nekowork build "prepare release handoff" --mode release
+```
 
 ## Quality Profile
 

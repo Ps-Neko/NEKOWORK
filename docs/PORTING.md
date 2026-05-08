@@ -1,6 +1,6 @@
 # Porting NEKOWORK Into Another Project
 
-NEKOWORK `0.1.0-alpha.5` is the current repository version and the published `@ps-neko/nekowork@alpha` package. Use npm alpha for the shortest published install path, or use a submodule/local checkout for repository-pinned workflows and examples.
+NEKOWORK `0.1.0-alpha.6` is the current repository candidate. The published `@ps-neko/nekowork@alpha` package currently points at `0.1.0-alpha.5`. Use npm alpha for the shortest published install path, or use a submodule/local checkout for repository-pinned workflows and examples.
 
 ## Local Demo First
 

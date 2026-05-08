@@ -30,6 +30,14 @@ doctor -> ask -> run -> report -> gate status
 
 `run` is the short safe wrapper. It executes `work -> verify -> ship`, does not apply by default, and stops on Human Gate.
 
+When NEKOWORK should feel like one AI development runtime, use the builder path:
+
+```text
+check -> build --mode fast -> report -> gate status
+```
+
+`build` is a mode preset wrapper over the same evidence loop. `fast`, `safe`, `team`, `tdd`, and `release` tune profile, strictness, Codex challenge, and read-only team thinking; none of them apply by default.
+
 Advanced path:
 
 ```text
@@ -54,6 +62,7 @@ For the current alpha line:
 
 - `plan` is recommended before `work` for non-trivial changes.
 - `run` does not call `plan`; it remains a compact wrapper around `work -> verify -> ship`.
+- `build` does not bypass `run`; it selects a mode preset and then preserves `work -> verify -> ship`.
 - `work` always ensures `acceptance-criteria.json`, using `prd.json` when available or a task-derived minimum otherwise.
 - Future release lines may add `run --with-plan` or require an accepted plan artifact for higher-risk work.
 - `apply` is always explicit. `run` applies only with `--apply`.

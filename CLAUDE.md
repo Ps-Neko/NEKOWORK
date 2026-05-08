@@ -8,7 +8,7 @@
 
 ## 자동 갱신 영역
 
-<!-- HARNESS:START version=0.1.0-alpha.5 -->
+<!-- HARNESS:START version=0.1.0-alpha.6 -->
 <!-- 이 영역은 scripts/sync-claude-md.js 가 자동 갱신한다. 직접 편집 금지. -->
 
 ## 카탈로그 요약
@@ -17,8 +17,8 @@
 - skills: 10
 - commands: 1 (legacy compat)
 - hooks: 5 (gateguard-fact-force, config-protection, quality-gate, pre-bash-dispatcher, persistent-mode)
-- packs: core, quality, security, frontend, testing, release, enterprise
-- profiles: core, developer, security, product, quality, frontend, testing, research, full
+- packs: core, builder, quality, security, frontend, testing, release, enterprise
+- profiles: core, developer, builder, security, product, quality, frontend, testing, research, full
 - harnesses: claude, codex, cursor, gemini, opencode
 
 ## 에이전트 → 모델 매트릭스

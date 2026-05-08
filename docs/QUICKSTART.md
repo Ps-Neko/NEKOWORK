@@ -200,6 +200,7 @@ Profiles:
 
 - `core`: minimal rules, agents, hooks, and platform configs
 - `developer`: daily development, quality workflow, Codex loop, ops-readiness
+- `builder`: one-command build modes with verification, gates, and explicit apply
 - `security`: secure review defaults
 - `product`: question gate, scope review, acceptance criteria
 - `quality`: disciplined workflow, test-first planning, evidence-based review
@@ -211,6 +212,7 @@ Profiles:
 Official packs:
 
 - `core`: minimal verification runtime
+- `builder`: one-command AI development OS entrypoint
 - `quality`: disciplined workflow and acceptance coverage evidence
 - `security`: sensitive work, Codex challenge, and Human Gate policy
 - `frontend`: UI mockups, component review, and accessibility-oriented checks

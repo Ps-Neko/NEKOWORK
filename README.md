@@ -1,10 +1,10 @@
 # NEKOWORK
 
-Local-first AI development quality runtime for Claude Code, Codex CLI, and Gemini CLI.
+Local-first AI development OS and quality runtime for Claude Code, Codex CLI, and Gemini CLI.
 
 [![harness-validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
-NEKOWORK prevents AI coding agents from shipping unverified changes.
+NEKOWORK helps AI coding agents build quickly, then prevents unverified changes from shipping.
 
 It runs:
 
@@ -18,7 +18,7 @@ No auto-commit. No auto-push. No surprise deploy.
 Product principle:
 
 ```text
-NEKOWORK = Claude work -> Codex verification -> Human Gate
+NEKOWORK = fast AI build -> Codex verification -> Human Gate -> explicit apply
 ```
 
 NEKOWORK is the product. HARNESS is the local runtime it packages: one source catalog, `agent.yaml`, projected into Claude Code, Codex CLI, Cursor, Gemini CLI, and OpenCode surfaces.
@@ -30,7 +30,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 7 packs / 9 profiles / 36 components / 5 harness targets / 7 case-study flows / 253 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
+**Public alpha evidence:** 8 packs / 10 profiles / 36 components / 5 harness targets / 7 case-study flows / 258 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -52,12 +52,21 @@ Use a source checkout for the new simple command path:
 
 ```bash
 node scripts/cli.js check
+node scripts/cli.js build "implement this safely" --mode fast --session first-build
+node scripts/cli.js report --session first-build
+node scripts/cli.js gate status --session first-build
+```
+
+Or use the decomposed beginner path directly:
+
+```bash
+node scripts/cli.js check
 node scripts/cli.js run "implement this safely" --session first-run
 node scripts/cli.js report --session first-run
 node scripts/cli.js gate status --session first-run
 ```
 
-The simple path maps to the full evidence loop: `check = doctor --quick`, and `run = work -> verify -> ship`.
+The simple paths map to the evidence loop: `check = doctor --quick`, `build = mode presets over run`, and `run = work -> verify -> ship`.
 
 To add generated harness surfaces to another local repository:
 
@@ -131,7 +140,7 @@ Apply command: node scripts/cli.js apply --session first-work
 |---|---|---|
 | Large Claude Code packs | More agents, commands, skills | Curated verification loop |
 | Team simulation | More specialist perspectives | Read-only team plus one executor |
-| Autopilot | Fast autonomous execution | Report, gate, explicit apply |
+| Autopilot | Fast autonomous execution | `build` modes, report, gate, explicit apply |
 | Discipline workflows | Better development habits | Evidence-backed ship decision |
 
 ## When To Choose What
@@ -142,15 +151,16 @@ Apply command: node scripts/cli.js apply --session first-work
 | Get the broadest Claude Code skill/command environment | Everything Claude Code |
 | Simulate startup team roles from planning to QA | GStack |
 | Run autonomous multi-agent execution | OMC |
+| Use one local AI development runtime with safe build modes | NEKOWORK |
 | Verify AI changes, require human approval, then apply explicitly | NEKOWORK |
 
-Use Superpowers, Everything Claude Code, GStack, or OMC to produce stronger AI work when they fit your workflow. Use NEKOWORK to verify, gate, report, and apply that work safely.
+Use Superpowers, Everything Claude Code, GStack, or OMC to produce stronger AI work when they fit your workflow. Use NEKOWORK as the main runtime when you want build speed plus verification, gate, report, and explicit apply in one product.
 
 ## Three Paths
 
 Most users should start with the Beginner path. The other paths are for explicit phase control or legacy compatibility.
 
-1. Beginner: `check -> run -> report -> gate`
+1. Beginner: `check -> build -> report -> gate`
 2. Advanced: `ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply`
 3. Legacy: `review` / `review-cycle`
 
@@ -160,7 +170,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 ## Status
 
-- Current repository version: `0.1.0-alpha.5`
+- Current repository version: `0.1.0-alpha.6` candidate
 - Current package name: `@ps-neko/nekowork`
 - Published CLI names: `nekowork` and `harness`
 - Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.5`
@@ -171,7 +181,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 253 tests pass
+- `npm test`: 258 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
@@ -299,6 +309,7 @@ The public alpha surface is intentionally small:
 - `ship`: produce a ship/no-ship readiness handoff after Codex verification
 - `apply`: apply a verified `SHIP_READY` live-work diff to the target project
 - `run`: execute the decomposed wrapper, `work -> verify -> ship`, with optional apply
+- `build`: one-command builder wrapper with `fast`, `safe`, `team`, `tdd`, and `release` modes
 - `report`: summarize session evidence into `REPORT.md` without project mutation
 - `review`: run the legacy full Claude-led/Codex-reviewed workflow
 - `review-cycle`: explicit compatibility alias for the legacy full review workflow
@@ -308,12 +319,15 @@ Advanced features such as `team-lite`, `ralph`, `wait`, instincts, cost tracking
 
 `plan` is recommended before `work` for larger changes. The current `run` command intentionally stays compact: it runs `work -> verify -> ship`, records acceptance criteria through `work`, and applies only when `--apply` is explicitly provided.
 
-Use `--profile quality` or `--profile security` on `work`, `verify`, and `run` when a task needs stronger evidence prompts. Add `--strict-quality` to `verify` or `run` when missing evidence or acceptance coverage should become a fix-required verdict before ship.
+Use `build "<task>" --mode fast` when NEKOWORK should be the single entrypoint. Use `--mode safe` for security-sensitive work, `--mode team` for read-only multi-perspective planning before implementation, `--mode tdd` for strict acceptance evidence, and `--mode release` for readiness-focused work. `build` still uses one executor for writes, Codex verification before ship, and explicit apply only.
+
+Use `--profile quality` or `--profile security` on `work`, `verify`, and `run` when a task needs stronger evidence prompts. Add `--strict-quality` to `verify`, `run`, or `build` when missing evidence or acceptance coverage should become a fix-required verdict before ship.
 
 Use official packs when choosing an install shape:
 
 ```bash
 node scripts/install-plan.js --list
+node scripts/install-plan.js --pack builder
 node scripts/install-plan.js --pack quality
 node scripts/install-plan.js --pack security --target codex --json
 ```
@@ -326,8 +340,8 @@ Packs are aliases over validated profiles. They add clearer product packaging wi
 - Skills: 10
 - Hooks: 5
 - Modules: 7
-- Profiles: `core`, `developer`, `security`, `product`, `quality`, `frontend`, `testing`, `research`, `full`
-- Official packs: `core`, `quality`, `security`, `frontend`, `testing`, `release`, `enterprise`
+- Profiles: `core`, `developer`, `builder`, `security`, `product`, `quality`, `frontend`, `testing`, `research`, `full`
+- Official packs: `core`, `builder`, `quality`, `security`, `frontend`, `testing`, `release`, `enterprise`
 - Harness targets: `claude`, `codex`, `cursor`, `gemini`, `opencode`
 
 Key skills:
@@ -393,7 +407,7 @@ npm run security:hardening
 npm pack --dry-run --json
 ```
 
-`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.5.tgz`. It does not publish.
+`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.6.tgz`. It does not publish.
 
 ## Documentation
 
@@ -418,7 +432,7 @@ npm pack --dry-run --json
 - [docs/RUNBOOK.md](docs/RUNBOOK.md) - operations guide
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - system architecture
 - [docs/PRODUCT-PRINCIPLES.md](docs/PRODUCT-PRINCIPLES.md) - product position, invariants, CLI phase semantics
-- [docs/AI-DEVELOPMENT-LIFECYCLE.md](docs/AI-DEVELOPMENT-LIFECYCLE.md) - quality runtime and disciplined AI development lifecycle
+- [docs/AI-DEVELOPMENT-LIFECYCLE.md](docs/AI-DEVELOPMENT-LIFECYCLE.md) - AI development OS, quality runtime, and disciplined lifecycle
 - [docs/CORE-INVARIANTS.md](docs/CORE-INVARIANTS.md) - non-negotiable runtime safety rules
 - [docs/CLI-STAGES.md](docs/CLI-STAGES.md) - stage contract and compatibility transition
 - [docs/RISK-CLASSIFIER.md](docs/RISK-CLASSIFIER.md) - shared risk tags, challenge, and gate policy

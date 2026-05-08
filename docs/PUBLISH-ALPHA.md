@@ -4,7 +4,7 @@ NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the publi
 
 Do not publish from the `0.0.3` line.
 
-The repository metadata has been advanced to `0.1.0-alpha.5` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, and `0.1.0-alpha.5` publishes succeeded on 2026-05-08 and moved the `alpha` dist-tag forward.
+The repository metadata has been advanced to the `0.1.0-alpha.6` candidate with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, and `0.1.0-alpha.5` publishes succeeded on 2026-05-08 and moved the `alpha` dist-tag forward.
 
 The matching Git tag and GitHub prerelease are published as `v0.1.0-alpha.5`:
 
@@ -130,7 +130,7 @@ Before publishing, explicitly confirm:
 - npm 2FA readiness
 - package name `@ps-neko/nekowork`
 - binary names `nekowork` and `harness`
-- public alpha version `0.1.0-alpha.5`
+- public alpha version for the next publish, for example `0.1.0-alpha.6`
 - `private` removed or set to `false`
 - publish tag is `alpha`, not `latest`
 

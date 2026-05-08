@@ -2,20 +2,20 @@
 
 Status date: 2026-05-08
 
-This audit summarizes the current NEKOWORK state after publishing the `0.1.0-alpha.5` public alpha.
+This audit summarizes the current NEKOWORK state after advancing the repository to the `0.1.0-alpha.6` candidate while the published public alpha remains `0.1.0-alpha.5`.
 
 ## Current Status
 
 | Area | Status | Notes |
 |---|---|---|
-| Package metadata | OK | `@ps-neko/nekowork@0.1.0-alpha.5`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness`, matching version, and `nekowork`/`harness` CLI bins |
+| Package metadata | OK | repository candidate `@ps-neko/nekowork@0.1.0-alpha.6`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness`, matching version, and `nekowork`/`harness` CLI bins |
 | npm publish | OK | `@ps-neko/nekowork@alpha` points at `0.1.0-alpha.5` |
 | Source install | OK | Clone, local checkout, and submodule workflows are documented |
 | Public npm alpha | OK | `docs/PUBLISH-ALPHA.md` records alpha publishes through `0.1.0-alpha.5` |
 | CLI doctor/check | OK | `check`, `doctor`, `doctor --quick`, and `doctor --gemini-smoke` are available |
 | Provider auth | OK | Local delegated CLI auth is the default path |
 | Internal provider adapter | OK | `HARNESS_PROVIDER_OVERRIDE=internal` can call an explicit JSON command adapter without weakening gates |
-| Catalog | OK | 7 official packs, 11 agents, 10 skills, 5 hooks, 7 modules, 36 components, 9 profiles |
+| Catalog | OK | 8 official packs, 11 agents, 10 skills, 5 hooks, 7 modules, 36 components, 10 profiles |
 | Multi-harness output | OK | Claude, Codex, Cursor, Gemini, and OpenCode builders are present |
 | Quick demo | OK | `npm run demo:quick` verifies the shortest no-API `doctor -> run -> report -> gate status` path |
 | Fresh npm alpha smoke | OK | CI runs `npx -y @ps-neko/nekowork@alpha check --json` from a disposable directory |
@@ -55,7 +55,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 253 tests pass
+- `npm test`: 258 tests pass
 - quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass

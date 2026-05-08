@@ -1,6 +1,6 @@
 # Architecture
 
-NEKOWORK is the product. HARNESS is the local runtime packaged by NEKOWORK as a local-first AI development harness. The project keeps one canonical catalog and projects it into multiple agent surfaces.
+NEKOWORK is the product. HARNESS is the local runtime packaged by NEKOWORK as a local-first AI development OS and quality harness. The project keeps one canonical catalog and projects it into multiple agent surfaces.
 
 ## Core Idea
 
@@ -25,10 +25,10 @@ The canonical source is the repository catalog. Generated harness directories ar
 
 ## Product Invariants
 
-NEKOWORK is a verification runtime, not a general agent pack:
+NEKOWORK is an AI development OS bounded by a verification runtime, not a general agent pack:
 
 ```text
-Claude work -> Codex verification -> Human Gate
+fast AI build -> Codex verification -> Human Gate -> explicit apply
 ```
 
 Core invariants:
@@ -202,7 +202,7 @@ Builders project the catalog into tool-specific files:
 
 ## Release State
 
-The current release line is `0.1.0-alpha.5`:
+The current repository candidate line is `0.1.0-alpha.6`:
 
 - Repository and GitHub tarball release are available.
 - Public npm alpha is published as `@ps-neko/nekowork@alpha` and currently points at `0.1.0-alpha.5`.

@@ -1,7 +1,7 @@
 {
   "name": "@ps-neko/nekowork",
-  "version": "0.1.0-alpha.5",
-  "description": "Local-first AI development quality runtime that verifies, gates, and explicitly applies AI coding changes",
+  "version": "0.1.0-alpha.6",
+  "description": "Local-first AI development OS that builds, verifies, gates, and explicitly applies AI coding changes",
   "keywords": [
     "claude",
     "claude-code",
@@ -9,6 +9,7 @@
     "ai-agent",
     "ai-code-review",
     "ai-safety",
+    "ai-development-os",
     "code-review",
     "human-gate",
     "local-first",
