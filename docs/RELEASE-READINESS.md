@@ -2,17 +2,17 @@
 
 Status date: 2026-05-08
 
-NEKOWORK is release-ready for local use, repository-based installation, and public npm alpha installation. The current repository candidate is `0.1.0-alpha.8`; the current public npm alpha is `0.1.0-alpha.7` until the owner completes the alpha.8 publish.
+NEKOWORK is release-ready for local use, repository-based installation, and public npm alpha installation. The current repository release line and current public npm alpha are `0.1.0-alpha.8`.
 
 ## Decision
 
 - Decision: do not publish 0.0.3 to npm.
-- Repository release line: `0.1.0-alpha.8` candidate.
-- Public alpha: `0.1.0-alpha.7`, published with `--tag alpha`.
+- Repository release line: `0.1.0-alpha.8`.
+- Public alpha: `0.1.0-alpha.8`, published with `--tag alpha`.
 - `package.json` is set to `private: false` for the public alpha.
 - The canonical repo is `Ps-Neko/NEKOWORK`.
-- Current repository version is `0.1.0-alpha.8`; npm `@alpha` points at the published `0.1.0-alpha.7` until alpha.8 is published.
-- GitHub prerelease: `v0.1.0-alpha.7`; alpha.8 tag/release is pending publish.
+- Current repository version is `0.1.0-alpha.8`; npm `@alpha` points at the published `0.1.0-alpha.8`.
+- GitHub prerelease: `v0.1.0-alpha.8`.
 - Required local provider auth is delegated CLI auth, not long-lived API keys.
 - Core workflow invariant is Claude work -> Codex verification -> Human Gate.
 - Risk classifier, acceptance criteria artifacts, and profile safety validation are part of the release gate.
@@ -23,14 +23,14 @@ NEKOWORK is release-ready for local use, repository-based installation, and publ
 
 Latest GitHub Release:
 
-- https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.7
+- https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.8
 
-## 0.1.0-alpha.8 Candidate Scope
+## 0.1.0-alpha.8 Release Scope
 
-The `0.1.0-alpha.8` candidate scope is manifest-backed Build Intelligence policy:
+The `0.1.0-alpha.8` release scope is bounded verified autopilot plus manifest-backed Build Intelligence policy:
 
 - bounded `auto` mode routes through build intelligence, repairs fixable no-ship findings within budget, writes `auto-summary.json`, generates `REPORT.md`, and stops before apply
-- README and package metadata position the alpha.8 candidate as a verified autopilot for AI code changes
+- README and package metadata position alpha.8 as a verified autopilot for AI code changes
 - `docs/PARALLEL-CANDIDATES.md` and `docs/PR-PREP.md` record the alpha.9/alpha.10 autonomy tracks without claiming those commands are available yet
 - build mode safety ranks live in `manifests/build-modes.json`
 - `schemas/build-modes.schema.json` validates mode policy shape
@@ -102,9 +102,9 @@ Current local verification after the decomposed workflow expansion:
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npm publish --dry-run --access public --tag alpha`: pass
-- `npm publish --access public --tag alpha`: blocked by `EOTP`; owner OTP/web auth still required
-- `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.7`; `latest` remains `0.1.0-alpha.0`
-- `npx -y @ps-neko/nekowork@alpha check`: passed for `0.1.0-alpha.7` with WARN summary from Gemini auth not checked
+- `npm publish --access public --tag alpha`: published `0.1.0-alpha.8`
+- `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.8`; `latest` remains `0.1.0-alpha.0`
+- `npx -y @ps-neko/nekowork@alpha check`: passed for `0.1.0-alpha.8` with WARN summary from Gemini auth not checked
 - GitHub Actions `published-alpha-smoke`: validates the fresh `npx @alpha` path against the published package
 
 ## Install Smoke
@@ -187,7 +187,7 @@ Expected target outputs:
 
 ## Public npm Checklist
 
-Use this checklist to publish the `0.1.0-alpha.8` candidate after the owner completes OTP/web auth:
+Use this checklist to publish the next approved alpha, for example `0.1.0-alpha.9`:
 
 1. Confirm the npm package name is still `@ps-neko/nekowork`.
 2. Confirm the `nekowork` and `harness` binaries are still intentional.

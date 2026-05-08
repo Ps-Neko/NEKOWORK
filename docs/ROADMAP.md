@@ -74,11 +74,11 @@ Current scope:
 
 ## 0.1.0-alpha.8
 
-Status: repository candidate; npm publish pending owner OTP/web auth.
+Status: published public alpha.
 
 Goal: make Build Intelligence policy easier to maintain without weakening the current guardrails.
 
-Candidate scope:
+Released scope:
 
 - Move build mode safety rank metadata into a manifest/schema-backed contract.
 - Add bounded `auto` mode for build/verify/repair/report autonomy before explicit apply.
