@@ -10,10 +10,11 @@
 ### Changed
 - No entries yet.
 
-## [0.1.0-alpha.5] - Candidate
+## [0.1.0-alpha.5] - 2026-05-08
 
 ### Added
 - Add release-surface version consistency coverage, bringing the suite to 253 tests.
+- Publish public alpha `@ps-neko/nekowork@0.1.0-alpha.5` with the product-name CLI alias and sharpened npm metadata.
 
 ### Changed
 - Align published alpha smoke, feedback templates, and demo docs around the beginner `check` command.

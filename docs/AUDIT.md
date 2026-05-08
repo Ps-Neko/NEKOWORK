@@ -2,16 +2,16 @@
 
 Status date: 2026-05-08
 
-This audit summarizes the current NEKOWORK state after preparing the `0.1.0-alpha.5` repository candidate. The public npm alpha currently remains on `0.1.0-alpha.4`.
+This audit summarizes the current NEKOWORK state after publishing the `0.1.0-alpha.5` public alpha.
 
 ## Current Status
 
 | Area | Status | Notes |
 |---|---|---|
 | Package metadata | OK | `@ps-neko/nekowork@0.1.0-alpha.5`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness`, matching version, and `nekowork`/`harness` CLI bins |
-| npm publish | WARN | `@ps-neko/nekowork@alpha` points at `0.1.0-alpha.4`; `0.1.0-alpha.5` publish failed for the current account with npm `E404` permission/not-found |
+| npm publish | OK | `@ps-neko/nekowork@alpha` points at `0.1.0-alpha.5` |
 | Source install | OK | Clone, local checkout, and submodule workflows are documented |
-| Public npm alpha | OK | `docs/PUBLISH-ALPHA.md` records alpha publishes through `0.1.0-alpha.4` and the pending `0.1.0-alpha.5` candidate |
+| Public npm alpha | OK | `docs/PUBLISH-ALPHA.md` records alpha publishes through `0.1.0-alpha.5` |
 | CLI doctor/check | OK | `check`, `doctor`, `doctor --quick`, and `doctor --gemini-smoke` are available |
 | Provider auth | OK | Local delegated CLI auth is the default path |
 | Internal provider adapter | OK | `HARNESS_PROVIDER_OVERRIDE=internal` can call an explicit JSON command adapter without weakening gates |
@@ -30,7 +30,7 @@ This audit summarizes the current NEKOWORK state after preparing the `0.1.0-alph
 | Persistent wakeup | OK | `wait` resumes supported active sessions and blocks on `HUMAN_GATE` |
 | Generated docs | OK | CODEMAP output is stable ASCII and reproducible |
 | Tests | OK | Unit, integration, and e2e suites pass locally and in CI |
-| Release | WARN | Tags and GitHub prereleases exist through `v0.1.0-alpha.4`; do not create `v0.1.0-alpha.5` until npm publish succeeds |
+| Release | OK | `v0.1.0-alpha.5` is tagged and published as a GitHub prerelease |
 
 ## Verification Gates
 
@@ -63,9 +63,9 @@ Current local result for this working tree:
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npm publish --dry-run --access public --tag alpha`: pass
-- `npm publish --access public --tag alpha`: `0.1.0-alpha.5` failed with npm `E404` permission/not-found for the current account
-- `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.4`; `latest` remains `0.1.0-alpha.0`
-- `npx -y @ps-neko/nekowork@alpha doctor --quick`: passed for `0.1.0-alpha.4` with WARN summary from Gemini auth not checked
+- `npm publish --access public --tag alpha`: `0.1.0-alpha.5` published
+- `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.5`; `latest` remains `0.1.0-alpha.0`
+- `npx -y @ps-neko/nekowork@alpha check`: passed for `0.1.0-alpha.5` with WARN summary from Gemini auth not checked
 
 ## Completed Work
 
@@ -93,7 +93,7 @@ Current local result for this working tree:
 - Official packs expose curated install shapes without creating a second safety model.
 - Checked-in example fixtures now cover financial UI, CI hardening, and quality lifecycle evidence flows.
 - Third-party case studies record NEKOWORK runs against `sindresorhus/is-plain-obj`, `jshttp/basic-auth`, `python-hyper/h11`, and `motdotla/dotenv`.
-- Public npm alpha `0.1.0-alpha.4` is published under the `alpha` dist-tag. `0.1.0-alpha.5` remains a repository candidate until an owner account publishes it.
+- Public npm alpha `0.1.0-alpha.5` is published under the `alpha` dist-tag.
 
 ## Remaining Optional Work
 

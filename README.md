@@ -162,9 +162,8 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 - Current repository version: `0.1.0-alpha.5`
 - Current package name: `@ps-neko/nekowork`
-- Published CLI name: `harness`; repository candidate also exposes `nekowork`
-- Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.4`
-- Next repository candidate: `0.1.0-alpha.5`; publish attempted, but npm rejected the current account with `E404` permission/not-found
+- Published CLI names: `nekowork` and `harness`
+- Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.5`
 - Supported install path today: npm alpha, clone, submodule, or local repository integration
 - Dist-tag note: use `@alpha` until a stable release; `latest` still points at the first alpha line
 - Default mode: mock providers, no API keys, no provider CLI calls
