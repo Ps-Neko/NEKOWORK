@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { resolveSessionId } from '../lib/session-resolver.js';
 
 const MARKERS = {
   human: 'HUMAN_GATE',
@@ -19,7 +20,7 @@ export function gateStatus(opts) {
   const projectRoot = opts.projectRoot || process.cwd();
   if (!opts.sessionId) throw new Error('gate requires --session <id>');
 
-  const sessionId = opts.sessionId;
+  const sessionId = resolveSessionId(projectRoot, opts.sessionId);
   const sessionDir = sessionPath(projectRoot, sessionId);
   if (!fs.existsSync(sessionDir)) {
     return {
@@ -97,14 +98,15 @@ export function blockGate(opts) {
   if (!opts.sessionId) throw new Error('gate requires --session <id>');
   if (!String(opts.reason || '').trim()) throw new Error('gate block requires --reason <text>');
 
-  const sessionDir = sessionPath(projectRoot, opts.sessionId);
+  const sessionId = resolveSessionId(projectRoot, opts.sessionId);
+  const sessionDir = sessionPath(projectRoot, sessionId);
   if (!fs.existsSync(sessionDir)) throw new Error('gate block requires an existing session');
 
   const reason = opts.reason;
   writeMarker(sessionDir, MARKERS.human, { reason: `manual block: ${reason}` });
   writeMarker(sessionDir, MARKERS.blocked, { reason });
   appendEvent(sessionDir, { event: 'block', reason });
-  const result = gateStatus(opts);
+  const result = gateStatus({ ...opts, sessionId });
   writeSummary(sessionDir, result, 'block');
   return result;
 }

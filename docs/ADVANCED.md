@@ -1,6 +1,6 @@
 # Advanced Features
 
-The public alpha path focuses on `doctor`, `ask`, `plan`, `team`, `work`, `verify`, `gate`, `ship`, `apply`, `run`, `review`, `review-cycle`, and install/apply. This page keeps the larger runtime surface discoverable without crowding the first-run docs.
+The public alpha path focuses on `doctor`, `build`, `report`, `gate`, and the decomposed `ask`, `plan`, `team`, `work`, `verify`, `ship`, `apply`, `run`, `review`, `review-cycle`, and install/apply surfaces. This page keeps the larger runtime surface discoverable without crowding the first-run docs.
 
 ## team
 
@@ -184,12 +184,37 @@ Outputs:
 - `.harness/state/sessions/<id>/run-summary.json`
 - all normal `work`, `verify`, `ship`, and optional `apply` outputs
 
+## build
+
+`build` is the public one-command builder wrapper:
+
+```bash
+node scripts/cli.js build "implement this safely" --mode fast --session build-smoke
+node scripts/cli.js build "auth-sensitive change" --mode safe --session auth-smoke
+node scripts/cli.js build "scope with team thinking" --mode team --session team-smoke
+```
+
+Rules:
+
+- `fast` runs the compact safe path through `run`.
+- `safe` uses the security profile, strict quality, and Codex challenge.
+- `team` creates read-only team handoffs before the single executor runs.
+- `tdd` uses strict quality and acceptance evidence.
+- `release` focuses on ship/readiness and report evidence.
+- `apply` is never implicit; use `--apply` only for verified live-work diffs.
+
+Outputs:
+
+- `.harness/state/sessions/<id>/build-summary.json`
+- all normal `run`, `work`, `verify`, `ship`, and optional `apply` outputs
+
 ## report
 
 `report` turns existing session evidence into a readable inspect-only report:
 
 ```bash
 node scripts/cli.js report --session run-smoke
+node scripts/cli.js report --session latest
 node scripts/cli.js report --session run-smoke --stdout
 node scripts/cli.js report --session run-smoke --output docs/session-report.md
 ```
@@ -199,7 +224,7 @@ Rules:
 - Reads summaries, markers, acceptance criteria, and handoffs from `.harness/state/sessions/<id>/`.
 - Writes `REPORT.md` and `report-summary.json` by default.
 - Does not call providers, run git commands, apply diffs, or mutate target project files.
-- Can run after `ask`, `work`, `verify`, `ship`, `run`, or `apply`.
+- Can run after `ask`, `work`, `verify`, `ship`, `run`, `build`, or `apply`.
 
 Outputs:
 

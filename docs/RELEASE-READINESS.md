@@ -2,16 +2,16 @@
 
 Status date: 2026-05-08
 
-NEKOWORK / HARNESS is release-ready for local use, repository-based installation, and public npm alpha installation. The repository is now the `0.1.0-alpha.6` candidate; the published public npm alpha remains `0.1.0-alpha.5`.
+NEKOWORK / HARNESS is release-ready for local use, repository-based installation, and public npm alpha installation. The current public npm alpha is `0.1.0-alpha.6`.
 
 ## Decision
 
 - Decision: do not publish 0.0.3 to npm.
-- Public alpha: `0.1.0-alpha.5`, published with `--tag alpha`.
+- Public alpha: `0.1.0-alpha.6`, published with `--tag alpha`.
 - `package.json` is set to `private: false` for the public alpha.
 - The canonical repo is `Ps-Neko/NEKOWORK`.
-- Current repository candidate is `0.1.0-alpha.6`; npm `@alpha` points at the published `0.1.0-alpha.5`.
-- GitHub prerelease: `v0.1.0-alpha.5`.
+- Current repository version is `0.1.0-alpha.6`; npm `@alpha` points at the published `0.1.0-alpha.6`.
+- GitHub prerelease: `v0.1.0-alpha.6`.
 - Required local provider auth is delegated CLI auth, not long-lived API keys.
 - Core workflow invariant is Claude work -> Codex verification -> Human Gate.
 - Risk classifier, acceptance criteria artifacts, and profile safety validation are part of the release gate.
@@ -22,26 +22,26 @@ NEKOWORK / HARNESS is release-ready for local use, repository-based installation
 
 GitHub Release:
 
-- https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.5
+- https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.6
 
-## 0.1.0-alpha.5 Release Scope
+## 0.1.0-alpha.6 Release Scope
 
-The `0.1.0-alpha.5` release scope is product-name CLI ergonomics and release-surface version consistency:
+The `0.1.0-alpha.6` release scope is the safe builder mode runtime:
 
-- `nekowork` is exposed as the product-name CLI alias
-- `harness` remains available as the runtime-name CLI alias
-- package bin aliases are covered by unit tests
-- `agent.yaml` version matches `package.json`
-- version consistency is covered by unit tests
-- `published-alpha-smoke` uses the beginner `check` command and public `init --dry-run` path
-- no catalog expansion unless a new surface directly strengthens verification evidence
+- `build` is the beginner all-in-one entrypoint
+- build modes are documented: `fast`, `safe`, `team`, `tdd`, and `release`
+- `build` records `build-summary.json` and leaves `apply` explicit
+- `team` mode runs read-only handoffs before the single executor
+- `safe` and `tdd` modes strengthen verification and evidence requirements
+- report and gate can inspect `--session latest`
+- demos and quickstart now use `check -> build -> report -> gate`
 
 Release exit criteria:
 
 - required gates below pass locally
 - `published-alpha-smoke` passes in GitHub Actions
 - `npm pack --dry-run --json` contains only intended files
-- changelog `0.1.0-alpha.5` entries match the release contents
+- changelog `0.1.0-alpha.6` entries match the release contents
 - `latest` remains documented as non-stable; install examples continue to use `@alpha`
 
 ## Required Gates
@@ -71,14 +71,14 @@ Current local verification after the decomposed workflow expansion:
 - `npm run lint`: pass
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
-- `npm test`: 258 tests pass
+- `npm test`: 263 tests pass
 - `npm run demo:quick -- --cleanup`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npm publish --dry-run --access public --tag alpha`: pass
-- `npm publish --access public --tag alpha`: `0.1.0-alpha.5` published
-- `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.5`; `latest` remains `0.1.0-alpha.0`
-- `npx -y @ps-neko/nekowork@alpha check`: passed for `0.1.0-alpha.5` with WARN summary from Gemini auth not checked
+- `npm publish --access public --tag alpha`: `0.1.0-alpha.6` published
+- `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.6`; `latest` remains `0.1.0-alpha.0`
+- `npx -y @ps-neko/nekowork@alpha check`: passed for `0.1.0-alpha.6` with WARN summary from Gemini auth not checked
 - GitHub Actions `published-alpha-smoke`: validates the fresh `npx @alpha` path against the published package
 
 ## Install Smoke
@@ -126,6 +126,7 @@ Expected quick-demo outputs:
 - `.harness/state/sessions/<session>/verify-summary.json`
 - `.harness/state/sessions/<session>/ship-summary.json`
 - `.harness/state/sessions/<session>/run-summary.json`
+- `.harness/state/sessions/<session>/build-summary.json`
 - `.harness/state/sessions/<session>/REPORT.md`
 - `.harness/state/sessions/<session>/report-summary.json`
 
@@ -160,7 +161,7 @@ Expected target outputs:
 
 ## Public npm Checklist
 
-Already completed for `0.1.0-alpha.5`. Repeat this checklist for the next public alpha:
+Already completed for `0.1.0-alpha.6`. Repeat this checklist for the next public alpha:
 
 1. Confirm the npm package name is still `@ps-neko/nekowork`.
 2. Confirm the `nekowork` and `harness` binaries are still intentional.

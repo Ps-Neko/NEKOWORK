@@ -1,8 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { resolveSessionId } from '../lib/session-resolver.js';
 
 const SUMMARY_FILES = [
   'ask.json',
+  'build-summary.json',
   'work-summary.json',
   'verify-summary.json',
   'ship-summary.json',
@@ -24,7 +26,7 @@ export function reportSession(opts) {
   const projectRoot = opts.projectRoot || process.cwd();
   if (!opts.sessionId) throw new Error('report requires --session <id>');
 
-  const sessionId = opts.sessionId;
+  const sessionId = resolveSessionId(projectRoot, opts.sessionId);
   const sessionDir = path.join(projectRoot, '.harness', 'state', 'sessions', sessionId);
   if (!fs.existsSync(sessionDir)) throw new Error('report requires an existing session');
 
@@ -104,6 +106,7 @@ function readHandoffs(handoffDir) {
 function deriveStatus(data) {
   const m = data.markers;
   const run = data.summaries['run-summary.json'];
+  const build = data.summaries['build-summary.json'];
   const ship = data.summaries['ship-summary.json'];
   const verify = data.summaries['verify-summary.json'];
   const work = data.summaries['work-summary.json'];
@@ -115,10 +118,10 @@ function deriveStatus(data) {
   const noShipActive = Boolean(m.NO_SHIP) && (!m.SHIP_READY || markerTime(m.NO_SHIP) > markerTime(m.SHIP_READY));
 
   if (m.GATE_BLOCKED || gate?.blocked) return 'gate_blocked';
-  if (humanOpen || gate?.status === 'open' || run?.human_gate || ship?.human_gate || verify?.human_gate) return 'human_gate';
-  if (m.APPLIED_DIFF || apply?.applied || run?.applied) return 'applied';
-  if (noShipActive || run?.no_ship || ship?.no_ship) return 'no_ship';
-  if (m.SHIP_READY || run?.ship_ready || ship?.ship_ready) return 'ship_ready';
+  if (humanOpen || gate?.status === 'open' || build?.human_gate || run?.human_gate || ship?.human_gate || verify?.human_gate) return 'human_gate';
+  if (m.APPLIED_DIFF || apply?.applied || build?.applied || run?.applied) return 'applied';
+  if (noShipActive || build?.no_ship || run?.no_ship || ship?.no_ship) return 'no_ship';
+  if (m.SHIP_READY || build?.ship_ready || run?.ship_ready || ship?.ship_ready) return 'ship_ready';
   if (verify) return 'verified';
   if (work) return 'worked';
   if (ask) return 'asked';
@@ -132,31 +135,33 @@ function markerTime(marker) {
 
 function buildSummary({ sessionId, sessionDir, data, status }) {
   const run = data.summaries['run-summary.json'];
+  const build = data.summaries['build-summary.json'];
   const ship = data.summaries['ship-summary.json'];
   const verify = data.summaries['verify-summary.json'];
   const work = data.summaries['work-summary.json'];
   const gate = data.summaries['gate-summary.json'];
   const apply = data.summaries['apply-summary.json'];
-  const profile = run?.profile || verify?.profile || work?.profile || data.summaries['ask.json']?.profile || null;
-  const verdict = run?.verdict || ship?.verdict || verify?.verdict || null;
+  const profile = build?.profile || run?.profile || verify?.profile || work?.profile || data.summaries['ask.json']?.profile || null;
+  const verdict = build?.verdict || run?.verdict || ship?.verdict || verify?.verdict || null;
 
   return {
     sessionId,
     sessionDir,
     status,
     verdict,
+    mode: build?.mode || null,
     profile,
-    strictQuality: Boolean(run?.strict_quality || verify?.strict_quality),
+    strictQuality: Boolean(build?.strict_quality || run?.strict_quality || verify?.strict_quality),
     strictQualityBlocked: Boolean(run?.strict_quality_blocked || verify?.strict_quality_blocked),
-    shipReady: Boolean(data.markers.SHIP_READY || run?.ship_ready || ship?.ship_ready),
-    noShip: status === 'no_ship' || Boolean(run?.no_ship || ship?.no_ship),
+    shipReady: Boolean(data.markers.SHIP_READY || build?.ship_ready || run?.ship_ready || ship?.ship_ready),
+    noShip: status === 'no_ship' || Boolean(build?.no_ship || run?.no_ship || ship?.no_ship),
     humanGate: ['human_gate', 'gate_blocked'].includes(status) || Boolean(gate?.human_gate),
-    applied: Boolean(data.markers.APPLIED_DIFF || apply?.applied || run?.applied),
+    applied: Boolean(data.markers.APPLIED_DIFF || apply?.applied || build?.applied || run?.applied),
     handoffs: data.handoffs.length,
     qualityWarnings: verify?.quality_warnings || [],
     acceptanceCoverage: verify?.acceptance_coverage || [],
     targetProjectMutated: Boolean(apply?.target_project_mutated || run?.target_project_mutated),
-    nextStep: nextStep(status, { run, ship, verify, gate, apply }),
+    nextStep: nextStep(status, { build, run, ship, verify, gate, apply }),
   };
 }
 
@@ -166,7 +171,7 @@ function nextStep(status, summaries) {
   if (status === 'no_ship') return 'fix findings, rerun verify, then rerun ship';
   if (status === 'ship_ready') return 'optionally run apply for live captured diffs';
   if (status === 'applied') return 'review git diff, run project tests, then commit manually';
-  return summaries.run?.next_step || summaries.ship?.next_step || summaries.verify?.next_step || 'continue the workflow';
+  return summaries.build?.next_step || summaries.run?.next_step || summaries.ship?.next_step || summaries.verify?.next_step || 'continue the workflow';
 }
 
 function renderReport({ sessionId, sessionDir, generatedAt, data, status }) {
@@ -181,6 +186,7 @@ function renderReport({ sessionId, sessionDir, generatedAt, data, status }) {
   lines.push('');
   lines.push('## Summary');
   lines.push('');
+  if (summary.mode) lines.push(`- Build Mode: ${summary.mode}`);
   lines.push(`- Profile: ${summary.profile || 'none'}`);
   lines.push(`- Strict quality: ${summary.strictQuality ? (summary.strictQualityBlocked ? 'blocked' : 'enabled') : 'off'}`);
   lines.push(`- Human Gate: ${summary.humanGate ? 'yes' : 'no'}`);

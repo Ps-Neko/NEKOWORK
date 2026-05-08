@@ -1140,6 +1140,7 @@ function checkArgs(argv) {
           sessionId: result.sessionId,
           status: result.status,
           verdict: result.verdict,
+          mode: result.mode,
           profile: result.profile,
           strictQuality: result.strictQuality,
           strictQualityBlocked: result.strictQualityBlocked,

@@ -30,7 +30,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 8 packs / 10 profiles / 36 components / 5 harness targets / 7 case-study flows / 258 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
+**Public alpha evidence:** 8 packs / 10 profiles / 36 components / 5 harness targets / 7 case-study flows / 263 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -46,15 +46,19 @@ Use the current npm alpha for the published health smoke:
 
 ```bash
 npx -y @ps-neko/nekowork@alpha check
+npx -y @ps-neko/nekowork@alpha build "implement this safely" --mode fast --session first-build
+npx -y @ps-neko/nekowork@alpha report --session latest
 ```
 
-Use a source checkout for the new simple command path:
+Start with `build`. Drop down to `work`, `verify`, and `ship` only when you need phase-level control.
+
+Use a source checkout for local development:
 
 ```bash
 node scripts/cli.js check
 node scripts/cli.js build "implement this safely" --mode fast --session first-build
-node scripts/cli.js report --session first-build
-node scripts/cli.js gate status --session first-build
+node scripts/cli.js report --session latest
+node scripts/cli.js gate status --session latest
 ```
 
 Or use the decomposed beginner path directly:
@@ -170,10 +174,10 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 ## Status
 
-- Current repository version: `0.1.0-alpha.6` candidate
+- Current repository version: `0.1.0-alpha.6`
 - Current package name: `@ps-neko/nekowork`
 - Published CLI names: `nekowork` and `harness`
-- Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.5`
+- Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.6`
 - Supported install path today: npm alpha, clone, submodule, or local repository integration
 - Dist-tag note: use `@alpha` until a stable release; `latest` still points at the first alpha line
 - Default mode: mock providers, no API keys, no provider CLI calls
@@ -181,7 +185,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 258 tests pass
+- `npm test`: 263 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
@@ -223,7 +227,7 @@ npm ci
 npm run demo:quick -- --cleanup
 ```
 
-This creates a disposable target project and runs `doctor -> run -> report -> gate status`. It uses mock providers and does not call Claude, Codex, Gemini, or paid APIs.
+This creates a disposable target project and runs `doctor -> build -> report -> gate status`. It uses mock providers and does not call Claude, Codex, Gemini, or paid APIs.
 
 To initialize another local repository with the published alpha:
 
@@ -248,7 +252,7 @@ To inspect small case-study targets, see [examples/trading-dashboard-mock](examp
 
 ```text
 doctor ... OK
-run workflow ... OK
+build workflow ... OK
 report ... OK
 gate status ... OK
 Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false
@@ -363,6 +367,8 @@ Key skills:
 node scripts/cli.js doctor
 node scripts/cli.js doctor --quick --gemini-smoke
 npm run demo:quick
+node scripts/cli.js build "builder smoke" --mode team --session build-smoke
+node scripts/cli.js report --session latest
 node scripts/install-plan.js --list
 node scripts/install-plan.js --pack quality
 node scripts/install-plan.js --profile developer
@@ -412,6 +418,7 @@ npm pack --dry-run --json
 ## Documentation
 
 - [docs/QUICKSTART.md](docs/QUICKSTART.md) - first run and common paths
+- [docs/BUILD.md](docs/BUILD.md) - build command modes and invariants
 - [docs/WHY-NEKOWORK.md](docs/WHY-NEKOWORK.md) - comparison and product positioning
 - [docs/CATALOG-PACKS.md](docs/CATALOG-PACKS.md) - curated catalog, official packs, and case-study evidence
 - [docs/PUBLISH-ALPHA.md](docs/PUBLISH-ALPHA.md) - public npm alpha release plan

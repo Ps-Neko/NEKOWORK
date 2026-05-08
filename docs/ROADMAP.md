@@ -31,11 +31,13 @@ Released scope:
 - Make `npx @alpha init --project-root .` the shortest documented target-project install path.
 - Keep `@alpha check` smoke evidence green across local and GitHub Actions gates.
 
-## 0.1.0-alpha.6 Candidate
+## 0.1.0-alpha.6
+
+Status: released.
 
 Goal: gather external feedback and keep the release path boring.
 
-Candidate scope:
+Released scope:
 
 - Keep `@alpha` smoke evidence green across local and GitHub Actions gates.
 - Establish the `builder` pack and `build` command as the safe all-in-one productivity entrypoint.

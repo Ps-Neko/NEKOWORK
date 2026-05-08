@@ -48,6 +48,7 @@ scripts/
 |   |-- profile-safety.js
 |   |-- risk-classifier.js
 |   |-- router.js
+|   |-- session-resolver.js
 |   |-- severity.js
 |   `-- token-vault.js
 |-- orchestrators/
@@ -139,6 +140,7 @@ scripts/
 | `lib/profile-safety.js` | `CORE_PROFILE_MODULES`, `validateProfileSafety` |  |
 | `lib/risk-classifier.js` | `SENSITIVE_PATTERNS`, `classifyRisk`, `gateReasonFromFindings`, `humanGatePolicy`, `isSensitiveWork` |  |
 | `lib/router.js` | `decide`, `trace` | . : stage, task, files, ecoMode, riskLevel : { agent, model, provider, rationale, alternatives } SKILL claude-led-codex-review Stage Routing |
+| `lib/session-resolver.js` | `resolveSessionId` |  |
 | `lib/severity.js` | `classifyCategory`, `classifySeverity`, `deriveVerdict`, `riskLevel`, `severityCounts` | Severity / category + blast radius . REVIEW.md . . |
 | `lib/token-vault.js` | `audit`, `backend`, `list`, `load`, `redact`, `remove`, `save` | scripts/lib/token-vault.js auth.token_store: os-keychain (default) encrypted-file. : HARNESS_TOKEN_STORE_KIND=os-keychain keychain only ( th |
 | `orchestrators/apply.js` | `applyCycle`, `latestStageHandoff`, `readApplyGitStatus`, `readDiffForHandoff`, `readPriorHandoffs` |  |

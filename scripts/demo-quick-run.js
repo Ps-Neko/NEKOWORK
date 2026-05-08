@@ -14,14 +14,17 @@ function parseArgs(argv) {
   const args = {
     cleanup: false,
     profile: 'quality',
+    mode: 'team',
     session: 'demo-quick-run',
     target: null,
-    task: 'demo quick run: prepare a safe quality smoke change',
+    task: 'demo quick build: prepare a safe quality smoke change',
   };
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === '--cleanup') args.cleanup = true;
+    else if (arg === '--mode') args.mode = takeValue(argv, ++i, arg);
+    else if (arg.startsWith('--mode=')) args.mode = arg.slice('--mode='.length);
     else if (arg === '--profile') args.profile = takeValue(argv, ++i, arg);
     else if (arg.startsWith('--profile=')) args.profile = arg.slice('--profile='.length);
     else if (arg === '--session') args.session = takeValue(argv, ++i, arg);
@@ -51,12 +54,12 @@ function printHelp() {
   console.log(`NEKOWORK quick run demo
 
 Usage:
-  node scripts/demo-quick-run.js [--profile quality] [--session <id>] [--target <dir>] [--task <text>] [--cleanup]
+  node scripts/demo-quick-run.js [--mode team] [--profile quality] [--session <id>] [--target <dir>] [--task <text>] [--cleanup]
 
 What it does:
   1. Creates a tiny disposable target project.
   2. Runs doctor --quick.
-  3. Runs the compact workflow: run = work -> verify -> ship.
+  3. Runs the builder workflow: build = mode preset over run.
   4. Generates a readable REPORT.md and prints gate status.
 
 The demo uses mock providers by default and does not call paid APIs.
@@ -122,6 +125,7 @@ function main() {
   console.log('NEKOWORK quick run demo');
   console.log(`target : ${target}`);
   console.log(`session: ${args.session}`);
+  console.log(`mode   : ${args.mode}`);
   console.log(`profile: ${args.profile}`);
   console.log('');
 
@@ -136,10 +140,12 @@ function main() {
       '--project-root',
       target,
     ]);
-    runStep('run workflow', [
+    runStep('build workflow', [
       path.join(ROOT, 'scripts/cli.js'),
-      'run',
+      'build',
       args.task,
+      '--mode',
+      args.mode,
       '--profile',
       args.profile,
       '--session',
@@ -169,6 +175,7 @@ function main() {
     ]);
 
     for (const file of [
+      path.join(sessionDir, 'build-summary.json'),
       path.join(sessionDir, 'work-summary.json'),
       path.join(sessionDir, 'verify-summary.json'),
       path.join(sessionDir, 'ship-summary.json'),
@@ -179,9 +186,9 @@ function main() {
       assertExists(file);
     }
 
-    const runSummary = JSON.parse(fs.readFileSync(path.join(sessionDir, 'run-summary.json'), 'utf8'));
+    const buildSummary = JSON.parse(fs.readFileSync(path.join(sessionDir, 'build-summary.json'), 'utf8'));
     console.log('');
-    console.log(`Demo completed: verdict=${runSummary.verdict}, ship_ready=${runSummary.ship_ready}, applied=${runSummary.applied}`);
+    console.log(`Demo completed: mode=${buildSummary.mode}, verdict=${buildSummary.verdict}, ship_ready=${buildSummary.ship_ready}, applied=${buildSummary.applied}`);
     console.log(`Report: ${path.join(sessionDir, 'REPORT.md')}`);
     console.log(`Inspect session: ${sessionDir}`);
 

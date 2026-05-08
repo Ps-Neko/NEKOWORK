@@ -26,6 +26,23 @@ test('gate status reports missing and clear sessions', () => {
   }
 });
 
+test('gate status resolves latest to the newest session directory', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-gate-latest-'));
+  try {
+    const older = seedSession(projectRoot, 'older');
+    const newer = seedSession(projectRoot, 'newer');
+    fs.writeFileSync(path.join(newer, 'HUMAN_GATE'), 'reason: latest needs human\nat: 2026-05-06T00:00:00.000Z\n');
+    fs.utimesSync(older, new Date('2026-05-01T00:00:00Z'), new Date('2026-05-01T00:00:00Z'));
+    fs.utimesSync(newer, new Date('2026-05-02T00:00:00Z'), new Date('2026-05-02T00:00:00Z'));
+
+    const result = gateStatus({ sessionId: 'latest', projectRoot });
+    assert.equal(result.sessionId, 'newer');
+    assert.equal(result.status, 'open');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 test('gate approve records approval for an open HUMAN_GATE', () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-gate-approve-'));
   try {

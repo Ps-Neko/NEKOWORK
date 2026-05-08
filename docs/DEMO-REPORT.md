@@ -5,8 +5,8 @@
 ## Command
 
 ```bash
-node scripts/cli.js run "implement, verify, and prepare ship readiness" --session demo-report
-node scripts/cli.js report --session demo-report
+node scripts/cli.js build "implement, verify, and prepare ship readiness" --mode team --session demo-report
+node scripts/cli.js report --session latest
 ```
 
 For a target project:
@@ -48,6 +48,7 @@ This is the shape a reviewer should expect from a short quality-profile run:
 # NEKOWORK Report
 
 - Session: `demo-report`
+- Build mode: `team`
 - Status: `no_ship`
 - Verdict: `approve_with_fixes`
 - Ship ready: `false`
@@ -76,6 +77,7 @@ Coverage: `4/5`
 ## Evidence
 
 - `acceptance-criteria.json`
+- `build-summary.json`
 - `work-summary.json`
 - `verify-summary.json`
 - `ship-summary.json`
@@ -94,4 +96,4 @@ Coverage: `4/5`
 - no diff apply
 - no PR, release, publish, or deploy
 
-Use it after `run`, `ship`, or `apply` when you want a compact artifact to share with a human reviewer.
+Use it after `build`, `run`, `ship`, or `apply` when you want a compact artifact to share with a human reviewer.

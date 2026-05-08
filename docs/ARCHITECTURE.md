@@ -50,7 +50,7 @@ User command
         |
         |-- doctor
         |-- install plan/apply
-        |-- ask / plan / team / work / verify / gate / ship / report / apply / run / review / review-cycle
+        |-- ask / plan / team / work / verify / gate / ship / report / apply / run / build / review / review-cycle
         |-- ralph
         |-- team-lite
         |-- sessions / costs / instincts
@@ -87,6 +87,7 @@ node scripts/cli.js ship "ship readiness" --session work-smoke --project-root <t
 node scripts/cli.js report --session work-smoke --project-root <target>
 node scripts/cli.js apply --session work-smoke --project-root <target>
 node scripts/cli.js run "decomposed wrapper" --session run-smoke --project-root <target>
+node scripts/cli.js build "safe builder wrapper" --mode team --session build-smoke --project-root <target>
 node scripts/cli.js review "change request" --no-ship --project-root <target>
 node scripts/cli.js review-cycle "legacy full-cycle request" --no-ship --project-root <target>
 ```
@@ -136,6 +137,8 @@ ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
 `apply` requires `SHIP_READY`, no newer `NO_SHIP`, no unresolved gate, and a captured diff from `work --live`. It applies that diff with `git apply --3way`, records `APPLIED_DIFF`, and leaves commit/push/release actions to the human.
 
 `run` is the compatibility-friendly wrapper around the decomposed path. It runs `work -> verify -> ship` and only runs `apply` when `--apply` is explicitly requested and `SHIP_READY` exists. New automation should prefer `run` or the explicit decomposed commands; old automation can continue to use `review` or `review-cycle`.
+
+`build` is the safe one-command builder entrypoint. It applies named mode presets (`fast`, `safe`, `team`, `tdd`, `release`) over the existing safe loop, records `build-summary.json`, and keeps apply explicit.
 
 `ralph` is an advanced repeated-iteration loop. Its default engine remains legacy `review` for compatibility, but `ralph --engine run` repeats the decomposed wrapper and records child run sessions. Ralph does not apply diffs; verified mutation still flows through `apply`.
 
@@ -202,8 +205,8 @@ Builders project the catalog into tool-specific files:
 
 ## Release State
 
-The current repository candidate line is `0.1.0-alpha.6`:
+The current repository release line is `0.1.0-alpha.6`:
 
 - Repository and GitHub tarball release are available.
-- Public npm alpha is published as `@ps-neko/nekowork@alpha` and currently points at `0.1.0-alpha.5`.
+- Public npm alpha is published as `@ps-neko/nekowork@alpha` and currently points at `0.1.0-alpha.6`.
 - Clone, submodule, and local checkout integration remain supported for repository-pinned workflows.

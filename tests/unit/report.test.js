@@ -55,6 +55,18 @@ test('report writes a readable inspect-only session report', () => {
       verdict: 'approve_with_fixes',
       target_project_mutated: false,
     });
+    writeJson(path.join(sessionDir, 'build-summary.json'), {
+      sessionId,
+      mode: 'team',
+      profile: 'quality',
+      strict_quality: true,
+      ship_ready: false,
+      no_ship: true,
+      human_gate: false,
+      applied: false,
+      verdict: 'approve_with_fixes',
+      target_project_mutated: false,
+    });
     writeJson(path.join(handoffDir, '03-implement.json'), {
       stage: 'implement',
       agent: 'executor',
@@ -78,11 +90,36 @@ test('report writes a readable inspect-only session report', () => {
     assert.ok(fs.existsSync(result.reportPath));
     const report = fs.readFileSync(result.reportPath, 'utf8');
     assert.match(report, /NEKOWORK Session Report/);
+    assert.match(report, /Build Mode: team/);
     assert.match(report, /AC-001/);
     assert.match(report, /Quality Warnings/);
     assert.match(report, /05-codex-review\.json/);
     const summary = JSON.parse(fs.readFileSync(path.join(sessionDir, 'report-summary.json'), 'utf8'));
     assert.equal(summary.target_project_mutated, false);
+    assert.equal(summary.mode, 'team');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('report resolves --session latest to the newest session directory', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-report-latest-'));
+  try {
+    const oldDir = path.join(projectRoot, '.harness', 'state', 'sessions', 'old-session');
+    const newDir = path.join(projectRoot, '.harness', 'state', 'sessions', 'new-session');
+    fs.mkdirSync(oldDir, { recursive: true });
+    fs.mkdirSync(newDir, { recursive: true });
+    writeJson(path.join(oldDir, 'run-summary.json'), { sessionId: 'old-session', verdict: 'approve' });
+    writeJson(path.join(newDir, 'build-summary.json'), { sessionId: 'new-session', mode: 'fast', verdict: 'approve' });
+
+    const oldTime = new Date('2026-05-01T00:00:00Z');
+    const newTime = new Date('2026-05-02T00:00:00Z');
+    fs.utimesSync(oldDir, oldTime, oldTime);
+    fs.utimesSync(newDir, newTime, newTime);
+
+    const result = reportSession({ sessionId: 'latest', projectRoot });
+    assert.equal(result.sessionId, 'new-session');
+    assert.equal(result.mode, 'fast');
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }

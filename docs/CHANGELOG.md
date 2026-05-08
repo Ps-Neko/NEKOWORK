@@ -4,12 +4,16 @@
 
 ## [Unreleased]
 
+## [0.1.0-alpha.6] - 2026-05-08
+
 ### Added
 - Add the `build` command as a safe all-in-one builder wrapper with `fast`, `safe`, `team`, `tdd`, and `release` modes.
 - Add the `builder` pack/profile for productivity-oriented setup without weakening Codex verification, Human Gate, or explicit apply.
+- Add `build-summary.json` to report evidence and support `--session latest` for report/gate inspection.
 
 ### Changed
 - Position NEKOWORK as an AI development OS and quality runtime, not only a verification harness.
+- Make the one-minute demo and beginner path `build` centered.
 
 ## [0.1.0-alpha.5] - 2026-05-08
 
