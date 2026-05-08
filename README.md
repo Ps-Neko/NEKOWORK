@@ -30,7 +30,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 8 packs / 10 profiles / 36 components / 5 harness targets / 7 case-study flows / 264 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
+**Public alpha evidence:** 8 packs / 10 profiles / 36 components / 5 harness targets / 7 case-study flows / 267 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -46,6 +46,7 @@ Use the current npm alpha for the published health smoke:
 
 ```bash
 npx -y @ps-neko/nekowork@alpha check
+npx -y @ps-neko/nekowork@alpha build "implement this safely" --mode fast --dry-run
 npx -y @ps-neko/nekowork@alpha build "implement this safely" --mode fast --session first-build
 npx -y @ps-neko/nekowork@alpha report --session latest
 ```
@@ -71,6 +72,8 @@ node scripts/cli.js gate status --session first-run
 ```
 
 The simple paths map to the evidence loop: `check = doctor --quick`, `build = mode presets over run`, and `run = work -> verify -> ship`.
+
+Use `build --dry-run` when you want to preview mode, profile, workers, stages, and apply policy before running providers or writing session state.
 
 To add generated harness surfaces to another local repository:
 
@@ -185,7 +188,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 264 tests pass
+- `npm test`: 267 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
@@ -313,7 +316,7 @@ The public alpha surface is intentionally small:
 - `ship`: produce a ship/no-ship readiness handoff after Codex verification
 - `apply`: apply a verified `SHIP_READY` live-work diff to the target project
 - `run`: execute the decomposed wrapper, `work -> verify -> ship`, with optional apply
-- `build`: one-command builder wrapper with `fast`, `safe`, `team`, `tdd`, and `release` modes
+- `build`: one-command builder wrapper with `fast`, `safe`, `team`, `tdd`, `release`, and `--dry-run` preview
 - `report`: summarize session evidence into `REPORT.md` without project mutation
 - `review`: run the legacy full Claude-led/Codex-reviewed workflow
 - `review-cycle`: explicit compatibility alias for the legacy full review workflow

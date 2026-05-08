@@ -145,7 +145,7 @@ scripts/
 | `lib/token-vault.js` | `audit`, `backend`, `list`, `load`, `redact`, `remove`, `save` | scripts/lib/token-vault.js auth.token_store: os-keychain (default) encrypted-file. : HARNESS_TOKEN_STORE_KIND=os-keychain keychain only ( th |
 | `orchestrators/apply.js` | `applyCycle`, `latestStageHandoff`, `readApplyGitStatus`, `readDiffForHandoff`, `readPriorHandoffs` |  |
 | `orchestrators/ask.js` | `askGate`, `buildQuestionGate`, `classifyAskTask` |  |
-| `orchestrators/build.js` | `buildCycle`, `buildModePreset`, `normalizeBuildMode` |  |
+| `orchestrators/build.js` | `buildCycle`, `buildModePreset`, `buildPlan`, `normalizeBuildMode` |  |
 | `orchestrators/gate.js` | `approveGate`, `blockGate`, `gateCommand`, `gateStatus`, `markerTime`, `readMarker` |  |
 | `orchestrators/ralph.js` | `defaultPrd`, `normalizeEngine`, `ralphLoop` | Persistent Ralph loop. It repeats an execution engine until PRD acceptance criteria pass, a human gate stops the run, cost cap is hit, or ma |
 | `orchestrators/report.js` | `deriveStatus`, `readSessionEvidence`, `reportSession` |  |

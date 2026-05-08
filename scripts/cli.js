@@ -66,8 +66,8 @@ Review loop
                                          apply a verified SHIP_READY live-work diff to the target project
   run "<task>" [--session <id>] [--profile quality|security] [--strict-quality] [--secure] [--live] [--apply] [--allow-dirty] [--force] [--project-root <dir>] [--json]
                                          decomposed wrapper: work -> verify -> ship, optional apply
-  build "<task>" [--mode fast|safe|team|tdd|release] [--session <id>] [--live] [--apply] [--project-root <dir>] [--json]
-                                         one-command builder wrapper over read-only team thinking and run
+  build "<task>" [--mode fast|safe|team|tdd|release] [--dry-run] [--session <id>] [--live] [--apply] [--project-root <dir>] [--json]
+                                         one-command builder wrapper; --dry-run previews stages without executing
   report --session <id> [--project-root <dir>] [--output <file>] [--stdout] [--json]
                                          summarize session evidence into REPORT.md; inspect-only
   review "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>] [--project-root <dir>]
@@ -126,6 +126,72 @@ async function dynamicReview(opts) {
   console.log('  human gate : ' + (result.humanGate ? `YES (${result.reason})` : 'no'));
   console.log('  secure     : ' + (result.secureActive ? 'active' : 'off'));
   if (result.humanGate) process.exit(3);
+}
+
+function buildJsonOutput(result) {
+  if (result.dryRun) {
+    return {
+      dryRun: true,
+      sessionId: result.sessionId,
+      task: result.task,
+      mode: result.mode,
+      modeDescription: result.modeDescription,
+      profile: result.profile,
+      strictQuality: result.strictQuality,
+      secure: result.secure,
+      live: result.live,
+      applyRequested: result.applyRequested,
+      teamRun: result.teamRun,
+      teamWorkers: result.teamWorkers,
+      stages: result.stages,
+      safetyInvariants: result.safetyInvariants,
+      nextStep: result.nextStep,
+    };
+  }
+
+  return {
+    sessionId: result.sessionId,
+    mode: result.mode,
+    profile: result.profile,
+    strictQuality: result.strictQuality,
+    secure: result.secure,
+    teamRun: Boolean(result.team),
+    stoppedAt: result.run?.stoppedAt,
+    verdict: result.verdict,
+    humanGate: result.humanGate,
+    noShip: result.noShip,
+    shipReady: result.shipReady,
+    applied: result.applied,
+  };
+}
+
+function printBuildPlan(result) {
+  console.log('=== build dry-run ===');
+  console.log('  session    : ' + result.sessionId);
+  console.log('  mode       : ' + result.mode);
+  console.log('  profile    : ' + (result.profile || 'none'));
+  console.log('  strict     : ' + (result.strictQuality ? 'yes' : 'no'));
+  console.log('  secure     : ' + (result.secure ? 'yes' : 'no'));
+  console.log('  live       : ' + (result.live ? 'yes' : 'no'));
+  console.log('  apply      : ' + (result.applyRequested ? 'requested, still gated' : 'not requested'));
+  console.log('');
+  console.log('Stages:');
+  for (const stage of result.stages) {
+    const status = stage.runs ? 'run' : 'skip';
+    const details = stage.workers?.length
+      ? ` (${stage.workers.join(',')})`
+      : stage.challenge
+        ? ' (with challenge)'
+        : '';
+    console.log(`  - ${stage.stage}: ${status}${details}`);
+  }
+  console.log('');
+  console.log('Safety:');
+  for (const invariant of result.safetyInvariants) {
+    console.log('  - ' + invariant);
+  }
+  console.log('');
+  console.log('Next: ' + result.nextStep);
 }
 
 function usageError(message) {
@@ -505,6 +571,7 @@ function parseApplyArgs(argv) {
     projectRoot: null,
     allowDirty: false,
     force: false,
+    dryRun: false,
     json: false,
   };
   const unknown = [];
@@ -619,6 +686,7 @@ function parseBuildArgs(argv) {
     else if (a === '--secure') opts.secure = true;
     else if (a === '--strict-quality') opts.strictQuality = true;
     else if (a === '--team') opts.team = true;
+    else if (a === '--dry-run') opts.dryRun = true;
     else if (a === '--mode') {
       const value = argv[++i];
       if (!value || value.startsWith('--')) throw usageError('--mode requires a value');
@@ -1073,7 +1141,7 @@ function checkArgs(argv) {
     case 'build': {
       const opts = parseBuildArgs(rest);
       if (!opts.task) {
-        console.error('task is required. Example: harness build "implement and verify dashboard" --mode fast');
+        console.error('task is required. Example: nekowork build "implement and verify dashboard" --mode fast');
         process.exit(2);
       }
       const { buildCycle } = await import('./orchestrators/build.js');
@@ -1089,20 +1157,9 @@ function checkArgs(argv) {
         throw e;
       }
       if (opts.json) {
-        console.log(JSON.stringify({
-          sessionId: result.sessionId,
-          mode: result.mode,
-          profile: result.profile,
-          strictQuality: result.strictQuality,
-          secure: result.secure,
-          teamRun: Boolean(result.team),
-          stoppedAt: result.run?.stoppedAt,
-          verdict: result.verdict,
-          humanGate: result.humanGate,
-          noShip: result.noShip,
-          shipReady: result.shipReady,
-          applied: result.applied,
-        }, null, 2));
+        console.log(JSON.stringify(buildJsonOutput(result), null, 2));
+      } else if (result.dryRun) {
+        printBuildPlan(result);
       } else {
         console.log('=== build ===');
         console.log('  session    : ' + result.sessionId);
@@ -1116,7 +1173,7 @@ function checkArgs(argv) {
         console.log('  ship ready : ' + (result.shipReady ? 'yes' : 'no'));
         console.log('  apply      : ' + (result.applied ? 'applied' : result.run?.applyRequested ? `skipped (${result.run.applySkippedReason || 'not needed'})` : 'not requested'));
       }
-      if (result.humanGate || (opts.apply && (result.noShip || result.run?.applySkippedReason))) process.exit(3);
+      if (!result.dryRun && (result.humanGate || (opts.apply && (result.noShip || result.run?.applySkippedReason)))) process.exit(3);
       break;
     }
 
