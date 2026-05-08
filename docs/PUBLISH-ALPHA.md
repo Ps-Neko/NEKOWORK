@@ -4,9 +4,9 @@ NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the publi
 
 Do not publish from the `0.0.3` line.
 
-The repository metadata is on `0.1.0-alpha.7` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, `0.1.0-alpha.5`, `0.1.0-alpha.6`, and `0.1.0-alpha.7` publishes succeeded on 2026-05-08 and moved the `alpha` dist-tag forward.
+The repository metadata is on `0.1.0-alpha.8` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, `0.1.0-alpha.5`, `0.1.0-alpha.6`, and `0.1.0-alpha.7` publishes succeeded on 2026-05-08 and moved the `alpha` dist-tag forward. The `0.1.0-alpha.8` package is a repository candidate; public publish is pending owner OTP/web auth.
 
-The matching Git tag and GitHub prerelease are published as `v0.1.0-alpha.7`:
+The latest matching Git tag and GitHub prerelease are published as `v0.1.0-alpha.7`:
 
 ```text
 https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.7
@@ -100,11 +100,18 @@ npm publish --access public --tag alpha
 -> published 0.1.0-alpha.7
 ```
 
-After publish:
+The eighth alpha update candidate has passed dry-run checks, but the real publish is still pending owner OTP/web auth:
 
 ```text
-npm view @ps-neko/nekowork@0.1.0-alpha.7 version --json
--> 0.1.0-alpha.7
+npm publish --access public --tag alpha
+-> EOTP One-time password required
+```
+
+Until publish completes:
+
+```text
+npm view @ps-neko/nekowork@0.1.0-alpha.8 version --json
+-> E404 Not found
 ```
 
 `npx` smoke passed:
@@ -123,13 +130,13 @@ npm dist-tag rm @ps-neko/nekowork latest
 
 Treat `latest` as an unavoidable alpha-line registry pointer for now. Do not promote it in docs as the stable path. When the first stable package is ready, publish or retag that stable version as `latest`.
 
-## Release Shape
+## Candidate Release Shape
 
-Published public alpha package:
+Repository candidate package:
 
 ```text
 name: @ps-neko/nekowork
-version: 0.1.0-alpha.7
+version: 0.1.0-alpha.8
 dist-tag: alpha
 bin: nekowork, harness
 ```
@@ -144,13 +151,13 @@ Before publishing, explicitly confirm:
 - npm 2FA readiness
 - package name `@ps-neko/nekowork`
 - binary names `nekowork` and `harness`
-- public alpha version for the next publish, for example `0.1.0-alpha.8`
+- public alpha version for the next publish, for example `0.1.0-alpha.9`
 - `private` removed or set to `false`
 - publish tag is `alpha`, not `latest`
 
 ## Next Alpha Publish Checklist
 
-Use this checklist for `0.1.0-alpha.8` or any later alpha. Do not run it until the owner explicitly approves the publish and `npm whoami` is the package owner account.
+Use this checklist for the pending `0.1.0-alpha.8` candidate, then repeat it for `0.1.0-alpha.9` or any later alpha. Do not run it until the owner explicitly approves the publish and `npm whoami` is the package owner account.
 
 1. Confirm the candidate scope in [RELEASE-READINESS.md](RELEASE-READINESS.md).
 2. Move the intended changelog entries from `Unreleased` to the new version heading.

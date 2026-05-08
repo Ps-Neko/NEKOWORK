@@ -156,6 +156,34 @@ test('CLI build blocks high-risk release downgrade unless --force-mode is presen
   }
 });
 
+test('CLI auto dry-run previews bounded autonomy without creating a session', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-auto-dry-run-'));
+  try {
+    const auto = runCli(['auto', 'add OAuth login safely', '--dry-run', '--session', 'unit-cli-auto-dry-run', '--project-root', projectRoot, '--json']);
+    assert.equal(auto.status, 0, auto.stderr || auto.stdout);
+    const preview = JSON.parse(auto.stdout);
+    assert.equal(preview.dryRun, true);
+    assert.equal(preview.level, 'normal');
+    assert.equal(preview.mode, 'safe');
+    assert.equal(preview.applyRequested, false);
+    assert.equal(preview.policy.stopBeforeApply, true);
+    assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-auto-dry-run')));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('CLI auto rejects --apply because apply is explicit', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-auto-apply-'));
+  try {
+    const auto = runCli(['auto', 'fix safely', '--apply', '--session', 'unit-cli-auto-apply', '--project-root', projectRoot, '--json']);
+    assert.equal(auto.status, 2, auto.stdout || auto.stderr);
+    assert.match(auto.stderr, /auto never accepts --apply/);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 function runCli(args) {
   return spawnSync(process.execPath, [CLI, ...args], {
     cwd: ROOT,

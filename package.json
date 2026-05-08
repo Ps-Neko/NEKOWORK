@@ -1,7 +1,7 @@
 {
   "name": "@ps-neko/nekowork",
-  "version": "0.1.0-alpha.7",
-  "description": "Local-first AI development runtime for fast, verified code changes",
+  "version": "0.1.0-alpha.8",
+  "description": "Verified autopilot for AI code changes with Codex verification, Human Gate, and explicit apply",
   "keywords": [
     "claude",
     "claude-code",
@@ -10,6 +10,8 @@
     "ai-code-review",
     "ai-safety",
     "ai-development-runtime",
+    "verified-autopilot",
+    "autopilot",
     "safe-build",
     "verified-build",
     "code-review",

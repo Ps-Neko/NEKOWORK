@@ -4,6 +4,7 @@ import { resolveSessionId } from '../lib/session-resolver.js';
 
 const SUMMARY_FILES = [
   'ask.json',
+  'auto-summary.json',
   'build-summary.json',
   'work-summary.json',
   'verify-summary.json',
@@ -108,6 +109,7 @@ function readHandoffs(handoffDir) {
 function deriveStatus(data) {
   const m = data.markers;
   const run = data.summaries['run-summary.json'];
+  const auto = data.summaries['auto-summary.json'];
   const build = data.summaries['build-summary.json'];
   const ship = data.summaries['ship-summary.json'];
   const verify = data.summaries['verify-summary.json'];
@@ -120,10 +122,10 @@ function deriveStatus(data) {
   const noShipActive = Boolean(m.NO_SHIP) && (!m.SHIP_READY || markerTime(m.NO_SHIP) > markerTime(m.SHIP_READY));
 
   if (m.GATE_BLOCKED || gate?.blocked) return 'gate_blocked';
-  if (humanOpen || gate?.status === 'open' || build?.human_gate || run?.human_gate || ship?.human_gate || verify?.human_gate) return 'human_gate';
+  if (humanOpen || gate?.status === 'open' || auto?.human_gate || build?.human_gate || run?.human_gate || ship?.human_gate || verify?.human_gate) return 'human_gate';
   if (m.APPLIED_DIFF || apply?.applied || build?.applied || run?.applied) return 'applied';
-  if (noShipActive || build?.no_ship || run?.no_ship || ship?.no_ship) return 'no_ship';
-  if (m.SHIP_READY || build?.ship_ready || run?.ship_ready || ship?.ship_ready) return 'ship_ready';
+  if (noShipActive || auto?.no_ship || build?.no_ship || run?.no_ship || ship?.no_ship) return 'no_ship';
+  if (m.SHIP_READY || auto?.ship_ready || build?.ship_ready || run?.ship_ready || ship?.ship_ready) return 'ship_ready';
   if (verify) return 'verified';
   if (work) return 'worked';
   if (ask) return 'asked';
@@ -137,6 +139,7 @@ function markerTime(marker) {
 
 function buildSummary({ sessionId, sessionDir, data, status }) {
   const run = data.summaries['run-summary.json'];
+  const auto = data.summaries['auto-summary.json'];
   const build = data.summaries['build-summary.json'];
   const ship = data.summaries['ship-summary.json'];
   const verify = data.summaries['verify-summary.json'];
@@ -158,15 +161,16 @@ function buildSummary({ sessionId, sessionDir, data, status }) {
     profile,
     strictQuality: Boolean(build?.strict_quality || run?.strict_quality || verify?.strict_quality),
     strictQualityBlocked: Boolean(run?.strict_quality_blocked || verify?.strict_quality_blocked),
-    shipReady: Boolean(data.markers.SHIP_READY || build?.ship_ready || run?.ship_ready || ship?.ship_ready),
-    noShip: status === 'no_ship' || Boolean(build?.no_ship || run?.no_ship || ship?.no_ship),
+    autonomy: auto || null,
+    shipReady: Boolean(data.markers.SHIP_READY || auto?.ship_ready || build?.ship_ready || run?.ship_ready || ship?.ship_ready),
+    noShip: status === 'no_ship' || Boolean(auto?.no_ship || build?.no_ship || run?.no_ship || ship?.no_ship),
     humanGate: ['human_gate', 'gate_blocked'].includes(status) || Boolean(gate?.human_gate),
     applied: Boolean(data.markers.APPLIED_DIFF || apply?.applied || build?.applied || run?.applied),
     handoffs: data.handoffs.length,
     qualityWarnings: verify?.quality_warnings || [],
     acceptanceCoverage: verify?.acceptance_coverage || [],
     targetProjectMutated: Boolean(apply?.target_project_mutated || run?.target_project_mutated),
-    nextStep: nextStep(status, { build, run, ship, verify, gate, apply }),
+    nextStep: nextStep(status, { auto, build, run, ship, verify, gate, apply }),
   };
 }
 
@@ -203,6 +207,7 @@ function renderReport({ sessionId, sessionDir, generatedAt, data, status }) {
   lines.push(`- Next Step: ${summary.nextStep}`);
   lines.push('');
   addBuildIntelligenceSection(lines, data, summary);
+  addAutonomySection(lines, data, summary);
   addAcceptanceSection(lines, data);
   addWarningsSection(lines, summary.qualityWarnings);
   addHandoffsSection(lines, data.handoffs);
@@ -230,6 +235,20 @@ function addTrustCardSection(lines, data, summary) {
   lines.push(`| Target project mutated | ${summary.targetProjectMutated ? 'yes' : 'no'} |`);
   lines.push('');
   lines.push(`Decision: ${summary.nextStep}`);
+  lines.push('');
+}
+
+function addAutonomySection(lines, data, summary) {
+  const auto = data.summaries['auto-summary.json'] || summary.autonomy;
+  if (!auto) return;
+
+  lines.push('## Bounded Autonomy');
+  lines.push('');
+  lines.push(`- Level: ${auto.level || 'normal'}`);
+  lines.push(`- Selected mode: ${auto.selected_mode || summary.mode || 'n/a'}`);
+  lines.push(`- Rounds: ${Array.isArray(auto.rounds) ? auto.rounds.length : 0}/${auto.policy?.maxRounds || 'n/a'}`);
+  lines.push(`- Stop reason: ${auto.stop_reason || 'n/a'}`);
+  lines.push(`- Apply: ${auto.applied ? 'applied' : 'not automatic'}`);
   lines.push('');
 }
 

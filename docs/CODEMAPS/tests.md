@@ -26,6 +26,7 @@ tests/
     |-- apply.test.js
     |-- ask.test.js
     |-- auth-guard.test.js
+    |-- auto.test.js
     |-- build-intelligence.test.js
     |-- build.test.js
     |-- cli-options.test.js
@@ -77,6 +78,7 @@ tests/
 | `unit/apply.test.js` | _(none)_ |  |
 | `unit/ask.test.js` | _(none)_ |  |
 | `unit/auth-guard.test.js` | _(none)_ |  |
+| `unit/auto.test.js` | _(none)_ |  |
 | `unit/build-intelligence.test.js` | _(none)_ |  |
 | `unit/build.test.js` | _(none)_ |  |
 | `unit/cli-options.test.js` | _(none)_ |  |

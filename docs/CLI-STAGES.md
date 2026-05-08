@@ -30,6 +30,14 @@ doctor -> build -> report -> gate status
 
 `build` is the short safe wrapper for one-command use. It defaults to `auto`, which classifies task intent and chooses a mode preset over the same evidence loop. `fast`, `safe`, `team`, `tdd`, and `release` tune profile, strictness, Codex challenge, and read-only team thinking; none of them apply by default. Risky manual downgrades from the risk-aware recommendation require `--force-mode`.
 
+Use bounded autonomy when the tool should continue before the apply boundary:
+
+```text
+doctor -> auto -> report -> gate status
+```
+
+`auto` wraps `build`, can repair fixable no-ship findings within `--level cautious|normal|aggressive` budgets, writes `auto-summary.json`, and still never applies automatically.
+
 Advanced path:
 
 ```text
@@ -55,10 +63,11 @@ For the current alpha line:
 - `plan` is recommended before `work` for non-trivial changes.
 - `run` does not call `plan`; it remains a compact wrapper around `work -> verify -> ship`.
 - `build` does not bypass `run`; it selects a mode preset and then preserves `work -> verify -> ship`.
+- `auto` does not bypass `build`; it repeats bounded `build` rounds only for fixable no-ship states and stops on Human Gate.
 - `work` always ensures `acceptance-criteria.json`, using `prd.json` when available or a task-derived minimum otherwise.
 - Future release lines may add `run --with-plan` or require an accepted plan artifact for higher-risk work.
 - `apply` is always explicit. `run` applies only with `--apply`.
-- `report` is inspect-only and can run after `ask`, `work`, `verify`, `ship`, `run`, or `apply`.
+- `report` is inspect-only and can run after `ask`, `work`, `verify`, `ship`, `run`, `build`, `auto`, or `apply`.
 
 ## Explicit Safety Aliases
 

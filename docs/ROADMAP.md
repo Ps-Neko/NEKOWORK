@@ -2,7 +2,7 @@
 
 Status date: 2026-05-08
 
-This roadmap is intentionally small. NEKOWORK should improve the evidence surface before expanding the agent catalog.
+This roadmap is intentionally small. NEKOWORK should improve verified autopilot behavior and the evidence surface before expanding the agent catalog.
 
 ## 0.1.0-alpha.3
 
@@ -72,19 +72,20 @@ Current scope:
 - Build Intelligence explains routing decisions in dry-run, report, and `--explain` output.
 - Risk-aware manual downgrades require `--force-mode` when a task has high/critical risk, Codex challenge, Human Gate, or security/financial/deploy/data tags.
 
-## 0.1.0-alpha.8 Candidate Track
+## 0.1.0-alpha.8
 
-Status: active candidate.
+Status: repository candidate; npm publish pending owner OTP/web auth.
 
 Goal: make Build Intelligence policy easier to maintain without weakening the current guardrails.
 
 Candidate scope:
 
 - Move build mode safety rank metadata into a manifest/schema-backed contract.
+- Add bounded `auto` mode for build/verify/repair/report autonomy before explicit apply.
 - Keep `fast`, `team`, `tdd`, `release`, and `safe` ordering explicit in docs, validator checks, and tests.
 - Add more routing fixtures for mixed-intent work, especially release plus security/data/financial signals.
 - Keep forced override output consistent across dry-run and real build paths.
-- Keep `@alpha` smoke, package dry-run, publish dry-run, lint, audit, and full tests green before any alpha.8 publish.
+- Keep `@alpha` smoke, package dry-run, publish dry-run, lint, audit, and full tests green before alpha.8 publish.
 
 Non-goals:
 
@@ -92,3 +93,36 @@ Non-goals:
 - No parallel project-file writes.
 - No provider call during `--dry-run`.
 - No new mode that can bypass Codex verification, Human Gate, or explicit apply.
+
+## 0.1.0-alpha.9
+
+Status: planned.
+
+Goal: add isolated parallel candidate writers without allowing shared-worktree multi-agent writes.
+
+Planned scope:
+
+- Add `auto --parallel-candidates N`.
+- Run candidate workers in isolated worktrees, temp projects, or isolated diff captures.
+- Verify and compare candidate patches as evidence, not ship-ready output.
+- Produce an arbiter summary and one canonical final diff.
+- Run Codex verification on the canonical final diff before ship/apply.
+- Report candidate decisions in `REPORT.md`.
+
+Non-goals:
+
+- No concurrent writes to one target worktree.
+- No candidate majority vote as a replacement for Codex verification.
+- No automatic apply, commit, push, publish, deploy, or PR creation.
+
+## 0.1.0-alpha.10
+
+Status: planned.
+
+Goal: make verified work easier to prepare for human code review.
+
+Planned scope:
+
+- Add `nekowork pr-prep`.
+- Generate PR summary, risk notes, test evidence, changelog draft, and ship/no-ship evidence.
+- Keep PR creation, branch push, release, publish, and deploy as explicit human actions.
