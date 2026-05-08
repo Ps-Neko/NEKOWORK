@@ -13,7 +13,7 @@ const ROOT = path.resolve(__dirname, '..');
 function parseArgs(argv) {
   const args = {
     cleanup: false,
-    profile: 'quality',
+    profile: null,
     mode: 'team',
     session: 'demo-quick-run',
     target: null,
@@ -54,7 +54,7 @@ function printHelp() {
   console.log(`NEKOWORK quick run demo
 
 Usage:
-  node scripts/demo-quick-run.js [--mode team] [--profile quality] [--session <id>] [--target <dir>] [--task <text>] [--cleanup]
+  node scripts/demo-quick-run.js [--mode team] [--profile <profile>] [--session <id>] [--target <dir>] [--task <text>] [--cleanup]
 
 What it does:
   1. Creates a tiny disposable target project.
@@ -126,7 +126,7 @@ function main() {
   console.log(`target : ${target}`);
   console.log(`session: ${args.session}`);
   console.log(`mode   : ${args.mode}`);
-  console.log(`profile: ${args.profile}`);
+  console.log(`profile: ${args.profile || 'mode preset'}`);
   console.log('');
 
   try {
@@ -140,20 +140,20 @@ function main() {
       '--project-root',
       target,
     ]);
-    runStep('build workflow', [
+    const buildArgs = [
       path.join(ROOT, 'scripts/cli.js'),
       'build',
       args.task,
       '--mode',
       args.mode,
-      '--profile',
-      args.profile,
       '--session',
       args.session,
       '--project-root',
       target,
       '--json',
-    ]);
+    ];
+    if (args.profile) buildArgs.push('--profile', args.profile);
+    runStep('build workflow', buildArgs);
     runStep('report', [
       path.join(ROOT, 'scripts/cli.js'),
       'report',
