@@ -7,6 +7,7 @@ This guide turns public alpha feedback into evidence-backed next steps without w
 Use it for GitHub issues filed through:
 
 - Alpha feedback
+- External run evidence
 - Bug report
 - Direct maintainer notes that include `check --json`, `REPORT.md`, or install output
 
@@ -28,6 +29,7 @@ Use it for GitHub issues filed through:
 | Safety concern | apply, commit, push, publish, deploy, secrets, destructive changes | Confirm no automatic mutation occurred; request redacted logs and gate/ship summaries |
 | Platform mismatch | Windows path, shell quoting, CRLF, file URL, temp directory behavior | Reproduce on the named OS/shell before changing docs or code |
 | Product request | New agent, skill, pack, provider, workflow shortcut | Accept only if it strengthens verification evidence or first-run clarity |
+| External run evidence | Real user run, transcript, report trust card, quote | Redact, verify permission, and preserve actual ship/gate/apply state |
 
 ## Minimum Evidence
 
@@ -40,6 +42,7 @@ An issue is actionable when it includes at least three of:
 - exact command
 - redacted `check --json`
 - redacted `REPORT.md` summary
+- public quote permission when evidence will be cited in docs or release notes
 - session evidence file names, such as `verify-summary.json` or `ship-summary.json`
 - expected behavior and actual behavior
 
@@ -96,6 +99,7 @@ Use `--profile security --secure` when the report involves auth, secrets, deploy
 | Docs-only fix | Behavior is correct but unclear | before/after docs diff, command output if relevant |
 | Test-backed fix | Behavior is wrong or regressed | failing test or reproduced command, passing test after fix |
 | Case study | Feedback shows a new risk class or platform behavior | target commit, target test result, NEKOWORK run summary |
+| External evidence | Feedback shows a real public user run | redacted transcript, report trust card, final state, quote permission |
 | Release blocker | Public alpha install or safety invariant is broken | failed `@alpha` smoke or invariant evidence |
 | Not planned | Request weakens safety model or expands catalog without evidence value | explanation tied to product invariants |
 
@@ -104,6 +108,7 @@ Use `--profile security --secure` when the report involves auth, secrets, deploy
 Recommended labels:
 
 - `alpha-feedback`
+- `external-run`
 - `bug`
 - `needs-repro`
 - `needs-evidence`

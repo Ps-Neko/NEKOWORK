@@ -26,6 +26,25 @@ test('alpha feedback template collects triage classification evidence', () => {
   assert.match(template, /id: target_status/);
 });
 
+test('external run kit collects public evidence without private source', () => {
+  const doc = fs.readFileSync(path.join(ROOT, 'docs', 'EXTERNAL-RUN.md'), 'utf8');
+  const template = fs.readFileSync(path.join(ROOT, '.github', 'ISSUE_TEMPLATE', 'external-run.yml'), 'utf8');
+  const readme = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
+
+  assert.match(doc, /1 external user/);
+  assert.match(doc, /1 real repo or real local project/);
+  assert.match(doc, /1 REPORT\.md trust card/);
+  assert.match(doc, /Do not ask users to run `apply`, commit, push, publish, deploy, or open a PR/);
+  assert.match(doc, /not mathematically proven correctness/);
+  assert.match(template, /id: final_state/);
+  assert.match(template, /SHIP_READY/);
+  assert.match(template, /NO_SHIP/);
+  assert.match(template, /HUMAN_GATE/);
+  assert.match(template, /id: quote/);
+  assert.match(template, /Maintainers may cite my optional quote publicly/);
+  assert.match(readme, /external run kit/);
+});
+
 test('bug report template asks for impact classification', () => {
   const template = fs.readFileSync(path.join(ROOT, '.github', 'ISSUE_TEMPLATE', 'bug-report.yml'), 'utf8');
 

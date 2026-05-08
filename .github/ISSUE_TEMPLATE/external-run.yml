@@ -1,0 +1,126 @@
+name: External run evidence
+description: Share a real NEKOWORK alpha run, transcript, report trust card, and optional quote.
+title: "[external run]: "
+labels:
+  - external-run
+  - alpha-feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying NEKOWORK on a real project. Please remove secrets, private paths, customer names, and proprietary source code before pasting output.
+        The most useful evidence is a redacted command transcript, the first trust-card lines of REPORT.md, gate status, and one short quote we may cite publicly.
+  - type: input
+    id: version
+    attributes:
+      label: NEKOWORK version
+      placeholder: "@ps-neko/nekowork@alpha, 0.1.0-alpha.8, or git commit SHA"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: OS, shell, Node, and npm
+      placeholder: "Windows 11 / PowerShell / node v24.x / npm 11.x"
+    validations:
+      required: true
+  - type: dropdown
+    id: project_type
+    attributes:
+      label: Project type
+      options:
+        - public repository
+        - private repository, redacted
+        - local disposable project
+        - package/library
+        - app/frontend
+        - CI/release workflow
+        - other
+    validations:
+      required: true
+  - type: dropdown
+    id: risk_shape
+    attributes:
+      label: Risk shape
+      options:
+        - low-risk docs or tests
+        - auth or security
+        - secrets or configuration
+        - deploy or release
+        - data or migration
+        - financial or payment
+        - unknown
+    validations:
+      required: true
+  - type: textarea
+    id: task
+    attributes:
+      label: Task prompt
+      description: Paste the task you gave NEKOWORK. Redact private names.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: transcript
+    attributes:
+      label: Redacted command transcript
+      description: Include `check --json`, `auto --dry-run --json`, `auto`, `report --stdout`, or `gate status --json` output when available.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: report_trust_card
+    attributes:
+      label: REPORT.md trust card
+      description: Paste the first summary/trust-card lines only. Do not paste proprietary source or diffs.
+      placeholder: |
+        Verdict:
+        Ship ready:
+        Human gate:
+        Applied:
+        Evidence:
+      render: markdown
+    validations:
+      required: false
+  - type: dropdown
+    id: final_state
+    attributes:
+      label: Final state
+      options:
+        - SHIP_READY
+        - NO_SHIP
+        - HUMAN_GATE
+        - dry-run only
+        - unclear
+    validations:
+      required: true
+  - type: dropdown
+    id: apply_requested
+    attributes:
+      label: Was apply requested?
+      options:
+        - "no"
+        - "yes, and it was allowed"
+        - "yes, and it was refused"
+        - "not sure"
+    validations:
+      required: true
+  - type: textarea
+    id: quote
+    attributes:
+      label: Optional public quote
+      description: One or two sentences about whether the evidence/gate/apply boundary was clear.
+      placeholder: "I tried NEKOWORK on ... I am okay with this quote being public."
+    validations:
+      required: false
+  - type: checkboxes
+    id: permission
+    attributes:
+      label: Publication and safety checks
+      options:
+        - label: I removed secrets, credentials, private paths, customer names, and proprietary source code from pasted output.
+          required: true
+        - label: NEKOWORK did not automatically commit, push, publish, deploy, or apply changes during this run.
+          required: true
+        - label: Maintainers may cite my optional quote publicly if I filled it in above.
+          required: false
