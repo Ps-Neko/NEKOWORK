@@ -4,7 +4,7 @@
 
 ## [Unreleased]
 
-## [0.1.0-alpha.7] - 2026-05-08 (candidate)
+## [0.1.0-alpha.7] - 2026-05-08
 
 ### Added
 - Add Build Intelligence v0 for `build --mode auto`, including task classification, safe preset routing, worker selection, acceptance criteria, mini plan, and self-check artifacts.
