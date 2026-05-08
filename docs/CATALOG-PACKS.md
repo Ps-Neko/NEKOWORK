@@ -6,13 +6,13 @@ NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, mo
 fast AI build -> Codex verification -> report -> Human Gate -> explicit apply
 ```
 
-Packs are public install aliases over validated profiles. They make the catalog easier to choose without creating a second safety model.
+Packs are public install aliases over validated profiles. They make the catalog easier to choose without creating a second safety model. Productivity routines are packaged as verified workflows, not unchecked autonomy.
 
 ## Current Shape
 
 ```text
-8 official packs
-10 install profiles
+9 official packs
+11 install profiles
 7 modules
 36 components
 11 agents
@@ -47,6 +47,7 @@ environment configuration boundary
 |---|---|---|---|
 | `core` | `core` | Minimal verification runtime | `doctor -> ask -> run -> report -> gate` |
 | `builder` | `builder` | Safe Build Modes entrypoint | `build "<task>" --mode auto|fast|safe|team|tdd|release -> report -> gate` |
+| `productivity` | `productivity` | Brainstorm, plan, TDD, debug, execute, verify, report, and finish routines | `build "<task>" --mode auto -> report -> gate` |
 | `quality` | `quality` | Disciplined development and evidence coverage | `ask --profile quality -> run --profile quality --strict-quality -> report` |
 | `security` | `security` | Auth, secrets, permissions, deploy, financial, or data-sensitive changes | `ask --profile security -> run --profile security --secure --strict-quality -> report -> gate` |
 | `frontend` | `frontend` | UI mockups, component review, accessibility-oriented checks | `ask --profile product -> team -> run -> report` |
@@ -59,6 +60,7 @@ environment configuration boundary
 ```bash
 node scripts/install-plan.js --list
 node scripts/install-plan.js --pack builder
+node scripts/install-plan.js --pack productivity
 node scripts/install-plan.js --pack security
 node scripts/install-plan.js --pack quality --target claude --json
 node scripts/install-apply.js --pack core --project-root <target>
