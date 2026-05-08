@@ -10,6 +10,19 @@ function read(rel) {
   return fs.readFileSync(path.join(ROOT, rel), 'utf8');
 }
 
+function markdownSection(text, heading) {
+  const start = text.indexOf(`## ${heading}`);
+  assert.notEqual(start, -1, `${heading} section missing`);
+  const rest = text.slice(start);
+  const next = rest.indexOf('\n## ', 1);
+  return next === -1 ? rest : rest.slice(0, next);
+}
+
+function packNamesFromTable(text, heading) {
+  const section = markdownSection(text, heading);
+  return [...section.matchAll(/^\|\s*`([^`]+)`\s*\|/gm)].map(match => match[1]);
+}
+
 test('release surfaces distinguish repository candidate and published alpha', () => {
   const pkg = JSON.parse(read('package.json'));
   const manifest = YAML.parse(read('agent.yaml'));
@@ -32,4 +45,17 @@ test('package exposes product and runtime CLI names', () => {
   assert.equal(pkg.bin.nekowork, 'scripts/cli.js');
   assert.equal(pkg.bin.harness, 'scripts/cli.js');
   assert.deepEqual(lock.packages[''].bin, pkg.bin);
+});
+
+test('official pack docs match install profile manifest', () => {
+  const profiles = JSON.parse(read('manifests/install-profiles.json'));
+  const packNames = Object.keys(profiles.packs);
+  const readmePacks = packNamesFromTable(read('README.md'), 'Official Packs');
+  const catalog = read('docs/CATALOG-PACKS.md');
+  const catalogPacks = packNamesFromTable(catalog, 'Official Packs');
+
+  assert.deepEqual(readmePacks, packNames);
+  assert.deepEqual(catalogPacks, packNames);
+  assert.match(catalog, new RegExp(`${packNames.length} official packs`));
+  assert.match(read('README.md'), new RegExp(`${packNames.length} packs /`));
 });

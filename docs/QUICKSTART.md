@@ -223,8 +223,8 @@ Official packs:
 
 - `core`: minimal verification runtime
 - `builder`: Safe Build Modes entrypoint
-- `productivity`: Superpowers-style daily development routines over the safe build loop
-- `team`: GStack-style read-only team thinking before one executor writes
+- `productivity`: daily development discipline routines over the safe build loop
+- `team`: read-only team thinking before one executor writes
 - `debugging`: systematic bug, failing test, and regression triage
 - `maintenance`: dependency upgrade, refactor, migration, and cleanup routines
 - `pr`: PR readiness evidence, changelog notes, and risk notes
@@ -235,6 +235,15 @@ Official packs:
 - `testing`: regression planning and coverage-oriented handoffs
 - `release`: release readiness over the developer profile
 - `enterprise`: full stable catalog with all gates intact
+
+## Which Pack Should I Start With?
+
+- Use `productivity` for daily planning, debugging, TDD, and finish checks.
+- Use `team` when you want read-only role review before implementation.
+- Use `debugging` when the task starts with a failing test or regression.
+- Use `pr` before opening or updating a pull request.
+- Use `security` for auth, secrets, deploy, data, or financial-risk changes.
+- Use `catalog-plus` when evaluating the full curated NEKOWORK surface.
 
 ## 6. Use HARNESS In A Target Project
 

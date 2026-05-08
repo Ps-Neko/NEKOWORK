@@ -4,7 +4,9 @@ Local-first AI development runtime for fast, verified code changes.
 
 [![harness-validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
-Build quickly with AI agents, verify independently with Codex, and apply only with human control.
+Build fast with AI. Verify independently. Apply only with human control.
+
+NEKOWORK packages planning, debugging, team review, PR readiness, and release workflows into one local-first runtime with Codex verification, Human Gate, and explicit apply.
 
 It runs:
 
@@ -30,7 +32,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 14 packs / 11 profiles / 36 components / 5 harness targets / 7 case-study flows / 280 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
+**Public alpha evidence:** 14 packs / 11 profiles / 36 components / 5 harness targets / 7 case-study flows / 281 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -150,18 +152,18 @@ Apply command: node scripts/cli.js apply --session first-work
 | Autopilot | Fast autonomous execution | `build` modes, report, gate, explicit apply |
 | Discipline workflows | Better development habits | Evidence-backed ship decision |
 
-## When To Choose What
+## When To Choose NEKOWORK
 
-| Use case | Prefer |
+| Use case | NEKOWORK fit |
 |---|---|
-| Add TDD and discipline habits to Claude Code | Superpowers |
-| Get the broadest Claude Code skill/command environment | Everything Claude Code |
-| Simulate startup team roles from planning to QA | GStack |
-| Run autonomous multi-agent execution | OMC |
-| Use one local AI development runtime with safe build modes | NEKOWORK |
-| Verify AI changes, require human approval, then apply explicitly | NEKOWORK |
+| You want one command to start useful AI work | `build` routes the task into safe mode presets |
+| You want daily planning, TDD, debugging, and finish checks | use the `productivity` pack |
+| You want team-style review before implementation | use the `team` pack; handoffs stay read-only |
+| You need PR or release evidence | use `pr` or `release` before ship/apply |
+| You need sensitive-change control | use `security` and keep Human Gate active |
+| You need explicit apply instead of autopilot mutation | keep the default `report -> gate -> apply` path |
 
-Use Superpowers, Everything Claude Code, GStack, or OMC to produce stronger AI work when they fit your workflow. Use NEKOWORK as the main runtime when you want build speed plus verification, gate, report, and explicit apply in one product.
+Use other AI development tools when they fit your preferred authoring flow. Use NEKOWORK when AI work needs to become verified, reportable, gated, and explicitly applied.
 
 ## Three Paths
 
@@ -189,7 +191,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 280 tests pass
+- `npm test`: 281 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
@@ -211,6 +213,13 @@ Current local verification:
 | Pack | Adds | Use when |
 |---|---|---|
 | `core` | minimal verification runtime | first install or repo smoke |
+| `builder` | safe build modes entrypoint | one-command build with verification and gates |
+| `productivity` | planning, TDD, debugging, finish routines | daily AI-assisted development |
+| `team` | read-only role handoffs | you want team-style review before one executor writes |
+| `debugging` | failing-test and regression triage | the task starts from a bug or unclear root cause |
+| `maintenance` | dependency, refactor, migration, cleanup routines | routine upkeep still needs verification |
+| `pr` | diff review, test evidence, changelog, risk notes | preparing or reviewing a PR |
+| `catalog-plus` | richest curated catalog surface | evaluating the full NEKOWORK catalog |
 | `quality` | acceptance coverage, strict evidence prompts | feature work needs proof |
 | `security` | auth/secrets/deploy risk prompts | sensitive changes |
 | `frontend` | UI mockup, component review, accessibility checks | product-facing UI work |
@@ -345,7 +354,7 @@ node scripts/install-plan.js --pack quality
 node scripts/install-plan.js --pack security --target codex --json
 ```
 
-Packs are aliases over validated profiles. They add clearer product packaging without weakening the core gates. `productivity` is the shortest Superpowers-style routine pack: brainstorm, plan, TDD, debug, execute, verify, report, and finish over the same safe build loop. `team`, `debugging`, `maintenance`, `pr`, and `catalog-plus` make the catalog feel richer while still resolving to safety-checked profiles.
+Packs are aliases over validated profiles. They add clearer product packaging without weakening the core gates. `productivity` is the shortest daily discipline pack: brainstorm, plan, TDD, debug, execute, verify, report, and finish over the same safe build loop. `team`, `debugging`, `maintenance`, `pr`, and `catalog-plus` make the catalog feel richer while still resolving to safety-checked profiles.
 
 ## Catalog
 
