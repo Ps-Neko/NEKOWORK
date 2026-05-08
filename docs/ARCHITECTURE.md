@@ -206,8 +206,8 @@ Builders project the catalog into tool-specific files:
 
 ## Release State
 
-The current repository release line is `0.1.0-alpha.8` candidate:
+The current repository release line is `0.1.0-alpha.8` public alpha:
 
 - Repository and GitHub tarball release are available.
-- Public npm alpha is published as `@ps-neko/nekowork@alpha` and currently points at `0.1.0-alpha.7`; alpha.8 publish is pending owner OTP/web auth.
+- Public npm alpha is published as `@ps-neko/nekowork@alpha` and currently points at `0.1.0-alpha.8`.
 - Clone, submodule, and local checkout integration remain supported for repository-pinned workflows.

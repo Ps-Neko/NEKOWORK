@@ -1,15 +1,15 @@
 # Public Alpha Publish Record
 
-NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.7`.
+NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.8`.
 
 Do not publish from the `0.0.3` line.
 
-The repository metadata is on `0.1.0-alpha.8` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, `0.1.0-alpha.5`, `0.1.0-alpha.6`, and `0.1.0-alpha.7` publishes succeeded on 2026-05-08 and moved the `alpha` dist-tag forward. The `0.1.0-alpha.8` package is a repository candidate; public publish is pending owner OTP/web auth.
+The repository metadata is on `0.1.0-alpha.8` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, `0.1.0-alpha.5`, `0.1.0-alpha.6`, `0.1.0-alpha.7`, and `0.1.0-alpha.8` publishes succeeded on 2026-05-08 and moved the `alpha` dist-tag forward.
 
-The latest matching Git tag and GitHub prerelease are published as `v0.1.0-alpha.7`:
+The latest matching Git tag and GitHub prerelease are published as `v0.1.0-alpha.8`:
 
 ```text
-https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.7
+https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.8
 ```
 
 ## Registry State
@@ -27,14 +27,14 @@ The current alpha install path points at the release line:
 
 ```text
 npm view @ps-neko/nekowork@alpha version --json
--> 0.1.0-alpha.7
+-> 0.1.0-alpha.8
 ```
 
 Dist-tags:
 
 ```text
 npm view @ps-neko/nekowork dist-tags --json
--> { "alpha": "0.1.0-alpha.7", "latest": "0.1.0-alpha.0" }
+-> { "alpha": "0.1.0-alpha.8", "latest": "0.1.0-alpha.0" }
 ```
 
 The publish package shape has been checked:
@@ -100,18 +100,11 @@ npm publish --access public --tag alpha
 -> published 0.1.0-alpha.7
 ```
 
-The eighth alpha update candidate has passed dry-run checks, but the real publish is still pending owner OTP/web auth:
+The eighth alpha update was also published with the same `alpha` dist-tag:
 
 ```text
 npm publish --access public --tag alpha
--> EOTP One-time password required
-```
-
-Until publish completes:
-
-```text
-npm view @ps-neko/nekowork@0.1.0-alpha.8 version --json
--> E404 Not found
+-> published 0.1.0-alpha.8
 ```
 
 `npx` smoke passed:
@@ -130,9 +123,9 @@ npm dist-tag rm @ps-neko/nekowork latest
 
 Treat `latest` as an unavoidable alpha-line registry pointer for now. Do not promote it in docs as the stable path. When the first stable package is ready, publish or retag that stable version as `latest`.
 
-## Candidate Release Shape
+## Published Alpha Package Shape
 
-Repository candidate package:
+Published alpha package:
 
 ```text
 name: @ps-neko/nekowork
@@ -157,7 +150,7 @@ Before publishing, explicitly confirm:
 
 ## Next Alpha Publish Checklist
 
-Use this checklist for the pending `0.1.0-alpha.8` candidate, then repeat it for `0.1.0-alpha.9` or any later alpha. Do not run it until the owner explicitly approves the publish and `npm whoami` is the package owner account.
+Use this checklist for `0.1.0-alpha.9` or any later alpha. Do not run it until the owner explicitly approves the publish and `npm whoami` is the package owner account.
 
 1. Confirm the candidate scope in [RELEASE-READINESS.md](RELEASE-READINESS.md).
 2. Move the intended changelog entries from `Unreleased` to the new version heading.
