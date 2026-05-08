@@ -42,18 +42,23 @@ NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `
 
 ![NEKOWORK one-minute terminal demo](docs/assets/demo-terminal.svg)
 
-## Start Here
+## 30-Second First Run
 
-Use the current npm alpha for the published health smoke:
+Use the current npm alpha for the fastest proof of the workflow:
 
 ```bash
 npx -y @ps-neko/nekowork@alpha check
-npx -y @ps-neko/nekowork@alpha build "implement this safely" --dry-run
-npx -y @ps-neko/nekowork@alpha build "implement this safely" --session first-build
+npx -y @ps-neko/nekowork@alpha build "fix this safely" --session first-build
 npx -y @ps-neko/nekowork@alpha report --session latest
 ```
 
 Start with `build`. Drop down to `work`, `verify`, and `ship` only when you need phase-level control.
+
+Preview the route before running providers or writing session state:
+
+```bash
+npx -y @ps-neko/nekowork@alpha build "fix this safely" --dry-run
+```
 
 Use a source checkout for local development:
 
@@ -104,6 +109,8 @@ Evidence:
 - ship-summary.json
 - gate-summary.json
 ```
+
+The first screen of `REPORT.md` is the trust card: work produced, independent verification, Human Gate, ship readiness, apply state, and whether the target project was mutated.
 
 See the full report contract and example artifact in [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md), and the one-minute terminal transcript in [docs/DEMO.md](docs/DEMO.md).
 

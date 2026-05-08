@@ -189,6 +189,7 @@ function renderReport({ sessionId, sessionDir, generatedAt, data, status }) {
   lines.push(`Verdict: \`${summary.verdict || 'n/a'}\``);
   lines.push(`Generated: ${generatedAt}`);
   lines.push('');
+  addTrustCardSection(lines, data, summary);
   lines.push('## Summary');
   lines.push('');
   if (summary.mode) lines.push(`- Build Mode: ${summary.mode}`);
@@ -207,6 +208,29 @@ function renderReport({ sessionId, sessionDir, generatedAt, data, status }) {
   addHandoffsSection(lines, data.handoffs);
   addEvidenceSection(lines, data, sessionDir);
   return lines.join('\n') + '\n';
+}
+
+function addTrustCardSection(lines, data, summary) {
+  const verified = Boolean(data.summaries['verify-summary.json'] || data.handoffs.some(handoff => handoff.value?.stage === 'codex-review'));
+  const workProduced = Boolean(data.summaries['work-summary.json'] || data.handoffs.some(handoff => handoff.value?.stage === 'implement'));
+  const gateState = summary.humanGate
+    ? (summary.status === 'gate_blocked' ? 'blocked' : 'required')
+    : 'clear';
+  const applyState = summary.applied ? 'applied' : 'not applied';
+
+  lines.push('## Trust Card');
+  lines.push('');
+  lines.push('| Check | State |');
+  lines.push('| --- | --- |');
+  lines.push(`| Work produced | ${workProduced ? 'yes' : 'no'} |`);
+  lines.push(`| Independent verification | ${verified ? 'yes' : 'no'} |`);
+  lines.push(`| Human Gate | ${gateState} |`);
+  lines.push(`| Ship ready | ${summary.shipReady ? 'yes' : 'no'} |`);
+  lines.push(`| Apply | ${applyState} |`);
+  lines.push(`| Target project mutated | ${summary.targetProjectMutated ? 'yes' : 'no'} |`);
+  lines.push('');
+  lines.push(`Decision: ${summary.nextStep}`);
+  lines.push('');
 }
 
 function addBuildIntelligenceSection(lines, data, summary) {

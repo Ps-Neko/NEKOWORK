@@ -32,6 +32,7 @@ By default, `report` writes:
 
 `REPORT.md` includes:
 
+- trust card for verification, gate, ship, apply, and mutation state
 - session status and verdict
 - Human Gate, no-ship, ship-ready, and apply state
 - profile and strict-quality state
@@ -56,6 +57,19 @@ This is the shape a reviewer should expect from a short quality-profile run:
 - Human gate: `required`
 - Profile: `quality`
 - Strict quality: `enabled`
+
+## Trust Card
+
+| Check | State |
+|---|---|
+| Work produced | yes |
+| Independent verification | yes |
+| Human Gate | required |
+| Ship ready | no |
+| Apply | not applied |
+| Target project mutated | no |
+
+Decision: human must approve or block the gate
 
 ## Acceptance
 

@@ -124,6 +124,11 @@ test('report writes a readable inspect-only session report', () => {
     assert.ok(fs.existsSync(result.reportPath));
     const report = fs.readFileSync(result.reportPath, 'utf8');
     assert.match(report, /NEKOWORK Session Report/);
+    assert.match(report, /## Trust Card/);
+    assert.match(report, /\| Independent verification \| yes \|/);
+    assert.match(report, /\| Human Gate \| clear \|/);
+    assert.match(report, /\| Apply \| not applied \|/);
+    assert.match(report, /Decision: fix findings, rerun verify, then rerun ship/);
     assert.match(report, /Build Mode: safe/);
     assert.match(report, /Build Intelligence/);
     assert.match(report, /Requested mode: auto/);
