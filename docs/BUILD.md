@@ -10,6 +10,14 @@ nekowork gate status --session latest
 
 Drop down to `ask`, `plan`, `team`, `work`, `verify`, `ship`, and `apply` only when you need phase-level control.
 
+Preview the planned mode without running workers:
+
+```bash
+nekowork build "implement this safely" --mode team --dry-run
+```
+
+`--dry-run` does not create a session, call providers, write handoffs, or mutate the target project. It only resolves the build mode, profile, stages, workers, and safety invariants.
+
 ## Mode Contract
 
 | Mode | Purpose | Internal Behavior | Apply |
@@ -19,6 +27,30 @@ Drop down to `ask`, `plan`, `team`, `work`, `verify`, `ship`, and `apply` only w
 | `team` | Parallel thinking before work | read-only team handoffs, then one executor through `run` | Explicit only |
 | `tdd` | Test-first work | quality profile with strict acceptance and evidence checks | Explicit only |
 | `release` | Release readiness | quality profile with ship/report evidence before apply | Explicit only |
+
+## Dry-run Preview
+
+Dry-run output shows the same preset resolution used by real builds:
+
+```text
+=== build dry-run ===
+  mode       : team
+  profile    : quality
+  apply      : not requested
+
+Stages:
+  - team: run (planner,product,security,test)
+  - work: run
+  - verify: run
+  - ship: run
+  - apply: skip
+```
+
+For automation, add `--json` to read the preview contract:
+
+```bash
+nekowork build "change auth token validation" --mode safe --dry-run --json
+```
 
 ## Safety Invariants
 
@@ -47,6 +79,7 @@ It preserves the same core rules as the decomposed workflow:
 Fast path:
 
 ```bash
+nekowork build "add a small validated change" --mode fast --dry-run
 nekowork build "add a small validated change" --mode fast --session work-1
 nekowork report --session work-1
 ```

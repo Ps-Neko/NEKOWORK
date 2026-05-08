@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { buildCycle, buildModePreset, normalizeBuildMode } from '../../scripts/orchestrators/build.js';
+import { buildCycle, buildModePreset, buildPlan, normalizeBuildMode } from '../../scripts/orchestrators/build.js';
 import { reportSession } from '../../scripts/orchestrators/report.js';
 import { validateProfileSafety } from '../../scripts/lib/profile-safety.js';
 
@@ -157,6 +157,51 @@ test('builder pack cannot weaken core safety invariants', () => {
   assert.equal(builderProfile.defaults.mutation_policy, 'single_executor');
   assert.equal(builderProfile.defaults.apply_default, 'explicit');
   assert.deepEqual(validateProfileSafety(manifest).errors, []);
+});
+
+test('build dry-run previews stages without running providers or writing session state', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-build-dry-run-'));
+  const calls = [];
+  try {
+    const r = await buildCycle({
+      task: 'dry run safe build smoke',
+      mode: 'safe',
+      sessionId: 'unit-build-dry-run',
+      harnessRoot: ROOT,
+      projectRoot,
+      dryRun: true,
+      dispatcher: dispatcher(calls),
+    });
+
+    assert.equal(r.dryRun, true);
+    assert.equal(r.mode, 'safe');
+    assert.equal(r.profile, 'security');
+    assert.equal(r.strictQuality, true);
+    assert.equal(r.secure, true);
+    assert.deepEqual(calls, []);
+    assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-build-dry-run')));
+    assert.deepEqual(r.stages.map(s => s.stage), ['team', 'work', 'verify', 'ship', 'apply']);
+    assert.equal(r.stages.find(s => s.stage === 'apply').runs, false);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('build plan keeps team workers and explicit apply preview visible', () => {
+  const plan = buildPlan({
+    task: 'team dry run smoke',
+    mode: 'team',
+    sessionId: 'unit-build-plan',
+    apply: true,
+  });
+
+  assert.equal(plan.dryRun, true);
+  assert.equal(plan.teamRun, true);
+  assert.deepEqual(plan.teamWorkers, ['planner', 'product', 'security', 'test']);
+  assert.equal(plan.applyRequested, true);
+  assert.equal(plan.stages.find(s => s.stage === 'team').mutation, 'read-only');
+  assert.equal(plan.stages.find(s => s.stage === 'work').mutation, 'single-executor');
+  assert.match(plan.stages.find(s => s.stage === 'apply').condition, /SHIP_READY/);
 });
 
 function dispatcher(calls, options = {}) {

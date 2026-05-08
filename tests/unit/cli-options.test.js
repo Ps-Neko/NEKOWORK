@@ -66,6 +66,23 @@ test('CLI accepts build modes as the one-command safe builder entry', () => {
   }
 });
 
+test('CLI build --dry-run previews plan without creating a session', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-build-dry-run-'));
+  try {
+    const build = runCli(['build', 'safe builder preview', '--mode', 'safe', '--dry-run', '--session', 'unit-cli-build-dry-run', '--project-root', projectRoot, '--json']);
+    assert.equal(build.status, 0, build.stderr || build.stdout);
+    const preview = JSON.parse(build.stdout);
+    assert.equal(preview.dryRun, true);
+    assert.equal(preview.mode, 'safe');
+    assert.equal(preview.profile, 'security');
+    assert.equal(preview.secure, true);
+    assert.equal(preview.stages.find(s => s.stage === 'verify').challenge, true);
+    assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-build-dry-run')));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 function runCli(args) {
   return spawnSync(process.execPath, [CLI, ...args], {
     cwd: ROOT,

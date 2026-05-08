@@ -60,20 +60,21 @@ export async function buildCycle(opts) {
   const projectRoot = opts.projectRoot || harnessRoot;
   if (!opts.task) throw new Error('build requires a task');
 
-  const preset = buildModePreset(opts.mode);
-  const sessionId = opts.sessionId || `build-${Date.now()}`;
-  const profile = opts.profile || preset.profile;
-  const strictQuality = opts.strictQuality || preset.strictQuality;
-  const secure = opts.secure || preset.secure;
+  if (opts.dryRun) {
+    return buildPlan({ ...opts, harnessRoot, projectRoot });
+  }
+
+  const config = resolveBuildConfig(opts);
+  const { preset, sessionId, profile, strictQuality, secure } = config;
 
   let team = null;
-  if (preset.team || opts.team) {
+  if (config.teamRun) {
     team = await teamCycle({
       task: opts.task,
       sessionId,
       harnessRoot,
       projectRoot,
-      workers: opts.workers || preset.workers,
+      workers: config.teamWorkers,
       live: !!opts.live,
       dispatcher: opts.dispatcher,
     });
@@ -114,6 +115,87 @@ export async function buildCycle(opts) {
   return result;
 }
 
+export function buildPlan(opts) {
+  const config = resolveBuildConfig(opts);
+  const { preset, sessionId, profile, strictQuality, secure, teamRun, teamWorkers } = config;
+  const applyRequested = Boolean(opts.apply);
+  return {
+    dryRun: true,
+    task: opts.task,
+    sessionId,
+    mode: preset.mode,
+    modeDescription: preset.description,
+    profile,
+    strictQuality,
+    secure,
+    live: Boolean(opts.live),
+    applyRequested,
+    allowDirty: Boolean(opts.allowDirty),
+    force: Boolean(opts.force),
+    teamRun,
+    teamWorkers: teamRun ? splitWorkers(teamWorkers) : [],
+    stages: [
+      {
+        stage: 'team',
+        runs: teamRun,
+        mutation: 'read-only',
+        workers: teamRun ? splitWorkers(teamWorkers) : [],
+      },
+      {
+        stage: 'work',
+        runs: true,
+        mutation: 'single-executor',
+        output: opts.live ? 'captured live-work diff plus implement handoff' : 'implement handoff',
+      },
+      {
+        stage: 'verify',
+        runs: true,
+        provider: 'codex',
+        challenge: secure,
+        strictQuality,
+      },
+      {
+        stage: 'ship',
+        runs: true,
+        output: 'ship/no-ship readiness evidence',
+      },
+      {
+        stage: 'apply',
+        runs: applyRequested,
+        condition: 'explicit --apply, SHIP_READY, clear gates, and captured live-work diff',
+      },
+    ],
+    safetyInvariants: safetyInvariants(),
+    nextStep: applyRequested
+      ? 'run build without --dry-run when ready; apply will still require verified ship-ready evidence'
+      : 'run build without --dry-run when ready; inspect report before any explicit apply',
+  };
+}
+
+function resolveBuildConfig(opts) {
+  const preset = buildModePreset(opts.mode);
+  const sessionId = opts.sessionId || `build-${Date.now()}`;
+  const profile = opts.profile || preset.profile;
+  const strictQuality = opts.strictQuality || preset.strictQuality;
+  const secure = opts.secure || preset.secure;
+  const teamRun = Boolean(preset.team || opts.team);
+  const teamWorkers = opts.workers || preset.workers || '';
+
+  return {
+    preset,
+    sessionId,
+    profile,
+    strictQuality,
+    secure,
+    teamRun,
+    teamWorkers,
+  };
+}
+
+function splitWorkers(workers) {
+  return String(workers || '').split(',').map(w => w.trim()).filter(Boolean);
+}
+
 function writeSummary(result, preset) {
   if (!result.sessionDir) return;
   fs.mkdirSync(result.sessionDir, { recursive: true });
@@ -132,13 +214,17 @@ function writeSummary(result, preset) {
     no_ship: result.noShip,
     human_gate: result.humanGate,
     applied: result.applied,
-    safety_invariants: [
-      'Build may coordinate multiple read-only perspectives, but only one executor writes.',
-      'Codex verification remains required before ship/apply.',
-      'Apply is explicit and evidence-based.',
-    ],
+    safety_invariants: safetyInvariants(),
     next_step: result.nextStep,
   }, null, 2));
+}
+
+function safetyInvariants() {
+  return [
+    'Build may coordinate multiple read-only perspectives, but only one executor writes.',
+    'Codex verification remains required before ship/apply.',
+    'Apply is explicit and evidence-based.',
+  ];
 }
 
 function nextStep(run) {

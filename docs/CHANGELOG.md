@@ -4,6 +4,9 @@
 
 ## [Unreleased]
 
+### Added
+- Add `build --dry-run` to preview mode presets, stages, workers, and apply policy without creating session state.
+
 ### Changed
 - Clarify the naming contract: NEKOWORK remains the product and `nekowork` the primary CLI, while `harness` is a legacy/internal alias.
 - Reword public positioning around local-first AI development runtime and Safe Build Modes instead of promoting an OS name.
