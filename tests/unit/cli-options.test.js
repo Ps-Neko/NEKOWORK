@@ -136,6 +136,26 @@ test('CLI build blocks unsafe explicit fast override unless --force-mode is pres
   }
 });
 
+test('CLI build blocks high-risk release downgrade unless --force-mode is present', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-build-release-override-'));
+  try {
+    const blocked = runCli(['build', 'prepare npm package publish release notes', '--mode', 'fast', '--dry-run', '--session', 'unit-cli-build-release-override-blocked', '--project-root', projectRoot, '--json']);
+    assert.equal(blocked.status, 2, blocked.stdout || blocked.stderr);
+    assert.match(blocked.stderr, /recommended mode is release/);
+    assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-build-release-override-blocked')));
+
+    const forced = runCli(['build', 'prepare npm package publish release notes', '--mode', 'fast', '--force-mode', '--dry-run', '--session', 'unit-cli-build-release-override-forced', '--project-root', projectRoot, '--json']);
+    assert.equal(forced.status, 0, forced.stderr || forced.stdout);
+    const preview = JSON.parse(forced.stdout);
+    assert.equal(preview.mode, 'fast');
+    assert.equal(preview.modeOverride.forced, true);
+    assert.equal(preview.modeOverride.recommendedMode, 'release');
+    assert.ok(preview.modeOverride.tags.includes('deploy'));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 function runCli(args) {
   return spawnSync(process.execPath, [CLI, ...args], {
     cwd: ROOT,

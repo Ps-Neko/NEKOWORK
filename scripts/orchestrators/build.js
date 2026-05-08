@@ -52,6 +52,16 @@ const AUTO_PRESET = {
   description: 'task-aware mode routing before the safe build loop',
 };
 
+const MODE_SAFETY_RANK = {
+  fast: 0,
+  team: 1,
+  tdd: 1,
+  release: 2,
+  safe: 3,
+};
+
+const RISK_AWARE_TAGS = new Set(['security', 'financial', 'deploy', 'data']);
+
 export function normalizeBuildMode(mode) {
   const value = String(mode || 'auto').trim().toLowerCase();
   if (value !== 'auto' && !MODE_PRESETS[value]) {
@@ -242,30 +252,48 @@ function modeOverridePolicy({ requestedMode, recommendation, forceMode }) {
     };
   }
 
-  const riskyRecommendedSafe = recommendation.recommendedMode === 'safe' && requestedMode !== 'safe';
+  const riskyOverride = requiresForceForModeOverride(requestedMode, recommendation);
   const policy = {
     checked: true,
-    forced: Boolean(forceMode && riskyRecommendedSafe),
-    blocked: Boolean(riskyRecommendedSafe && !forceMode),
+    forced: Boolean(forceMode && riskyOverride),
+    blocked: Boolean(riskyOverride && !forceMode),
     requestedMode,
     recommendedMode: recommendation.recommendedMode,
     taskType: recommendation.taskType,
     risk: recommendation.risk,
     tags: recommendation.tags,
-    reason: riskyRecommendedSafe
-      ? `task appears ${recommendation.taskType}; recommended mode is safe but ${requestedMode} was requested`
+    reason: riskyOverride
+      ? `task appears ${recommendation.taskType}; recommended mode is ${recommendation.recommendedMode} but ${requestedMode} was requested`
       : null,
-    explanation: riskyRecommendedSafe ? recommendation.explanation : [],
+    explanation: riskyOverride ? recommendation.explanation : [],
   };
 
   if (policy.blocked) {
-    const err = new Error(`${policy.reason}. Use --mode safe or pass --force-mode to continue with ${requestedMode}.`);
+    const err = new Error(`${policy.reason}. Use --mode ${recommendation.recommendedMode} or pass --force-mode to continue with ${requestedMode}.`);
     err.code = 'BUILD_MODE_OVERRIDE_BLOCKED';
     err.policy = policy;
     throw err;
   }
 
   return policy;
+}
+
+function requiresForceForModeOverride(requestedMode, recommendation) {
+  if (!recommendation || requestedMode === recommendation.recommendedMode) return false;
+  if (!isRiskAwareRecommendation(recommendation)) return false;
+  return modeSafetyRank(requestedMode) < modeSafetyRank(recommendation.recommendedMode);
+}
+
+function isRiskAwareRecommendation(recommendation) {
+  return recommendation.risk === 'high' ||
+    recommendation.risk === 'critical' ||
+    recommendation.requiresHumanGate ||
+    recommendation.requiresCodexChallenge ||
+    (recommendation.tags || []).some(tag => RISK_AWARE_TAGS.has(tag));
+}
+
+function modeSafetyRank(mode) {
+  return MODE_SAFETY_RANK[mode] ?? 0;
 }
 
 function availableModes() {

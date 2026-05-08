@@ -205,7 +205,7 @@ Rules:
 - `release` focuses on ship/readiness and report evidence.
 - `--dry-run` previews auto routing, preset resolution, stages, workers, and safety invariants without writing session state.
 - `--explain` prints routing rationale and evidence files after the build.
-- `--force-mode` is required when a risky task is manually forced away from the recommended `safe` mode.
+- `--force-mode` is required when a risky task is manually forced into a lower-safety mode than the risk-aware recommendation.
 - `apply` is never implicit; use `--apply` only for verified live-work diffs.
 
 Outputs:

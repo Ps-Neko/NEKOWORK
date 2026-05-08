@@ -52,14 +52,17 @@ Example routing:
 | tests, coverage, regression, TDD | `tdd` | strict acceptance evidence and test worker perspective |
 | release notes, changelog, npm package, versioning | `release` | readiness-focused evidence and report path |
 
-Risky explicit overrides are blocked by default:
+Risky explicit downgrades are blocked by default:
 
 ```bash
 nekowork build "change OAuth token validation" --mode fast
 # blocked: recommended mode is safe
+
+nekowork build "prepare npm package publish release notes" --mode fast
+# blocked: recommended mode is release
 ```
 
-Use `--force-mode` only when the human intentionally accepts the override:
+Use `--force-mode` only when the human intentionally accepts a lower-safety override:
 
 ```bash
 nekowork build "change OAuth token validation" --mode fast --force-mode --dry-run
