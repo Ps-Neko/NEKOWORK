@@ -43,7 +43,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 293 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 7 case-study flows / 5 starter packs
+**Public alpha evidence:** 293 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 8 case-study flows / 5 starter packs
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -299,7 +299,7 @@ To see the repository-based external project flow end to end:
 npm run demo:external
 ```
 
-To inspect small case-study targets, see [examples/trading-dashboard-mock](examples/trading-dashboard-mock), [examples/github-actions-hardening](examples/github-actions-hardening), [examples/quality-lifecycle-smoke](examples/quality-lifecycle-smoke), and [docs/case-studies](docs/case-studies). They demonstrate financial UI, CI workflow, quality lifecycle, npm package, auth parser, Python protocol library, and environment configuration flows while still preserving Codex verification, Human Gate policy, and explicit apply control.
+To inspect small case-study targets, see [examples/trading-dashboard-mock](examples/trading-dashboard-mock), [examples/github-actions-hardening](examples/github-actions-hardening), [examples/quality-lifecycle-smoke](examples/quality-lifecycle-smoke), and [docs/case-studies](docs/case-studies). They demonstrate financial UI, CI workflow, quality lifecycle, npm package, auth parser, Python protocol library, environment configuration, and local diary app flows while still preserving Codex verification, Human Gate policy, and explicit apply control.
 
 ## Output Shape
 
