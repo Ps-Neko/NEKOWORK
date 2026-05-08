@@ -69,9 +69,26 @@ Current scope:
 - Auto mode selects `fast`, `safe`, `team`, `tdd`, or `release`.
 - Auto mode selects read-only workers when useful.
 - Auto mode records acceptance criteria, a mini plan, and post-build self-check prompts as session evidence.
+- Build Intelligence explains routing decisions in dry-run, report, and `--explain` output.
+- Risk-aware manual downgrades require `--force-mode` when a task has high/critical risk, Codex challenge, Human Gate, or security/financial/deploy/data tags.
+
+## 0.1.0-alpha.8 Candidate Track
+
+Status: proposed.
+
+Goal: make Build Intelligence policy easier to maintain without weakening the current guardrails.
+
+Candidate scope:
+
+- Move build mode safety rank metadata toward a manifest/schema-backed contract.
+- Keep `fast`, `team`, `tdd`, `release`, and `safe` ordering explicit in docs and tests.
+- Add more routing fixtures for mixed-intent work, especially release plus deploy/security/data signals.
+- Keep forced override output consistent across dry-run and real build paths.
+- Keep `@alpha` smoke, package dry-run, publish dry-run, lint, audit, and full tests green before any alpha.8 publish.
 
 Non-goals:
 
 - No automatic apply, commit, push, publish, deploy, or PR creation.
 - No parallel project-file writes.
 - No provider call during `--dry-run`.
+- No new mode that can bypass Codex verification, Human Gate, or explicit apply.
