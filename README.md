@@ -30,7 +30,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 7 packs / 9 profiles / 36 components / 5 harness targets / 7 case-study flows / 252 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
+**Public alpha evidence:** 7 packs / 9 profiles / 36 components / 5 harness targets / 7 case-study flows / 253 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -142,8 +142,9 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 - Current repository version: `0.1.0-alpha.5`
 - Current package name: `@ps-neko/nekowork`
-- Published CLI names: `nekowork` and `harness`
-- Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.5`
+- Published CLI name: `harness`; repository candidate also exposes `nekowork`
+- Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.4`
+- Next repository candidate: `0.1.0-alpha.5`; publish attempted, but npm rejected the current account with `E404` permission/not-found
 - Supported install path today: npm alpha, clone, submodule, or local repository integration
 - Dist-tag note: use `@alpha` until a stable release; `latest` still points at the first alpha line
 - Default mode: mock providers, no API keys, no provider CLI calls
@@ -151,7 +152,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 252 tests pass
+- `npm test`: 253 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only

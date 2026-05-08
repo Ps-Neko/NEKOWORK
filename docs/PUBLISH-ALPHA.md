@@ -1,15 +1,15 @@
 # Public Alpha Publish Record
 
-NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.5`.
+NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.4`. The current repository candidate is `0.1.0-alpha.5`.
 
 Do not publish from the `0.0.3` line.
 
-The repository metadata has been advanced to `0.1.0-alpha.5` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, and `0.1.0-alpha.5` publishes succeeded on 2026-05-08 and moved the `alpha` dist-tag forward.
+The repository metadata has been advanced to `0.1.0-alpha.5` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, and `0.1.0-alpha.4` publishes succeeded on 2026-05-08 and moved the `alpha` dist-tag forward.
 
-The matching Git tag and GitHub prerelease are published as `v0.1.0-alpha.5`:
+The matching Git tag and GitHub prerelease are published through `v0.1.0-alpha.4`:
 
 ```text
-https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.5
+https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.4
 ```
 
 ## Registry State
@@ -27,14 +27,14 @@ The current alpha install path points at the release line:
 
 ```text
 npm view @ps-neko/nekowork@alpha version --json
--> 0.1.0-alpha.5
+-> 0.1.0-alpha.4
 ```
 
 Dist-tags:
 
 ```text
 npm view @ps-neko/nekowork dist-tags --json
--> { "alpha": "0.1.0-alpha.5", "latest": "0.1.0-alpha.0" }
+-> { "alpha": "0.1.0-alpha.4", "latest": "0.1.0-alpha.0" }
 ```
 
 The publish package shape has been checked:
@@ -79,18 +79,18 @@ npm publish --access public --tag alpha
 -> published 0.1.0-alpha.4
 ```
 
-The fifth alpha update was also published with the same `alpha` dist-tag:
+The fifth alpha candidate is prepared but not published from this checkout:
 
 ```text
 npm publish --access public --tag alpha
--> published 0.1.0-alpha.5
+-> E404 Not Found - PUT https://registry.npmjs.org/@ps-neko%2fnekowork - not found or no permission for the current account
 ```
 
-After publish:
+Current candidate check:
 
 ```text
 npm view @ps-neko/nekowork@0.1.0-alpha.5 version --json
--> 0.1.0-alpha.5
+-> E404 Not Found
 ```
 
 `npx` smoke passed:
@@ -115,9 +115,10 @@ Published public alpha package:
 
 ```text
 name: @ps-neko/nekowork
-version: 0.1.0-alpha.5
+published version: 0.1.0-alpha.4
+repository candidate: 0.1.0-alpha.5
 dist-tag: alpha
-bin: nekowork, harness
+candidate bin: nekowork, harness
 ```
 
 The alpha tag matters. It prevents accidental default installation before the owner decides the public package should become the stable install path.
@@ -136,7 +137,7 @@ Before publishing, explicitly confirm:
 
 ## Next Alpha Publish Checklist
 
-Use this checklist for `0.1.0-alpha.5` or any later alpha. Do not run it until the owner explicitly approves the publish.
+Use this checklist for `0.1.0-alpha.5` or any later alpha. Do not run it until the owner explicitly approves the publish and `npm whoami` is the package owner account.
 
 1. Confirm the candidate scope in [RELEASE-READINESS.md](RELEASE-READINESS.md).
 2. Move the intended changelog entries from `Unreleased` to the new version heading.
