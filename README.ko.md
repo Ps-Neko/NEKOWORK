@@ -2,20 +2,30 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
-AI 코드 변경을 위한 검증형 오토파일럿입니다.
+AI 코드 변경을 위한 검증 기반 오토파일럿입니다.
 
 [![validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
-AI가 만들고, Codex가 검증하고, 사람은 최종 경계를 승인합니다.
+AI가 만들고, Codex가 검증하고, 사람은 최종 적용 경계를 승인합니다.
 
 NEKOWORK는 AI가 계획, 수정, 검증, 제한된 재수정, 리포트 생성을 수행하도록 돕습니다. 하지만 최종 `apply`는 항상 사람이 명시적으로 실행해야 합니다.
 
-여기서 "검증됨"은 수학적으로 완전한 정답 보증을 뜻하지 않습니다. 독립 리뷰, 테스트 evidence, 위험 정책, Human Gate, 명시적 apply 경계를 기록했다는 뜻입니다.
+> 이 문서는 한국어 요약본입니다. 전체 상세 설명과 모든 고급 옵션은 [English README](README.md)를 참고하세요.
+
+여기서 "검증됨"은 정답을 수학적으로 보증한다는 뜻이 아닙니다. 독립 리뷰, 테스트 evidence, 위험 정책, Human Gate, 명시적 apply 경계를 기록했다는 뜻입니다.
+
+## 용어
+
+- evidence: 실행과 검증 결과로 남는 증거 파일입니다.
+- Human Gate: 사람이 최종 적용 여부를 승인하거나 차단하는 단계입니다.
+- executor: 실제 변경 후보를 만드는 단일 작업자입니다.
+- session: 한 번의 NEKOWORK 실행에서 생성되는 작업 기록 묶음입니다.
+- apply: 검증된 ship-ready diff를 사람이 명시적으로 반영하는 명령입니다.
 
 ## 핵심 원칙
 
 ```text
-NEKOWORK = 검증형 오토파일럿 -> Codex 검증 -> Human Gate -> 명시적 apply
+NEKOWORK = 검증 기반 오토파일럿 -> Codex 검증 -> Human Gate -> 명시적 apply
 ```
 
 ```text
@@ -25,6 +35,18 @@ ship 전에는 독립 검증.
 ```
 
 NEKOWORK는 자동으로 commit, push, publish, deploy, apply를 하지 않습니다.
+
+## 요구 사항
+
+- Node.js 22+
+- npm
+- git
+
+## 안전한 기본값
+
+NEKOWORK는 기본 흐름을 mock provider 모드로 확인할 수 있습니다. API key나 유료 provider 호출 없이 `check`, `auto --dry-run`, report 생성 흐름을 먼저 검증할 수 있습니다.
+
+실제 provider를 사용할 때는 Claude, Codex, Gemini 같은 로컬 CLI 인증을 우선 사용합니다. 장기 provider API key fallback 경로는 기본적으로 차단하고, 사람이 명시적으로 선택한 경우에만 다룹니다.
 
 ## 30초 실행
 
@@ -48,7 +70,7 @@ npx -y @ps-neko/nekowork@alpha auto "fix failing tests safely" --dry-run
 npx -y @ps-neko/nekowork@alpha auto "add OPENAI_API_KEY fallback for Codex auth"
 ```
 
-전형적인 차단 evidence:
+예시 출력:
 
 ```text
 Risk: provider-auth / long-lived-secret
@@ -59,6 +81,8 @@ Applied: false
 
 Blocked because NEKOWORK defaults to delegated CLI auth and rejects long-lived provider API key paths unless the human explicitly opts in.
 ```
+
+설명: NEKOWORK는 delegated CLI auth를 기본값으로 두고, 장기 provider API key 경로는 사람이 명시적으로 선택하지 않는 한 거부합니다.
 
 이것이 NEKOWORK의 핵심입니다. 오토파일럿은 경계 전까지 계속 일할 수 있지만, 위험한 ship/apply 결정은 evidence와 사람의 승인 아래에 둡니다.
 
