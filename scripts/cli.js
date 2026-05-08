@@ -205,12 +205,7 @@ function printBuildPlan(result) {
     printBuildExplanation(result.intelligence);
     console.log('');
   } else if (result.modeOverride?.forced) {
-    console.log('Override:');
-    console.log('  ' + result.modeOverride.reason);
-    for (const [index, line] of (result.modeOverride.explanation || []).entries()) {
-      if (index === 0 && line.endsWith(':')) console.log('  ' + line);
-      else console.log(line.startsWith('- ') ? '  ' + line : '  - ' + line);
-    }
+    printBuildOverrideExplanation(result.modeOverride);
     console.log('');
   }
   console.log('Safety:');
@@ -225,6 +220,15 @@ function printBuildExplanation(intelligence) {
   console.log('Why:');
   const explanation = intelligence.explanation?.length ? intelligence.explanation : intelligence.reasons;
   for (const [index, line] of explanation.entries()) {
+    if (index === 0 && line.endsWith(':')) console.log('  ' + line);
+    else console.log(line.startsWith('- ') ? '  ' + line : '  - ' + line);
+  }
+}
+
+function printBuildOverrideExplanation(modeOverride) {
+  console.log('Override:');
+  console.log('  ' + modeOverride.reason);
+  for (const [index, line] of (modeOverride.explanation || []).entries()) {
     if (index === 0 && line.endsWith(':')) console.log('  ' + line);
     else console.log(line.startsWith('- ') ? '  ' + line : '  - ' + line);
   }
@@ -1230,9 +1234,10 @@ function checkArgs(argv) {
         console.log('  no ship    : ' + (result.noShip ? 'YES' : 'no'));
         console.log('  ship ready : ' + (result.shipReady ? 'yes' : 'no'));
         console.log('  apply      : ' + (result.applied ? 'applied' : result.run?.applyRequested ? `skipped (${result.run.applySkippedReason || 'not needed'})` : 'not requested'));
-        if (opts.explain && result.intelligence) {
+        if (opts.explain && (result.intelligence || result.modeOverride?.forced)) {
           console.log('');
-          printBuildExplanation(result.intelligence);
+          if (result.intelligence) printBuildExplanation(result.intelligence);
+          else printBuildOverrideExplanation(result.modeOverride);
           console.log('');
           printBuildEvidence(result);
         }

@@ -314,6 +314,36 @@ test('build blocks risky explicit fast mode unless force-mode is used', () => {
   assert.equal(forced.modeOverride.taskType, 'security-sensitive');
 });
 
+test('build blocks risk-aware release downgrade unless force-mode is used', () => {
+  assert.throws(() => buildPlan({
+    task: 'prepare npm package publish release notes',
+    mode: 'fast',
+    sessionId: 'unit-build-unsafe-release-fast',
+  }), /recommended mode is release.*--force-mode/);
+
+  const safer = buildPlan({
+    task: 'prepare npm package publish release notes',
+    mode: 'safe',
+    sessionId: 'unit-build-release-safe-upgrade',
+  });
+  assert.equal(safer.mode, 'safe');
+  assert.equal(safer.modeOverride.blocked, false);
+  assert.equal(safer.modeOverride.forced, false);
+  assert.equal(safer.modeOverride.recommendedMode, 'release');
+
+  const forced = buildPlan({
+    task: 'prepare npm package publish release notes',
+    mode: 'fast',
+    sessionId: 'unit-build-forced-release-fast',
+    forceMode: true,
+  });
+  assert.equal(forced.mode, 'fast');
+  assert.equal(forced.modeOverride.forced, true);
+  assert.equal(forced.modeOverride.recommendedMode, 'release');
+  assert.equal(forced.modeOverride.taskType, 'release-readiness');
+  assert.ok(forced.modeOverride.tags.includes('deploy'));
+});
+
 function dispatcher(calls, options = {}) {
   return async (args) => {
     calls.push(args);
