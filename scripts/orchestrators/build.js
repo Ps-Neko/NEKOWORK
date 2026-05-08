@@ -35,10 +35,10 @@ const MODE_PRESETS = {
   },
   release: {
     profile: 'quality',
-    strictQuality: true,
+    strictQuality: false,
     secure: false,
     team: false,
-    description: 'release-readiness mode with strict quality before ship',
+    description: 'release-readiness mode with ship/report evidence before apply',
   },
 };
 

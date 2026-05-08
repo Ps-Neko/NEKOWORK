@@ -25,18 +25,10 @@ ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
 Most users should start with this Beginner path:
 
 ```text
-doctor -> ask -> run -> report -> gate status
+doctor -> build -> report -> gate status
 ```
 
-`run` is the short safe wrapper. It executes `work -> verify -> ship`, does not apply by default, and stops on Human Gate.
-
-When NEKOWORK should feel like one AI development runtime, use the builder path:
-
-```text
-check -> build --mode fast -> report -> gate status
-```
-
-`build` is a mode preset wrapper over the same evidence loop. `fast`, `safe`, `team`, `tdd`, and `release` tune profile, strictness, Codex challenge, and read-only team thinking; none of them apply by default.
+`build` is the short safe wrapper for one-command use. It is a mode preset wrapper over the same evidence loop. `fast`, `safe`, `team`, `tdd`, and `release` tune profile, strictness, Codex challenge, and read-only team thinking; none of them apply by default.
 
 Advanced path:
 

@@ -1,15 +1,15 @@
 # Public Alpha Publish Record
 
-NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.5`.
+NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.6`.
 
 Do not publish from the `0.0.3` line.
 
-The repository metadata has been advanced to the `0.1.0-alpha.6` candidate with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, and `0.1.0-alpha.5` publishes succeeded on 2026-05-08 and moved the `alpha` dist-tag forward.
+The repository metadata is on `0.1.0-alpha.6` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, `0.1.0-alpha.5`, and `0.1.0-alpha.6` publishes succeeded on 2026-05-08 and moved the `alpha` dist-tag forward.
 
-The matching Git tag and GitHub prerelease are published as `v0.1.0-alpha.5`:
+The matching Git tag and GitHub prerelease are published as `v0.1.0-alpha.6`:
 
 ```text
-https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.5
+https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.6
 ```
 
 ## Registry State
@@ -27,14 +27,14 @@ The current alpha install path points at the release line:
 
 ```text
 npm view @ps-neko/nekowork@alpha version --json
--> 0.1.0-alpha.5
+-> 0.1.0-alpha.6
 ```
 
 Dist-tags:
 
 ```text
 npm view @ps-neko/nekowork dist-tags --json
--> { "alpha": "0.1.0-alpha.5", "latest": "0.1.0-alpha.0" }
+-> { "alpha": "0.1.0-alpha.6", "latest": "0.1.0-alpha.0" }
 ```
 
 The publish package shape has been checked:
@@ -86,11 +86,18 @@ npm publish --access public --tag alpha
 -> published 0.1.0-alpha.5
 ```
 
+The sixth alpha update was also published with the same `alpha` dist-tag:
+
+```text
+npm publish --access public --tag alpha
+-> published 0.1.0-alpha.6
+```
+
 After publish:
 
 ```text
-npm view @ps-neko/nekowork@0.1.0-alpha.5 version --json
--> 0.1.0-alpha.5
+npm view @ps-neko/nekowork@0.1.0-alpha.6 version --json
+-> 0.1.0-alpha.6
 ```
 
 `npx` smoke passed:
@@ -115,7 +122,7 @@ Published public alpha package:
 
 ```text
 name: @ps-neko/nekowork
-version: 0.1.0-alpha.5
+version: 0.1.0-alpha.6
 dist-tag: alpha
 bin: nekowork, harness
 ```
@@ -130,13 +137,13 @@ Before publishing, explicitly confirm:
 - npm 2FA readiness
 - package name `@ps-neko/nekowork`
 - binary names `nekowork` and `harness`
-- public alpha version for the next publish, for example `0.1.0-alpha.6`
+- public alpha version for the next publish, for example `0.1.0-alpha.7`
 - `private` removed or set to `false`
 - publish tag is `alpha`, not `latest`
 
 ## Next Alpha Publish Checklist
 
-Use this checklist for `0.1.0-alpha.6` or any later alpha. Do not run it until the owner explicitly approves the publish and `npm whoami` is the package owner account.
+Use this checklist for `0.1.0-alpha.7` or any later alpha. Do not run it until the owner explicitly approves the publish and `npm whoami` is the package owner account.
 
 1. Confirm the candidate scope in [RELEASE-READINESS.md](RELEASE-READINESS.md).
 2. Move the intended changelog entries from `Unreleased` to the new version heading.

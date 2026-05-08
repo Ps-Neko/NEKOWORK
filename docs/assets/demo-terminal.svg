@@ -25,17 +25,17 @@
     <text x="72" y="147" fill="#d7e3ec">NEKOWORK doctor</text>
     <text x="72" y="179" fill="#8fb3c8">STATUS  CHECK              MESSAGE</text>
     <text x="72" y="211" fill="#9be9a8">PASS    node               Node 22+</text>
-    <text x="72" y="243" fill="#9be9a8">PASS    package metadata   @ps-neko/nekowork@0.1.0-alpha.5</text>
+    <text x="72" y="243" fill="#9be9a8">PASS    package metadata   @ps-neko/nekowork@0.1.0-alpha.6</text>
     <text x="72" y="275" fill="#9be9a8">PASS    api key env        no delegated-provider API key overrides</text>
     <text x="72" y="307" fill="#ffd166">WARN    gemini cli         auth status is not checked non-interactively</text>
     <text x="72" y="339" fill="#d7e3ec">summary: WARN (5 pass, 2 warn, 0 fail)</text>
 
     <text x="72" y="387" fill="#7ee787">$ npm run demo:quick -- --cleanup</text>
     <text x="72" y="419" fill="#d7e3ec">NEKOWORK quick run demo</text>
-    <text x="72" y="451" fill="#9be9a8">doctor OK  /  run workflow OK  /  report OK  /  gate status OK</text>
-    <text x="72" y="483" fill="#d7e3ec">Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false</text>
+    <text x="72" y="451" fill="#9be9a8">doctor OK  /  build workflow OK  /  report OK  /  gate status OK</text>
+    <text x="72" y="483" fill="#d7e3ec">Demo completed: mode=team, verdict=approve_with_fixes, ship_ready=false</text>
 
-    <text x="72" y="531" fill="#7ee787">$ node scripts/cli.js report --session quick-demo --stdout</text>
-    <text x="72" y="563" fill="#d7e3ec">Status: no_ship  /  Human gate: clear  /  Evidence: work, verify, ship</text>
+    <text x="72" y="531" fill="#7ee787">$ node scripts/cli.js report --session latest --stdout</text>
+    <text x="72" y="563" fill="#d7e3ec">Status: no_ship  /  Evidence: build, work, verify, ship</text>
   </g>
 </svg>

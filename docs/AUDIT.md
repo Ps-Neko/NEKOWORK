@@ -2,22 +2,22 @@
 
 Status date: 2026-05-08
 
-This audit summarizes the current NEKOWORK state after advancing the repository to the `0.1.0-alpha.6` candidate while the published public alpha remains `0.1.0-alpha.5`.
+This audit summarizes the current NEKOWORK state after publishing the `0.1.0-alpha.6` public alpha.
 
 ## Current Status
 
 | Area | Status | Notes |
 |---|---|---|
-| Package metadata | OK | repository candidate `@ps-neko/nekowork@0.1.0-alpha.6`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness`, matching version, and `nekowork`/`harness` CLI bins |
-| npm publish | OK | `@ps-neko/nekowork@alpha` points at `0.1.0-alpha.5` |
+| Package metadata | OK | repository version `@ps-neko/nekowork@0.1.0-alpha.6`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness`, matching version, and `nekowork`/`harness` CLI bins |
+| npm publish | OK | `@ps-neko/nekowork@alpha` points at `0.1.0-alpha.6` |
 | Source install | OK | Clone, local checkout, and submodule workflows are documented |
-| Public npm alpha | OK | `docs/PUBLISH-ALPHA.md` records alpha publishes through `0.1.0-alpha.5` |
+| Public npm alpha | OK | `docs/PUBLISH-ALPHA.md` records alpha publishes through `0.1.0-alpha.6` |
 | CLI doctor/check | OK | `check`, `doctor`, `doctor --quick`, and `doctor --gemini-smoke` are available |
 | Provider auth | OK | Local delegated CLI auth is the default path |
 | Internal provider adapter | OK | `HARNESS_PROVIDER_OVERRIDE=internal` can call an explicit JSON command adapter without weakening gates |
 | Catalog | OK | 8 official packs, 11 agents, 10 skills, 5 hooks, 7 modules, 36 components, 10 profiles |
 | Multi-harness output | OK | Claude, Codex, Cursor, Gemini, and OpenCode builders are present |
-| Quick demo | OK | `npm run demo:quick` verifies the shortest no-API `doctor -> run -> report -> gate status` path |
+| Quick demo | OK | `npm run demo:quick` verifies the shortest no-API `doctor -> build -> report -> gate status` path |
 | Fresh npm alpha smoke | OK | CI runs `npx -y @ps-neko/nekowork@alpha check --json` from a disposable directory |
 | Report UX | OK | `report` writes inspect-only `REPORT.md` and `report-summary.json` from session evidence |
 | External demo | OK | `npm run demo:external` verifies a disposable target project flow |
@@ -30,7 +30,7 @@ This audit summarizes the current NEKOWORK state after advancing the repository 
 | Persistent wakeup | OK | `wait` resumes supported active sessions and blocks on `HUMAN_GATE` |
 | Generated docs | OK | CODEMAP output is stable ASCII and reproducible |
 | Tests | OK | Unit, integration, and e2e suites pass locally and in CI |
-| Release | OK | `v0.1.0-alpha.5` is tagged and published as a GitHub prerelease |
+| Release | OK | `v0.1.0-alpha.6` is tagged and published as a GitHub prerelease |
 
 ## Verification Gates
 
@@ -55,7 +55,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 258 tests pass
+- `npm test`: 263 tests pass
 - quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass
@@ -63,13 +63,14 @@ Current local result for this working tree:
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npm publish --dry-run --access public --tag alpha`: pass
-- `npm publish --access public --tag alpha`: `0.1.0-alpha.5` published
-- `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.5`; `latest` remains `0.1.0-alpha.0`
-- `npx -y @ps-neko/nekowork@alpha check`: passed for `0.1.0-alpha.5` with WARN summary from Gemini auth not checked
+- `npm publish --access public --tag alpha`: `0.1.0-alpha.6` published
+- `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.6`; `latest` remains `0.1.0-alpha.0`
+- `npx -y @ps-neko/nekowork@alpha check`: passed for `0.1.0-alpha.6` with WARN summary from Gemini auth not checked
 
 ## Completed Work
 
 - Local-first provider auth policy implemented and documented.
+- `build` is the beginner entrypoint with `fast`, `safe`, `team`, `tdd`, and `release` modes over the safe run/report/gate loop.
 - Internal provider command adapter implemented and documented without bypassing verification, Human Gate, or apply controls.
 - `acceptance-coverage` skill added as a focused quality evidence helper.
 - API-key override warnings and guards are in place.
@@ -93,7 +94,7 @@ Current local result for this working tree:
 - Official packs expose curated install shapes without creating a second safety model.
 - Checked-in example fixtures now cover financial UI, CI hardening, and quality lifecycle evidence flows.
 - Third-party case studies record NEKOWORK runs against `sindresorhus/is-plain-obj`, `jshttp/basic-auth`, `python-hyper/h11`, and `motdotla/dotenv`.
-- Public npm alpha `0.1.0-alpha.5` is published under the `alpha` dist-tag.
+- Public npm alpha `0.1.0-alpha.6` is published under the `alpha` dist-tag.
 
 ## Remaining Optional Work
 
@@ -113,7 +114,7 @@ Current local result for this working tree:
 
 ## External Readiness Score
 
-Current external readiness, excluding broader adoption evidence: **9.1 / 10**.
+Current external readiness, excluding broader adoption evidence: **9.2 / 10**.
 
 Main deductions:
 

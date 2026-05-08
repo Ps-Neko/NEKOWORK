@@ -8,6 +8,8 @@ The public alpha is available on npm:
 
 ```bash
 npx -y @ps-neko/nekowork@alpha check
+npx -y @ps-neko/nekowork@alpha build "implement this safely" --mode fast --session first-build
+npx -y @ps-neko/nekowork@alpha report --session latest
 ```
 
 ## 2. Install From Source
@@ -45,16 +47,16 @@ Use this first when you want the shortest no-API experience:
 npm run demo:quick -- --cleanup
 ```
 
-The quick demo creates a disposable target project, runs `doctor -> run -> report -> gate status`, and removes the target when `--cleanup` is set. It uses mock providers and does not call Claude, Codex, Gemini, or paid APIs.
+The quick demo creates a disposable target project, runs `doctor -> build -> report -> gate status`, and removes the target when `--cleanup` is set. It uses mock providers and does not call Claude, Codex, Gemini, or paid APIs.
 
 Expected shape:
 
 ```text
 doctor ... OK
-run workflow ... OK
+build workflow ... OK
 report ... OK
 gate status ... OK
-Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false
+Demo completed: mode=team, verdict=approve_with_fixes, ship_ready=false, applied=false
 ```
 
 ## 3. Beginner Path
@@ -63,10 +65,12 @@ Use this path first. It is the recommended shortest safe loop:
 
 ```bash
 node scripts/cli.js check
-node scripts/cli.js run "implement, verify, and prepare ship readiness" --session first-run
-node scripts/cli.js report --session first-run
-node scripts/cli.js gate status --session first-run
+node scripts/cli.js build "implement, verify, and prepare ship readiness" --mode fast --session first-build
+node scripts/cli.js report --session latest
+node scripts/cli.js gate status --session latest
 ```
+
+Use the decomposed `work -> verify -> ship` path only when you need phase-level control. See [BUILD.md](BUILD.md) for build modes and invariants.
 
 `run` is the short safe wrapper. It runs `work -> verify -> ship`, does not apply by default, and stops on Human Gate. `report` writes a readable `REPORT.md` from the evidence already in the session. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
 

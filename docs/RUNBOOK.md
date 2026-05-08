@@ -99,17 +99,17 @@ Do not run this checklist unless public publish is explicitly approved.
 5. Confirm npm identity with `npm whoami`.
 6. Confirm account 2FA readiness.
 7. Confirm `private: false`.
-8. Confirm the public alpha version, for example `0.1.0-alpha.5`.
+8. Confirm the public alpha version, for example `0.1.0-alpha.6`.
 9. Run `npm publish --access public --tag alpha`.
 10. Update README, Quickstart, Changelog, and release notes from "future npm path" to "published npm path".
 
 ## GitHub Release Checklist
 
 ```bash
-git tag -a v0.0.3 -m "HARNESS v0.0.3"
-git push origin v0.0.3
+git tag -a v0.1.0-alpha.6 -m "NEKOWORK v0.1.0-alpha.6"
+git push origin v0.1.0-alpha.6
 npm pack --json
-gh release create v0.0.3 ps-neko-nekowork-0.0.3.tgz --title "HARNESS v0.0.3" --prerelease --notes-file <notes.md>
+gh release create v0.1.0-alpha.6 ps-neko-nekowork-0.1.0-alpha.6.tgz --title "NEKOWORK v0.1.0-alpha.6" --prerelease --notes-file <notes.md>
 ```
 
 Remove the local tarball after it is uploaded.

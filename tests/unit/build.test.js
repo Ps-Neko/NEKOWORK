@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { buildCycle, buildModePreset, normalizeBuildMode } from '../../scripts/orchestrators/build.js';
+import { reportSession } from '../../scripts/orchestrators/report.js';
+import { validateProfileSafety } from '../../scripts/lib/profile-safety.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
@@ -91,6 +93,70 @@ test('build team runs read-only team handoffs before single executor work', asyn
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }
+});
+
+test('build tdd records strict quality and acceptance evidence', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-build-tdd-'));
+  const calls = [];
+  try {
+    const r = await buildCycle({
+      task: 'build tdd smoke',
+      mode: 'tdd',
+      sessionId: 'unit-build-tdd',
+      harnessRoot: ROOT,
+      projectRoot,
+      dispatcher: dispatcher(calls, { reviewVerdict: 'approve' }),
+    });
+
+    assert.equal(r.mode, 'tdd');
+    assert.equal(r.profile, 'quality');
+    assert.equal(r.strictQuality, true);
+    assert.ok(fs.existsSync(path.join(r.sessionDir, 'acceptance-criteria.json')));
+    const verifySummary = JSON.parse(fs.readFileSync(path.join(r.sessionDir, 'verify-summary.json'), 'utf8'));
+    assert.equal(verifySummary.strict_quality, true);
+    assert.ok(Array.isArray(verifySummary.acceptance_coverage));
+    assert.ok(verifySummary.acceptance_coverage.length >= 3);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('build release produces ship and report evidence without auto-apply', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-build-release-'));
+  const calls = [];
+  try {
+    const r = await buildCycle({
+      task: 'build readiness smoke',
+      mode: 'release',
+      sessionId: 'unit-build-release',
+      harnessRoot: ROOT,
+      projectRoot,
+      dispatcher: dispatcher(calls, { reviewVerdict: 'approve' }),
+    });
+
+    assert.equal(r.mode, 'release');
+    assert.equal(r.applied, false);
+    assert.ok(fs.existsSync(path.join(r.sessionDir, 'ship-summary.json')));
+    const report = reportSession({ sessionId: 'unit-build-release', projectRoot });
+    assert.equal(report.mode, 'release');
+    assert.match(report.markdown, /Build Mode: release/);
+    assert.match(report.markdown, /build-summary\.json/);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('builder pack cannot weaken core safety invariants', () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifests', 'install-profiles.json'), 'utf8'));
+  const builderPack = manifest.packs.builder;
+  const builderProfile = manifest.profiles.builder;
+
+  assert.equal(builderPack.profile, 'builder');
+  assert.equal(builderProfile.defaults.require_codex_verification, true);
+  assert.equal(builderProfile.defaults.human_gate_on_critical, true);
+  assert.equal(builderProfile.defaults.mutation_policy, 'single_executor');
+  assert.equal(builderProfile.defaults.apply_default, 'explicit');
+  assert.deepEqual(validateProfileSafety(manifest).errors, []);
 });
 
 function dispatcher(calls, options = {}) {

@@ -2,23 +2,23 @@
 
 This demo uses mock providers. It does not call Claude, Codex, Gemini, or paid APIs.
 
-## Quick Run Demo
+## Quick Build Demo
 
 ```bash
 npm run demo:quick -- --cleanup
 ```
 
-This is the shortest demo path. It creates a disposable target project, runs `check`, runs `run = work -> verify -> ship`, generates `REPORT.md`, checks `gate status`, and removes the target when `--cleanup` is set.
+This is the shortest demo path. It creates a disposable target project, runs `check`, runs `build = mode preset over run`, generates `REPORT.md`, checks `gate status`, and removes the target when `--cleanup` is set.
 
 Expected shape:
 
 ```text
 NEKOWORK quick run demo
 doctor ... OK
-run workflow ... OK
+build workflow ... OK
 report ... OK
 gate status ... OK
-Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false
+Demo completed: mode=team, verdict=approve_with_fixes, ship_ready=false, applied=false
 ```
 
 ## One-minute Terminal Transcript
@@ -39,19 +39,19 @@ summary: PASS
 $ npm run demo:quick -- --cleanup
 NEKOWORK quick run demo
 doctor ... OK
-run workflow ... OK
+build workflow ... OK
 report ... OK
 gate status ... OK
-Demo completed: verdict=approve_with_fixes, ship_ready=false, applied=false
+Demo completed: mode=team, verdict=approve_with_fixes, ship_ready=false, applied=false
 
-$ node scripts/cli.js report --session quick-demo --stdout
+$ node scripts/cli.js report --session latest --stdout
 # NEKOWORK Report
 Status: no_ship
 Verdict: approve_with_fixes
 Ship ready: false
 Human gate: clear
 Applied: false
-Evidence: work-summary.json, verify-summary.json, ship-summary.json
+Evidence: build-summary.json, work-summary.json, verify-summary.json, ship-summary.json
 ```
 
 The quick demo writes:
@@ -143,7 +143,7 @@ project root : C:\path\to\harness
 
 STATUS  CHECK                   MESSAGE
 PASS    node                    Node 24.x
-PASS    package metadata        @ps-neko/nekowork@0.1.0-alpha.5; public alpha package
+PASS    package metadata        @ps-neko/nekowork@0.1.0-alpha.6; public alpha package
 PASS    git worktree            project root is inside a git worktree
 WARN    gemini cli              installed, auth status is not checked non-interactively
 
