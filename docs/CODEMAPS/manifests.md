@@ -7,6 +7,7 @@
 
 ```text
 manifests/
+|-- build-modes.json
 |-- install-components.json
 |-- install-modules.json
 `-- install-profiles.json

@@ -74,15 +74,15 @@ Current scope:
 
 ## 0.1.0-alpha.8 Candidate Track
 
-Status: proposed.
+Status: active candidate.
 
 Goal: make Build Intelligence policy easier to maintain without weakening the current guardrails.
 
 Candidate scope:
 
-- Move build mode safety rank metadata toward a manifest/schema-backed contract.
-- Keep `fast`, `team`, `tdd`, `release`, and `safe` ordering explicit in docs and tests.
-- Add more routing fixtures for mixed-intent work, especially release plus deploy/security/data signals.
+- Move build mode safety rank metadata into a manifest/schema-backed contract.
+- Keep `fast`, `team`, `tdd`, `release`, and `safe` ordering explicit in docs, validator checks, and tests.
+- Add more routing fixtures for mixed-intent work, especially release plus security/data/financial signals.
 - Keep forced override output consistent across dry-run and real build paths.
 - Keep `@alpha` smoke, package dry-run, publish dry-run, lint, audit, and full tests green before any alpha.8 publish.
 

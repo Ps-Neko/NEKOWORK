@@ -1,0 +1,61 @@
+{
+  "$schema": "../schemas/build-modes.schema.json",
+  "version": "0.1.0-alpha.8-candidate",
+  "modes": {
+    "fast": {
+      "description": "Quick implementation over the safe work, verify, and ship loop.",
+      "profile": "quality",
+      "safety_rank": 0,
+      "apply_default": "explicit",
+      "mutation_policy": "single_executor",
+      "read_only_team": false,
+      "strict_quality": false,
+      "codex_challenge": false,
+      "human_gate_policy": "risk policy still applies"
+    },
+    "team": {
+      "description": "Read-only team thinking before one executor writes.",
+      "profile": "quality",
+      "safety_rank": 1,
+      "apply_default": "explicit",
+      "mutation_policy": "single_executor",
+      "read_only_team": true,
+      "strict_quality": false,
+      "codex_challenge": false,
+      "human_gate_policy": "risk policy still applies"
+    },
+    "tdd": {
+      "description": "Test-first work with stricter acceptance evidence.",
+      "profile": "quality",
+      "safety_rank": 1,
+      "apply_default": "explicit",
+      "mutation_policy": "single_executor",
+      "read_only_team": false,
+      "strict_quality": true,
+      "codex_challenge": false,
+      "human_gate_policy": "risk policy still applies"
+    },
+    "release": {
+      "description": "Release readiness with ship and report evidence before apply.",
+      "profile": "quality",
+      "safety_rank": 2,
+      "apply_default": "explicit",
+      "mutation_policy": "single_executor",
+      "read_only_team": false,
+      "strict_quality": false,
+      "codex_challenge": false,
+      "human_gate_policy": "release and deploy risk policy may require gate"
+    },
+    "safe": {
+      "description": "Sensitive work with security profile, strict evidence, and Codex challenge.",
+      "profile": "security",
+      "safety_rank": 3,
+      "apply_default": "explicit",
+      "mutation_policy": "single_executor",
+      "read_only_team": false,
+      "strict_quality": true,
+      "codex_challenge": true,
+      "human_gate_policy": "critical and sensitive work requires Human Gate when policy says so"
+    }
+  }
+}
