@@ -38,6 +38,7 @@ Goal: gather external feedback and keep the release path boring.
 Candidate scope:
 
 - Keep `@alpha` smoke evidence green across local and GitHub Actions gates.
+- Establish the `builder` pack and `build` command as the safe all-in-one productivity entrypoint.
 - Keep the `motdotla/dotenv` case study as the current new risk-class addition for environment configuration boundaries.
 - Keep feedback triage docs and issue-template classification ready for real alpha reports.
 - Avoid provider/API-key-first setup changes unless they preserve delegated local auth as the default.

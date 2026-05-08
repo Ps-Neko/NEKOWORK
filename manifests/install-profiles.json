@@ -8,6 +8,12 @@
       "workflow": "doctor -> ask -> run -> report -> gate",
       "use_when": "Use for the first install, repo smoke, or minimal local-first verification."
     },
+    "builder": {
+      "description": "Productivity pack for one-command build modes that still verify, gate, and require explicit apply.",
+      "profile": "builder",
+      "workflow": "build \"<task>\" --mode fast|safe|team|tdd|release -> report -> gate",
+      "use_when": "Use when NEKOWORK should be the single AI development runtime from task to verified ship readiness."
+    },
     "quality": {
       "description": "Disciplined development pack for test-first planning, evidence warnings, and strict quality checks.",
       "profile": "quality",
@@ -66,6 +72,26 @@
         "codex-loop",
         "ops-readiness"
       ]
+    },
+    "builder": {
+      "description": "One-command AI development profile for fast, safe, team, TDD, and release build modes while preserving single-executor writes.",
+      "modules": [
+        "rules-core",
+        "agents-core",
+        "hooks-runtime",
+        "platform-configs",
+        "workflow-quality",
+        "codex-loop",
+        "ops-readiness"
+      ],
+      "defaults": {
+        "build_command": true,
+        "default_build_mode": "fast",
+        "require_codex_verification": true,
+        "human_gate_on_critical": true,
+        "mutation_policy": "single_executor",
+        "apply_default": "explicit"
+      }
     },
     "security": {
       "description": "Secure development profile that keeps Codex verification and human gates active for sensitive work.",

@@ -53,6 +53,7 @@ scripts/
 |-- orchestrators/
 |   |-- apply.js
 |   |-- ask.js
+|   |-- build.js
 |   |-- gate.js
 |   |-- ralph.js
 |   |-- report.js
@@ -114,7 +115,7 @@ scripts/
 | `ci/validate-hooks.js` | _(none)_ | hooks/hooks.json schemas/hooks.schema.json . |
 | `ci/validate-manifests.js` | _(none)_ | agent.yaml + manifests/install-{profiles,modules,components}.json . 1) schema 2) |
 | `ci/validate-skills.js` | _(none)_ | skills/<name>/SKILL.md frontmatter schemas/skill.schema.json . agent.yaml skills . |
-| `cli.js` | _(none)_ | NEKOWORK/HARNESS CLI entrypoint. Public verbs: check, init, doctor, ask, plan, team, work, verify, gate, ship, apply, run, report, review, r |
+| `cli.js` | _(none)_ | NEKOWORK/HARNESS CLI entrypoint. Public verbs: check, init, doctor, ask, plan, team, work, verify, gate, ship, apply, run, build, report, re |
 | `core/auth-guard.js` | ` BLOCKED_ENV `, `assertDelegatedCliAuth` |  |
 | `core/build-roots.js` | `buildRoots` |  |
 | `core/cli-resolver.js` | `assertProviderCliTrust`, `isPathInside`, `resolveCli`, `resolveProviderCli` |  |
@@ -142,6 +143,7 @@ scripts/
 | `lib/token-vault.js` | `audit`, `backend`, `list`, `load`, `redact`, `remove`, `save` | scripts/lib/token-vault.js auth.token_store: os-keychain (default) encrypted-file. : HARNESS_TOKEN_STORE_KIND=os-keychain keychain only ( th |
 | `orchestrators/apply.js` | `applyCycle`, `latestStageHandoff`, `readApplyGitStatus`, `readDiffForHandoff`, `readPriorHandoffs` |  |
 | `orchestrators/ask.js` | `askGate`, `buildQuestionGate`, `classifyAskTask` |  |
+| `orchestrators/build.js` | `buildCycle`, `buildModePreset`, `normalizeBuildMode` |  |
 | `orchestrators/gate.js` | `approveGate`, `blockGate`, `gateCommand`, `gateStatus`, `markerTime`, `readMarker` |  |
 | `orchestrators/ralph.js` | `defaultPrd`, `normalizeEngine`, `ralphLoop` | Persistent Ralph loop. It repeats an execution engine until PRD acceptance criteria pass, a human gate stops the run, cost cap is hit, or ma |
 | `orchestrators/report.js` | `deriveStatus`, `readSessionEvidence`, `reportSession` |  |

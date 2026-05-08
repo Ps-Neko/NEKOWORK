@@ -3,7 +3,7 @@
 NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, module, profile, and pack must preserve the verification loop:
 
 ```text
-Claude work -> Codex verification -> report -> Human Gate -> explicit apply
+fast AI build -> Codex verification -> report -> Human Gate -> explicit apply
 ```
 
 Packs are public install aliases over validated profiles. They make the catalog easier to choose without creating a second safety model.
@@ -11,8 +11,8 @@ Packs are public install aliases over validated profiles. They make the catalog 
 ## Current Shape
 
 ```text
-7 official packs
-9 install profiles
+8 official packs
+10 install profiles
 7 modules
 36 components
 11 agents
@@ -20,7 +20,7 @@ Packs are public install aliases over validated profiles. They make the catalog 
 5 hooks
 5 harness targets
 7 case-study flows
-253 tests
+258 tests
 ```
 
 Harness targets:
@@ -46,6 +46,7 @@ environment configuration boundary
 | Pack | Profile | Best For | Representative Workflow |
 |---|---|---|---|
 | `core` | `core` | Minimal verification runtime | `doctor -> ask -> run -> report -> gate` |
+| `builder` | `builder` | One-command AI development OS entrypoint | `build "<task>" --mode fast|safe|team|tdd|release -> report -> gate` |
 | `quality` | `quality` | Disciplined development and evidence coverage | `ask --profile quality -> run --profile quality --strict-quality -> report` |
 | `security` | `security` | Auth, secrets, permissions, deploy, financial, or data-sensitive changes | `ask --profile security -> run --profile security --secure --strict-quality -> report -> gate` |
 | `frontend` | `frontend` | UI mockups, component review, accessibility-oriented checks | `ask --profile product -> team -> run -> report` |
@@ -57,6 +58,7 @@ environment configuration boundary
 
 ```bash
 node scripts/install-plan.js --list
+node scripts/install-plan.js --pack builder
 node scripts/install-plan.js --pack security
 node scripts/install-plan.js --pack quality --target claude --json
 node scripts/install-apply.js --pack core --project-root <target>
@@ -69,10 +71,10 @@ node scripts/install-apply.js --pack core --project-root <target>
 NEKOWORK does not try to be the largest catalog. It is a curated catalog for a reportable evidence pipeline:
 
 ```text
-selective catalog
+selective builder catalog
 + multi-surface projection
 + evidence report
 + Human Gate
 + explicit apply
-= local-first AI development quality runtime
+= local-first AI development OS and quality runtime
 ```

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // NEKOWORK/HARNESS CLI entrypoint.
-// Public verbs: check, init, doctor, ask, plan, team, work, verify, gate, ship, apply, run, report, review, review-cycle, install, validate, version.
+// Public verbs: check, init, doctor, ask, plan, team, work, verify, gate, ship, apply, run, build, report, review, review-cycle, install, validate, version.
 // Advanced verbs: self-review, codex-review, ralph, wait, sessions, costs, instincts.
 
 import { spawnSync } from 'node:child_process';
@@ -63,6 +63,8 @@ Review loop
                                          apply a verified SHIP_READY live-work diff to the target project
   run "<task>" [--session <id>] [--profile quality|security] [--strict-quality] [--secure] [--live] [--apply] [--allow-dirty] [--force] [--project-root <dir>] [--json]
                                          decomposed wrapper: work -> verify -> ship, optional apply
+  build "<task>" [--mode fast|safe|team|tdd|release] [--session <id>] [--live] [--apply] [--project-root <dir>] [--json]
+                                         one-command builder wrapper over read-only team thinking and run
   report --session <id> [--project-root <dir>] [--output <file>] [--stdout] [--json]
                                          summarize session evidence into REPORT.md; inspect-only
   review "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>] [--project-root <dir>]
@@ -588,6 +590,78 @@ function parseRunArgs(argv) {
   return opts;
 }
 
+function parseBuildArgs(argv) {
+  const opts = {
+    task: '',
+    mode: 'fast',
+    sessionId: null,
+    projectRoot: null,
+    profile: null,
+    live: false,
+    secure: false,
+    strictQuality: false,
+    team: false,
+    workers: null,
+    apply: false,
+    allowDirty: false,
+    force: false,
+    json: false,
+  };
+  const unknown = [];
+
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--json') opts.json = true;
+    else if (a === '--live') opts.live = true;
+    else if (a === '--secure') opts.secure = true;
+    else if (a === '--strict-quality') opts.strictQuality = true;
+    else if (a === '--team') opts.team = true;
+    else if (a === '--mode') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--mode requires a value');
+      opts.mode = value;
+    } else if (a.startsWith('--mode=')) {
+      opts.mode = a.slice('--mode='.length);
+    } else if (a === '--profile') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--profile requires a value');
+      opts.profile = value;
+    } else if (a.startsWith('--profile=')) {
+      opts.profile = a.slice('--profile='.length);
+    } else if (a === '--workers') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--workers requires a value');
+      opts.workers = value;
+    } else if (a.startsWith('--workers=')) {
+      opts.workers = a.slice('--workers='.length);
+    } else if (a === '--apply') opts.apply = true;
+    else if (a === '--allow-dirty') opts.allowDirty = true;
+    else if (a === '--force') opts.force = true;
+    else if (a === '--session') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--session requires a value');
+      opts.sessionId = value;
+    } else if (a.startsWith('--session=')) {
+      opts.sessionId = a.slice('--session='.length);
+    } else if (a === '--project-root') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--project-root requires a value');
+      opts.projectRoot = value;
+    } else if (a.startsWith('--project-root=')) {
+      opts.projectRoot = a.slice('--project-root='.length);
+    } else if (a.startsWith('--')) {
+      unknown.push(a);
+    } else if (!opts.task) {
+      opts.task = a;
+    } else {
+      opts.task += ' ' + a;
+    }
+  }
+
+  if (unknown.length) throw usageError(`unknown flag: ${unknown.join(', ')}`);
+  return opts;
+}
+
 function parseReportArgs(argv) {
   const opts = {
     sessionId: null,
@@ -990,6 +1064,56 @@ function checkArgs(argv) {
         console.log('  apply      : ' + (result.applied ? 'applied' : result.applyRequested ? `skipped (${result.applySkippedReason || 'not needed'})` : 'not requested'));
       }
       if (result.humanGate || (opts.apply && (result.noShip || result.applySkippedReason))) process.exit(3);
+      break;
+    }
+
+    case 'build': {
+      const opts = parseBuildArgs(rest);
+      if (!opts.task) {
+        console.error('task is required. Example: harness build "implement and verify dashboard" --mode fast');
+        process.exit(2);
+      }
+      const { buildCycle } = await import('./orchestrators/build.js');
+      let result;
+      try {
+        result = await buildCycle({
+          ...opts,
+          harnessRoot: ROOT,
+          projectRoot: resolveProjectRoot(opts.projectRoot),
+        });
+      } catch (e) {
+        if (/^(build requires|unknown build mode|run requires|verify requires|ship requires|apply requires|team worker|git apply failed)/.test(e?.message || '')) throw usageError(e.message);
+        throw e;
+      }
+      if (opts.json) {
+        console.log(JSON.stringify({
+          sessionId: result.sessionId,
+          mode: result.mode,
+          profile: result.profile,
+          strictQuality: result.strictQuality,
+          secure: result.secure,
+          teamRun: Boolean(result.team),
+          stoppedAt: result.run?.stoppedAt,
+          verdict: result.verdict,
+          humanGate: result.humanGate,
+          noShip: result.noShip,
+          shipReady: result.shipReady,
+          applied: result.applied,
+        }, null, 2));
+      } else {
+        console.log('=== build ===');
+        console.log('  session    : ' + result.sessionId);
+        console.log('  mode       : ' + result.mode);
+        console.log('  profile    : ' + (result.profile || 'none'));
+        console.log('  team       : ' + (result.team ? `read-only (${result.team.workers.join(',')})` : 'off'));
+        console.log('  stopped at : ' + result.run?.stoppedAt);
+        console.log('  verdict    : ' + result.verdict);
+        console.log('  human gate : ' + (result.humanGate ? 'YES' : 'no'));
+        console.log('  no ship    : ' + (result.noShip ? 'YES' : 'no'));
+        console.log('  ship ready : ' + (result.shipReady ? 'yes' : 'no'));
+        console.log('  apply      : ' + (result.applied ? 'applied' : result.run?.applyRequested ? `skipped (${result.run.applySkippedReason || 'not needed'})` : 'not requested'));
+      }
+      if (result.humanGate || (opts.apply && (result.noShip || result.run?.applySkippedReason))) process.exit(3);
       break;
     }
 

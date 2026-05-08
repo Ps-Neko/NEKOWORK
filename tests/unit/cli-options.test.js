@@ -52,6 +52,20 @@ test('CLI accepts ship --require-clean-gates as an explicit no-bypass marker', (
   }
 });
 
+test('CLI accepts build modes as the one-command safe builder entry', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-build-'));
+  try {
+    const build = runCli(['build', 'safe builder smoke', '--mode', 'safe', '--session', 'unit-cli-build', '--project-root', projectRoot, '--json']);
+    assert.equal(build.status, 0, build.stderr || build.stdout);
+    assert.match(build.stdout, /"mode": "safe"/);
+    assert.match(build.stdout, /"profile": "security"/);
+    assert.match(build.stdout, /"secure": true/);
+    assert.ok(fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-build', 'build-summary.json')));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 function runCli(args) {
   return spawnSync(process.execPath, [CLI, ...args], {
     cwd: ROOT,

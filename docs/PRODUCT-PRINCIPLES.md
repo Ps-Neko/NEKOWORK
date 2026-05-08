@@ -1,14 +1,14 @@
 # Product Principles
 
-NEKOWORK is not a large agent pack. It is a local-first multi-AI development runtime where Claude produces work, Codex verifies it from a separate context, and human gates stop risky changes.
+NEKOWORK is not a large agent pack. It is a local-first AI development OS and quality runtime where Claude produces work, Codex verifies it from a separate context, and human gates stop risky changes.
 
 ## Position
 
 ```text
-NEKOWORK = Claude work -> Codex verification -> Human Gate
+NEKOWORK = fast AI build -> Codex verification -> Human Gate -> explicit apply
 ```
 
-Agent catalogs, skill packs, hooks, profiles, and team execution are useful only when they strengthen that verification loop.
+Agent catalogs, skill packs, hooks, profiles, build modes, and team execution are useful only when they strengthen that verification loop.
 
 NEKOWORK also acts as a local-first AI development quality runtime:
 
@@ -20,6 +20,18 @@ good development discipline
 + Human Gate
 + explicit apply
 = gated AI development lifecycle
+```
+
+It can grow into an all-in-one runtime, but the growth rule stays fixed:
+
+```text
+fast build
++ agent/team assistance
++ disciplined quality checks
++ independent verification
++ Human Gate
++ explicit apply
+= NEKOWORK AI development OS
 ```
 
 See [AI-DEVELOPMENT-LIFECYCLE.md](AI-DEVELOPMENT-LIFECYCLE.md) for the lifecycle view.
@@ -63,6 +75,7 @@ The phases mean:
 | `report` | Summarize session evidence into readable audit output. | No project mutation |
 | `apply` | Apply a verified `SHIP_READY` live-work diff to the target project. | Controlled project mutation |
 | `run` | Convenience wrapper for `work -> verify -> ship`, optional `apply`. | Wrapper; mutation only with `--apply` |
+| `build` | One-command builder wrapper with `fast`, `safe`, `team`, `tdd`, and `release` modes. | Wrapper; same apply controls |
 
 For the current alpha line, `review` remains the legacy full cycle, and `review-cycle` is an explicit compatibility alias:
 
@@ -90,6 +103,7 @@ Current and target profile meanings:
 |---|---|
 | `core` | Minimal rules, agents, hooks, platform configs, and safety gates. |
 | `developer` | Daily development flow with quality workflow, Codex loop, and ops readiness. |
+| `builder` | One-command build modes for productivity, still bounded by Codex verification, Human Gate, and explicit apply. |
 | `security` | Secure review defaults, network denial, critical human gates, and hardened checks. |
 | `product` | Question gate, scope review, acceptance criteria, and product/design planning surfaces. |
 | `quality` | Brainstorm, test-first planning, systematic debugging, evidence-based review, and verification before completion. |

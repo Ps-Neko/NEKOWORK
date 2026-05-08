@@ -2,7 +2,7 @@
 
 Status date: 2026-05-08
 
-NEKOWORK / HARNESS is release-ready for local use, repository-based installation, and public npm alpha installation. The repository and public npm alpha are both at `0.1.0-alpha.5`.
+NEKOWORK / HARNESS is release-ready for local use, repository-based installation, and public npm alpha installation. The repository is now the `0.1.0-alpha.6` candidate; the published public npm alpha remains `0.1.0-alpha.5`.
 
 ## Decision
 
@@ -10,7 +10,7 @@ NEKOWORK / HARNESS is release-ready for local use, repository-based installation
 - Public alpha: `0.1.0-alpha.5`, published with `--tag alpha`.
 - `package.json` is set to `private: false` for the public alpha.
 - The canonical repo is `Ps-Neko/NEKOWORK`.
-- Current release track is `0.1.0-alpha.5`; npm `@alpha` points at this version.
+- Current repository candidate is `0.1.0-alpha.6`; npm `@alpha` points at the published `0.1.0-alpha.5`.
 - GitHub prerelease: `v0.1.0-alpha.5`.
 - Required local provider auth is delegated CLI auth, not long-lived API keys.
 - Core workflow invariant is Claude work -> Codex verification -> Human Gate.
@@ -71,7 +71,7 @@ Current local verification after the decomposed workflow expansion:
 - `npm run lint`: pass
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
-- `npm test`: 253 tests pass
+- `npm test`: 258 tests pass
 - `npm run demo:quick -- --cleanup`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
