@@ -1,6 +1,6 @@
 # Why NEKOWORK
 
-NEKOWORK is not another Claude Code power pack. It is a local-first AI development OS that helps agents build quickly, then turns their work into auditable, gated, explicitly applied changes.
+NEKOWORK is not another Claude Code power pack. It is a local-first AI development runtime that helps agents build quickly, then turns their work into auditable, gated, explicitly applied changes.
 
 ## Position
 
@@ -84,7 +84,7 @@ but a curated builder catalog for reportable, gated, explicitly applied changes
 English:
 
 ```text
-NEKOWORK is a local-first AI development OS and quality runtime.
+NEKOWORK is a local-first AI development runtime for fast, verified code changes.
 It helps agents build quickly, then makes their changes prove themselves
 through independent verification, Human Gate decisions, and explicit apply control.
 ```

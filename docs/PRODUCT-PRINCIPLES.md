@@ -1,6 +1,6 @@
 # Product Principles
 
-NEKOWORK is not a large agent pack. It is a local-first AI development OS and quality runtime where Claude produces work, Codex verifies it from a separate context, and human gates stop risky changes.
+NEKOWORK is not a large agent pack. It is a local-first AI development runtime where Claude produces work, Codex verifies it from a separate context, and human gates stop risky changes.
 
 ## Position
 
@@ -31,7 +31,7 @@ fast build
 + independent verification
 + Human Gate
 + explicit apply
-= NEKOWORK AI development OS
+= NEKOWORK safe AI development runtime
 ```
 
 See [AI-DEVELOPMENT-LIFECYCLE.md](AI-DEVELOPMENT-LIFECYCLE.md) for the lifecycle view.

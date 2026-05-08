@@ -1,6 +1,6 @@
 # Architecture
 
-NEKOWORK is the product. HARNESS is the local runtime packaged by NEKOWORK as a local-first AI development OS and quality harness. The project keeps one canonical catalog and projects it into multiple agent surfaces.
+NEKOWORK is the product and public name. It packages a local runtime with one canonical catalog and projects that catalog into multiple agent surfaces. The `harness` binary remains a legacy/internal CLI alias.
 
 ## Core Idea
 
@@ -25,7 +25,7 @@ The canonical source is the repository catalog. Generated harness directories ar
 
 ## Product Invariants
 
-NEKOWORK is an AI development OS bounded by a verification runtime, not a general agent pack:
+NEKOWORK is an AI development runtime bounded by safe build modes and verification gates, not a general agent pack:
 
 ```text
 fast AI build -> Codex verification -> Human Gate -> explicit apply

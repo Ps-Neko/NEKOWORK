@@ -1,10 +1,10 @@
 # NEKOWORK
 
-Local-first AI development OS and quality runtime for Claude Code, Codex CLI, and Gemini CLI.
+Local-first AI development runtime for fast, verified code changes.
 
 [![harness-validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
-NEKOWORK helps AI coding agents build quickly, then prevents unverified changes from shipping.
+Build quickly with AI agents, verify independently with Codex, and apply only with human control.
 
 It runs:
 
@@ -21,7 +21,7 @@ Product principle:
 NEKOWORK = fast AI build -> Codex verification -> Human Gate -> explicit apply
 ```
 
-NEKOWORK is the product. HARNESS is the local runtime it packages: one source catalog, `agent.yaml`, projected into Claude Code, Codex CLI, Cursor, Gemini CLI, and OpenCode surfaces.
+NEKOWORK packages a local runtime with one source catalog, `agent.yaml`, projected into Claude Code, Codex CLI, Cursor, Gemini CLI, and OpenCode surfaces. The `harness` CLI remains a legacy/internal alias for `nekowork`.
 
 NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profile, module, and pack must:
 
@@ -275,7 +275,7 @@ node .harness-tool/scripts/install-apply.js --profile developer --project-root .
 node .harness-tool/scripts/cli.js check --project-root .
 ```
 
-The HARNESS tool root stays in `.harness-tool/`. Session state, generated harness files, and git work happen in the target project root.
+The NEKOWORK tool root stays in `.harness-tool/`. Session state, generated runtime files, and git work happen in the target project root.
 
 For a disposable external-project walkthrough, see [docs/EXAMPLE-PROJECT.md](docs/EXAMPLE-PROJECT.md).
 
@@ -434,12 +434,13 @@ npm pack --dry-run --json
 - [docs/SECURITY.md](docs/SECURITY.md) - local-first auth and safety model
 - [docs/ADVANCED.md](docs/ADVANCED.md) - advanced workflows and runtime features
 - [docs/SETUP.md](docs/SETUP.md) - local contributor setup and live provider smoke
-- [docs/PORTING.md](docs/PORTING.md) - using HARNESS in an external project
+- [docs/PORTING.md](docs/PORTING.md) - using NEKOWORK in an external project
 - [docs/RELEASE-READINESS.md](docs/RELEASE-READINESS.md) - release and publish gates
 - [docs/RUNBOOK.md](docs/RUNBOOK.md) - operations guide
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - system architecture
 - [docs/PRODUCT-PRINCIPLES.md](docs/PRODUCT-PRINCIPLES.md) - product position, invariants, CLI phase semantics
-- [docs/AI-DEVELOPMENT-LIFECYCLE.md](docs/AI-DEVELOPMENT-LIFECYCLE.md) - AI development OS, quality runtime, and disciplined lifecycle
+- [docs/AI-DEVELOPMENT-LIFECYCLE.md](docs/AI-DEVELOPMENT-LIFECYCLE.md) - safe build modes, quality runtime, and disciplined lifecycle
+- [docs/NAMING.md](docs/NAMING.md) - product, CLI, pack, and legacy alias naming contract
 - [docs/CORE-INVARIANTS.md](docs/CORE-INVARIANTS.md) - non-negotiable runtime safety rules
 - [docs/CLI-STAGES.md](docs/CLI-STAGES.md) - stage contract and compatibility transition
 - [docs/RISK-CLASSIFIER.md](docs/RISK-CLASSIFIER.md) - shared risk tags, challenge, and gate policy
