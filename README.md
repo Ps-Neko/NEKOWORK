@@ -30,7 +30,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 9 packs / 11 profiles / 36 components / 5 harness targets / 7 case-study flows / 279 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
+**Public alpha evidence:** 14 packs / 11 profiles / 36 components / 5 harness targets / 7 case-study flows / 280 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -189,7 +189,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 279 tests pass
+- `npm test`: 280 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
@@ -338,12 +338,14 @@ Use official packs when choosing an install shape:
 ```bash
 node scripts/install-plan.js --list
 node scripts/install-plan.js --pack productivity
+node scripts/install-plan.js --pack team
+node scripts/install-plan.js --pack pr
 node scripts/install-plan.js --pack builder
 node scripts/install-plan.js --pack quality
 node scripts/install-plan.js --pack security --target codex --json
 ```
 
-Packs are aliases over validated profiles. They add clearer product packaging without weakening the core gates. `productivity` is the shortest Superpowers-style routine pack: brainstorm, plan, TDD, debug, execute, verify, report, and finish over the same safe build loop.
+Packs are aliases over validated profiles. They add clearer product packaging without weakening the core gates. `productivity` is the shortest Superpowers-style routine pack: brainstorm, plan, TDD, debug, execute, verify, report, and finish over the same safe build loop. `team`, `debugging`, `maintenance`, `pr`, and `catalog-plus` make the catalog feel richer while still resolving to safety-checked profiles.
 
 ## Catalog
 
@@ -352,7 +354,7 @@ Packs are aliases over validated profiles. They add clearer product packaging wi
 - Hooks: 5
 - Modules: 7
 - Profiles: `core`, `developer`, `builder`, `productivity`, `security`, `product`, `quality`, `frontend`, `testing`, `research`, `full`
-- Official packs: `core`, `builder`, `productivity`, `quality`, `security`, `frontend`, `testing`, `release`, `enterprise`
+- Official packs: `core`, `builder`, `productivity`, `team`, `debugging`, `maintenance`, `pr`, `catalog-plus`, `quality`, `security`, `frontend`, `testing`, `release`, `enterprise`
 - Harness targets: `claude`, `codex`, `cursor`, `gemini`, `opencode`
 
 Key skills:

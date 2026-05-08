@@ -15,7 +15,7 @@ This audit summarizes the current NEKOWORK state after publishing the `0.1.0-alp
 | CLI doctor/check | OK | `check`, `doctor`, `doctor --quick`, and `doctor --gemini-smoke` are available |
 | Provider auth | OK | Local delegated CLI auth is the default path |
 | Internal provider adapter | OK | `HARNESS_PROVIDER_OVERRIDE=internal` can call an explicit JSON command adapter without weakening gates |
-| Catalog | OK | 9 official packs, 11 agents, 10 skills, 5 hooks, 7 modules, 36 components, 11 profiles |
+| Catalog | OK | 14 official packs, 11 agents, 10 skills, 5 hooks, 7 modules, 36 components, 11 profiles |
 | Multi-harness output | OK | Claude, Codex, Cursor, Gemini, and OpenCode builders are present |
 | Quick demo | OK | `npm run demo:quick` verifies the shortest no-API `doctor -> build -> report -> gate status` path |
 | Fresh npm alpha smoke | OK | CI runs `npx -y @ps-neko/nekowork@alpha check --json` from a disposable directory |
@@ -55,7 +55,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 279 tests pass
+- `npm test`: 280 tests pass
 - quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass

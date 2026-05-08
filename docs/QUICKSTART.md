@@ -199,6 +199,7 @@ node scripts/cli.js run "implement and verify a change" --session first-run
 ```bash
 node scripts/install-plan.js --list
 node scripts/install-plan.js --pack productivity
+node scripts/install-plan.js --pack team
 node scripts/install-plan.js --pack quality
 node scripts/install-plan.js --profile developer
 node scripts/install-plan.js --profile developer --target claude --json
@@ -223,6 +224,11 @@ Official packs:
 - `core`: minimal verification runtime
 - `builder`: Safe Build Modes entrypoint
 - `productivity`: Superpowers-style daily development routines over the safe build loop
+- `team`: GStack-style read-only team thinking before one executor writes
+- `debugging`: systematic bug, failing test, and regression triage
+- `maintenance`: dependency upgrade, refactor, migration, and cleanup routines
+- `pr`: PR readiness evidence, changelog notes, and risk notes
+- `catalog-plus`: richest curated catalog surface with all gates intact
 - `quality`: disciplined workflow and acceptance coverage evidence
 - `security`: sensitive work, Codex challenge, and Human Gate policy
 - `frontend`: UI mockups, component review, and accessibility-oriented checks

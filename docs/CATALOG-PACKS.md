@@ -11,7 +11,7 @@ Packs are public install aliases over validated profiles. They make the catalog 
 ## Current Shape
 
 ```text
-9 official packs
+14 official packs
 11 install profiles
 7 modules
 36 components
@@ -20,7 +20,7 @@ Packs are public install aliases over validated profiles. They make the catalog 
 5 hooks
 5 harness targets
 7 case-study flows
-279 tests
+280 tests
 ```
 
 Harness targets:
@@ -48,6 +48,11 @@ environment configuration boundary
 | `core` | `core` | Minimal verification runtime | `doctor -> ask -> run -> report -> gate` |
 | `builder` | `builder` | Safe Build Modes entrypoint | `build "<task>" --mode auto|fast|safe|team|tdd|release -> report -> gate` |
 | `productivity` | `productivity` | Brainstorm, plan, TDD, debug, execute, verify, report, and finish routines | `build "<task>" --mode auto -> report -> gate` |
+| `team` | `developer` | Read-only role handoffs before one executor writes | `build "<task>" --mode team -> report -> gate` |
+| `debugging` | `quality` | Failing tests, regressions, and root-cause isolation | `build "fix failing tests" --mode auto -> report -> gate` |
+| `maintenance` | `developer` | Dependency upgrades, refactors, migrations, and cleanup | `build "<maintenance task>" --mode auto -> report -> gate` |
+| `pr` | `developer` | Diff review, test evidence, changelog, risk notes, and PR readiness | `build "prepare PR evidence" --mode release -> report -> gate` |
+| `catalog-plus` | `full` | Richest curated surface without weakening gates | `install-plan --pack catalog-plus -> build "<task>" --mode auto -> report -> gate` |
 | `quality` | `quality` | Disciplined development and evidence coverage | `ask --profile quality -> run --profile quality --strict-quality -> report` |
 | `security` | `security` | Auth, secrets, permissions, deploy, financial, or data-sensitive changes | `ask --profile security -> run --profile security --secure --strict-quality -> report -> gate` |
 | `frontend` | `frontend` | UI mockups, component review, accessibility-oriented checks | `ask --profile product -> team -> run -> report` |
@@ -61,6 +66,8 @@ environment configuration boundary
 node scripts/install-plan.js --list
 node scripts/install-plan.js --pack builder
 node scripts/install-plan.js --pack productivity
+node scripts/install-plan.js --pack team
+node scripts/install-plan.js --pack pr
 node scripts/install-plan.js --pack security
 node scripts/install-plan.js --pack quality --target claude --json
 node scripts/install-apply.js --pack core --project-root <target>
@@ -73,7 +80,7 @@ node scripts/install-apply.js --pack core --project-root <target>
 NEKOWORK does not try to be the largest catalog. It is a curated catalog for a reportable evidence pipeline:
 
 ```text
-selective builder catalog
+selective verified productivity catalog
 + multi-surface projection
 + evidence report
 + Human Gate
