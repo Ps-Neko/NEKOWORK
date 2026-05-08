@@ -1,5 +1,7 @@
 # NEKOWORK
 
+[English](README.md) | [한국어](README.ko.md)
+
 Verified Autopilot for AI code changes.
 
 [![validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
@@ -41,7 +43,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 292 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 7 case-study flows / 5 starter packs
+**Public alpha evidence:** 293 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 7 case-study flows / 5 starter packs
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -236,7 +238,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 292 tests pass
+- `npm test`: 293 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
