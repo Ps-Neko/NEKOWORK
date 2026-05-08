@@ -25,14 +25,16 @@ By default, `build` uses `--mode auto`. Auto mode classifies the task, chooses o
 
 ## Mode Contract
 
-| Mode | Purpose | Internal Behavior | Apply |
-|---|---|---|---|
-| `auto` | Task-aware routing | classifies intent, selects `fast`, `safe`, `team`, `tdd`, or `release`, and records build intelligence | Explicit only |
-| `fast` | Quick implementation | `run = work -> verify -> ship` with quality profile | Explicit only |
-| `safe` | Risky or sensitive changes | security profile, strict quality, Codex challenge, Human Gate policy | Explicit only |
-| `team` | Parallel thinking before work | read-only team handoffs, then one executor through `run` | Explicit only |
-| `tdd` | Test-first work | quality profile with strict acceptance and evidence checks | Explicit only |
-| `release` | Release readiness | quality profile with ship/report evidence before apply | Explicit only |
+| Mode | Safety Rank | Purpose | Internal Behavior | Apply |
+|---|---:|---|---|---|
+| `auto` | n/a | Task-aware routing | classifies intent, selects `fast`, `safe`, `team`, `tdd`, or `release`, and records build intelligence | Explicit only |
+| `fast` | 0 | Quick implementation | `run = work -> verify -> ship` with quality profile | Explicit only |
+| `team` | 1 | Parallel thinking before work | read-only team handoffs, then one executor through `run` | Explicit only |
+| `tdd` | 1 | Test-first work | quality profile with strict acceptance and evidence checks | Explicit only |
+| `release` | 2 | Release readiness | quality profile with ship/report evidence before apply | Explicit only |
+| `safe` | 3 | Risky or sensitive changes | security profile, strict quality, Codex challenge, Human Gate policy | Explicit only |
+
+The safety ranks are defined in `manifests/build-modes.json` and validated by `schemas/build-modes.schema.json`. Runtime override checks read the manifest-backed ranks, so docs, tests, and policy stay aligned.
 
 ## Auto Mode Routing
 

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Ps-Neko/NEKOWORK/main/schemas/build-modes.schema.json",
+  "title": "Build Modes",
+  "type": "object",
+  "required": ["version", "modes"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "modes": {
+      "type": "object",
+      "required": ["fast", "team", "tdd", "release", "safe"],
+      "additionalProperties": false,
+      "properties": {
+        "fast": { "$ref": "#/$defs/mode" },
+        "team": { "$ref": "#/$defs/mode" },
+        "tdd": { "$ref": "#/$defs/mode" },
+        "release": { "$ref": "#/$defs/mode" },
+        "safe": { "$ref": "#/$defs/mode" }
+      }
+    }
+  },
+  "$defs": {
+    "mode": {
+      "type": "object",
+      "required": ["description", "profile", "safety_rank", "apply_default", "mutation_policy"],
+      "additionalProperties": false,
+      "properties": {
+        "description": { "type": "string", "minLength": 10 },
+        "profile": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "safety_rank": { "type": "integer", "minimum": 0 },
+        "apply_default": { "const": "explicit" },
+        "mutation_policy": { "const": "single_executor" },
+        "read_only_team": { "type": "boolean" },
+        "strict_quality": { "type": "boolean" },
+        "codex_challenge": { "type": "boolean" },
+        "human_gate_policy": { "type": "string", "minLength": 5 }
+      }
+    }
+  }
+}

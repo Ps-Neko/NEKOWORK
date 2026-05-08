@@ -48,3 +48,20 @@ test('release routing keeps Codex challenge when deploy risk policy detects rele
   assert.ok(result.tags.includes('deploy'));
   assert.ok(result.explanation.some(line => /Human Gate may be required/.test(line)));
 });
+
+test('mixed-intent routing does not let release wording hide sensitive signals', () => {
+  const security = analyzeBuildIntent({ task: 'prepare release notes for OAuth token validation' });
+  assert.equal(security.recommendedMode, 'safe');
+  assert.equal(security.taskType, 'security-sensitive');
+  assert.ok(security.tags.includes('security'));
+
+  const data = analyzeBuildIntent({ task: 'prepare release plan for database migration and schema changes' });
+  assert.equal(data.recommendedMode, 'safe');
+  assert.equal(data.taskType, 'data-sensitive');
+  assert.ok(data.tags.includes('data'));
+
+  const financial = analyzeBuildIntent({ task: 'prepare package release for payment webhook validation' });
+  assert.equal(financial.recommendedMode, 'safe');
+  assert.equal(financial.taskType, 'financial-sensitive');
+  assert.ok(financial.tags.includes('financial'));
+});

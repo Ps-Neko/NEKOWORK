@@ -5,6 +5,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { buildCycle, buildModePreset, buildPlan, normalizeBuildMode } from '../../scripts/orchestrators/build.js';
 import { reportSession } from '../../scripts/orchestrators/report.js';
+import { buildModeIds, buildModePolicy, buildModeSafetyRank } from '../../scripts/lib/build-modes.js';
 import { validateProfileSafety } from '../../scripts/lib/profile-safety.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
@@ -18,6 +19,27 @@ test('build mode presets keep verification defaults explicit', () => {
   assert.equal(buildModePreset('tdd').strictQuality, true);
   assert.equal(buildModePreset('team').team, true);
   assert.throws(() => normalizeBuildMode('autopilot'), /unknown build mode/);
+});
+
+test('build mode manifest keeps runtime safety ordering explicit', () => {
+  assert.deepEqual(buildModeIds(), ['fast', 'team', 'tdd', 'release', 'safe']);
+  assert.equal(buildModeSafetyRank('fast'), 0);
+  assert.ok(buildModeSafetyRank('team') > buildModeSafetyRank('fast'));
+  assert.equal(buildModeSafetyRank('team'), buildModeSafetyRank('tdd'));
+  assert.ok(buildModeSafetyRank('release') > buildModeSafetyRank('tdd'));
+  assert.ok(buildModeSafetyRank('safe') > buildModeSafetyRank('release'));
+
+  for (const mode of buildModeIds()) {
+    const preset = buildModePreset(mode);
+    const policy = buildModePolicy(mode);
+    assert.equal(preset.mode, mode);
+    assert.equal(policy.profile, preset.profile);
+    assert.equal(policy.read_only_team, Boolean(preset.team));
+    assert.equal(policy.strict_quality, Boolean(preset.strictQuality));
+    assert.equal(policy.codex_challenge, Boolean(preset.secure));
+    assert.equal(policy.apply_default, 'explicit');
+    assert.equal(policy.mutation_policy, 'single_executor');
+  }
 });
 
 test('build auto dry-run routes auth-sensitive work to safe mode with workers', async () => {

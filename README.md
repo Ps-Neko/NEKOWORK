@@ -32,7 +32,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 14 packs / 11 profiles / 36 components / 5 harness targets / 7 case-study flows / 281 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
+**Public alpha evidence:** 14 packs / 11 profiles / 36 components / 5 harness targets / 7 case-study flows / 283 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -198,7 +198,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 281 tests pass
+- `npm test`: 283 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
@@ -343,9 +343,9 @@ Advanced features such as `team-lite`, `ralph`, `wait`, instincts, cost tracking
 
 `plan` is recommended before `work` for larger changes. The current `run` command intentionally stays compact: it runs `work -> verify -> ship`, records acceptance criteria through `work`, and applies only when `--apply` is explicitly provided.
 
-Use `build "<task>"` when NEKOWORK should be the single entrypoint. It defaults to `--mode auto`, classifies the task, selects `fast`, `safe`, `team`, `tdd`, or `release`, records build intelligence, and still uses one executor for writes, Codex verification before ship, and explicit apply only. Use an explicit `--mode` when you need to override the router.
+Use `build "<task>"` when NEKOWORK should be the single entrypoint. It defaults to `--mode auto`, classifies the task, selects `fast`, `safe`, `team`, `tdd`, or `release`, records build intelligence, and still uses one executor for writes, Codex verification before ship, and explicit apply only. The mode safety ordering is manifest-backed in `manifests/build-modes.json`. Use an explicit `--mode` when you need to override the router.
 
-Risky explicit overrides are protected. For example, `build "change OAuth token validation" --mode fast` is blocked because auto routing recommends `safe`; use `--mode safe` or add `--force-mode` only when you intentionally accept that override.
+Risky explicit overrides are protected. For example, `build "change OAuth token validation" --mode fast` is blocked because auto routing recommends `safe`, and `build "prepare npm package publish release notes" --mode fast` is blocked because auto routing recommends the higher-safety `release` mode. Use the recommended mode or add `--force-mode` only when you intentionally accept that downgrade.
 
 Use `--profile quality` or `--profile security` on `work`, `verify`, and `run` when a task needs stronger evidence prompts. Add `--strict-quality` to `verify`, `run`, or `build` when missing evidence or acceptance coverage should become a fix-required verdict before ship.
 

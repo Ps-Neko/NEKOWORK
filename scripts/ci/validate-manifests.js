@@ -25,6 +25,7 @@ addFormats(ajv);
 
 const checks = [
   { name: 'agent.yaml',                     schema: 'schemas/agent-yaml.schema.json',          load: () => readYaml('agent.yaml') },
+  { name: 'manifests/build-modes.json',     schema: 'schemas/build-modes.schema.json',         load: () => readJson('manifests/build-modes.json') },
   { name: 'manifests/install-profiles.json',schema: 'schemas/install-profiles.schema.json',    load: () => readJson('manifests/install-profiles.json') },
   { name: 'manifests/install-modules.json', schema: 'schemas/install-modules.schema.json',     load: () => readJson('manifests/install-modules.json') },
   { name: 'manifests/install-components.json', schema: 'schemas/install-components.schema.json',load: () => readJson('manifests/install-components.json') },
@@ -60,6 +61,7 @@ for (const c of checks) {
 const profilesDoc = loaded['manifests/install-profiles.json'];
 const modulesDoc = loaded['manifests/install-modules.json'];
 const componentsDoc = loaded['manifests/install-components.json'];
+const buildModesDoc = loaded['manifests/build-modes.json'];
 const manifest = loaded['agent.yaml'];
 
 if (profilesDoc && modulesDoc) {
@@ -111,11 +113,34 @@ if (profilesDoc) {
   warnings.push(...safety.warnings);
 }
 
+if (buildModesDoc) {
+  const modes = buildModesDoc.modes || {};
+  const requiredOrder = ['fast', 'team', 'tdd', 'release', 'safe'];
+  for (const mode of requiredOrder) {
+    if (!modes[mode]) errors.push(`build mode "${mode}" is missing`);
+    if (modes[mode]?.apply_default !== 'explicit') errors.push(`build mode "${mode}" must keep explicit apply`);
+    if (modes[mode]?.mutation_policy !== 'single_executor') errors.push(`build mode "${mode}" must keep single_executor mutation`);
+  }
+  if ((modes.fast?.safety_rank ?? -1) >= (modes.release?.safety_rank ?? -1)) {
+    errors.push('build mode safety rank must keep fast lower than release');
+  }
+  if ((modes.release?.safety_rank ?? -1) >= (modes.safe?.safety_rank ?? -1)) {
+    errors.push('build mode safety rank must keep release lower than safe');
+  }
+  if ((modes.team?.safety_rank ?? -1) < (modes.fast?.safety_rank ?? 0)) {
+    errors.push('build mode safety rank must keep team at or above fast');
+  }
+  if ((modes.tdd?.safety_rank ?? -1) < (modes.fast?.safety_rank ?? 0)) {
+    errors.push('build mode safety rank must keep tdd at or above fast');
+  }
+}
+
 console.log(`HARNESS validate-manifests`);
-console.log(`  agent.yaml + 3 manifest schemas`);
+console.log(`  agent.yaml + ${checks.length - 1} manifest schemas`);
 if (profilesDoc) console.log(`  profiles  : ${Object.keys(profilesDoc.profiles || {}).length}`);
 if (modulesDoc) console.log(`  modules   : ${Object.keys(modulesDoc.modules || {}).length}`);
 if (componentsDoc) console.log(`  components: ${Object.keys(componentsDoc.components || {}).length}`);
+if (buildModesDoc) console.log(`  buildModes: ${Object.keys(buildModesDoc.modes || {}).length}`);
 
 if (warnings.length) {
   console.log('');

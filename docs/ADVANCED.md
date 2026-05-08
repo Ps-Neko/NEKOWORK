@@ -206,6 +206,7 @@ Rules:
 - `--dry-run` previews auto routing, preset resolution, stages, workers, and safety invariants without writing session state.
 - `--explain` prints routing rationale and evidence files after the build.
 - `--force-mode` is required when a risky task is manually forced into a lower-safety mode than the risk-aware recommendation.
+- Build mode safety ranks are defined in `manifests/build-modes.json` and validated with the manifest schemas, so mode policy changes are reviewable outside the CLI code.
 - `apply` is never implicit; use `--apply` only for verified live-work diffs.
 
 Outputs:

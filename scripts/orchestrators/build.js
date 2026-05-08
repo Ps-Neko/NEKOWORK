@@ -4,6 +4,7 @@ import { runCycle } from './run.js';
 import { teamCycle } from './team.js';
 import { normalizeAcceptanceCriteria } from '../lib/acceptance-criteria.js';
 import { analyzeBuildIntent } from '../lib/build-intelligence.js';
+import { assertBuildModeContract, buildModeIds, buildModeSafetyRank } from '../lib/build-modes.js';
 
 const MODE_PRESETS = {
   fast: {
@@ -52,15 +53,9 @@ const AUTO_PRESET = {
   description: 'task-aware mode routing before the safe build loop',
 };
 
-const MODE_SAFETY_RANK = {
-  fast: 0,
-  team: 1,
-  tdd: 1,
-  release: 2,
-  safe: 3,
-};
-
 const RISK_AWARE_TAGS = new Set(['security', 'financial', 'deploy', 'data']);
+
+assertBuildModeContract(MODE_PRESETS);
 
 export function normalizeBuildMode(mode) {
   const value = String(mode || 'auto').trim().toLowerCase();
@@ -293,11 +288,11 @@ function isRiskAwareRecommendation(recommendation) {
 }
 
 function modeSafetyRank(mode) {
-  return MODE_SAFETY_RANK[mode] ?? 0;
+  return buildModeSafetyRank(mode);
 }
 
 function availableModes() {
-  return ['auto', ...Object.keys(MODE_PRESETS)];
+  return ['auto', ...buildModeIds()];
 }
 
 function splitWorkers(workers) {

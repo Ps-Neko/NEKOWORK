@@ -7,10 +7,14 @@
 ### Added
 - Add the `productivity` pack/profile for brainstorm, plan, TDD, debug, execute, verify, report, and finish routines over the safe build loop.
 - Add verified productivity catalog pack aliases for `team`, `debugging`, `maintenance`, `pr`, and `catalog-plus`.
+- Add manifest/schema-backed build mode safety policy in `manifests/build-modes.json`.
+- Add mixed-intent Build Intelligence fixtures so release wording cannot hide security, data, or financial signals.
+- Add the report Trust Card and a shorter 30-second first-run path.
 
 ### Changed
 - Extract the `build` command surface from `scripts/cli.js` into a dedicated CLI command module.
 - Generalize `build` mode override protection from `safe`-only checks to risk-aware lower-safety downgrade checks.
+- Validate build mode safety ordering through `validate:manifests`.
 
 ## [0.1.0-alpha.7] - 2026-05-08
 

@@ -9,6 +9,7 @@
 schemas/
 |-- agent-yaml.schema.json
 |-- agent.schema.json
+|-- build-modes.schema.json
 |-- handoff.schema.json
 |-- hooks.schema.json
 |-- install-components.schema.json
