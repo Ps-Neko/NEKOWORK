@@ -106,6 +106,8 @@ test('install plan: --list exposes selectable catalog', () => {
   assert.ok(catalog.targets.some(t => t.name === 'claude'));
   assert.ok(catalog.packs.some(p => p.name === 'security' && p.profile === 'security'));
   assert.ok(catalog.packs.some(p => p.name === 'productivity' && p.profile === 'productivity'));
+  assert.ok(catalog.packs.some(p => p.name === 'team' && p.profile === 'developer'));
+  assert.ok(catalog.packs.some(p => p.name === 'catalog-plus' && p.profile === 'full'));
   assert.ok(catalog.profiles.some(p => p.name === 'security'));
   assert.ok(catalog.profiles.some(p => p.name === 'productivity'));
   assert.ok(catalog.modules.some(m => m.name === 'codex-loop'));
@@ -121,6 +123,25 @@ test('install plan: official pack aliases resolve to safe profiles', () => {
   assert.match(plan.pack_workflow, /build/);
   assert.ok(plan.modules.includes('codex-loop'));
   assert.ok(plan.modules.includes('workflow-quality'));
+});
+
+test('install plan: verified productivity catalog pack aliases resolve without new safety model', () => {
+  const expected = new Map([
+    ['team', 'developer'],
+    ['debugging', 'quality'],
+    ['maintenance', 'developer'],
+    ['pr', 'developer'],
+    ['catalog-plus', 'full']
+  ]);
+
+  for (const [pack, profile] of expected.entries()) {
+    const r = run('scripts/install-plan.js', ['--pack', pack, '--json']);
+    assert.equal(r.status, 0, `${pack} pack plan failed: ${r.stderr}`);
+    const plan = JSON.parse(r.stdout);
+    assert.equal(plan.pack, pack);
+    assert.equal(plan.profile, profile);
+    assert.ok(plan.modules.includes('codex-loop'), `${pack} should preserve Codex loop`);
+  }
 });
 
 test('install plan: unknown target/module/component filters fail fast', () => {

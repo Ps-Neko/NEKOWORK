@@ -6,6 +6,7 @@
 
 ### Added
 - Add the `productivity` pack/profile for brainstorm, plan, TDD, debug, execute, verify, report, and finish routines over the safe build loop.
+- Add verified productivity catalog pack aliases for `team`, `debugging`, `maintenance`, `pr`, and `catalog-plus`.
 
 ### Changed
 - Extract the `build` command surface from `scripts/cli.js` into a dedicated CLI command module.

@@ -20,6 +20,36 @@
       "workflow": "build \"<task>\" --mode auto -> report -> gate; use --mode tdd|team|release when the routine calls for it",
       "use_when": "Use when you want Superpowers-style development discipline and quick routines without bypassing Codex verification, Human Gate, or explicit apply."
     },
+    "team": {
+      "description": "Read-only role handoff pack for product, architecture, UX, QA, security, and release perspectives before one executor writes.",
+      "profile": "developer",
+      "workflow": "build \"<task>\" --mode team -> report -> gate",
+      "use_when": "Use when GStack-style team thinking helps, while keeping every team contribution read-only and verified before apply."
+    },
+    "debugging": {
+      "description": "Systematic debugging pack for failing tests, regressions, isolation plans, and post-fix verification evidence.",
+      "profile": "quality",
+      "workflow": "build \"fix failing tests\" --mode auto -> report -> gate",
+      "use_when": "Use when the task starts from a failure, bug, regression, or unclear root cause."
+    },
+    "maintenance": {
+      "description": "Maintenance pack for dependency upgrades, refactors, migrations, dead-code cleanup, and compatibility checks.",
+      "profile": "developer",
+      "workflow": "build \"<maintenance task>\" --mode auto -> report -> gate",
+      "use_when": "Use for routine project upkeep that still needs Codex verification and explicit apply."
+    },
+    "pr": {
+      "description": "Pull request readiness pack for diff review, test evidence, changelog notes, risk notes, and ship readiness.",
+      "profile": "developer",
+      "workflow": "build \"prepare PR evidence\" --mode release -> report -> gate",
+      "use_when": "Use before opening, updating, or reviewing a PR so the handoff contains evidence instead of vibes."
+    },
+    "catalog-plus": {
+      "description": "Full curated catalog pack for users who want the richest NEKOWORK surface without weakening the verification loop.",
+      "profile": "full",
+      "workflow": "install-plan --pack catalog-plus -> build \"<task>\" --mode auto -> report -> gate",
+      "use_when": "Use when evaluating NEKOWORK against larger agent catalogs while keeping the safety invariants intact."
+    },
     "quality": {
       "description": "Disciplined development pack for test-first planning, evidence warnings, and strict quality checks.",
       "profile": "quality",
