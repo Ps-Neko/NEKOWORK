@@ -66,7 +66,7 @@ Review loop
                                          apply a verified SHIP_READY live-work diff to the target project
   run "<task>" [--session <id>] [--profile quality|security] [--strict-quality] [--secure] [--live] [--apply] [--allow-dirty] [--force] [--project-root <dir>] [--json]
                                          decomposed wrapper: work -> verify -> ship, optional apply
-  build "<task>" [--mode auto|fast|safe|team|tdd|release] [--dry-run] [--session <id>] [--live] [--apply] [--project-root <dir>] [--json]
+  build "<task>" [--mode auto|fast|safe|team|tdd|release] [--dry-run] [--explain] [--force-mode] [--session <id>] [--live] [--apply] [--project-root <dir>] [--json]
                                          one-command builder wrapper; auto mode routes task intent safely
   report --session <id> [--project-root <dir>] [--output <file>] [--stdout] [--json]
                                          summarize session evidence into REPORT.md; inspect-only
@@ -139,6 +139,7 @@ function buildJsonOutput(result) {
       autoMode: result.autoMode,
       modeDescription: result.modeDescription,
       intelligence: result.intelligence,
+      modeOverride: result.modeOverride,
       profile: result.profile,
       strictQuality: result.strictQuality,
       secure: result.secure,
@@ -158,6 +159,7 @@ function buildJsonOutput(result) {
     requestedMode: result.requestedMode,
     autoMode: result.autoMode,
     intelligence: result.intelligence,
+    modeOverride: result.modeOverride,
     profile: result.profile,
     strictQuality: result.strictQuality,
     secure: result.secure,
@@ -184,6 +186,9 @@ function printBuildPlan(result) {
     console.log('  task type  : ' + result.intelligence.taskType);
     console.log('  risk       : ' + result.intelligence.risk + (result.intelligence.tags.length ? ` (${result.intelligence.tags.join(',')})` : ''));
   }
+  if (result.modeOverride?.forced) {
+    console.log('  override   : forced despite recommendation ' + result.modeOverride.recommendedMode);
+  }
   console.log('');
   console.log('Stages:');
   for (const stage of result.stages) {
@@ -197,9 +202,14 @@ function printBuildPlan(result) {
   }
   console.log('');
   if (result.intelligence) {
-    console.log('Why:');
-    for (const reason of result.intelligence.reasons) {
-      console.log('  - ' + reason);
+    printBuildExplanation(result.intelligence);
+    console.log('');
+  } else if (result.modeOverride?.forced) {
+    console.log('Override:');
+    console.log('  ' + result.modeOverride.reason);
+    for (const [index, line] of (result.modeOverride.explanation || []).entries()) {
+      if (index === 0 && line.endsWith(':')) console.log('  ' + line);
+      else console.log(line.startsWith('- ') ? '  ' + line : '  - ' + line);
     }
     console.log('');
   }
@@ -209,6 +219,26 @@ function printBuildPlan(result) {
   }
   console.log('');
   console.log('Next: ' + result.nextStep);
+}
+
+function printBuildExplanation(intelligence) {
+  console.log('Why:');
+  const explanation = intelligence.explanation?.length ? intelligence.explanation : intelligence.reasons;
+  for (const [index, line] of explanation.entries()) {
+    if (index === 0 && line.endsWith(':')) console.log('  ' + line);
+    else console.log(line.startsWith('- ') ? '  ' + line : '  - ' + line);
+  }
+}
+
+function printBuildEvidence(result) {
+  console.log('Evidence written:');
+  const files = [];
+  if (result.intelligence) {
+    files.push('build-intelligence.json', 'acceptance-criteria.json', 'build-plan.json');
+  }
+  files.push('build-summary.json', 'run-summary.json', 'work-summary.json', 'verify-summary.json');
+  if (result.run?.ship) files.push('ship-summary.json');
+  for (const file of [...new Set(files)]) console.log('  - ' + file);
 }
 
 function usageError(message) {
@@ -588,7 +618,6 @@ function parseApplyArgs(argv) {
     projectRoot: null,
     allowDirty: false,
     force: false,
-    dryRun: false,
     json: false,
   };
   const unknown = [];
@@ -692,6 +721,8 @@ function parseBuildArgs(argv) {
     apply: false,
     allowDirty: false,
     force: false,
+    forceMode: false,
+    explain: false,
     dryRun: false,
     json: false,
   };
@@ -705,6 +736,8 @@ function parseBuildArgs(argv) {
     else if (a === '--strict-quality') opts.strictQuality = true;
     else if (a === '--team') opts.team = true;
     else if (a === '--dry-run') opts.dryRun = true;
+    else if (a === '--force-mode') opts.forceMode = true;
+    else if (a === '--explain') opts.explain = true;
     else if (a === '--mode') {
       const value = argv[++i];
       if (!value || value.startsWith('--')) throw usageError('--mode requires a value');
@@ -1171,7 +1204,7 @@ function checkArgs(argv) {
           projectRoot: resolveProjectRoot(opts.projectRoot),
         });
       } catch (e) {
-        if (/^(build requires|unknown build mode|run requires|verify requires|ship requires|apply requires|team worker|git apply failed)/.test(e?.message || '')) throw usageError(e.message);
+        if (/^(build requires|unknown build mode|run requires|verify requires|ship requires|apply requires|team worker|git apply failed|task appears)/.test(e?.message || '')) throw usageError(e.message);
         throw e;
       }
       if (opts.json) {
@@ -1186,6 +1219,9 @@ function checkArgs(argv) {
           console.log('  task type  : ' + result.intelligence.taskType);
           console.log('  risk       : ' + result.intelligence.risk + (result.intelligence.tags.length ? ` (${result.intelligence.tags.join(',')})` : ''));
         }
+        if (result.modeOverride?.forced) {
+          console.log('  override   : forced despite recommendation ' + result.modeOverride.recommendedMode);
+        }
         console.log('  profile    : ' + (result.profile || 'none'));
         console.log('  team       : ' + (result.team ? `read-only (${result.team.workers.join(',')})` : 'off'));
         console.log('  stopped at : ' + result.run?.stoppedAt);
@@ -1194,6 +1230,12 @@ function checkArgs(argv) {
         console.log('  no ship    : ' + (result.noShip ? 'YES' : 'no'));
         console.log('  ship ready : ' + (result.shipReady ? 'yes' : 'no'));
         console.log('  apply      : ' + (result.applied ? 'applied' : result.run?.applyRequested ? `skipped (${result.run.applySkippedReason || 'not needed'})` : 'not requested'));
+        if (opts.explain && result.intelligence) {
+          console.log('');
+          printBuildExplanation(result.intelligence);
+          console.log('');
+          printBuildEvidence(result);
+        }
       }
       if (!result.dryRun && (result.humanGate || (opts.apply && (result.noShip || result.run?.applySkippedReason)))) process.exit(3);
       break;

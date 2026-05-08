@@ -14,9 +14,12 @@ Preview the planned mode without running workers:
 
 ```bash
 nekowork build "implement this safely" --dry-run
+nekowork build "implement this safely" --explain
 ```
 
 `--dry-run` does not create a session, call providers, write handoffs, or mutate the target project. It only resolves the build mode, profile, stages, workers, task intelligence, and safety invariants.
+
+`--explain` runs the build and then prints the selected mode rationale plus the evidence files written in the session.
 
 By default, `build` uses `--mode auto`. Auto mode classifies the task, chooses one of the safe build presets, selects any needed read-only workers, creates acceptance criteria, and records a mini plan for the single executor.
 
@@ -49,6 +52,19 @@ Example routing:
 | tests, coverage, regression, TDD | `tdd` | strict acceptance evidence and test worker perspective |
 | release notes, changelog, npm package, versioning | `release` | readiness-focused evidence and report path |
 
+Risky explicit overrides are blocked by default:
+
+```bash
+nekowork build "change OAuth token validation" --mode fast
+# blocked: recommended mode is safe
+```
+
+Use `--force-mode` only when the human intentionally accepts the override:
+
+```bash
+nekowork build "change OAuth token validation" --mode fast --force-mode --dry-run
+```
+
 ## Dry-run Preview
 
 Dry-run output shows the same preset resolution used by real builds:
@@ -74,6 +90,17 @@ For automation, add `--json` to read the preview contract:
 ```bash
 nekowork build "change auth token validation" --mode safe --dry-run --json
 ```
+
+## Report Integration
+
+Auto mode writes these evidence files:
+
+- `build-intelligence.json`
+- `build-plan.json`
+- `acceptance-criteria.json`
+- `build-summary.json`
+
+`nekowork report --session <id>` includes a `Build Intelligence` section with requested mode, selected mode, task type, risk tags, workers, and the routing explanation.
 
 ## Safety Invariants
 

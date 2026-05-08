@@ -57,7 +57,22 @@ test('report writes a readable inspect-only session report', () => {
     });
     writeJson(path.join(sessionDir, 'build-summary.json'), {
       sessionId,
-      mode: 'team',
+      mode: 'safe',
+      requested_mode: 'auto',
+      auto_mode: true,
+      build_intelligence: {
+        version: 'build-intelligence-v0',
+        task_type: 'security-sensitive',
+        recommended_mode: 'safe',
+        risk: 'high',
+        tags: ['security'],
+        workers: ['planner', 'security', 'test'],
+        explanation: [
+          'NEKOWORK selected safe mode because:',
+          '- the task mentions auth, token, OAuth, JWT, secret, or session handling',
+          '- Codex challenge is required by risk policy',
+        ],
+      },
       profile: 'quality',
       strict_quality: true,
       ship_ready: false,
@@ -66,6 +81,25 @@ test('report writes a readable inspect-only session report', () => {
       applied: false,
       verdict: 'approve_with_fixes',
       target_project_mutated: false,
+    });
+    writeJson(path.join(sessionDir, 'build-intelligence.json'), {
+      version: 'build-intelligence-v0',
+      taskType: 'security-sensitive',
+      recommendedMode: 'safe',
+      risk: 'high',
+      tags: ['security'],
+      workers: ['planner', 'security', 'test'],
+      explanation: [
+        'NEKOWORK selected safe mode because:',
+        '- the task mentions auth, token, OAuth, JWT, secret, or session handling',
+        '- Codex challenge is required by risk policy',
+      ],
+    });
+    writeJson(path.join(sessionDir, 'build-plan.json'), {
+      source: 'build-intelligence-v0',
+      selected_mode: 'safe',
+      requested_mode: 'auto',
+      mini_plan: ['Use safe mode.'],
     });
     writeJson(path.join(handoffDir, '03-implement.json'), {
       stage: 'implement',
@@ -90,13 +124,21 @@ test('report writes a readable inspect-only session report', () => {
     assert.ok(fs.existsSync(result.reportPath));
     const report = fs.readFileSync(result.reportPath, 'utf8');
     assert.match(report, /NEKOWORK Session Report/);
-    assert.match(report, /Build Mode: team/);
+    assert.match(report, /Build Mode: safe/);
+    assert.match(report, /Build Intelligence/);
+    assert.match(report, /Requested mode: auto/);
+    assert.match(report, /Selected mode: safe/);
+    assert.match(report, /Task type: security-sensitive/);
+    assert.match(report, /Workers: planner, security, test/);
+    assert.match(report, /Codex challenge is required by risk policy/);
     assert.match(report, /AC-001/);
     assert.match(report, /Quality Warnings/);
     assert.match(report, /05-codex-review\.json/);
     const summary = JSON.parse(fs.readFileSync(path.join(sessionDir, 'report-summary.json'), 'utf8'));
     assert.equal(summary.target_project_mutated, false);
-    assert.equal(summary.mode, 'team');
+    assert.equal(summary.mode, 'safe');
+    assert.equal(summary.requestedMode, 'auto');
+    assert.equal(summary.buildIntelligence.taskType, 'security-sensitive');
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }

@@ -2,15 +2,16 @@
 
 Status date: 2026-05-08
 
-NEKOWORK is release-ready for local use, repository-based installation, and public npm alpha installation. The current public npm alpha is `0.1.0-alpha.6`.
+NEKOWORK is release-ready for local use, repository-based installation, and public npm alpha installation. The current repository candidate is `0.1.0-alpha.7`; the current public npm alpha remains `0.1.0-alpha.6` until the owner explicitly publishes alpha.7.
 
 ## Decision
 
 - Decision: do not publish 0.0.3 to npm.
+- Repository candidate: `0.1.0-alpha.7`.
 - Public alpha: `0.1.0-alpha.6`, published with `--tag alpha`.
 - `package.json` is set to `private: false` for the public alpha.
 - The canonical repo is `Ps-Neko/NEKOWORK`.
-- Current repository version is `0.1.0-alpha.6`; npm `@alpha` points at the published `0.1.0-alpha.6`.
+- Current repository version is `0.1.0-alpha.7`; npm `@alpha` points at the published `0.1.0-alpha.6`.
 - GitHub prerelease: `v0.1.0-alpha.6`.
 - Required local provider auth is delegated CLI auth, not long-lived API keys.
 - Core workflow invariant is Claude work -> Codex verification -> Human Gate.
@@ -23,6 +24,17 @@ NEKOWORK is release-ready for local use, repository-based installation, and publ
 GitHub Release:
 
 - https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.6
+
+## 0.1.0-alpha.7 Candidate Scope
+
+The `0.1.0-alpha.7` candidate scope is Build Intelligence reliability:
+
+- `build` defaults to task-aware auto routing
+- `build-intelligence` has a dedicated routing matrix test file
+- `build --dry-run` and `build --explain` expose human-readable routing reasons
+- `REPORT.md` includes a Build Intelligence section
+- risky explicit mode overrides are blocked unless `--force-mode` is present
+- apply remains explicit and evidence-gated
 
 ## 0.1.0-alpha.6 Release Scope
 
@@ -71,7 +83,7 @@ Current local verification after the decomposed workflow expansion:
 - `npm run lint`: pass
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
-- `npm test`: 272 tests pass
+- `npm test`: 277 tests pass
 - `npm run demo:quick -- --cleanup`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
