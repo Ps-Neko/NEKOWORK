@@ -1,14 +1,20 @@
 {
   "name": "@ps-neko/nekowork",
   "version": "0.1.0-alpha.5",
-  "description": "Local-first AI development harness for Claude Code, Codex CLI, and Gemini CLI",
+  "description": "Local-first AI development quality runtime that verifies, gates, and explicitly applies AI coding changes",
   "keywords": [
     "claude",
     "claude-code",
     "codex",
     "ai-agent",
+    "ai-code-review",
+    "ai-safety",
     "code-review",
+    "human-gate",
+    "local-first",
     "second-opinion",
+    "ship-readiness",
+    "verification",
     "mcp",
     "harness",
     "multi-agent"

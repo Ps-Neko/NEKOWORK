@@ -34,6 +34,8 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
+**Latest alpha evidence:** [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) / [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) / [smoke transcript](docs/DEMO.md#one-minute-terminal-transcript) / [report artifact](docs/DEMO-REPORT.md)
+
 **One-minute demo:** [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) / [full report example](docs/DEMO-REPORT.md) / [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) / [roadmap](docs/ROADMAP.md)
 
 ![NEKOWORK one-minute terminal demo](docs/assets/demo-terminal.svg)
@@ -107,6 +109,22 @@ Decision:
 
 Human Gate is the point where NEKOWORK stops being an autopilot and becomes an approval system.
 
+## Apply Preview
+
+Before `apply`, NEKOWORK expects the human to inspect the evidence surface:
+
+```text
+Session: first-work
+Diff source: captured live-work diff
+Files changed: 3
+Verifier verdict: approve
+Human gate: clear
+Ship ready: true
+Apply command: node scripts/cli.js apply --session first-work
+```
+
+`apply` still does not commit, push, publish, deploy, or create a PR. It only applies the verified `SHIP_READY` diff when gates are clear and the target worktree is clean.
+
 ## Compared With Agent Packs
 
 | Tool pattern | Optimizes for | NEKOWORK optimizes for |
@@ -125,6 +143,8 @@ Human Gate is the point where NEKOWORK stops being an autopilot and becomes an a
 | Simulate startup team roles from planning to QA | GStack |
 | Run autonomous multi-agent execution | OMC |
 | Verify AI changes, require human approval, then apply explicitly | NEKOWORK |
+
+Use Superpowers, Everything Claude Code, GStack, or OMC to produce stronger AI work when they fit your workflow. Use NEKOWORK to verify, gate, report, and apply that work safely.
 
 ## Three Paths
 
@@ -181,21 +201,11 @@ Current local verification:
 | `release` | ship/no-ship evidence | pre-release checks |
 | `enterprise` | full catalog with all gates | high-control teams |
 
-## Quick Start
+## Quick Start Details
 
-Requirements:
+Requirements: Node.js 22+, npm, and git.
 
-- Node.js 22+
-- npm
-- git
-
-Fastest no-API demo:
-
-```bash
-npx -y @ps-neko/nekowork@alpha check
-```
-
-Repository demo:
+For a repository-pinned local demo:
 
 ```bash
 git clone https://github.com/Ps-Neko/NEKOWORK.git harness
@@ -206,40 +216,12 @@ npm run demo:quick -- --cleanup
 
 This creates a disposable target project and runs `doctor -> run -> report -> gate status`. It uses mock providers and does not call Claude, Codex, Gemini, or paid APIs.
 
-Recommended path for most users:
-
-```bash
-git clone https://github.com/Ps-Neko/NEKOWORK.git harness
-cd harness
-npm ci
-node scripts/cli.js check
-node scripts/cli.js run "implement, verify, and prepare ship readiness" --session first-run
-node scripts/cli.js report --session first-run
-node scripts/cli.js gate status --session first-run
-```
-
-`run` executes `work -> verify -> ship`. `report` turns the session evidence into a readable `REPORT.md`. It does not apply by default. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
-
 To initialize another local repository with the published alpha:
 
 ```bash
 cd /path/to/my-project
 npx -y @ps-neko/nekowork@alpha init --profile developer --project-root .
 ```
-
-Advanced path:
-
-```text
-ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
-```
-
-Legacy compatibility smoke:
-
-```bash
-node scripts/cli.js review "check the project setup" --no-ship --session first-smoke
-```
-
-The default review path uses mock providers, so it does not need API keys or provider CLIs.
 
 For the fuller first-run guide, see [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
@@ -253,7 +235,7 @@ npm run demo:external
 
 To inspect small case-study targets, see [examples/trading-dashboard-mock](examples/trading-dashboard-mock), [examples/github-actions-hardening](examples/github-actions-hardening), [examples/quality-lifecycle-smoke](examples/quality-lifecycle-smoke), and [docs/case-studies](docs/case-studies). They demonstrate financial UI, CI workflow, quality lifecycle, npm package, auth parser, Python protocol library, and environment configuration flows while still preserving Codex verification, Human Gate policy, and explicit apply control.
 
-## What You Get
+## Output Shape
 
 ```text
 doctor ... OK
@@ -270,25 +252,14 @@ Outputs are written under:
 .harness/state/sessions/<session-id>/REPORT.md
 ```
 
-## Use It In Another Project
-
-Shortest npm alpha install shape:
-
-```bash
-cd <target-project>
-npx -y @ps-neko/nekowork@alpha init --profile developer --project-root .
-npx -y @ps-neko/nekowork@alpha check --project-root .
-```
-
-Repository-pinned install shape:
+## Repository-Pinned Install
 
 ```bash
 cd <target-project>
 git submodule add https://github.com/Ps-Neko/NEKOWORK.git .harness-tool
 node .harness-tool/scripts/portability/simulate-port.js . --profile developer --verbose
 node .harness-tool/scripts/install-apply.js --profile developer --project-root .
-node .harness-tool/scripts/cli.js doctor --project-root . --quick
-node .harness-tool/scripts/cli.js plan "first NEKOWORK smoke" --project-root .
+node .harness-tool/scripts/cli.js check --project-root .
 ```
 
 The HARNESS tool root stays in `.harness-tool/`. Session state, generated harness files, and git work happen in the target project root.
