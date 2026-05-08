@@ -65,6 +65,8 @@ export function reportSession(opts) {
 function readSessionEvidence(sessionDir) {
   return {
     summaries: Object.fromEntries(SUMMARY_FILES.map(file => [file, readJson(path.join(sessionDir, file))])),
+    buildIntelligence: readJson(path.join(sessionDir, 'build-intelligence.json')),
+    buildPlan: readJson(path.join(sessionDir, 'build-plan.json')),
     acceptance: readJson(path.join(sessionDir, 'acceptance-criteria.json')),
     markers: Object.fromEntries(MARKERS.map(name => [name, readMarker(path.join(sessionDir, name))])),
     handoffs: readHandoffs(path.join(sessionDir, 'handoffs')),
@@ -143,6 +145,7 @@ function buildSummary({ sessionId, sessionDir, data, status }) {
   const apply = data.summaries['apply-summary.json'];
   const profile = build?.profile || run?.profile || verify?.profile || work?.profile || data.summaries['ask.json']?.profile || null;
   const verdict = build?.verdict || run?.verdict || ship?.verdict || verify?.verdict || null;
+  const buildIntelligence = data.buildIntelligence || build?.build_intelligence || null;
 
   return {
     sessionId,
@@ -150,6 +153,8 @@ function buildSummary({ sessionId, sessionDir, data, status }) {
     status,
     verdict,
     mode: build?.mode || null,
+    requestedMode: build?.requested_mode || null,
+    buildIntelligence,
     profile,
     strictQuality: Boolean(build?.strict_quality || run?.strict_quality || verify?.strict_quality),
     strictQualityBlocked: Boolean(run?.strict_quality_blocked || verify?.strict_quality_blocked),
@@ -196,11 +201,41 @@ function renderReport({ sessionId, sessionDir, generatedAt, data, status }) {
   lines.push(`- Target Project Mutated: ${summary.targetProjectMutated ? 'yes' : 'no'}`);
   lines.push(`- Next Step: ${summary.nextStep}`);
   lines.push('');
+  addBuildIntelligenceSection(lines, data, summary);
   addAcceptanceSection(lines, data);
   addWarningsSection(lines, summary.qualityWarnings);
   addHandoffsSection(lines, data.handoffs);
   addEvidenceSection(lines, data, sessionDir);
   return lines.join('\n') + '\n';
+}
+
+function addBuildIntelligenceSection(lines, data, summary) {
+  const intelligence = data.buildIntelligence || summary.buildIntelligence;
+  const build = data.summaries['build-summary.json'];
+  if (!intelligence && !build?.build_intelligence) return;
+
+  const info = intelligence || build.build_intelligence;
+  const selectedMode = build?.mode || info.recommended_mode || summary.mode || 'n/a';
+  const requestedMode = build?.requested_mode || summary.requestedMode || (build?.auto_mode ? 'auto' : selectedMode);
+  const workers = info.workers || build?.team_workers || [];
+  const reasons = info.explanation || info.reasons || [];
+
+  lines.push('## Build Intelligence');
+  lines.push('');
+  lines.push(`- Requested mode: ${requestedMode}`);
+  lines.push(`- Selected mode: ${selectedMode}`);
+  lines.push(`- Task type: ${info.taskType || info.task_type || 'n/a'}`);
+  lines.push(`- Risk: ${info.risk || 'n/a'}${info.tags?.length ? ` (${info.tags.join(', ')})` : ''}`);
+  lines.push(`- Workers: ${workers.length ? workers.join(', ') : 'none'}`);
+  lines.push('');
+  if (reasons.length) {
+    lines.push('Why:');
+    for (const [index, reason] of reasons.entries()) {
+      if (index === 0 && reason.endsWith(':')) lines.push(reason);
+      else lines.push(reason.startsWith('- ') ? reason : `- ${reason}`);
+    }
+    lines.push('');
+  }
 }
 
 function addAcceptanceSection(lines, data) {
@@ -258,6 +293,8 @@ function addEvidenceSection(lines, data, sessionDir) {
   lines.push('');
   const files = [
     ...SUMMARY_FILES.filter(file => data.summaries[file]),
+    data.buildIntelligence ? 'build-intelligence.json' : null,
+    data.buildPlan ? 'build-plan.json' : null,
     data.acceptance ? 'acceptance-criteria.json' : null,
     ...MARKERS.filter(name => data.markers[name]),
   ].filter(Boolean);

@@ -1,10 +1,10 @@
 # Public Alpha Publish Record
 
-NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.6`.
+NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.6`. The repository is currently preparing `0.1.0-alpha.7`.
 
 Do not publish from the `0.0.3` line.
 
-The repository metadata is on `0.1.0-alpha.6` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, `0.1.0-alpha.5`, and `0.1.0-alpha.6` publishes succeeded on 2026-05-08 and moved the `alpha` dist-tag forward.
+The repository metadata is on `0.1.0-alpha.7` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, `0.1.0-alpha.5`, and `0.1.0-alpha.6` publishes succeeded on 2026-05-08 and moved the `alpha` dist-tag forward. Do not publish alpha.7 until the owner explicitly approves.
 
 The matching Git tag and GitHub prerelease are published as `v0.1.0-alpha.6`:
 

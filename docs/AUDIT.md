@@ -2,13 +2,13 @@
 
 Status date: 2026-05-08
 
-This audit summarizes the current NEKOWORK state after publishing the `0.1.0-alpha.6` public alpha.
+This audit summarizes the current NEKOWORK state after publishing the `0.1.0-alpha.6` public alpha and preparing the `0.1.0-alpha.7` repository candidate.
 
 ## Current Status
 
 | Area | Status | Notes |
 |---|---|---|
-| Package metadata | OK | repository version `@ps-neko/nekowork@0.1.0-alpha.6`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness`, matching version, and `nekowork`/`harness` CLI bins |
+| Package metadata | OK | repository version `@ps-neko/nekowork@0.1.0-alpha.7`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness`, matching version, and `nekowork`/`harness` CLI bins |
 | npm publish | OK | `@ps-neko/nekowork@alpha` points at `0.1.0-alpha.6` |
 | Source install | OK | Clone, local checkout, and submodule workflows are documented |
 | Public npm alpha | OK | `docs/PUBLISH-ALPHA.md` records alpha publishes through `0.1.0-alpha.6` |
@@ -55,7 +55,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 272 tests pass
+- `npm test`: 277 tests pass
 - quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass

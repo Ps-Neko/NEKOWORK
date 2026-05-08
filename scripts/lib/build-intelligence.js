@@ -34,6 +34,7 @@ export function analyzeBuildIntent({ task = '' } = {}) {
     requiresHumanGate: classification.requiresHumanGate,
     signals,
     reasons: buildReasons(recommendedMode, taskType, signals, classification),
+    explanation: buildExplanation(recommendedMode, taskType, signals, classification, workers),
     acceptanceCriteria: buildAcceptanceCriteria(text, taskType, recommendedMode),
     miniPlan: buildMiniPlan(recommendedMode, taskType),
     selfCheck: buildSelfCheck(recommendedMode, taskType),
@@ -104,6 +105,29 @@ function buildReasons(mode, taskType, signals, classification) {
   if (signals.productUi) reasons.push('product_ui_signal');
   reasons.push(`selected_mode=${mode}`);
   return reasons;
+}
+
+function buildExplanation(mode, taskType, signals, classification, workers) {
+  const lines = [`NEKOWORK selected ${mode} mode because:`];
+
+  if (taskType === 'security-sensitive') lines.push('- the task mentions auth, token, OAuth, JWT, secret, or session handling');
+  else if (taskType === 'financial-sensitive') lines.push('- the task touches payment, billing, trading, order, or financial flow semantics');
+  else if (taskType === 'data-sensitive') lines.push('- the task touches database, migration, schema, deletion, or sensitive data boundaries');
+  else if (taskType === 'deploy-sensitive') lines.push('- the task touches deployment, production, CI/CD, cloud, or infrastructure workflow changes');
+  else if (taskType === 'release-readiness') lines.push('- the task is release, changelog, package, publish, or versioning oriented');
+  else if (taskType === 'test-focused') lines.push('- the task asks for tests, coverage, regression, or TDD-oriented evidence');
+  else if (taskType === 'product-ui') lines.push('- the task is user-facing UI/product work that benefits from read-only multi-perspective review');
+  else if (taskType === 'documentation') lines.push('- the task is documentation-scoped and low risk');
+  else lines.push('- the task appears to be a low-risk implementation change');
+
+  if (classification.tags.length) lines.push(`- risk classifier tags: ${classification.tags.join(', ')}`);
+  lines.push(`- risk level is ${classification.risk}`);
+  if (classification.requiresCodexChallenge) lines.push('- Codex challenge is required by risk policy');
+  if (classification.requiresHumanGate) lines.push('- Human Gate may be required before ship/apply');
+  if (workers.length) lines.push(`- read-only workers selected before implementation: ${workers.join(', ')}`);
+  lines.push('- apply remains explicit and evidence-gated');
+
+  return lines;
 }
 
 function buildAcceptanceCriteria(task, taskType, mode) {

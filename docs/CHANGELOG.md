@@ -4,13 +4,19 @@
 
 ## [Unreleased]
 
+## [0.1.0-alpha.7] - 2026-05-08 (candidate)
+
 ### Added
 - Add Build Intelligence v0 for `build --mode auto`, including task classification, safe preset routing, worker selection, acceptance criteria, mini plan, and self-check artifacts.
 - Add `build --dry-run` to preview mode presets, stages, workers, and apply policy without creating session state.
+- Add `build --explain` to print routing rationale and session evidence after a real build.
+- Add `REPORT.md` Build Intelligence section for auto-routed sessions.
+- Add dedicated Build Intelligence routing matrix tests.
 
 ### Changed
 - Clarify the naming contract: NEKOWORK remains the product and `nekowork` the primary CLI, while `harness` is a legacy/internal alias.
 - Reword public positioning around local-first AI development runtime and Safe Build Modes instead of promoting an OS name.
+- Block risky explicit mode overrides unless `--force-mode` is provided.
 
 ## [0.1.0-alpha.6] - 2026-05-08
 

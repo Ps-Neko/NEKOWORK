@@ -1,7 +1,7 @@
 spec_version: gitagent/0.1.0
 name: nekowork
 runtime_name: harness
-version: 0.1.0-alpha.6
+version: 0.1.0-alpha.7
 description: "NEKOWORK - Local-first AI development runtime for fast, verified code changes"
 license: MIT
 homepage: https://github.com/Ps-Neko/NEKOWORK

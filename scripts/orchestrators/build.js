@@ -115,6 +115,7 @@ export async function buildCycle(opts) {
     requestedMode: config.requestedMode,
     autoMode: config.autoMode,
     intelligence: config.intelligence,
+    modeOverride: config.modeOverride,
     profile,
     strictQuality,
     secure,
@@ -144,6 +145,7 @@ export function buildPlan(opts) {
     autoMode: config.autoMode,
     modeDescription: preset.description,
     intelligence: config.intelligence,
+    modeOverride: config.modeOverride,
     profile,
     strictQuality,
     secure,
@@ -196,6 +198,14 @@ function resolveBuildConfig(opts) {
   const intelligence = requestedMode === 'auto'
     ? analyzeBuildIntent({ task: opts.task })
     : null;
+  const explicitModeRecommendation = requestedMode === 'auto'
+    ? null
+    : analyzeBuildIntent({ task: opts.task });
+  const modeOverride = modeOverridePolicy({
+    requestedMode,
+    recommendation: explicitModeRecommendation,
+    forceMode: Boolean(opts.forceMode),
+  });
   const selectedMode = intelligence?.recommendedMode || requestedMode;
   const preset = buildModePreset(selectedMode);
   const sessionId = opts.sessionId || `build-${Date.now()}`;
@@ -210,6 +220,7 @@ function resolveBuildConfig(opts) {
     requestedMode,
     autoMode: requestedMode === 'auto',
     intelligence,
+    modeOverride,
     sessionId,
     profile,
     strictQuality,
@@ -217,6 +228,44 @@ function resolveBuildConfig(opts) {
     teamRun,
     teamWorkers,
   };
+}
+
+function modeOverridePolicy({ requestedMode, recommendation, forceMode }) {
+  if (requestedMode === 'auto' || !recommendation) {
+    return {
+      checked: false,
+      forced: false,
+      blocked: false,
+      recommendedMode: null,
+      reason: null,
+      explanation: [],
+    };
+  }
+
+  const riskyRecommendedSafe = recommendation.recommendedMode === 'safe' && requestedMode !== 'safe';
+  const policy = {
+    checked: true,
+    forced: Boolean(forceMode && riskyRecommendedSafe),
+    blocked: Boolean(riskyRecommendedSafe && !forceMode),
+    requestedMode,
+    recommendedMode: recommendation.recommendedMode,
+    taskType: recommendation.taskType,
+    risk: recommendation.risk,
+    tags: recommendation.tags,
+    reason: riskyRecommendedSafe
+      ? `task appears ${recommendation.taskType}; recommended mode is safe but ${requestedMode} was requested`
+      : null,
+    explanation: riskyRecommendedSafe ? recommendation.explanation : [],
+  };
+
+  if (policy.blocked) {
+    const err = new Error(`${policy.reason}. Use --mode safe or pass --force-mode to continue with ${requestedMode}.`);
+    err.code = 'BUILD_MODE_OVERRIDE_BLOCKED';
+    err.policy = policy;
+    throw err;
+  }
+
+  return policy;
 }
 
 function availableModes() {
@@ -249,6 +298,7 @@ function writeIntelligenceArtifacts(sessionDir, task, config) {
     mini_plan: config.intelligence.miniPlan,
     self_check: config.intelligence.selfCheck,
     reasons: config.intelligence.reasons,
+    explanation: config.intelligence.explanation,
     updated_at: new Date().toISOString(),
   }, null, 2));
 }
@@ -269,8 +319,10 @@ function writeSummary(result, preset) {
       risk: result.intelligence.risk,
       tags: result.intelligence.tags,
       reasons: result.intelligence.reasons,
+      explanation: result.intelligence.explanation,
       workers: result.intelligence.workers,
     } : null,
+    mode_override: result.modeOverride || null,
     profile: result.profile,
     strict_quality: result.strictQuality,
     secure: result.secure,

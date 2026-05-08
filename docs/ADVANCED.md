@@ -190,7 +190,7 @@ Outputs:
 
 ```bash
 node scripts/cli.js build "implement this safely" --dry-run
-node scripts/cli.js build "implement this safely" --session build-smoke
+node scripts/cli.js build "implement this safely" --explain --session build-smoke
 node scripts/cli.js build "auth-sensitive change" --mode safe --session auth-smoke
 node scripts/cli.js build "scope with team thinking" --mode team --session team-smoke
 ```
@@ -204,6 +204,8 @@ Rules:
 - `tdd` uses strict quality and acceptance evidence.
 - `release` focuses on ship/readiness and report evidence.
 - `--dry-run` previews auto routing, preset resolution, stages, workers, and safety invariants without writing session state.
+- `--explain` prints routing rationale and evidence files after the build.
+- `--force-mode` is required when a risky task is manually forced away from the recommended `safe` mode.
 - `apply` is never implicit; use `--apply` only for verified live-work diffs.
 
 Outputs:

@@ -117,6 +117,25 @@ test('CLI build --mode auto routes release work to release preset', () => {
   }
 });
 
+test('CLI build blocks unsafe explicit fast override unless --force-mode is present', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-build-override-'));
+  try {
+    const blocked = runCli(['build', 'change OAuth token validation', '--mode', 'fast', '--dry-run', '--session', 'unit-cli-build-override-blocked', '--project-root', projectRoot, '--json']);
+    assert.equal(blocked.status, 2, blocked.stdout || blocked.stderr);
+    assert.match(blocked.stderr, /recommended mode is safe/);
+    assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-build-override-blocked')));
+
+    const forced = runCli(['build', 'change OAuth token validation', '--mode', 'fast', '--force-mode', '--dry-run', '--session', 'unit-cli-build-override-forced', '--project-root', projectRoot, '--json']);
+    assert.equal(forced.status, 0, forced.stderr || forced.stdout);
+    const preview = JSON.parse(forced.stdout);
+    assert.equal(preview.mode, 'fast');
+    assert.equal(preview.modeOverride.forced, true);
+    assert.equal(preview.modeOverride.recommendedMode, 'safe');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 function runCli(args) {
   return spawnSync(process.execPath, [CLI, ...args], {
     cwd: ROOT,

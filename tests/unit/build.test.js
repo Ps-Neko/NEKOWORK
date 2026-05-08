@@ -295,6 +295,25 @@ test('build plan keeps team workers and explicit apply preview visible', () => {
   assert.match(plan.stages.find(s => s.stage === 'apply').condition, /SHIP_READY/);
 });
 
+test('build blocks risky explicit fast mode unless force-mode is used', () => {
+  assert.throws(() => buildPlan({
+    task: 'change OAuth token validation',
+    mode: 'fast',
+    sessionId: 'unit-build-unsafe-fast',
+  }), /recommended mode is safe.*--force-mode/);
+
+  const forced = buildPlan({
+    task: 'change OAuth token validation',
+    mode: 'fast',
+    sessionId: 'unit-build-forced-fast',
+    forceMode: true,
+  });
+  assert.equal(forced.mode, 'fast');
+  assert.equal(forced.modeOverride.forced, true);
+  assert.equal(forced.modeOverride.recommendedMode, 'safe');
+  assert.equal(forced.modeOverride.taskType, 'security-sensitive');
+});
+
 function dispatcher(calls, options = {}) {
   return async (args) => {
     calls.push(args);

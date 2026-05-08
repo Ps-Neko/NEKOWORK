@@ -75,7 +75,7 @@ The phases mean:
 | `report` | Summarize session evidence into readable audit output. | No project mutation |
 | `apply` | Apply a verified `SHIP_READY` live-work diff to the target project. | Controlled project mutation |
 | `run` | Convenience wrapper for `work -> verify -> ship`, optional `apply`. | Wrapper; mutation only with `--apply` |
-| `build` | One-command builder wrapper with default `auto` routing plus `fast`, `safe`, `team`, `tdd`, and `release` modes. | Wrapper; same apply controls |
+| `build` | One-command builder wrapper with default `auto` routing plus `fast`, `safe`, `team`, `tdd`, and `release` modes. Risky overrides require `--force-mode`. | Wrapper; same apply controls |
 
 For the current alpha line, `review` remains the legacy full cycle, and `review-cycle` is an explicit compatibility alias:
 

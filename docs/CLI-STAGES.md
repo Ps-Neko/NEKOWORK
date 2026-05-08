@@ -28,7 +28,7 @@ Most users should start with this Beginner path:
 doctor -> build -> report -> gate status
 ```
 
-`build` is the short safe wrapper for one-command use. It defaults to `auto`, which classifies task intent and chooses a mode preset over the same evidence loop. `fast`, `safe`, `team`, `tdd`, and `release` tune profile, strictness, Codex challenge, and read-only team thinking; none of them apply by default.
+`build` is the short safe wrapper for one-command use. It defaults to `auto`, which classifies task intent and chooses a mode preset over the same evidence loop. `fast`, `safe`, `team`, `tdd`, and `release` tune profile, strictness, Codex challenge, and read-only team thinking; none of them apply by default. Risky manual overrides away from the recommended `safe` mode require `--force-mode`.
 
 Advanced path:
 

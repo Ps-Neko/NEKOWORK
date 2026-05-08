@@ -30,7 +30,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 8 packs / 10 profiles / 36 components / 5 harness targets / 7 case-study flows / 272 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
+**Public alpha evidence:** 8 packs / 10 profiles / 36 components / 5 harness targets / 7 case-study flows / 277 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -73,7 +73,7 @@ node scripts/cli.js gate status --session first-run
 
 The simple paths map to the evidence loop: `check = doctor --quick`, `build = auto routing plus mode presets over run`, and `run = work -> verify -> ship`.
 
-Use `build --dry-run` when you want to preview auto routing, mode, profile, workers, stages, and apply policy before running providers or writing session state.
+Use `build --dry-run` when you want to preview auto routing, mode, profile, workers, stages, and apply policy before running providers or writing session state. Use `build --explain` when you want the same routing rationale and evidence list after a real build.
 
 To add generated harness surfaces to another local repository:
 
@@ -177,10 +177,11 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 ## Status
 
-- Current repository version: `0.1.0-alpha.6`
+- Current repository version: `0.1.0-alpha.7`
 - Current package name: `@ps-neko/nekowork`
 - Published CLI names: `nekowork` and `harness`
 - Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.6`
+- Current npm alpha.7 status: repository candidate only; publish requires owner approval
 - Supported install path today: npm alpha, clone, submodule, or local repository integration
 - Dist-tag note: use `@alpha` until a stable release; `latest` still points at the first alpha line
 - Default mode: mock providers, no API keys, no provider CLI calls
@@ -188,7 +189,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 272 tests pass
+- `npm test`: 277 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
@@ -328,6 +329,8 @@ Advanced features such as `team-lite`, `ralph`, `wait`, instincts, cost tracking
 
 Use `build "<task>"` when NEKOWORK should be the single entrypoint. It defaults to `--mode auto`, classifies the task, selects `fast`, `safe`, `team`, `tdd`, or `release`, records build intelligence, and still uses one executor for writes, Codex verification before ship, and explicit apply only. Use an explicit `--mode` when you need to override the router.
 
+Risky explicit overrides are protected. For example, `build "change OAuth token validation" --mode fast` is blocked because auto routing recommends `safe`; use `--mode safe` or add `--force-mode` only when you intentionally accept that override.
+
 Use `--profile quality` or `--profile security` on `work`, `verify`, and `run` when a task needs stronger evidence prompts. Add `--strict-quality` to `verify`, `run`, or `build` when missing evidence or acceptance coverage should become a fix-required verdict before ship.
 
 Use official packs when choosing an install shape:
@@ -416,7 +419,7 @@ npm run security:hardening
 npm pack --dry-run --json
 ```
 
-`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.6.tgz`. It does not publish.
+`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.7.tgz`. It does not publish.
 
 ## Documentation
 
