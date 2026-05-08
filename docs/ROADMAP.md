@@ -31,7 +31,7 @@ Released scope:
 - Make `npx @alpha init --project-root .` the shortest documented target-project install path.
 - Keep `@alpha check` smoke evidence green across local and GitHub Actions gates.
 
-## 0.1.0-alpha.5 Candidate
+## 0.1.0-alpha.6 Candidate
 
 Goal: gather external feedback and keep the release path boring.
 
