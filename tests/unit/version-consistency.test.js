@@ -78,8 +78,13 @@ test('Korean README keeps the GitHub landing page thesis and install path', () =
   const ko = read('README.ko.md');
 
   assert.match(ko, /\[English\]\(README\.md\)/);
-  assert.match(ko, /AI 코드 변경을 위한 검증형 오토파일럿/);
-  assert.match(ko, /AI가 만들고, Codex가 검증하고, 사람은 최종 경계를 승인합니다/);
+  assert.match(ko, /한국어 요약본입니다/);
+  assert.match(ko, /AI 코드 변경을 위한 검증 기반 오토파일럿/);
+  assert.match(ko, /AI가 만들고, Codex가 검증하고, 사람은 최종 적용 경계를 승인합니다/);
+  assert.match(ko, /Node\.js 22\+/);
+  assert.match(ko, /안전한 기본값/);
+  assert.match(ko, /evidence: 실행과 검증 결과로 남는 증거 파일/);
+  assert.match(ko, /실제 provider를 사용할 때는 Claude, Codex, Gemini 같은 로컬 CLI 인증을 우선 사용합니다/);
   assert.match(ko, /npx -y @ps-neko\/nekowork@alpha check/);
   assert.match(ko, /Risk: provider-auth \/ long-lived-secret/);
   assert.match(ko, /Applied: false/);
