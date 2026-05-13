@@ -145,3 +145,76 @@ blocked: HUMAN_GATE open
 - 시각 시안: `.tmp_ecc/cli-design/index.html` (Before/After 5쌍 + 원칙 6 + 미정 5)
 - 현행 도움말 캡처: 본 문서 작성 시 `node scripts/cli.js --help` 출력 기반
 - 관련 기존 문서: `docs/CLI-STAGES.md`, `docs/NAMING.md`, `docs/QUICKSTART.md`
+
+## Phase 1a 적용 후 실제 캡처 (참고)
+
+> 본 섹션은 Phase 1a 구현 직후 자동 갱신본. 후속 Phase에서 동일 명령의 출력이 바뀌면 이 섹션도 갱신.
+
+### `nekowork` (단독)
+
+```text
+
+  ● NEKOWORK 0.1.0-alpha.8
+  project: D:\claude\harness-cli-ux-phase1a  ·  installed: yes  ·  sessions: 84
+
+처음이라면 →
+  1.  nekowork check          환경 진단 (30초)
+  2.  nekowork init           프로필 설치 (1분)
+  3.  nekowork run "<task>"    첫 풀 사이클 실행
+
+자주 쓰는 흐름 →
+  work → verify → ship → apply     사람·게이트 통과 풀 사이클
+  run                              위 4단계 자동 래퍼
+  sessions                         진행 중 / 완료 세션 목록
+
+  전체 명령은  'nekowork help all'
+  항목별은    'nekowork help <verb>'
+
+```
+
+### `nekowork work "doc capture demo"`
+
+```text
+
+  ✓ work 완료              round 1 · 2 files
+  session  work-2026-05-13-8779
+  diff     (none — 다음 단계에서 생성)
+  codex    not run
+  ship     not run
+
+Next →
+  nekowork verify --session 8779  Codex 검증 (필수)
+  nekowork report --session 8779  evidence 미리 보기
+  nekowork gate status --session 8779  HUMAN_GATE 확인
+
+```
+
+### `nekowork verify "doc capture demo" --session 8779`
+
+```text
+
+  ✓ verify 완료            round 1 · 1 files reviewed
+  session  work-2026-05-13-8779
+  codex    ok
+  verdict  approve_with_fixes
+  gate     clear
+
+Next →
+  nekowork ship --session 8779  ship 준비 확인
+  nekowork report --session 8779  REPORT.md 생성
+  nekowork gate status --session 8779  gate 상태
+
+```
+
+### `nekowork work` (인수 누락 에러)
+
+```text
+✗ task 인수가 필요합니다.
+
+  예시:
+    nekowork work "BOM 출력 컬럼에 단가 추가"
+    nekowork work "타이틀바 다크모드"
+
+  도움말: nekowork help work
+
+```
