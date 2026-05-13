@@ -63,6 +63,7 @@ parallel-candidates.json
 candidate-verification.json
 candidate-arbiter.json
 canonical-candidate.json
+canonical-verify-summary.json
 acceptance-criteria.json
 build-summary.json
 run-summary.json

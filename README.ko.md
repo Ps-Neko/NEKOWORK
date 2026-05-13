@@ -170,7 +170,7 @@ NEKOWORK는 하나의 거대한 agent 묶음이 아니라, 일을 나누고 검�
 
 아직 의도적으로 partial인 패턴:
 
-- 병렬 처리: `auto --parallel-candidates N` preview는 isolated candidate evidence, candidate verification, arbiter 선택, canonical-candidate evidence를 남기지만 아직 ship-ready diff로 자동 승격하지 않습니다.
+- 병렬 처리: `auto --parallel-candidates N` preview는 isolated candidate evidence, candidate verification, arbiter 선택, final Codex verification, ship readiness까지 연결합니다. `apply`는 여전히 명시적으로만 실행됩니다.
 - 메모리 루프: `instincts`, `wait`, `ralph`가 기반이지만 자동 승격은 하지 않습니다.
 - 진화 루프: 관찰은 자동화하되 채택은 사람이 검토합니다.
 
@@ -192,7 +192,7 @@ NEKOWORK는 하나의 거대한 agent 묶음이 아니라, 일을 나누고 검�
 - Current alpha: `0.1.0-alpha.8`
 - CLI: `nekowork`
 - Legacy/internal alias: `harness`
-- Tests: 299 pass
+- Tests: 344 pass
 - npm audit: 0 moderate+ issues
 - Fresh `npx @alpha` smoke: pass
 

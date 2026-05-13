@@ -131,8 +131,9 @@ Planned scope:
 - Run candidate workers in isolated worktrees, temp projects, or isolated diff captures.
 - Record candidate patches as evidence, not ship-ready output.
 - Verify candidate patches as evidence before arbitration.
-- Produce an arbiter summary and canonical-candidate evidence that do not yet promote a ship-ready final diff.
-- Keep final Codex verification on the normal canonical auto build path until candidate promotion exists.
+- Produce an arbiter summary and canonical-candidate evidence.
+- Promote a clean selected candidate into canonical handoffs after final Codex verification.
+- Run ship readiness on the promoted canonical candidate while keeping apply explicit.
 - Report candidate decisions in `REPORT.md`.
 
 Non-goals:

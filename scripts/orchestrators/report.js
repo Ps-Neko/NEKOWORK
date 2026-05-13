@@ -72,6 +72,7 @@ function readSessionEvidence(sessionDir) {
     candidateVerification: readJson(path.join(sessionDir, 'candidate-verification.json')),
     candidateArbiter: readJson(path.join(sessionDir, 'candidate-arbiter.json')),
     canonicalCandidate: readJson(path.join(sessionDir, 'canonical-candidate.json')),
+    canonicalVerify: readJson(path.join(sessionDir, 'canonical-verify-summary.json')),
     acceptance: readJson(path.join(sessionDir, 'acceptance-criteria.json')),
     markers: Object.fromEntries(MARKERS.map(name => [name, readMarker(path.join(sessionDir, name))])),
     handoffs: readHandoffs(path.join(sessionDir, 'handoffs')),
@@ -262,6 +263,7 @@ function evidenceFiles(data) {
     data.candidateVerification ? 'candidate-verification.json' : null,
     data.candidateArbiter ? 'candidate-arbiter.json' : null,
     data.canonicalCandidate ? 'canonical-candidate.json' : null,
+    data.canonicalVerify ? 'canonical-verify-summary.json' : null,
     data.acceptance ? 'acceptance-criteria.json' : null,
     ...MARKERS.filter(name => data.markers[name]),
   ].filter(Boolean);
@@ -353,6 +355,7 @@ function addParallelCandidatesSection(lines, data, summary) {
   if (!parallel) return;
   const arbiter = data.candidateArbiter || parallel.arbiter || {};
   const canonical = data.canonicalCandidate || parallel.canonical || {};
+  const canonicalVerify = data.canonicalVerify || canonical.final_verification || {};
 
   lines.push('## Parallel Candidates');
   lines.push('');
@@ -361,6 +364,8 @@ function addParallelCandidatesSection(lines, data, summary) {
   lines.push(`- Selected candidate: ${arbiter.selected_candidate || 'none'}`);
   lines.push(`- Canonical artifact: ${canonical.status || 'not promoted'}`);
   lines.push(`- Canonical diff: ${canonical.canonical_diff_path || 'not available'}`);
+  lines.push(`- Final verification: ${canonicalVerify.verdict || 'not run'}`);
+  lines.push(`- Ship candidate: ${canonical.ship_candidate ? 'yes' : 'no'}`);
   lines.push(`- Arbiter: ${arbiter.reason || 'candidate evidence only'}`);
   lines.push('- Apply: not automatic');
   lines.push('');

@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { buildCycle, buildPlan } from './build.js';
 import { reportSession } from './report.js';
+import { shipCycle } from './ship.js';
 import {
   normalizeParallelCandidateCount,
   parallelCandidatePlan,
@@ -98,6 +99,17 @@ export async function autoCycle(opts) {
     live: !!opts.live,
     dispatcher: opts.dispatcher,
   });
+  if (parallelCandidateCount) {
+    return finishParallelCandidateAuto({
+      opts,
+      sessionId,
+      sessionDir,
+      policy,
+      parallelCandidates,
+      harnessRoot,
+      projectRoot,
+    });
+  }
   const rounds = [];
   let lastBuild = null;
   let stopReason = null;
@@ -165,6 +177,49 @@ export async function autoCycle(opts) {
   return result;
 }
 
+async function finishParallelCandidateAuto({ opts, sessionId, sessionDir, policy, parallelCandidates, harnessRoot, projectRoot }) {
+  let ship = null;
+  let stopReason = 'parallel candidate no ship';
+  if (parallelCandidates?.canonical?.ship_candidate) {
+    ship = await shipCycle({
+      task: opts.task,
+      sessionId,
+      harnessRoot,
+      projectRoot,
+      live: !!opts.live,
+      dispatcher: opts.dispatcher,
+    });
+    stopReason = ship.humanGate ? 'human gate required' : ship.shipReady ? 'parallel candidate ship ready' : 'parallel candidate no ship';
+  } else {
+    writeNoShipMarker(sessionDir, parallelCandidates?.canonical?.reason || parallelCandidates?.arbiter?.reason || 'no clean parallel candidate');
+  }
+
+  const result = {
+    sessionId,
+    sessionDir,
+    task: opts.task,
+    level: policy.level,
+    policy,
+    parallelCandidates,
+    requestedMode: opts.mode || 'auto',
+    mode: 'parallel-candidates',
+    rounds: [parallelRoundSummary(parallelCandidates, ship)],
+    finalBuild: null,
+    report: null,
+    stopReason,
+    humanGate: Boolean(ship?.humanGate),
+    noShip: Boolean(!ship?.shipReady),
+    shipReady: Boolean(ship?.shipReady),
+    applied: false,
+    nextStep: parallelNextStep(ship, parallelCandidates),
+    safetyInvariants: safetyInvariants(),
+  };
+  writeSummary(result);
+  result.report = reportSession({ sessionId, projectRoot });
+  writeSummary(result);
+  return result;
+}
+
 function resolveAutonomyPolicy(opts) {
   const level = normalizeAutoLevel(opts.level);
   const base = AUTONOMY_LEVELS[level];
@@ -201,7 +256,7 @@ function autonomyStages(build, policy, parallelCandidates = null) {
       runs: Boolean(parallelCandidates?.enabled),
       mutation: 'isolated evidence only',
       candidates: parallelCandidates?.count || 0,
-      output: 'candidate patch evidence; no ship-ready canonical diff in alpha.10 preview',
+      output: 'candidate patch evidence, candidate verification, arbiter selection, and final canonical verification',
     },
     ...build.stages.filter(stage => stage.stage !== 'apply'),
     {
@@ -244,6 +299,36 @@ function roundSummary(round, build) {
     applied: Boolean(build.applied),
     next_step: build.nextStep,
   };
+}
+
+function parallelRoundSummary(parallelCandidates, ship) {
+  return {
+    round: 1,
+    mode: 'parallel-candidates',
+    requested_mode: 'auto',
+    profile: null,
+    strict_quality: false,
+    secure: false,
+    verdict: ship?.verdict || parallelCandidates?.canonical?.final_verification?.verdict || 'block',
+    stopped_at: ship ? 'ship' : 'parallel-candidates',
+    human_gate: Boolean(ship?.humanGate),
+    no_ship: Boolean(!ship?.shipReady),
+    ship_ready: Boolean(ship?.shipReady),
+    applied: false,
+    next_step: parallelNextStep(ship, parallelCandidates),
+  };
+}
+
+function parallelNextStep(ship, parallelCandidates) {
+  if (ship?.humanGate) return 'resolve the human gate before any apply or ship action';
+  if (ship?.shipReady) return 'inspect report, then optionally run apply for the verified canonical final diff';
+  if (parallelCandidates?.canonical?.status === 'final_verification_failed') return 'inspect canonical-verify-summary.json and repair or rerun auto';
+  return 'inspect candidate-arbiter.json and rerun with different task scope or candidate budget';
+}
+
+function writeNoShipMarker(sessionDir, reason) {
+  fs.mkdirSync(sessionDir, { recursive: true });
+  fs.writeFileSync(path.join(sessionDir, 'NO_SHIP'), `reason: ${reason}\nat: ${new Date().toISOString()}\n`);
 }
 
 function writeSummary(result) {
