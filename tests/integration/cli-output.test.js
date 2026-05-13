@@ -31,3 +31,17 @@ test('nekowork help all shows full legacy help', () => {
   assert.match(r.stdout, /Review loop/);
   assert.match(r.stdout, /Sessions \/ cost \/ learning/);
 });
+
+test('nekowork help work shows verb-specific help', () => {
+  const r = runCli(['help', 'work']);
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /nekowork work/);
+  assert.match(r.stdout, /--profile/);
+  assert.match(r.stdout, /예시:/);
+});
+
+test('nekowork help unknown-verb prints fallback notice', () => {
+  const r = runCli(['help', 'nope']);
+  const out = r.stdout + r.stderr;
+  assert.match(out, /알 수 없는 동사|unknown verb/);
+});

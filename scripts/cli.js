@@ -157,6 +157,54 @@ Other
 
 function help() { fullHelp(); }
 
+const VERB_HELP = {
+  work: () => {
+    console.log('');
+    console.log('nekowork work "<task>" [options]');
+    console.log('');
+    console.log('  단일 executor 구현 핸드오프. 코드 변경을 생성한 뒤 verify로 넘긴다.');
+    console.log('');
+    console.log('Options:');
+    console.log('  --profile quality|security|product   강조점 (기본: quality)');
+    console.log('  --strict                              TDD/품질 강화');
+    console.log('  --live                                실 제공자 사용 (없으면 mock)');
+    console.log('  --session <id>                        기존 세션에 이어붙임 (prefix 가능)');
+    console.log('  --project-root <dir>                  대상 프로젝트 루트');
+    console.log('  --json                                머신 파싱용 출력');
+    console.log('');
+    console.log('예시:');
+    console.log('  nekowork work "BOM 출력 컬럼에 단가 추가"');
+    console.log('  nekowork work "타이틀바 다크모드" --profile quality --strict');
+    console.log('');
+  },
+  verify: () => {
+    console.log('');
+    console.log('nekowork verify "<task>" --session <id> [options]');
+    console.log('');
+    console.log('  앞선 work 핸드오프를 Codex로만 검증한다.');
+    console.log('');
+    console.log('Options:');
+    console.log('  --session <id>                        대상 세션 (prefix 가능)');
+    console.log('  --profile quality|security|product   강조점');
+    console.log('  --strict                              TDD/품질 강화');
+    console.log('  --live                                실 제공자 사용');
+    console.log('  --json                                머신 파싱용 출력');
+    console.log('');
+    console.log('예시:');
+    console.log('  nekowork verify "BOM 단가 추가" --session a3f7');
+    console.log('  nekowork verify --session a3f7   # task 생략 (세션이 보유)');
+    console.log('');
+  },
+};
+
+function verbHelp(verb) {
+  const renderer = VERB_HELP[verb];
+  if (renderer) { renderer(); return 0; }
+  console.error(`알 수 없는 동사: ${verb}`);
+  console.error(`전체 명령은: nekowork help all`);
+  return 2;
+}
+
 async function dynamicReview(opts) {
   const { reviewCycle } = await import('./orchestrators/review.js');
   const result = await reviewCycle({
@@ -1314,10 +1362,9 @@ function checkArgs(argv) {
       const subArg = process.argv[3];
       if (!subArg || subArg === 'all') {
         fullHelp();
-      } else {
-        shortHelp();
+        process.exit(0);
       }
-      process.exit(0);
+      process.exit(verbHelp(subArg));
       break;
     }
 
