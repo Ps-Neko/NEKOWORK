@@ -39,6 +39,16 @@ test('resolveSessionId latest still picks newest mtime', () => {
   fs.mkdirSync(path.join(dir, 'older'));
   fs.mkdirSync(path.join(dir, 'newer'));
   const newer = path.join(dir, 'newer');
-  fs.utimesSync(newer, Date.now()/1000 + 100, Date.now()/1000 + 100);
+  const future = Date.now() / 1000 + 100;
+  fs.utimesSync(newer, future, future);
   assert.equal(resolveSessionId(root, 'latest'), 'newer');
+});
+
+test('resolveSessionId throws when broad substring matches multiple sessions', () => {
+  const root = tmpProject([
+    'work-2026-05-13-a3f7',
+    'work-2026-05-12-bbbb',
+    'review-2026-05-13-cccc',
+  ]);
+  assert.throws(() => resolveSessionId(root, '2026'), /ambiguous/i);
 });
