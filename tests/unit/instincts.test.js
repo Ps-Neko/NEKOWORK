@@ -52,9 +52,13 @@ test('promote: 임계 도달 → promoted=true', () => {
   const all = list({ kind: 'routing', minConfidence: 1 });
   assert.ok(all.length >= 1);
   const id = all[0].id;
-  const r = promote(id);
+  assert.throws(() => promote(id), /reviewed-by is required/);
+  const r = promote(id, { reviewedBy: 'unit-reviewer', reason: 'diverse evidence reached the reviewed-memory threshold' });
   assert.equal(r.promoted, true);
   assert.ok(r.promoted_at);
+  assert.equal(r.review_status, 'adopted');
+  assert.equal(r.reviewed_by, 'unit-reviewer');
+  assert.match(r.review_reason, /reviewed-memory threshold/);
 });
 
 test('prune: dry-run 은 파일 안 지움', () => {
@@ -122,7 +126,7 @@ test('ready: 이미 promoted → blocked (already_promoted)', () => {
   const r1 = ready({ maxStaleDays: 365 });
   const target = r1.ready.find(x => x.key === 'promote-target');
   assert.ok(target);
-  promote(target.id);
+  promote(target.id, { reviewedBy: 'unit-reviewer', reason: 'ready candidate explicitly adopted in test' });
   const r2 = ready({ maxStaleDays: 365 });
   const blk = r2.blocked.find(b => b.id === target.id);
   assert.ok(blk);

@@ -33,6 +33,7 @@ test('nekowork help all shows full legacy help', () => {
   assert.match(r.stdout, /Install \/ verify/);
   assert.match(r.stdout, /Review loop/);
   assert.match(r.stdout, /Sessions \/ cost \/ learning/);
+  assert.match(r.stdout, /instincts adopt <id> --reviewed-by <name> --reason <text>/);
 });
 
 test('nekowork help work shows verb-specific help', () => {

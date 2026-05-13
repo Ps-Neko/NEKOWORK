@@ -330,10 +330,10 @@ Instincts are project-local learning records. Promotion is intentionally manual.
 ```bash
 node scripts/cli.js instincts list
 node scripts/cli.js instincts ready --blocked
-node scripts/cli.js instincts promote <id>
+node scripts/cli.js instincts adopt <id> --reviewed-by <name> --reason "why this pattern is safe to use"
 ```
 
-Promotion requires confidence `1.0`; automatic promotion without human confirmation is outside the current alpha release scope.
+Adoption requires confidence `1.0`, an explicit reviewer, and a recorded reason. Automatic promotion without human confirmation is outside the current alpha release scope.
 
 ## Cost Tracking
 
