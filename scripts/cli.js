@@ -294,6 +294,9 @@ function parseReviewArgs(argv) {
     noCodex: false,
     sessionId: null,
     projectRoot: null,
+    contextFile: null,
+    domainFile: null,
+    specFile: null,
   };
   const unknown = [];
 
@@ -314,6 +317,24 @@ function parseReviewArgs(argv) {
       opts.projectRoot = value;
     } else if (a.startsWith('--project-root=')) {
       opts.projectRoot = a.slice('--project-root='.length);
+    } else if (a === '--context-file') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--context-file requires a value');
+      opts.contextFile = value;
+    } else if (a.startsWith('--context-file=')) {
+      opts.contextFile = a.slice('--context-file='.length);
+    } else if (a === '--domain-file') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--domain-file requires a value');
+      opts.domainFile = value;
+    } else if (a.startsWith('--domain-file=')) {
+      opts.domainFile = a.slice('--domain-file='.length);
+    } else if (a === '--spec-file') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--spec-file requires a value');
+      opts.specFile = value;
+    } else if (a.startsWith('--spec-file=')) {
+      opts.specFile = a.slice('--spec-file='.length);
     } else if (a === '--max-iter') {
       const value = argv[++i];
       if (!value || value.startsWith('--')) throw usageError('--max-iter requires a value');
@@ -372,6 +393,7 @@ function parseAskArgs(argv) {
     sessionId: null,
     projectRoot: null,
     profile: null,
+    contextFile: null,
     json: false,
   };
   const unknown = [];
@@ -385,6 +407,13 @@ function parseAskArgs(argv) {
       opts.profile = value;
     } else if (a.startsWith('--profile=')) {
       opts.profile = a.slice('--profile='.length);
+    }
+    else if (a === '--context-file') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--context-file requires a value');
+      opts.contextFile = value;
+    } else if (a.startsWith('--context-file=')) {
+      opts.contextFile = a.slice('--context-file='.length);
     }
     else if (a === '--session') {
       const value = argv[++i];
@@ -469,6 +498,7 @@ function parseWorkArgs(argv) {
     live: false,
     json: false,
     strict: false,
+    planFile: null,
   };
   const unknown = [];
 
@@ -483,6 +513,12 @@ function parseWorkArgs(argv) {
       opts.profile = value;
     } else if (a.startsWith('--profile=')) {
       opts.profile = a.slice('--profile='.length);
+    } else if (a === '--plan-file') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--plan-file requires a value');
+      opts.planFile = value;
+    } else if (a.startsWith('--plan-file=')) {
+      opts.planFile = a.slice('--plan-file='.length);
     } else if (a === '--single-executor') opts.singleExecutor = true;
     else if (a === '--session') {
       const value = argv[++i];

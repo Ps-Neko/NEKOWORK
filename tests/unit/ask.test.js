@@ -89,3 +89,89 @@ test('ask writes product profile checklist for product question gate', async () 
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }
 });
+
+test('ask records explicit --context-file artifact in ask.json', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-ask-context-explicit-'));
+  try {
+    const contextPath = path.join(projectRoot, 'context.md');
+    const contextBody = '# Domain\n\nThe shop sells widgets. A widget has SKU and price.\n';
+    fs.writeFileSync(contextPath, contextBody);
+
+    const r = await askGate({
+      task: 'add widget price filter',
+      sessionId: 'unit-ask-context-explicit',
+      harnessRoot: ROOT,
+      projectRoot,
+      contextFile: contextPath,
+    });
+
+    const ask = JSON.parse(fs.readFileSync(path.join(r.sessionDir, 'ask.json'), 'utf8'));
+    assert.ok(ask.upstream_artifacts, 'ask.json must include upstream_artifacts');
+    const ctx = ask.upstream_artifacts.context;
+    assert.ok(ctx, 'upstream_artifacts.context must be present when contextFile is supplied');
+    assert.equal(ctx.path, path.relative(projectRoot, contextPath).replace(/\\/g, '/'));
+    assert.equal(ctx.size, Buffer.byteLength(contextBody, 'utf8'));
+    assert.match(ctx.sha1, /^[0-9a-f]{40}$/);
+    assert.ok(typeof ctx.excerpt === 'string' && ctx.excerpt.length > 0);
+    assert.equal(ctx.truncated, false);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('ask auto-picks projectRoot/context.md without --context-file', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-ask-context-auto-'));
+  try {
+    fs.writeFileSync(path.join(projectRoot, 'context.md'), 'auto pick context body');
+
+    const r = await askGate({
+      task: 'tweak the header',
+      sessionId: 'unit-ask-context-auto',
+      harnessRoot: ROOT,
+      projectRoot,
+    });
+
+    const ask = JSON.parse(fs.readFileSync(path.join(r.sessionDir, 'ask.json'), 'utf8'));
+    assert.ok(ask.upstream_artifacts?.context, 'context.md in projectRoot must be picked up automatically');
+    assert.equal(ask.upstream_artifacts.context.path, 'context.md');
+    assert.equal(ask.upstream_artifacts.context.source, 'auto');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('ask without context.md leaves upstream_artifacts empty', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-ask-context-none-'));
+  try {
+    const r = await askGate({
+      task: 'no context here',
+      sessionId: 'unit-ask-context-none',
+      harnessRoot: ROOT,
+      projectRoot,
+    });
+
+    const ask = JSON.parse(fs.readFileSync(path.join(r.sessionDir, 'ask.json'), 'utf8'));
+    assert.ok(ask.upstream_artifacts, 'upstream_artifacts field must always exist');
+    assert.equal(ask.upstream_artifacts.context, null);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('ask with missing explicit --context-file throws', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-ask-context-missing-'));
+  try {
+    await assert.rejects(
+      askGate({
+        task: 'bogus',
+        sessionId: 'unit-ask-context-missing',
+        harnessRoot: ROOT,
+        projectRoot,
+        contextFile: path.join(projectRoot, 'does-not-exist.md'),
+      }),
+      /context file not found/i,
+    );
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
