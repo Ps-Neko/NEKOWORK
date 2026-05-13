@@ -183,6 +183,81 @@ function nextStep(status, summaries) {
   return summaries.build?.next_step || summaries.run?.next_step || summaries.ship?.next_step || summaries.verify?.next_step || 'continue the workflow';
 }
 
+function trustDecision(summary) {
+  if (summary.status === 'gate_blocked') {
+    return {
+      headline: 'NEKOWORK blocked this change.',
+      finalDecision: 'GATE_BLOCKED',
+      blocked: true,
+    };
+  }
+  if (summary.noShip || summary.status === 'no_ship') {
+    return {
+      headline: 'NEKOWORK blocked ship for this change.',
+      finalDecision: 'NO_SHIP',
+      blocked: true,
+    };
+  }
+  if (summary.humanGate || summary.status === 'human_gate') {
+    return {
+      headline: 'NEKOWORK stopped this change at Human Gate.',
+      finalDecision: 'HUMAN_GATE',
+      blocked: true,
+    };
+  }
+  if (summary.applied || summary.status === 'applied') {
+    return {
+      headline: 'NEKOWORK applied the verified diff.',
+      finalDecision: 'APPLIED',
+      blocked: false,
+    };
+  }
+  if (summary.shipReady || summary.status === 'ship_ready') {
+    return {
+      headline: 'NEKOWORK marked this change ship-ready for human-controlled apply.',
+      finalDecision: 'SHIP_READY',
+      blocked: false,
+    };
+  }
+  if (summary.status === 'verified') {
+    return {
+      headline: 'NEKOWORK verified this work and is waiting for ship readiness.',
+      finalDecision: 'VERIFIED',
+      blocked: false,
+    };
+  }
+  if (summary.status === 'worked') {
+    return {
+      headline: 'NEKOWORK produced work that still needs verification.',
+      finalDecision: 'WORKED',
+      blocked: false,
+    };
+  }
+  return {
+    headline: 'NEKOWORK recorded session evidence.',
+    finalDecision: String(summary.status || 'session').toUpperCase(),
+    blocked: false,
+  };
+}
+
+function trustReason(data, summary) {
+  return data.markers.GATE_BLOCKED?.reason
+    || data.markers.NO_SHIP?.reason
+    || data.markers.HUMAN_GATE?.reason
+    || summary.nextStep
+    || 'n/a';
+}
+
+function evidenceFiles(data) {
+  return [
+    ...SUMMARY_FILES.filter(file => data.summaries[file]),
+    data.buildIntelligence ? 'build-intelligence.json' : null,
+    data.buildPlan ? 'build-plan.json' : null,
+    data.acceptance ? 'acceptance-criteria.json' : null,
+    ...MARKERS.filter(name => data.markers[name]),
+  ].filter(Boolean);
+}
+
 function renderReport({ sessionId, sessionDir, generatedAt, data, status }) {
   const summary = buildSummary({ sessionId, sessionDir, data, status });
   const lines = [];
@@ -216,23 +291,34 @@ function renderReport({ sessionId, sessionDir, generatedAt, data, status }) {
 }
 
 function addTrustCardSection(lines, data, summary) {
+  const decision = trustDecision(summary);
   const verified = Boolean(data.summaries['verify-summary.json'] || data.handoffs.some(handoff => handoff.value?.stage === 'codex-review'));
   const workProduced = Boolean(data.summaries['work-summary.json'] || data.handoffs.some(handoff => handoff.value?.stage === 'implement'));
   const gateState = summary.humanGate
     ? (summary.status === 'gate_blocked' ? 'blocked' : 'required')
     : 'clear';
   const applyState = summary.applied ? 'applied' : 'not applied';
+  const evidence = evidenceFiles(data)
+    .slice(0, 8)
+    .map(file => `\`${file}\``)
+    .join(', ') || 'none';
 
   lines.push('## Trust Card');
   lines.push('');
+  lines.push(decision.headline);
+  lines.push('');
   lines.push('| Check | State |');
   lines.push('| --- | --- |');
+  lines.push(`| Final decision | ${decision.finalDecision} |`);
+  lines.push(`| Blocked | ${decision.blocked ? 'yes' : 'no'} |`);
+  lines.push(`| Why | ${escapeTable(trustReason(data, summary)) || 'n/a'} |`);
   lines.push(`| Work produced | ${workProduced ? 'yes' : 'no'} |`);
   lines.push(`| Independent verification | ${verified ? 'yes' : 'no'} |`);
   lines.push(`| Human Gate | ${gateState} |`);
   lines.push(`| Ship ready | ${summary.shipReady ? 'yes' : 'no'} |`);
   lines.push(`| Apply | ${applyState} |`);
   lines.push(`| Target project mutated | ${summary.targetProjectMutated ? 'yes' : 'no'} |`);
+  lines.push(`| Evidence | ${evidence} |`);
   lines.push('');
   lines.push(`Decision: ${summary.nextStep}`);
   lines.push('');
@@ -334,13 +420,7 @@ function addHandoffsSection(lines, handoffs) {
 function addEvidenceSection(lines, data, sessionDir) {
   lines.push('## Evidence Files');
   lines.push('');
-  const files = [
-    ...SUMMARY_FILES.filter(file => data.summaries[file]),
-    data.buildIntelligence ? 'build-intelligence.json' : null,
-    data.buildPlan ? 'build-plan.json' : null,
-    data.acceptance ? 'acceptance-criteria.json' : null,
-    ...MARKERS.filter(name => data.markers[name]),
-  ].filter(Boolean);
+  const files = evidenceFiles(data);
   if (!files.length) {
     lines.push('- No summary files found.');
   } else {
