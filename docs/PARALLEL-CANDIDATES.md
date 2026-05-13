@@ -1,6 +1,6 @@
 # Parallel Candidate Writers
 
-Alpha.10 preview.
+Alpha.9 release surface.
 
 `auto --parallel-candidates N` will make NEKOWORK feel more autonomous without allowing unsafe shared-worktree writes.
 
@@ -28,7 +28,7 @@ planner
   -> explicit apply only
 ```
 
-The current preview records isolated candidate evidence, verifies each candidate,
+The current alpha.9 path records isolated candidate evidence, verifies each candidate,
 writes an arbiter selection, records canonical-candidate evidence, promotes a
 clean selected candidate into canonical handoffs after final Codex verification,
 and then runs ship readiness. Apply remains explicit.
@@ -75,6 +75,17 @@ Current preview evidence:
 ```
 
 `REPORT.md` includes a `Parallel Candidates` section when the artifact exists.
+
+## Checked-In Example
+
+See [examples/parallel-candidates-canonical](../examples/parallel-candidates-canonical) for a self-contained alpha.9 fixture that records:
+
+- two candidate patches
+- candidate verification per candidate
+- arbiter selection
+- final Codex verification
+- canonical handoff promotion
+- `SHIP_READY` with `Applied: false`
 
 ## Non-Goals
 

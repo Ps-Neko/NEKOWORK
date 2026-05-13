@@ -26,7 +26,7 @@ test('trust docs spell out safety, failure, verifier, and autopilot boundaries',
   assert.match(autopilot, /not trying to be a 100-agent autonomous coding pack/);
   assert.match(patterns, /12 practical agentic harness patterns/i);
   assert.match(patterns, /Parallel Processing/);
-  assert.match(patterns, /`auto --parallel-candidates N` preview/);
+  assert.match(patterns, /`auto --parallel-candidates N`/);
   assert.match(patterns, /one canonical final diff/);
   assert.match(patterns, /manual promotion/);
 });

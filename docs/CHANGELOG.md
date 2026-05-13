@@ -4,11 +4,17 @@
 
 ## [Unreleased]
 
+## [0.1.0-alpha.9] - 2026-05-13
+
 ### Added
 - Add `auto --parallel-candidates N` preview for isolated candidate evidence before the canonical build path.
 - Add `parallel-candidates.json` and `REPORT.md` Parallel Candidates evidence.
 - Add candidate verification, arbiter selection, and canonical-candidate evidence for parallel candidates.
 - Promote a clean selected parallel candidate through final Codex verification into the canonical ship-readiness path.
+- Add `examples/parallel-candidates-canonical` as a self-contained alpha.9 evidence fixture.
+
+### Changed
+- Move parallel candidate canonical promotion from future preview language into the alpha.9 release surface.
 
 ## [0.1.0-alpha.8] - 2026-05-08
 

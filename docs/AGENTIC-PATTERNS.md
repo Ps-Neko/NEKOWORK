@@ -28,7 +28,7 @@ Choose patterns by:
 | 4 | Router | Build Intelligence, risk classifier | Strong | `build --mode auto` routes tasks to `fast`, `safe`, `team`, `tdd`, or `release`. |
 | 5 | Expert Team | `team` read-only handoffs | Strong | Planner, research, product/design, security, test, and Codex perspectives can contribute before mutation. |
 | 6 | Supervisor | `build`, `auto`, `run` | Strong | Orchestrators coordinate routing, work, verification, ship/readiness, and report output. |
-| 7 | Parallel Processing | `team`; `auto --parallel-candidates N` preview | Strong | Read-only team perspectives exist. Isolated candidate evidence, candidate verification, arbiter selection, canonical handoff promotion, and ship readiness are connected. |
+| 7 | Parallel Processing | `team`; `auto --parallel-candidates N` | Strong | Read-only team perspectives exist. Isolated candidate evidence, candidate verification, arbiter selection, canonical handoff promotion, and ship readiness are connected. |
 | 8 | Sequential Pipeline | `ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply` | Strong | The advanced path is an auditable pipeline with explicit state artifacts. |
 | 9 | Human Approval | `gate` | Strong | Human Gate records approve/block decisions and stops risky work before apply. |
 | 10 | Memory Loop | `instincts`, `wait`, `ralph` | Partial | Patterns are recorded and can become skill candidates, but promotion remains manual. |

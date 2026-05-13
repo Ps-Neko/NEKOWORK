@@ -43,7 +43,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 344 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 8 case-study flows / 5 starter packs
+**Public alpha evidence:** 345 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 9 case-study flows / 5 starter packs
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -51,7 +51,7 @@ For bounded autonomy before that boundary, use `auto`: it can route, build, veri
 
 NEKOWORK also maps the verified autopilot flow to 12 practical agentic harness patterns: routing, planning, read-only team review, independent verification, Human Gate, tool gates, memory, and evolution loops. See [docs/AGENTIC-PATTERNS.md](docs/AGENTIC-PATTERNS.md).
 
-Next track: alpha.10 starts isolated parallel candidate writer evidence before canonical diff selection.
+Current alpha.9 track: isolated parallel candidate writer evidence now reaches the canonical ship-readiness path before explicit apply.
 
 **Latest alpha evidence:** [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) / [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) / [smoke transcript](docs/DEMO.md#one-minute-terminal-transcript) / [report artifact](docs/DEMO-REPORT.md)
 
@@ -229,11 +229,11 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 ## Status
 
-- Current repository version: `0.1.0-alpha.8` public alpha
+- Current repository version: `0.1.0-alpha.9` alpha candidate
 - Current package name: `@ps-neko/nekowork`
 - Published CLI name: `nekowork` (`harness` remains a legacy/internal alias)
 - Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.8`
-- Current npm alpha.8 status: published on 2026-05-08 under the `alpha` dist-tag
+- Current npm alpha.9 status: publish-ready; waiting for an authenticated npm owner session
 - Supported install path today: npm alpha, clone, submodule, or local repository integration
 - Dist-tag note: use `@alpha` until a stable release; `latest` still points at the first alpha line
 - Default mode: mock providers, no API keys, no provider CLI calls
@@ -241,7 +241,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 344 tests pass
+- `npm test`: 345 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
@@ -302,7 +302,7 @@ To see the repository-based external project flow end to end:
 npm run demo:external
 ```
 
-To inspect small case-study targets, see [examples/trading-dashboard-mock](examples/trading-dashboard-mock), [examples/github-actions-hardening](examples/github-actions-hardening), [examples/quality-lifecycle-smoke](examples/quality-lifecycle-smoke), and [docs/case-studies](docs/case-studies). They demonstrate financial UI, CI workflow, quality lifecycle, npm package, auth parser, Python protocol library, environment configuration, and local diary app flows while still preserving Codex verification, Human Gate policy, and explicit apply control.
+To inspect small case-study targets, see [examples/trading-dashboard-mock](examples/trading-dashboard-mock), [examples/github-actions-hardening](examples/github-actions-hardening), [examples/quality-lifecycle-smoke](examples/quality-lifecycle-smoke), [examples/parallel-candidates-canonical](examples/parallel-candidates-canonical), and [docs/case-studies](docs/case-studies). They demonstrate financial UI, CI workflow, quality lifecycle, parallel candidate promotion, npm package, auth parser, Python protocol library, environment configuration, and local diary app flows while still preserving Codex verification, Human Gate policy, and explicit apply control.
 
 ## Output Shape
 
@@ -386,7 +386,7 @@ Risky explicit overrides are protected. For example, `build "change OAuth token 
 
 Use `auto "<task>"` when NEKOWORK should continue before the apply boundary. `auto` routes through the same build intelligence, runs `build`, repeats fixable no-ship work within `--level cautious|normal|aggressive` budgets, writes `auto-summary.json`, generates `REPORT.md`, and never accepts `--apply`.
 
-Use `auto "<task>" --parallel-candidates N` when you want isolated candidate evidence before the canonical build. In the alpha.10 preview, NEKOWORK captures candidate patches, verifies each candidate, records an arbiter selection, promotes the selected candidate into canonical handoffs after final Codex verification, then runs ship readiness. Apply remains explicit.
+Use `auto "<task>" --parallel-candidates N` when you want isolated candidate evidence before the canonical build. In alpha.9, NEKOWORK captures candidate patches, verifies each candidate, records an arbiter selection, promotes the selected candidate into canonical handoffs after final Codex verification, then runs ship readiness. Apply remains explicit.
 
 Use `--profile quality` or `--profile security` on `work`, `verify`, and `run` when a task needs stronger evidence prompts. Add `--strict-quality` to `verify`, `run`, or `build` when missing evidence or acceptance coverage should become a fix-required verdict before ship.
 
@@ -478,7 +478,7 @@ npm run security:hardening
 npm pack --dry-run --json
 ```
 
-`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.8.tgz`. It does not publish.
+`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.9.tgz`. It does not publish.
 
 ## Documentation
 
@@ -501,6 +501,7 @@ npm pack --dry-run --json
 - [docs/case-studies](docs/case-studies) - real external project run evidence
 - [examples/trading-dashboard-mock](examples/trading-dashboard-mock) - standalone financial UI mock target and case-study evidence
 - [examples/quality-lifecycle-smoke](examples/quality-lifecycle-smoke) - standalone quality profile and strict-quality case-study evidence
+- [examples/parallel-candidates-canonical](examples/parallel-candidates-canonical) - standalone parallel candidate promotion and canonical ship-readiness evidence
 - [docs/SECURITY.md](docs/SECURITY.md) - local-first auth and safety model
 - [docs/ADVANCED.md](docs/ADVANCED.md) - advanced workflows and runtime features
 - [docs/SETUP.md](docs/SETUP.md) - local contributor setup and live provider smoke

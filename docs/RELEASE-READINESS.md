@@ -1,18 +1,18 @@
 # Release Readiness
 
-Status date: 2026-05-08
+Status date: 2026-05-13
 
-NEKOWORK is release-ready for local use, repository-based installation, and public npm alpha installation. The current repository release line and current public npm alpha are `0.1.0-alpha.8`.
+NEKOWORK is release-ready for local use, repository-based installation, and public npm alpha installation. The current repository alpha candidate is `0.1.0-alpha.9`; the current public npm alpha remains `0.1.0-alpha.8` until the alpha.9 publish is completed.
 
 ## Decision
 
 - Decision: do not publish 0.0.3 to npm.
-- Repository release line: `0.1.0-alpha.8`.
-- Public alpha: `0.1.0-alpha.8`, published with `--tag alpha`.
+- Repository release line: `0.1.0-alpha.9`.
+- Public alpha: `0.1.0-alpha.8`, published with `--tag alpha`; alpha.9 is publish-ready.
 - `package.json` is set to `private: false` for the public alpha.
 - The canonical repo is `Ps-Neko/NEKOWORK`.
-- Current repository version is `0.1.0-alpha.8`; npm `@alpha` points at the published `0.1.0-alpha.8`.
-- GitHub prerelease: `v0.1.0-alpha.8`.
+- Current repository version is `0.1.0-alpha.9`; npm `@alpha` still points at the published `0.1.0-alpha.8` until publish.
+- GitHub prerelease: `v0.1.0-alpha.9` is pending after publish; `v0.1.0-alpha.8` remains current public prerelease.
 - Required local provider auth is delegated CLI auth, not long-lived API keys.
 - Core workflow invariant is Claude work -> Codex verification -> Human Gate.
 - Risk classifier, acceptance criteria artifacts, and profile safety validation are part of the release gate.
@@ -25,13 +25,27 @@ Latest GitHub Release:
 
 - https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.8
 
+## 0.1.0-alpha.9 Release Scope
+
+The `0.1.0-alpha.9` release scope is parallel candidate promotion into the canonical ship-readiness path:
+
+- `auto --parallel-candidates N` captures isolated candidate patches as evidence
+- each candidate receives candidate verification before arbitration
+- the arbiter records a selected canonical candidate and rationale
+- the selected candidate receives final Codex verification before ship readiness
+- clean final verification promotes canonical `03-implement` and `05-codex-review` handoffs
+- failed candidate verification or failed final verification writes `NO_SHIP`
+- `REPORT.md` shows selected candidate, canonical artifact, final verification, and ship-candidate status
+- `examples/parallel-candidates-canonical` records a checked-in alpha.9 fixture for the canonical promotion path
+- apply, commit, push, publish, deploy, and PR creation remain explicit human actions
+
 ## 0.1.0-alpha.8 Release Scope
 
 The `0.1.0-alpha.8` release scope is bounded verified autopilot plus manifest-backed Build Intelligence policy:
 
 - bounded `auto` mode routes through build intelligence, repairs fixable no-ship findings within budget, writes `auto-summary.json`, generates `REPORT.md`, and stops before apply
 - README and package metadata position alpha.8 as a verified autopilot for AI code changes
-- `docs/PARALLEL-CANDIDATES.md` records the alpha.10 candidate evidence, candidate verification, arbiter selection, final Codex verification, and canonical ship-readiness path, while `docs/PR-PREP.md` remains a planned autonomy track
+- `docs/PARALLEL-CANDIDATES.md` and `docs/PR-PREP.md` remain planned autonomy tracks
 - build mode safety ranks live in `manifests/build-modes.json`
 - `schemas/build-modes.schema.json` validates mode policy shape
 - `validate:manifests` checks mode ordering and explicit-apply invariants
@@ -67,7 +81,7 @@ Release exit criteria:
 - required gates below pass locally
 - `published-alpha-smoke` passes in GitHub Actions
 - `npm pack --dry-run --json` contains only intended files
-- changelog `0.1.0-alpha.8` entries match the release contents
+- changelog `0.1.0-alpha.9` entries match the release contents
 - `latest` remains documented as non-stable; install examples continue to use `@alpha`
 
 ## Required Gates
@@ -97,14 +111,15 @@ Current local verification after the decomposed workflow expansion:
 - `npm run lint`: pass
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
-- `npm test`: 344 tests pass
+- `npm test`: 345 tests pass
 - `npm run demo:quick -- --cleanup`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npm publish --dry-run --access public --tag alpha`: pass
-- `npm publish --access public --tag alpha`: published `0.1.0-alpha.8`
-- `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.8`; `latest` remains `0.1.0-alpha.0`
-- `npx -y @ps-neko/nekowork@alpha check`: passed for `0.1.0-alpha.8` with WARN summary from Gemini auth not checked
+- `npm publish --dry-run --access public --tag alpha`: pass for `0.1.0-alpha.9`
+- `npm publish --access public --tag alpha`: pending npm owner authentication
+- `npm view @ps-neko/nekowork dist-tags version versions --json`: expected after publish: `alpha` points at `0.1.0-alpha.9`; `latest` remains `0.1.0-alpha.0`
+- `npx -y @ps-neko/nekowork@alpha check`: pending after alpha.9 publish
 - GitHub Actions `published-alpha-smoke`: validates the fresh `npx @alpha` path against the published package
 
 ## Install Smoke
@@ -187,7 +202,7 @@ Expected target outputs:
 
 ## Public npm Checklist
 
-Use this checklist to publish the next approved alpha, for example `0.1.0-alpha.9`:
+Use this checklist to publish the next approved alpha, for example `0.1.0-alpha.10`:
 
 1. Confirm the npm package name is still `@ps-neko/nekowork`.
 2. Confirm the `nekowork` and `harness` binaries are still intentional.

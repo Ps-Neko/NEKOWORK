@@ -1,6 +1,6 @@
 # Roadmap
 
-Status date: 2026-05-08
+Status date: 2026-05-13
 
 This roadmap is intentionally small. NEKOWORK should improve verified autopilot behavior and the evidence surface before expanding the agent catalog.
 
@@ -96,53 +96,27 @@ Non-goals:
 
 ## 0.1.0-alpha.9
 
-Status: planned.
+Status: publish-ready alpha candidate.
 
-Goal: prove the verified autopilot thesis with a smaller public surface before adding more autonomy.
+Goal: promote isolated parallel candidate evidence into the canonical ship-readiness path without allowing shared-worktree multi-agent writes.
 
-Planned scope:
+Prepared scope:
 
-- Put a risk-blocking transcript near the README first screen.
-- Define "Verified" as independently reviewed and evidence-backed, not mathematically proven.
-- Expose starter packs first and move the full pack catalog to advanced docs.
+- Keep the risk-blocking transcript and "Verified" definition near the README first screen.
+- Keep starter packs first and the full pack catalog in advanced docs.
 - Keep Quickstart centered on `auto -> report -> gate`.
-- Reduce public `harness` naming in docs while preserving the legacy/internal alias.
-- Compare NEKOWORK by evidence surfaces, not by agent count.
-- Document how NEKOWORK maps to the 12 practical agentic harness patterns.
-- Strengthen `REPORT.md` Trust Card output as first-screen evidence for blocked, gated, ship-ready, and applied sessions.
-- Seek at least one external user run with a public transcript or quote.
+- Keep 12 practical agentic harness pattern mapping in `docs/AGENTIC-PATTERNS.md`.
+- Run `auto --parallel-candidates N` candidate evidence through candidate verification, arbiter selection, final Codex verification, canonical handoff promotion, and ship readiness.
+- Add `examples/parallel-candidates-canonical` as a self-contained alpha.9 fixture.
+- Keep apply, commit, push, publish, deploy, and PR creation explicit.
 
 Non-goals:
 
 - No new agent catalog expansion.
-- No new autonomy mode.
 - No automatic apply, commit, push, publish, deploy, or PR creation.
 - No rename of `.harness` or the `harness` compatibility alias during alpha.9.
 
 ## 0.1.0-alpha.10
-
-Status: in progress.
-
-Goal: add isolated parallel candidate writers without allowing shared-worktree multi-agent writes.
-
-Planned scope:
-
-- Add `auto --parallel-candidates N` preview.
-- Run candidate workers in isolated worktrees, temp projects, or isolated diff captures.
-- Record candidate patches as evidence, not ship-ready output.
-- Verify candidate patches as evidence before arbitration.
-- Produce an arbiter summary and canonical-candidate evidence.
-- Promote a clean selected candidate into canonical handoffs after final Codex verification.
-- Run ship readiness on the promoted canonical candidate while keeping apply explicit.
-- Report candidate decisions in `REPORT.md`.
-
-Non-goals:
-
-- No concurrent writes to one target worktree.
-- No candidate majority vote as a replacement for Codex verification.
-- No automatic apply, commit, push, publish, deploy, or PR creation.
-
-## 0.1.0-alpha.11
 
 Status: planned.
 
@@ -153,3 +127,7 @@ Planned scope:
 - Add `nekowork pr-prep`.
 - Generate PR summary, risk notes, test evidence, changelog draft, and ship/no-ship evidence.
 - Keep PR creation, branch push, release, publish, and deploy as explicit human actions.
+
+Non-goals:
+
+- No automatic apply, commit, push, publish, deploy, or PR creation.
