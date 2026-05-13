@@ -3,6 +3,7 @@ import path from 'node:path';
 import { buildDefaultAcceptanceCriteria } from '../lib/acceptance-criteria.js';
 import { classifyRisk } from '../lib/risk-classifier.js';
 import { profilePolicy } from '../lib/profile-policy.js';
+import { loadUpstreamArtifact } from '../lib/upstream-artifacts.js';
 
 export function classifyAskTask(task = '') {
   const classification = classifyRisk({ task, files: [] });
@@ -90,18 +91,21 @@ export async function askGate(opts) {
   const handoffDir = path.join(sessionDir, 'handoffs');
   fs.mkdirSync(handoffDir, { recursive: true });
 
+  const upstream = { context: loadUpstreamArtifact('context', projectRoot, opts.contextFile) };
+
   const handoff = buildQuestionGate(opts.task || '', { profile: opts.profile });
   handoff.session_id = sessionId;
-  writeAskArtifacts(sessionDir, handoffDir, sessionId, opts.task || '', handoff);
+  writeAskArtifacts(sessionDir, handoffDir, sessionId, opts.task || '', handoff, upstream);
 
   return {
     sessionId,
     sessionDir,
     handoff,
+    upstreamArtifacts: upstream,
   };
 }
 
-function writeAskArtifacts(sessionDir, handoffDir, sessionId, task, handoff) {
+function writeAskArtifacts(sessionDir, handoffDir, sessionId, task, handoff, upstream) {
   const policy = profilePolicy(handoff.profile);
   fs.writeFileSync(path.join(sessionDir, 'ask.json'), JSON.stringify({
     sessionId,
@@ -114,14 +118,15 @@ function writeAskArtifacts(sessionDir, handoffDir, sessionId, task, handoff) {
     questions: handoff.questions,
     success_criteria: handoff.success_criteria,
     assumptions: handoff.assumptions,
+    upstream_artifacts: upstream || { context: null },
   }, null, 2));
 
   fs.writeFileSync(path.join(handoffDir, '00-question-gate.json'), JSON.stringify(handoff, null, 2));
-  fs.writeFileSync(path.join(handoffDir, '00-question-gate.md'), renderQuestionGate(handoff));
+  fs.writeFileSync(path.join(handoffDir, '00-question-gate.md'), renderQuestionGate(handoff, upstream));
 }
 
-function renderQuestionGate(h) {
-  return [
+function renderQuestionGate(h, upstream) {
+  const lines = [
     '# Handoff: question-gate',
     '',
     `Decided: ${h.decided}`,
@@ -130,14 +135,20 @@ function renderQuestionGate(h) {
     'Files: ',
     `Remaining: ${h.remaining}`,
     '',
-    'Questions:',
-    ...h.questions.map((q, i) => `${i + 1}. ${q}`),
-    '',
-    'Draft success criteria:',
-    ...h.success_criteria.map(ac => `- ${ac.id}: ${ac.desc}`),
-    '',
-    'Assumptions:',
-    ...h.assumptions.map((a, i) => `${i + 1}. ${a}`),
-    '',
-  ].join('\n');
+  ];
+  if (upstream?.context) {
+    const c = upstream.context;
+    lines.push(`Upstream context: ${c.path} (${c.size}B, sha1=${c.sha1.slice(0, 12)}${c.truncated ? ', truncated' : ''})`);
+    lines.push('');
+  }
+  lines.push('Questions:');
+  for (let i = 0; i < h.questions.length; i++) lines.push(`${i + 1}. ${h.questions[i]}`);
+  lines.push('');
+  lines.push('Draft success criteria:');
+  for (const ac of h.success_criteria) lines.push(`- ${ac.id}: ${ac.desc}`);
+  lines.push('');
+  lines.push('Assumptions:');
+  for (let i = 0; i < h.assumptions.length; i++) lines.push(`${i + 1}. ${h.assumptions[i]}`);
+  lines.push('');
+  return lines.join('\n');
 }

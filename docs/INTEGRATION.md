@@ -34,13 +34,27 @@ context.md + DOMAIN.md + SPEC.md + PLAN.md
   -> team
   -> work
   -> verify
-  -> decision.json
-  -> REPORT.md
-  -> Human Gate
+  -> ship (decides SHIP_READY or NO_SHIP)
+  -> Human Gate (if open)
+  -> report
   -> explicit apply
 ```
 
+Evidence written along the way: `decision.json`, `preverify-summary.json`, `verify-summary.json`, `ship-summary.json`, `gate-summary.json`, and `REPORT.md`. Apply refuses to run without `SHIP_READY` and a cleared gate.
+
 If these files do not exist, NEKOWORK still works from the task prompt and session artifacts. The contract is for richer upstream workflows, not a new requirement for every change.
+
+## How the contract is wired
+
+Each stage either auto-picks a canonical file from the project root or accepts an explicit flag. Missing canonical files are silent; an explicit flag pointing at a missing file is a fatal error so typos cannot be masked.
+
+| Stage | Auto-pick | Explicit flag | Evidence file |
+|---|---|---|---|
+| `ask` | `<projectRoot>/context.md` | `--context-file <path>` | `ask.json.upstream_artifacts.context` |
+| `plan` | `<projectRoot>/{context,DOMAIN,SPEC}.md` | `--context-file`, `--domain-file`, `--spec-file` | `plan-inputs.json.upstream` |
+| `work` | `<projectRoot>/PLAN.md` | `--plan-file <path>` | `work-summary.json.upstream.plan` |
+
+Loaded artifacts are recorded with `path`, `source` (`auto` or `explicit`), `size`, `sha1`, `truncated`, and an `excerpt` (capped at 16 KiB). Downstream stages can read these files to reconstruct the upstream context without re-reading the source artifact.
 
 ## Scope Rules
 

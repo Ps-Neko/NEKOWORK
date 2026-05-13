@@ -15,6 +15,7 @@ import { applyExecutionDiff, withExecutionWorkspace } from '../core/execution-wo
 import { record as instinctRecord } from '../lib/instincts.js';
 import { isSensitiveWork } from '../lib/risk-classifier.js';
 import { generateSessionId } from '../lib/session-id.js';
+import { loadUpstreamArtifact } from '../lib/upstream-artifacts.js';
 
 const STAGE_INDEX = {
   ideate: '01', plan: '02', implement: '03', 'self-review': '04',
@@ -45,6 +46,12 @@ export async function reviewCycle(opts) {
   const sessionId = opts.sessionId || generateSessionId('review');
   const sessionDir = path.join(projectRoot, '.harness', 'state', 'sessions', sessionId);
   fs.mkdirSync(path.join(sessionDir, 'handoffs'), { recursive: true });
+
+  const upstream = {
+    context: loadUpstreamArtifact('context', projectRoot, opts.contextFile),
+    domain: loadUpstreamArtifact('domain', projectRoot, opts.domainFile),
+    spec: loadUpstreamArtifact('spec', projectRoot, opts.specFile),
+  };
 
   const live = !!opts.live;
   const fast = !!opts.fast;
@@ -118,13 +125,22 @@ export async function reviewCycle(opts) {
 
   // ---- 2. plan ----
   log('2 plan');
-  const h2 = await runWithFallback({ agent: 'planner', stage: 'plan', task: opts.task, live, harnessRoot, projectRoot });
+  const h2 = await runWithFallback({
+    agent: 'planner', stage: 'plan', task: opts.task, live, harnessRoot, projectRoot,
+    context: { upstream },
+  });
   writeHandoff(h2);
 
   // mock 일 경우 prdSeed 가 같이 옴. PRD 저장.
   if (h2.prdSeed) {
     fs.writeFileSync(path.join(sessionDir, 'prd.json'), JSON.stringify(h2.prdSeed, null, 2));
   }
+  // plan-inputs.json: plan 단계가 받은 외부 artifact 컨텍스트 (INTEGRATION.md contract)
+  fs.writeFileSync(path.join(sessionDir, 'plan-inputs.json'), JSON.stringify({
+    sessionId,
+    task: opts.task,
+    upstream,
+  }, null, 2));
   if (opts.stopAfter === 'plan') {
     const result = {
       sessionId,
@@ -137,6 +153,7 @@ export async function reviewCycle(opts) {
       humanGate: false,
       stoppedAt: 'plan',
       targetProjectMutated: false,
+      upstream,
     };
     writeReviewSummary(sessionDir, result, summaryBase);
     return result;

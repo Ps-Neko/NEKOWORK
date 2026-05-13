@@ -5,6 +5,7 @@ import { ensureAcceptanceCriteria } from '../lib/acceptance-criteria.js';
 import { profilePolicy } from '../lib/profile-policy.js';
 import { withExecutionWorkspace } from '../core/execution-workspace.js';
 import { generateSessionId } from '../lib/session-id.js';
+import { loadUpstreamArtifact } from '../lib/upstream-artifacts.js';
 
 const STAGE_INDEX = { implement: '03' };
 
@@ -23,6 +24,9 @@ export async function workCycle(opts) {
   const acceptance = ensureAcceptanceCriteria({ sessionDir, task: opts.task });
   const policy = profilePolicy(opts.profile || readSessionProfile(sessionDir));
   const round = nextRound(priorHandoffs, 'implement');
+  const upstream = {
+    plan: loadUpstreamArtifact('plan', projectRoot, opts.planFile),
+  };
 
   const context = {
     profile: policy.profile,
@@ -33,6 +37,7 @@ export async function workCycle(opts) {
     acCount: acceptance.criteria.length,
     round,
     singleExecutor: true,
+    upstream,
   };
 
   const execution = live
@@ -59,6 +64,7 @@ export async function workCycle(opts) {
     acceptance,
     profile: policy.profile,
     qualityChecklist: policy.checklist,
+    upstream,
   });
 
   return {
@@ -166,6 +172,7 @@ function writeSummary(sessionDir, summary) {
     acceptance_count: summary.acceptance?.criteria?.length || 0,
     acceptance_source: summary.acceptance?.source || null,
     acceptance_generated: Boolean(summary.acceptance?.generated),
+    upstream: summary.upstream || { plan: null },
     next_step: 'run Codex verification before applying or shipping this work',
   }, null, 2));
 }

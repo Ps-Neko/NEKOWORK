@@ -13,6 +13,112 @@ test('nextRound increments implement rounds from prior handoffs', () => {
   assert.equal(_nextRound([{ stage: 'implement', round: 2 }, { stage: 'plan', round: 1 }], 'implement'), 3);
 });
 
+function makeMockDispatcher(calls) {
+  return async (args) => {
+    calls.push(args);
+    return {
+      stage: args.stage,
+      agent: args.agent,
+      round: args.context.round,
+      session_id: args.sessionId,
+      timestamp: new Date().toISOString(),
+      duration_ms: 1,
+      provider: 'mock',
+      model: 'sonnet',
+      decided: 'mock',
+      files: ['src/example.ts'],
+      remaining: 'verify',
+    };
+  };
+}
+
+test('work auto-picks projectRoot/PLAN.md and passes it as context.upstream.plan', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-work-plan-auto-'));
+  const calls = [];
+  try {
+    fs.writeFileSync(path.join(projectRoot, 'PLAN.md'), 'plan body for executor');
+    await workCycle({
+      task: 'do thing',
+      sessionId: 'unit-work-plan-auto',
+      harnessRoot: ROOT,
+      projectRoot,
+      dispatcher: makeMockDispatcher(calls),
+    });
+    const upstream = calls[0].context.upstream;
+    assert.ok(upstream, 'context.upstream must be present');
+    assert.ok(upstream.plan, 'context.upstream.plan must be loaded when PLAN.md exists');
+    assert.equal(upstream.plan.path, 'PLAN.md');
+    assert.equal(upstream.plan.source, 'auto');
+    assert.equal(upstream.plan.excerpt, 'plan body for executor');
+    const summary = JSON.parse(fs.readFileSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-work-plan-auto', 'work-summary.json'), 'utf8'));
+    assert.ok(summary.upstream, 'work-summary.json must record upstream');
+    assert.equal(summary.upstream.plan.path, 'PLAN.md');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('work honors explicit --plan-file even when PLAN.md exists in projectRoot', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-work-plan-explicit-'));
+  const calls = [];
+  try {
+    fs.writeFileSync(path.join(projectRoot, 'PLAN.md'), 'ignored auto plan');
+    const customPlan = path.join(projectRoot, 'custom-plan.md');
+    fs.writeFileSync(customPlan, 'real plan body');
+    await workCycle({
+      task: 'do thing',
+      sessionId: 'unit-work-plan-explicit',
+      harnessRoot: ROOT,
+      projectRoot,
+      planFile: customPlan,
+      dispatcher: makeMockDispatcher(calls),
+    });
+    const upstream = calls[0].context.upstream;
+    assert.equal(upstream.plan.path, 'custom-plan.md');
+    assert.equal(upstream.plan.source, 'explicit');
+    assert.equal(upstream.plan.excerpt, 'real plan body');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('work leaves context.upstream.plan null when no PLAN.md exists', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-work-plan-none-'));
+  const calls = [];
+  try {
+    await workCycle({
+      task: 'do thing',
+      sessionId: 'unit-work-plan-none',
+      harnessRoot: ROOT,
+      projectRoot,
+      dispatcher: makeMockDispatcher(calls),
+    });
+    assert.ok(calls[0].context.upstream);
+    assert.equal(calls[0].context.upstream.plan, null);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('work throws when explicit --plan-file is missing', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-work-plan-missing-'));
+  try {
+    await assert.rejects(
+      workCycle({
+        task: 'x',
+        sessionId: 'unit-work-plan-missing',
+        harnessRoot: ROOT,
+        projectRoot,
+        planFile: path.join(projectRoot, 'no-such.md'),
+        dispatcher: makeMockDispatcher([]),
+      }),
+      /plan file not found/i,
+    );
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 test('work runs one executor stage and writes implement handoff without Codex or ship', async () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-work-project-root-'));
   const calls = [];
