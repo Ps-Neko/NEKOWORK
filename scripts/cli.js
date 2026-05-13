@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runAutoCommand } from './cli/commands/auto-command.js';
 import { runBuildCommand } from './cli/commands/build-command.js';
+import { paint } from './lib/ui-format.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -25,7 +26,47 @@ function resolveProjectRoot(value) {
   return path.resolve(value || process.env.HARNESS_PROJECT_ROOT || process.cwd());
 }
 
-function help() {
+function readPkgVersion() {
+  try {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const pkgPath = path.resolve(here, '..', 'package.json');
+    return JSON.parse(fs.readFileSync(pkgPath, 'utf8')).version;
+  } catch { return 'unknown'; }
+}
+
+function countSessions(projectRoot) {
+  try {
+    const dir = path.join(projectRoot || process.cwd(), '.harness', 'state', 'sessions');
+    return fs.readdirSync(dir).length;
+  } catch { return 0; }
+}
+
+function shortHelp() {
+  const version = readPkgVersion();
+  const root = process.cwd();
+  const installed = fs.existsSync(path.join(root, '.harness')) ? 'yes' : 'no';
+  const sessions = countSessions(root);
+
+  console.log('');
+  console.log(`  ${paint('ok', '●')} NEKOWORK ${version}`);
+  console.log('  ' + paint('dim', `project: ${root}  ·  installed: ${installed}  ·  sessions: ${sessions}`));
+  console.log('');
+  console.log(paint('hint', '처음이라면 →'));
+  console.log(`  1.  ${paint('hint', 'nekowork check')}          환경 진단 (30초)`);
+  console.log(`  2.  ${paint('hint', 'nekowork init')}           프로필 설치 (1분)`);
+  console.log(`  3.  ${paint('hint', 'nekowork run "<task>"')}    첫 풀 사이클 실행`);
+  console.log('');
+  console.log(paint('hint', '자주 쓰는 흐름 →'));
+  console.log(`  ${paint('hint', 'work')} → ${paint('hint', 'verify')} → ${paint('hint', 'ship')} → ${paint('hint', 'apply')}     사람·게이트 통과 풀 사이클`);
+  console.log(`  ${paint('hint', 'run')}                              위 4단계 자동 래퍼`);
+  console.log(`  ${paint('hint', 'sessions')}                         진행 중 / 완료 세션 목록`);
+  console.log('');
+  console.log('  ' + paint('dim', "전체 명령은  'nekowork help all'"));
+  console.log('  ' + paint('dim', "항목별은    'nekowork help <verb>'"));
+  console.log('');
+}
+
+function fullHelp() {
   console.log(`
 nekowork <verb> [args]
 
@@ -113,6 +154,8 @@ Other
   validate, check, init, doctor, version, help
 `);
 }
+
+function help() { fullHelp(); }
 
 async function dynamicReview(opts) {
   const { reviewCycle } = await import('./orchestrators/review.js');
@@ -1261,11 +1304,22 @@ function checkArgs(argv) {
     }
 
     case undefined:
-    case 'help':
     case '--help':
     case '-h':
-      help();
+      shortHelp();
+      process.exit(0);
       break;
+
+    case 'help': {
+      const subArg = process.argv[3];
+      if (!subArg || subArg === 'all') {
+        fullHelp();
+      } else {
+        shortHelp();
+      }
+      process.exit(0);
+      break;
+    }
 
     default:
       console.error(`unknown verb: ${verb}`);
