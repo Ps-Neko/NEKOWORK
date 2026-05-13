@@ -42,6 +42,7 @@
 ```bash
 harness install --plan --profile core      # 설치 dry-run
 harness install --plan --pack quality      # curated pack dry-run
+harness start "<task>" [--apply]           # AI 변경 검증 후 적용 (start -> report -> apply)
 harness ask "<task>"                       # question gate, no project mutation
 harness team "<task>"                      # read-only worker handoffs
 harness work "<task>"                      # single executor implement handoff
