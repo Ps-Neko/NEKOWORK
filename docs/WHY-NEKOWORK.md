@@ -1,6 +1,6 @@
 # Why NEKOWORK
 
-NEKOWORK is not another Claude Code power pack. It is a verified autopilot for AI code changes: agents build and repair before the apply boundary, Codex verifies the result, and the human controls final apply.
+NEKOWORK is not another Claude Code power pack. It is a safety gate for AI-made code changes: bring your coding agent, then use NEKOWORK to prove the change before apply.
 
 ## Position
 
@@ -12,7 +12,7 @@ Use NEKOWORK when that work needs evidence, independent review, gate decisions, 
 NEKOWORK can absorb useful ideas from other systems, but only as capabilities. The architecture stays fixed around:
 
 ```text
-verified autopilot -> Codex verification -> report -> Human Gate -> explicit apply
+AI-made change -> preverify -> Codex verification -> decision/report -> Human Gate -> explicit apply
 ```
 
 NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, profile, build mode, module, and pack must preserve the verification loop.
@@ -81,9 +81,9 @@ but a curated builder catalog for reportable, gated, explicitly applied changes
 English:
 
 ```text
-NEKOWORK is a verified autopilot for AI code changes.
-It helps agents build and repair quickly, then makes their changes prove themselves
-through independent verification, Human Gate decisions, and explicit apply control.
+NEKOWORK verifies AI-made code changes before you apply them.
+Bring your coding agent; NEKOWORK adds deterministic risk checks,
+independent verification, Human Gate decisions, and explicit apply control.
 ```
 
 Korean:
