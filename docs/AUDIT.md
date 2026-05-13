@@ -1,17 +1,17 @@
 # Audit
 
-Status date: 2026-05-08
+Status date: 2026-05-13
 
-This audit summarizes the current NEKOWORK state after publishing the `0.1.0-alpha.8` public alpha. Public npm `@alpha` points at `0.1.0-alpha.8`.
+This audit summarizes the current NEKOWORK state for the `0.1.0-alpha.9` alpha candidate. Public npm `@alpha` still points at `0.1.0-alpha.8` until the alpha.9 publish is completed.
 
 ## Current Status
 
 | Area | Status | Notes |
 |---|---|---|
-| Package metadata | OK | repository version `@ps-neko/nekowork@0.1.0-alpha.8`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness`, matching version, and `nekowork`/`harness` CLI bins |
-| npm publish | OK | `@ps-neko/nekowork@alpha` points at `0.1.0-alpha.8`; alpha.8 publish succeeded with the `alpha` dist-tag |
+| Package metadata | OK | repository version `@ps-neko/nekowork@0.1.0-alpha.9`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness`, matching version, and `nekowork`/`harness` CLI bins |
+| npm publish | PENDING | alpha.9 dry-run passed; actual publish waits for an authenticated npm owner session |
 | Source install | OK | Clone, local checkout, and submodule workflows are documented |
-| Public npm alpha | OK | `docs/PUBLISH-ALPHA.md` records alpha publishes through `0.1.0-alpha.8` |
+| Public npm alpha | OK | `docs/PUBLISH-ALPHA.md` records alpha publishes through `0.1.0-alpha.8`; alpha.9 is the next prepared publish |
 | CLI doctor/check | OK | `check`, `doctor`, `doctor --quick`, and `doctor --gemini-smoke` are available |
 | Provider auth | OK | Local delegated CLI auth is the default path |
 | Internal provider adapter | OK | `HARNESS_PROVIDER_OVERRIDE=internal` can call an explicit JSON command adapter without weakening gates |
@@ -21,7 +21,7 @@ This audit summarizes the current NEKOWORK state after publishing the `0.1.0-alp
 | Fresh npm alpha smoke | OK | CI runs `npx -y @ps-neko/nekowork@alpha check --json` from a disposable directory |
 | Report UX | OK | `report` writes inspect-only `REPORT.md` and `report-summary.json` from session evidence |
 | External demo | OK | `npm run demo:external` verifies a disposable target project flow |
-| Third-party case studies | OK | `docs/case-studies/` records real public repository runs for npm package, auth boundary, Python protocol, and environment configuration targets, plus a user-provided local Diary app validation |
+| Third-party case studies | OK | `docs/case-studies/` records real public repository runs for npm package, auth boundary, Python protocol, and environment configuration targets, plus a user-provided local Diary app validation and checked-in parallel-candidate canonical fixture |
 | Decomposed workflow | OK | `ask`, `team`, `work`, `verify`, `gate`, `ship`, `report`, `apply`, and `run` are available |
 | Risk policy | OK | Shared classifier drives ask, routing traces, verify challenge/gates, and ship gate rechecks |
 | Acceptance criteria | OK | `work` ensures every session has `acceptance-criteria.json` |
@@ -30,7 +30,7 @@ This audit summarizes the current NEKOWORK state after publishing the `0.1.0-alp
 | Persistent wakeup | OK | `wait` resumes supported active sessions and blocks on `HUMAN_GATE` |
 | Generated docs | OK | CODEMAP output is stable ASCII and reproducible |
 | Tests | OK | Unit, integration, and e2e suites pass locally and in CI |
-| Release | OK | `v0.1.0-alpha.8` is the latest GitHub prerelease |
+| Release | PENDING | `v0.1.0-alpha.9` is prepared after alpha.9 publish; `v0.1.0-alpha.8` remains the latest public prerelease |
 
 ## Verification Gates
 
@@ -55,7 +55,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 344 tests pass
+- `npm test`: 345 tests pass
 - quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass
@@ -63,9 +63,10 @@ Current local result for this working tree:
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npm publish --dry-run --access public --tag alpha`: pass
-- `npm publish --access public --tag alpha`: published `0.1.0-alpha.8`
-- `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.8`; `latest` remains `0.1.0-alpha.0`
-- `npx -y @ps-neko/nekowork@alpha check`: passed for `0.1.0-alpha.8` with WARN summary from Gemini auth not checked
+- `npm publish --dry-run --access public --tag alpha`: pass for `0.1.0-alpha.9`
+- `npm publish --access public --tag alpha`: pending npm owner authentication
+- `npm view @ps-neko/nekowork dist-tags version versions --json`: expected after publish: `alpha` points at `0.1.0-alpha.9`; `latest` remains `0.1.0-alpha.0`
+- `npx -y @ps-neko/nekowork@alpha check`: pending after alpha.9 publish
 
 ## Completed Work
 
@@ -92,9 +93,9 @@ Current local result for this working tree:
 - The quick run demo proves the one-command no-API first experience.
 - `report` gives public alpha users a readable inspect-only session artifact without applying or mutating project files.
 - Official packs expose curated install shapes without creating a second safety model.
-- Checked-in example fixtures now cover financial UI, CI hardening, and quality lifecycle evidence flows.
+- Checked-in example fixtures now cover financial UI, CI hardening, quality lifecycle, and parallel-candidate canonical promotion evidence flows.
 - Third-party case studies record NEKOWORK runs against `sindresorhus/is-plain-obj`, `jshttp/basic-auth`, `python-hyper/h11`, and `motdotla/dotenv`; local generated-app evidence records the user-provided Diary app validation.
-- Public npm alpha `0.1.0-alpha.8` is published under the `alpha` dist-tag.
+- Public npm alpha `0.1.0-alpha.9` is publish-ready; `0.1.0-alpha.8` remains the current registry `alpha` dist-tag until authentication is restored.
 
 ## Remaining Optional Work
 
@@ -119,5 +120,5 @@ Current external readiness, excluding broader adoption evidence: **9.2 / 10**.
 Main deductions:
 
 - `latest` currently remains on the first alpha; docs still recommend `@alpha` until a stable release exists.
-- Four independent real-world external project case studies exist so far, plus one user-provided local generated-app validation.
+- Four independent real-world external project case studies exist so far, plus one user-provided local generated-app validation and one parallel-candidate canonical promotion fixture.
 - Advanced surfaces exist but are intentionally secondary to the public decomposed workflow and install flow.

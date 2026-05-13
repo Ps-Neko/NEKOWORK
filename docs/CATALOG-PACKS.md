@@ -19,8 +19,8 @@ Packs are public install aliases over validated profiles. They make the catalog 
 10 skills
 5 hooks
 5 tool targets
-8 case-study flows
-344 tests
+9 case-study flows
+345 tests
 ```
 
 Tool targets:
@@ -35,6 +35,7 @@ Case-study flows:
 financial UI mock
 GitHub Actions hardening
 quality lifecycle smoke
+parallel candidate canonical promotion
 npm package boundary
 auth parser boundary
 Python protocol parser boundary

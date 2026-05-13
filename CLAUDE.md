@@ -8,7 +8,7 @@
 
 ## 자동 갱신 영역
 
-<!-- HARNESS:START version=0.1.0-alpha.8 -->
+<!-- HARNESS:START version=0.1.0-alpha.9 -->
 <!-- 이 영역은 scripts/sync-claude-md.js 가 자동 갱신한다. 직접 편집 금지. -->
 
 ## 카탈로그 요약
