@@ -122,7 +122,7 @@ Current local verification after the decomposed workflow expansion:
 - `npm run lint`: pass
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
-- `npm test`: 358 tests pass
+- `npm test`: 359 tests pass
 - `npm run demo:quick -- --cleanup`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass

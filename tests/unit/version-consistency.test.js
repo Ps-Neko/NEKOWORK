@@ -96,6 +96,23 @@ test('README quickstart, CLI stage docs, and package metadata agree on start-fir
   assert.match(stages, /check -> start -> report -> gate status/);
 });
 
+test('integration docs keep upstream domain workflow outside the core runtime', () => {
+  const readme = read('README.md');
+  const integration = read('docs/INTEGRATION.md');
+
+  assert.match(readme, /\[docs\/INTEGRATION\.md\]\(docs\/INTEGRATION\.md\)/);
+  assert.match(readme, /Works With Your Existing AI Workflow/);
+  assert.match(integration, /NEKOWORK should stay narrow/);
+  assert.match(integration, /domain\/spec workflow -> candidate change -> NEKOWORK safety gate/);
+  for (const artifact of ['context.md', 'DOMAIN.md', 'SPEC.md', 'PLAN.md']) {
+    assert.ok(integration.includes(`\`${artifact}\``), `${artifact} missing from integration artifact contract`);
+  }
+  assert.match(integration, /Bug fix, refactor, or docs-only change/);
+  assert.match(integration, /Large feature with unclear domain/);
+  assert.match(integration, /no built-in domain interview system/);
+  assert.match(integration, /The integration point is the artifact contract/);
+});
+
 test('Korean README keeps public install and evidence links visible', () => {
   const ko = read('README.ko.md');
 
@@ -103,6 +120,7 @@ test('Korean README keeps public install and evidence links visible', () => {
   assert.match(ko, /Node\.js 22\+/);
   assert.match(ko, /npx -y @ps-neko\/nekowork@alpha check/);
   assert.match(ko, /docs\/AGENTIC-PATTERNS\.md/);
-  assert.match(ko, /Tests: 358 pass/);
+  assert.match(ko, /Tests: 359 pass/);
   assert.match(ko, /docs\/EXTERNAL-RUN\.md/);
+  assert.match(ko, /docs\/INTEGRATION\.md/);
 });
