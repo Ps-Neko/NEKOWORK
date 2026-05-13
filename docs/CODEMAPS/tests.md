@@ -18,7 +18,8 @@ tests/
 |   |-- trading-dashboard-example.test.js
 |   `-- trust-docs.test.js
 |-- integration/
-|   `-- build-pipeline.test.js
+|   |-- build-pipeline.test.js
+|   `-- cli-output.test.js
 |-- optional/
 |   `-- keychain-smoke.test.js
 `-- unit/
@@ -35,6 +36,7 @@ tests/
     |-- costs.test.js
     |-- doctor.test.js
     |-- execution-workspace.test.js
+    |-- flag-normalize.test.js
     |-- gate.test.js
     |-- git-mutation-guard.test.js
     |-- instincts.test.js
@@ -48,11 +50,15 @@ tests/
     |-- run.test.js
     |-- runners-extract.test.js
     |-- security-hardening.test.js
+    |-- session-id.test.js
+    |-- session-resolver.test.js
     |-- severity.test.js
     |-- ship.test.js
     |-- team-lite.test.js
     |-- team.test.js
     |-- token-vault.test.js
+    |-- ui-errors.test.js
+    |-- ui-format.test.js
     |-- verify.test.js
     |-- version-consistency.test.js
     |-- wait.test.js
@@ -73,6 +79,7 @@ tests/
 | `e2e/trading-dashboard-example.test.js` | _(none)_ |  |
 | `e2e/trust-docs.test.js` | _(none)_ |  |
 | `integration/build-pipeline.test.js` | _(none)_ | : install plan apply 5 state repair . . .harness/install-state.json . |
+| `integration/cli-output.test.js` | _(none)_ |  |
 | `optional/keychain-smoke.test.js` | _(none)_ | OS keychain . npm test (tests/optional/ ). : HARNESS_KEYCHAIN_SMOKE=1 npm run test:keychain : HARNESS_KEYCHAIN_SMOKE=1 node --test tests/opt |
 | `unit/acceptance-criteria.test.js` | _(none)_ |  |
 | `unit/apply.test.js` | _(none)_ |  |
@@ -87,6 +94,7 @@ tests/
 | `unit/costs.test.js` | _(none)_ |  |
 | `unit/doctor.test.js` | _(none)_ |  |
 | `unit/execution-workspace.test.js` | _(none)_ |  |
+| `unit/flag-normalize.test.js` | _(none)_ |  |
 | `unit/gate.test.js` | _(none)_ |  |
 | `unit/git-mutation-guard.test.js` | _(none)_ |  |
 | `unit/instincts.test.js` | _(none)_ |  |
@@ -100,11 +108,15 @@ tests/
 | `unit/run.test.js` | _(none)_ |  |
 | `unit/runners-extract.test.js` | _(none)_ | live runner JSON / prompt . Claude/Codex CLI ( ). |
 | `unit/security-hardening.test.js` | _(none)_ |  |
+| `unit/session-id.test.js` | _(none)_ |  |
+| `unit/session-resolver.test.js` | _(none)_ |  |
 | `unit/severity.test.js` | _(none)_ |  |
 | `unit/ship.test.js` | _(none)_ |  |
 | `unit/team-lite.test.js` | _(none)_ |  |
 | `unit/team.test.js` | _(none)_ |  |
 | `unit/token-vault.test.js` | _(none)_ |  |
+| `unit/ui-errors.test.js` | _(none)_ |  |
+| `unit/ui-format.test.js` | _(none)_ |  |
 | `unit/verify.test.js` | _(none)_ |  |
 | `unit/version-consistency.test.js` | _(none)_ |  |
 | `unit/wait.test.js` | _(none)_ |  |

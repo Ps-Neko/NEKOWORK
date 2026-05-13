@@ -48,15 +48,19 @@ scripts/
 |   |-- build-intelligence.js
 |   |-- build-modes.js
 |   |-- costs.js
+|   |-- flag-normalize.js
 |   |-- instincts.js
 |   |-- keychain.js
 |   |-- profile-policy.js
 |   |-- profile-safety.js
 |   |-- risk-classifier.js
 |   |-- router.js
+|   |-- session-id.js
 |   |-- session-resolver.js
 |   |-- severity.js
-|   `-- token-vault.js
+|   |-- token-vault.js
+|   |-- ui-errors.js
+|   `-- ui-format.js
 |-- orchestrators/
 |   |-- apply.js
 |   |-- ask.js
@@ -145,15 +149,19 @@ scripts/
 | `lib/build-intelligence.js` | `analyzeBuildIntent` |  |
 | `lib/build-modes.js` | `assertBuildModeContract`, `buildModeIds`, `buildModePolicy`, `buildModeSafetyRank`, `loadBuildModes` |  |
 | `lib/costs.js` | `list`, `record`, `summarize` | . USD ~/.harness/costs.jsonl append. CLI : harness costs --since=7d ( --since=1h, 30m, all). |
+| `lib/flag-normalize.js` | `normalizeFlags` |  |
 | `lib/instincts.js` | `get`, `list`, `promote`, `prune`, `ready`, `record` | continuous-learning-v2 . review ( + + verdict ) ~/.harness/instincts/<id>.json . " " . |
 | `lib/keychain.js` | `get`, `isAvailable`, `list`, `remove`, `set` | scripts/lib/keychain.js OS keychain wrapper (@napi-rs/keyring sync API). macOS Keychain / Windows Credential Manager / Linux Secret Service. |
 | `lib/profile-policy.js` | `acceptanceCoverage`, `acceptanceCoverageWarnings`, `buildQualityChecklist`, `evidenceFieldWarnings`, `normalizeProfileName`, `profilePolicy` |  |
 | `lib/profile-safety.js` | `CORE_PROFILE_MODULES`, `validateProfileSafety` |  |
 | `lib/risk-classifier.js` | `SENSITIVE_PATTERNS`, `classifyRisk`, `gateReasonFromFindings`, `humanGatePolicy`, `isSensitiveWork` |  |
 | `lib/router.js` | `decide`, `trace` | . : stage, task, files, ecoMode, riskLevel : { agent, model, provider, rationale, alternatives } SKILL claude-led-codex-review Stage Routing |
+| `lib/session-id.js` | `generateSessionId`, `isLegacyId`, `isNewId` |  |
 | `lib/session-resolver.js` | `resolveSessionId` |  |
 | `lib/severity.js` | `classifyCategory`, `classifySeverity`, `deriveVerdict`, `riskLevel`, `severityCounts` | Severity / category + blast radius . REVIEW.md . . |
 | `lib/token-vault.js` | `audit`, `backend`, `list`, `load`, `redact`, `remove`, `save` | scripts/lib/token-vault.js auth.token_store: os-keychain (default) encrypted-file. : HARNESS_TOKEN_STORE_KIND=os-keychain keychain only ( th |
+| `lib/ui-errors.js` | `renderBlocked`, `renderError` |  |
+| `lib/ui-format.js` | `isColorEnabled`, `kvBlock`, `nextBlock`, `paint` |  |
 | `orchestrators/apply.js` | `applyCycle`, `latestStageHandoff`, `readApplyGitStatus`, `readDiffForHandoff`, `readPriorHandoffs` |  |
 | `orchestrators/ask.js` | `askGate`, `buildQuestionGate`, `classifyAskTask` |  |
 | `orchestrators/auto.js` | `autoCycle`, `autoPlan`, `normalizeAutoLevel` |  |
