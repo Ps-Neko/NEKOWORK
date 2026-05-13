@@ -14,6 +14,7 @@ import { dispatch } from '../agents/dispatch.js';
 import { applyExecutionDiff, withExecutionWorkspace } from '../core/execution-workspace.js';
 import { record as instinctRecord } from '../lib/instincts.js';
 import { isSensitiveWork } from '../lib/risk-classifier.js';
+import { generateSessionId } from '../lib/session-id.js';
 
 const STAGE_INDEX = {
   ideate: '01', plan: '02', implement: '03', 'self-review': '04',
@@ -41,7 +42,7 @@ const LEGACY_SENSITIVE_PATTERNS = [
 export async function reviewCycle(opts) {
   const harnessRoot = opts.harnessRoot || process.cwd();
   const projectRoot = opts.projectRoot || harnessRoot;
-  const sessionId = opts.sessionId || `review-${Date.now()}`;
+  const sessionId = opts.sessionId || generateSessionId('review');
   const sessionDir = path.join(projectRoot, '.harness', 'state', 'sessions', sessionId);
   fs.mkdirSync(path.join(sessionDir, 'handoffs'), { recursive: true });
 
