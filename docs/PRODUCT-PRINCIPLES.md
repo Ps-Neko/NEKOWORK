@@ -1,11 +1,11 @@
 # Product Principles
 
-NEKOWORK is not a large agent pack. It is a verified autopilot for AI code changes: agents can plan, build, verify, and repair before the apply boundary, Codex verifies from a separate context, and human gates stop risky changes.
+NEKOWORK is not a large agent pack. It is a safety gate for AI-made code changes: agents can plan and build, deterministic rules and Codex verification challenge the diff, and human gates stop risky changes before apply.
 
 ## Position
 
 ```text
-NEKOWORK = verified autopilot -> Codex verification -> Human Gate -> explicit apply
+NEKOWORK = AI-made change -> evidence -> Human Gate -> explicit apply
 ```
 
 Agent catalogs, skill packs, hooks, profiles, build modes, and team execution are useful only when they strengthen that verification loop.
@@ -13,8 +13,7 @@ Agent catalogs, skill packs, hooks, profiles, build modes, and team execution ar
 The product promise is:
 
 ```text
-Autonomous until apply.
-Verified before ship.
+Verified before apply.
 Human-controlled at the boundary.
 ```
 

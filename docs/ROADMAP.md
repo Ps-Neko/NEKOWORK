@@ -2,7 +2,7 @@
 
 Status date: 2026-05-13
 
-This roadmap is intentionally small. NEKOWORK should improve verified autopilot behavior and the evidence surface before expanding the agent catalog.
+This roadmap is intentionally small. NEKOWORK should improve the apply-before-change safety gate and evidence surface before expanding the agent catalog.
 
 ## 0.1.0-alpha.3
 
