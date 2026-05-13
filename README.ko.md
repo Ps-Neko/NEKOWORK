@@ -192,7 +192,7 @@ NEKOWORK는 하나의 거대한 agent 묶음이 아니라, 일을 나누고 검�
 - Current alpha: `0.1.0-alpha.10` candidate
 - CLI: `nekowork`
 - Legacy/internal alias: `harness`
-- Tests: 349 pass
+- Tests: 357 pass
 - npm audit: 0 moderate+ issues
 - Fresh `npx @alpha` smoke: pass
 

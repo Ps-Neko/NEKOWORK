@@ -36,6 +36,7 @@ tests/
     |-- codex-isolation.test.js
     |-- core-utils.test.js
     |-- costs.test.js
+    |-- decision.test.js
     |-- doctor.test.js
     |-- execution-workspace.test.js
     |-- flag-normalize.test.js
@@ -45,6 +46,7 @@ tests/
     |-- orchestrator.test.js
     |-- portability.test.js
     |-- pr-prep.test.js
+    |-- preverify.test.js
     |-- profile-safety.test.js
     |-- ralph.test.js
     |-- report.test.js
@@ -97,6 +99,7 @@ tests/
 | `unit/codex-isolation.test.js` | _(none)_ | Codex Claude . 2 "Claude , Codex " . codex buildPrompt Claude /agent body prompt leak . |
 | `unit/core-utils.test.js` | _(none)_ |  |
 | `unit/costs.test.js` | _(none)_ |  |
+| `unit/decision.test.js` | _(none)_ |  |
 | `unit/doctor.test.js` | _(none)_ |  |
 | `unit/execution-workspace.test.js` | _(none)_ |  |
 | `unit/flag-normalize.test.js` | _(none)_ |  |
@@ -106,6 +109,7 @@ tests/
 | `unit/orchestrator.test.js` | _(none)_ | review . mock provider . node:test based orchestrator checks. |
 | `unit/portability.test.js` | _(none)_ |  |
 | `unit/pr-prep.test.js` | _(none)_ |  |
+| `unit/preverify.test.js` | _(none)_ |  |
 | `unit/profile-safety.test.js` | _(none)_ |  |
 | `unit/ralph.test.js` | _(none)_ |  |
 | `unit/report.test.js` | _(none)_ |  |

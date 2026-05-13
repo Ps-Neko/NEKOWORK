@@ -132,7 +132,8 @@ test('report writes a readable inspect-only session report', () => {
     assert.match(report, /\| Independent verification \| yes \|/);
     assert.match(report, /\| Human Gate \| clear \|/);
     assert.match(report, /\| Apply \| not applied \|/);
-    assert.match(report, /\| Evidence \| .*verify-summary\.json.*NO_SHIP.*\|/);
+    assert.match(report, /\| Evidence \| .*verify-summary\.json.*decision\.json.*\|/);
+    assert.match(report, /- `NO_SHIP`/);
     assert.match(report, /Decision: fix findings, rerun verify, then rerun ship/);
     assert.match(report, /Build Mode: safe/);
     assert.match(report, /Build Intelligence/);
@@ -149,6 +150,9 @@ test('report writes a readable inspect-only session report', () => {
     assert.equal(summary.mode, 'safe');
     assert.equal(summary.requestedMode, 'auto');
     assert.equal(summary.buildIntelligence.taskType, 'security-sensitive');
+    const decision = JSON.parse(fs.readFileSync(path.join(sessionDir, 'decision.json'), 'utf8'));
+    assert.equal(decision.verdict, 'blocked');
+    assert.ok(decision.evidence.includes('report-summary.json'));
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }

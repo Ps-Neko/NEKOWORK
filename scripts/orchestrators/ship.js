@@ -4,6 +4,7 @@ import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { dispatch } from '../agents/dispatch.js';
 import { ensureAcceptanceCriteria } from '../lib/acceptance-criteria.js';
+import { writeDecision } from '../lib/decision.js';
 import { classifyRisk, gateReasonFromFindings } from '../lib/risk-classifier.js';
 import { gateStatus } from './gate.js';
 
@@ -166,6 +167,7 @@ export async function shipCycle(opts) {
     verificationHandoffs,
     shipHandoff: h7,
   });
+  writeDecision(sessionDir, { sessionId, stage: 'ship' });
   return result;
 }
 
@@ -236,6 +238,7 @@ function writeBlockedSummary({ sessionId, sessionDir, task, priorHandoffs, reaso
     verificationHandoffs,
     shipHandoff: null,
   });
+  writeDecision(sessionDir, { sessionId, stage: 'ship' });
   return {
     sessionId,
     sessionDir,

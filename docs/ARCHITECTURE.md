@@ -50,7 +50,7 @@ User command
         |
         |-- doctor
         |-- install plan/apply
-        |-- ask / plan / team / work / verify / gate / ship / report / apply / run / build / review / review-cycle
+        |-- ask / plan / team / work / verify / gate / ship / report / apply / run / start / build / review / review-cycle
         |-- ralph
         |-- team-lite
         |-- sessions / costs / instincts
@@ -87,6 +87,7 @@ node scripts/cli.js ship "ship readiness" --session work-smoke --project-root <t
 node scripts/cli.js report --session work-smoke --project-root <target>
 node scripts/cli.js apply --session work-smoke --project-root <target>
 node scripts/cli.js run "decomposed wrapper" --session run-smoke --project-root <target>
+node scripts/cli.js start "beginner safe entrypoint" --session start-smoke --project-root <target>
 node scripts/cli.js build "safe builder wrapper" --mode team --session build-smoke --project-root <target>
 node scripts/cli.js auto "bounded autonomy before apply" --level normal --session auto-smoke --project-root <target>
 node scripts/cli.js review "change request" --no-ship --project-root <target>
@@ -127,19 +128,19 @@ ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
 
 `work` also ensures `acceptance-criteria.json` exists. It reuses planned PRD acceptance criteria when available or records a task-derived minimum so verification and ship readiness always have success criteria to inspect.
 
-`verify` does not implement or ship. It requires `--session <id>` so it can read the prior `work` handoff and optional diff. Critical or blocking Codex findings write `HUMAN_GATE`.
+`verify` does not implement or ship. It requires `--session <id>` so it can read the prior `work` handoff and optional diff. Before Codex review, it writes `preverify-summary.json` for deterministic diff-risk findings. Critical or blocking Codex or preverify findings write `HUMAN_GATE`.
 
 `gate` does not inspect or edit project files. It writes audit markers: `GATE_APPROVED`, `GATE_BLOCKED`, `gate-summary.json`, and `gate-events.jsonl`.
 
 `ship` does not implement, verify, publish, deploy, or mutate the target project. It requires both prior `work` and Codex verification handoffs. It writes `SHIP_READY` only for fully approved verification or explicit human gate approval, writes `NO_SHIP` for fixable findings, and stops with a human gate when `HUMAN_GATE` is unresolved or explicitly blocked.
 
-`report` does not implement, verify, ship, apply, call providers, or inspect project source. It reads session summaries, markers, acceptance criteria, and handoffs, then writes `REPORT.md` and `report-summary.json` under the session directory.
+`report` does not implement, verify, ship, apply, call providers, or inspect project source. It reads session summaries, markers, acceptance criteria, `decision.json`, and handoffs, then writes `REPORT.md` and `report-summary.json` under the session directory.
 
 `apply` requires `SHIP_READY`, no newer `NO_SHIP`, no unresolved gate, and a captured diff from `work --live`. It applies that diff with `git apply --3way`, records `APPLIED_DIFF`, and leaves commit/push/release actions to the human.
 
 `run` is the compatibility-friendly wrapper around the decomposed path. It runs `work -> verify -> ship` and only runs `apply` when `--apply` is explicitly requested and `SHIP_READY` exists. New automation should prefer `run` or the explicit decomposed commands; old automation can continue to use `review` or `review-cycle`.
 
-`build` is the safe one-command builder entrypoint. It defaults to `auto`, classifies task intent, selects a named mode preset (`fast`, `safe`, `team`, `tdd`, `release`) over the existing safe loop, records `build-summary.json`, and keeps apply explicit.
+`start` is the beginner alias for `build`. `build` is the safe one-command builder entrypoint. It defaults to `auto`, classifies task intent, selects a named mode preset (`fast`, `safe`, `team`, `tdd`, `release`) over the existing safe loop, records `build-summary.json`, writes `decision.json`, and keeps apply explicit.
 
 `ralph` is an advanced repeated-iteration loop. Its default engine remains legacy `review` for compatibility, but `ralph --engine run` repeats the decomposed wrapper and records child run sessions. Ralph does not apply diffs; verified mutation still flows through `apply`.
 

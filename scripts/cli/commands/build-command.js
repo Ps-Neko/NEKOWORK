@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { buildCycle } from '../../orchestrators/build.js';
+import { buildDecision } from '../../lib/decision.js';
 
 export function parseBuildArgs(argv, usageError) {
   const opts = {
@@ -155,6 +156,7 @@ function buildJsonOutput(result) {
     noShip: result.noShip,
     shipReady: result.shipReady,
     applied: result.applied,
+    decision: safeDecision(result.sessionDir),
   };
 }
 
@@ -202,6 +204,15 @@ function printBuildPlan(result) {
 }
 
 function printBuildResult(result, opts) {
+  const decision = safeDecision(result.sessionDir);
+  if (decision) {
+    console.log('Verdict: ' + String(decision.verdict || 'unknown').toUpperCase());
+    console.log('Reason: ' + (decision.reason || 'none'));
+    console.log('Human Gate: ' + decision.human_gate);
+    console.log('Ship ready: ' + String(decision.ship_ready));
+    console.log('Apply allowed: ' + String(decision.apply_allowed));
+    console.log('');
+  }
   console.log('=== build ===');
   console.log('  session    : ' + result.sessionId);
   console.log('  mode       : ' + (result.autoMode ? `${result.mode} (auto)` : result.mode));
@@ -226,6 +237,14 @@ function printBuildResult(result, opts) {
     else printBuildOverrideExplanation(result.modeOverride);
     console.log('');
     printBuildEvidence(result);
+  }
+}
+
+function safeDecision(sessionDir) {
+  try {
+    return sessionDir ? buildDecision(sessionDir, { stage: 'build-output' }) : null;
+  } catch {
+    return null;
   }
 }
 
