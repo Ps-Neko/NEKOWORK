@@ -42,6 +42,8 @@ fact_forcing: true|false  # PreToolUse 사실 조사 강제 여부
 
 **Upstream artifact contract.** `ask` / `plan` / `team` / `work` 는 `<projectRoot>/{context,DOMAIN,SPEC,PLAN}.md` 를 자동으로 픽업하거나 명시 플래그(`--context-file`, `--domain-file`, `--spec-file`, `--plan-file`) 로 전달받는다. 결과는 `ask.json.upstream_artifacts`, `plan-inputs.json`, `work-summary.json.upstream`, 그리고 각 단계 handoff 의 `upstream_artifacts` 필드에 기록된다. 자세한 contract 는 [docs/INTEGRATION.md](docs/INTEGRATION.md) 참고.
 
+**용어 노트.** 7단계 표의 `ship` 은 **readiness decision** 이다 (`SHIP_READY` / `NO_SHIP` 마커). 배포가 아니다. `ship` 결과는 `apply` 가 허용되는지만 결정하며, 자체적으로 커밋·푸시·배포·퍼블리시를 하지 않는다.
+
 ## 라우팅 결정 규칙
 
 - **eco mode**: opus → sonnet, sonnet → haiku (단 단계 4·5는 sonnet floor).

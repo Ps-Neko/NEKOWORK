@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // NEKOWORK CLI entrypoint. The `harness` bin remains a legacy/internal alias.
-// Public verbs: check, init, doctor, start, build, report, apply, ask, plan, team, work, verify, gate, ship, run, auto, pr-prep, review, review-cycle, install, validate, version.
+// Public verbs: check, init, doctor, start, build, report, apply, ask, plan, team, work, verify, gate, ship (alias: ready), run, auto, pr-prep, review, review-cycle, install, validate, version.
 // Advanced verbs: self-review, codex-review, ralph, wait, sessions, costs, instincts.
 
 import { spawnSync } from 'node:child_process';
@@ -1141,6 +1141,7 @@ function checkArgs(argv) {
       break;
     }
 
+    case 'ready':
     case 'ship': {
       const opts = parseShipArgs(rest);
       if (!opts.sessionId) {

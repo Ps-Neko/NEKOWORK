@@ -42,6 +42,8 @@ context.md + DOMAIN.md + SPEC.md + PLAN.md
 
 Evidence written along the way: `decision.json`, `preverify-summary.json`, `verify-summary.json`, `ship-summary.json`, `gate-summary.json`, and `REPORT.md`. Apply refuses to run without `SHIP_READY` and a cleared gate.
 
+Terminology note: `ship` in NEKOWORK is a **readiness decision** (`SHIP_READY` or `NO_SHIP`), not a deployment. It decides whether `apply` is allowed and never commits, pushes, publishes, or deploys by itself.
+
 If these files do not exist, NEKOWORK still works from the task prompt and session artifacts. The contract is for richer upstream workflows, not a new requirement for every change.
 
 ## How the contract is wired
