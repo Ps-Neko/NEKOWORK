@@ -871,13 +871,13 @@ function checkArgs(argv) {
           live: result.live,
         }, null, 2));
       } else {
-        const tookSec = result.elapsedMs ? (result.elapsedMs / 1000).toFixed(1) : '0.0';
         const fileCount = Array.isArray(result.handoff?.files) ? result.handoff.files.length : 0;
         const round = result.handoff?.round ?? 1;
         const shortId = result.sessionId.split('-').pop();
+        const tookSec = result.elapsedMs ? ` · ${(result.elapsedMs / 1000).toFixed(1)}s` : '';
 
         console.log('');
-        console.log(`  ${paint('ok', '✓')} work 완료              ${paint('dim', `round ${round} · ${fileCount} files · ${tookSec}s`)}`);
+        console.log(`  ${paint('ok', '✓')} work 완료              ${paint('dim', `round ${round} · ${fileCount} files${tookSec}`)}`);
         console.log(kvBlock([
           ['session', paint('hint', result.sessionId)],
           ['diff',    result.handoff?.diff ? '(generated)' : '(none — 다음 단계에서 생성)'],
