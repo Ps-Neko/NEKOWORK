@@ -59,9 +59,10 @@ test('nekowork work outputs new format with session and Next block', () => {
   assert.match(r.stdout, /nekowork report --session/);
 });
 
-test('nekowork work --pack quality emits deprecation warning', () => {
+test('nekowork work --pack quality emits deprecation warning and still succeeds', () => {
   const r = runCli(['work', 'smoke pack', '--pack', 'quality']);
   assert.match(r.stderr, /--pack.*deprecated/);
+  assert.equal(r.status, 0, `exit=${r.status} stderr=${r.stderr}`);
 });
 
 test('nekowork work without task shows 3-section error', () => {
