@@ -9,6 +9,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runAutoCommand } from './cli/commands/auto-command.js';
 import { runBuildCommand } from './cli/commands/build-command.js';
+import { paint, kvBlock, nextBlock } from './lib/ui-format.js';
+import { normalizeFlags } from './lib/flag-normalize.js';
+import { renderError } from './lib/ui-errors.js';
+import { resolveSessionId } from './lib/session-resolver.js';
+import { isNewId } from './lib/session-id.js';
+
+function displayShortId(sessionId) {
+  return isNewId(sessionId) ? sessionId.split('-').pop() : sessionId;
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -25,7 +34,47 @@ function resolveProjectRoot(value) {
   return path.resolve(value || process.env.HARNESS_PROJECT_ROOT || process.cwd());
 }
 
-function help() {
+function readPkgVersion() {
+  try {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const pkgPath = path.resolve(here, '..', 'package.json');
+    return JSON.parse(fs.readFileSync(pkgPath, 'utf8')).version;
+  } catch { return 'unknown'; }
+}
+
+function countSessions(projectRoot) {
+  try {
+    const dir = path.join(projectRoot || process.cwd(), '.harness', 'state', 'sessions');
+    return fs.readdirSync(dir).length;
+  } catch { return 0; }
+}
+
+function shortHelp() {
+  const version = readPkgVersion();
+  const root = process.cwd();
+  const installed = fs.existsSync(path.join(root, '.harness')) ? 'yes' : 'no';
+  const sessions = countSessions(root);
+
+  console.log('');
+  console.log(`  ${paint('ok', '●')} NEKOWORK ${version}`);
+  console.log('  ' + paint('dim', `project: ${root}  ·  installed: ${installed}  ·  sessions: ${sessions}`));
+  console.log('');
+  console.log(paint('hint', '처음이라면 →'));
+  console.log(`  1.  ${paint('hint', 'nekowork check')}          환경 진단 (30초)`);
+  console.log(`  2.  ${paint('hint', 'nekowork init')}           프로필 설치 (1분)`);
+  console.log(`  3.  ${paint('hint', 'nekowork run "<task>"')}    첫 풀 사이클 실행`);
+  console.log('');
+  console.log(paint('hint', '자주 쓰는 흐름 →'));
+  console.log(`  ${paint('hint', 'work')} → ${paint('hint', 'verify')} → ${paint('hint', 'ship')} → ${paint('hint', 'apply')}     사람·게이트 통과 풀 사이클`);
+  console.log(`  ${paint('hint', 'run')}                              위 4단계 자동 래퍼`);
+  console.log(`  ${paint('hint', 'sessions')}                         진행 중 / 완료 세션 목록`);
+  console.log('');
+  console.log('  ' + paint('dim', "전체 명령은  'nekowork help all'"));
+  console.log('  ' + paint('dim', "항목별은    'nekowork help <verb>'"));
+  console.log('');
+}
+
+function fullHelp() {
   console.log(`
 nekowork <verb> [args]
 
@@ -114,6 +163,56 @@ Other
 `);
 }
 
+function help() { fullHelp(); }
+
+const VERB_HELP = {
+  work: () => {
+    console.log('');
+    console.log('nekowork work "<task>" [options]');
+    console.log('');
+    console.log('  단일 executor 구현 핸드오프. 코드 변경을 생성한 뒤 verify로 넘긴다.');
+    console.log('');
+    console.log('Options:');
+    console.log('  --profile quality|security|product   강조점 (기본: quality)');
+    console.log('  --strict                              TDD/품질 강화');
+    console.log('  --live                                실 제공자 사용 (없으면 mock)');
+    console.log('  --session <id>                        기존 세션에 이어붙임 (prefix 가능)');
+    console.log('  --project-root <dir>                  대상 프로젝트 루트');
+    console.log('  --json                                머신 파싱용 출력');
+    console.log('');
+    console.log('예시:');
+    console.log('  nekowork work "BOM 출력 컬럼에 단가 추가"');
+    console.log('  nekowork work "타이틀바 다크모드" --profile quality --strict');
+    console.log('');
+  },
+  verify: () => {
+    console.log('');
+    console.log('nekowork verify "<task>" --session <id> [options]');
+    console.log('');
+    console.log('  앞선 work 핸드오프를 Codex로만 검증한다.');
+    console.log('');
+    console.log('Options:');
+    console.log('  --session <id>                        대상 세션 (prefix 가능)');
+    console.log('  --profile quality|security|product   강조점');
+    console.log('  --strict                              TDD/품질 강화');
+    console.log('  --live                                실 제공자 사용');
+    console.log('  --json                                머신 파싱용 출력');
+    console.log('');
+    console.log('예시:');
+    console.log('  nekowork verify "BOM 단가 추가" --session a3f7');
+    console.log('  nekowork verify --session a3f7   # task 생략 (세션이 보유)');
+    console.log('');
+  },
+};
+
+function verbHelp(verb) {
+  const renderer = VERB_HELP[verb];
+  if (renderer) { renderer(); return 0; }
+  console.error(`알 수 없는 동사: ${verb}`);
+  console.error(`전체 명령은: nekowork help all`);
+  return 2;
+}
+
 async function dynamicReview(opts) {
   const { reviewCycle } = await import('./orchestrators/review.js');
   const result = await reviewCycle({
@@ -136,6 +235,18 @@ function usageError(message) {
   const err = new Error(message);
   err.cliUsage = true;
   return err;
+}
+
+function safeNormalizeFlags(argv, helpRef) {
+  try {
+    return normalizeFlags(argv, { warn: console.error });
+  } catch (e) {
+    console.error(renderError({
+      message: e.message,
+      helpRef,
+    }));
+    process.exit(2);
+  }
 }
 
 function parseReviewArgs(argv) {
@@ -322,6 +433,7 @@ function parseWorkArgs(argv) {
     profile: null,
     live: false,
     json: false,
+    strict: false,
   };
   const unknown = [];
 
@@ -329,6 +441,7 @@ function parseWorkArgs(argv) {
     const a = argv[i];
     if (a === '--json') opts.json = true;
     else if (a === '--live') opts.live = true;
+    else if (a === '--strict') opts.strict = true;
     else if (a === '--profile') {
       const value = argv[++i];
       if (!value || value.startsWith('--')) throw usageError('--profile requires a value');
@@ -381,6 +494,7 @@ function parseVerifyArgs(argv) {
     else if (a === '--live') opts.live = true;
     else if (a === '--secure') opts.secure = true;
     else if (a === '--strict-quality') opts.strictQuality = true;
+    else if (a === '--strict') opts.strictQuality = true;
     else if (a === '--profile') {
       const value = argv[++i];
       if (!value || value.startsWith('--')) throw usageError('--profile requires a value');
@@ -748,10 +862,30 @@ function checkArgs(argv) {
     }
 
     case 'work': {
-      const opts = parseWorkArgs(rest);
+      const normalizedArgv = safeNormalizeFlags(process.argv.slice(3), 'nekowork help work');
+      const opts = parseWorkArgs(normalizedArgv);
       if (!opts.task) {
-        console.error('task is required. Example: harness work "implement trading dashboard mockup"');
+        console.error(renderError({
+          message: 'task 인수가 필요합니다.',
+          examples: [
+            'nekowork work "BOM 출력 컬럼에 단가 추가"',
+            'nekowork work "타이틀바 다크모드"',
+          ],
+          helpRef: 'nekowork help work',
+        }));
         process.exit(2);
+      }
+      if (opts.sessionId) {
+        try {
+          opts.sessionId = resolveSessionId(resolveProjectRoot(opts.projectRoot), opts.sessionId);
+        } catch (e) {
+          console.error(renderError({
+            message: `세션 ID '${opts.sessionId}' 가 모호합니다.`,
+            examples: [String(e.message)],
+            helpRef: 'nekowork sessions',
+          }));
+          process.exit(2);
+        }
       }
       const { workCycle } = await import('./orchestrators/work.js');
       const result = await workCycle({
@@ -770,33 +904,63 @@ function checkArgs(argv) {
           live: result.live,
         }, null, 2));
       } else {
-        console.log('=== work ===');
-        console.log('  session    : ' + result.sessionId);
-        console.log('  executor   : ' + result.handoff.agent);
-        console.log('  round      : ' + result.round);
-        console.log('  files      : ' + result.files.length);
-        console.log('  diff       : ' + (result.diffPath || '(none)'));
-        console.log('  codex      : not run');
-        console.log('  ship       : not run');
+        const fileCount = Array.isArray(result.handoff?.files) ? result.handoff.files.length : 0;
+        const round = result.handoff?.round ?? 1;
+        const shortId = displayShortId(result.sessionId);
+
+        console.log('');
+        console.log(`  ${paint('ok', '✓')} work 완료              ${paint('dim', `round ${round} · ${fileCount} files`)}`);
+        console.log(kvBlock([
+          ['session', paint('hint', result.sessionId)],
+          ['diff',    (result.handoff?.diffPath || result.diffPath) ? '(generated)' : '(none — 다음 단계에서 생성)'],
+          ['codex',   result.handoff?.codex ? 'ok' : 'not run'],
+          ['ship',    result.handoff?.ship  ? 'ready' : 'not run'],
+        ]));
+        console.log('');
+        console.log(nextBlock([
+          { cmd: `nekowork verify --session ${shortId}`, note: 'Codex 검증 (필수)' },
+          { cmd: `nekowork report --session ${result.sessionId}`, note: 'evidence 미리 보기' },
+          { cmd: `nekowork gate status --session ${result.sessionId}`, note: 'HUMAN_GATE 확인' },
+        ]));
+        console.log('');
       }
       break;
     }
 
     case 'verify': {
-      const opts = parseVerifyArgs(rest);
-      if (!opts.task) {
-        console.error('task is required. Example: harness verify "verify implemented dashboard" --session work-123');
-        process.exit(2);
-      }
+      const normalizedArgv = safeNormalizeFlags(process.argv.slice(3), 'nekowork help verify');
+      const opts = parseVerifyArgs(normalizedArgv);
+
       if (!opts.sessionId) {
-        console.error('--session is required for verify so NEKOWORK can read the prior work handoff');
+        console.error(renderError({
+          message: '--session 인자가 필요합니다.',
+          examples: [
+            'nekowork verify --session a3f7',
+            'nekowork verify "원본 task" --session a3f7',
+          ],
+          helpRef: 'nekowork help verify',
+        }));
         process.exit(2);
       }
+
+      let resolvedSessionId;
+      try {
+        resolvedSessionId = resolveSessionId(resolveProjectRoot(opts.projectRoot), opts.sessionId);
+      } catch (e) {
+        console.error(renderError({
+          message: `세션 ID '${opts.sessionId}' 가 모호합니다.`,
+          examples: [String(e.message)],
+          helpRef: 'nekowork sessions',
+        }));
+        process.exit(2);
+      }
+
       const { verifyCycle } = await import('./orchestrators/verify.js');
       let result;
       try {
         result = await verifyCycle({
           ...opts,
+          sessionId: resolvedSessionId,
           harnessRoot: ROOT,
           projectRoot: resolveProjectRoot(opts.projectRoot),
         });
@@ -817,15 +981,25 @@ function checkArgs(argv) {
           qualityWarnings: result.qualityWarnings || [],
         }, null, 2));
       } else {
-        console.log('=== verify ===');
-        console.log('  session    : ' + result.sessionId);
-        console.log('  verdict    : ' + result.verdict);
-        console.log('  secure     : ' + (result.secureActive ? 'active' : 'off'));
-        console.log('  challenge  : ' + (result.codexChallenge ? 'yes' : 'no'));
-        console.log('  strict     : ' + (result.strictQuality ? (result.strictQualityBlocked ? 'blocked' : 'passed') : 'off'));
-        console.log('  warnings   : ' + (result.qualityWarnings?.length || 0));
-        console.log('  human gate : ' + (result.humanGate ? `YES (${result.reason})` : 'no'));
-        console.log('  ship       : not run');
+        const fileCount = Array.isArray(result.codexReview?.files) ? result.codexReview.files.length : 0;
+        const round = result.codexReview?.round ?? 1;
+        const shortId = displayShortId(result.sessionId);
+
+        console.log('');
+        console.log(`  ${paint('ok', '✓')} verify 완료            ${paint('dim', `round ${round} · ${fileCount} files reviewed`)}`);
+        console.log(kvBlock([
+          ['session', paint('hint', result.sessionId)],
+          ['codex',   result.codexReview ? 'ok' : 'not run'],
+          ['verdict', result.verdict ?? '-'],
+          ['gate',    result.humanGate ? 'HUMAN_GATE open' : 'clear'],
+        ]));
+        console.log('');
+        console.log(nextBlock([
+          { cmd: `nekowork ship --session ${result.sessionId}`, note: 'ship 준비 확인' },
+          { cmd: `nekowork report --session ${result.sessionId}`, note: 'REPORT.md 생성' },
+          { cmd: `nekowork gate status --session ${result.sessionId}`, note: 'gate 상태' },
+        ]));
+        console.log('');
       }
       if (result.humanGate) process.exit(3);
       break;
@@ -1261,11 +1435,21 @@ function checkArgs(argv) {
     }
 
     case undefined:
-    case 'help':
     case '--help':
     case '-h':
-      help();
+      shortHelp();
+      process.exit(0);
       break;
+
+    case 'help': {
+      const subArg = process.argv[3];
+      if (!subArg || subArg === 'all') {
+        fullHelp();
+        process.exit(0);
+      }
+      process.exit(verbHelp(subArg));
+      break;
+    }
 
     default:
       console.error(`unknown verb: ${verb}`);
