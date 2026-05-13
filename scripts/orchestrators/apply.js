@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { applyExecutionDiff } from '../core/execution-workspace.js';
 import { readGitStatus } from '../core/git-mutation-guard.js';
+import { writeDecision } from '../lib/decision.js';
 import { gateStatus } from './gate.js';
 
 export function applyCycle(opts) {
@@ -215,6 +216,7 @@ function writeSummary(sessionDir, result, implementHandoff, gate) {
         ? 'diff was already applied; inspect project git status'
         : 'resolve gate/ship/apply blocker',
   }, null, 2));
+  writeDecision(sessionDir, { sessionId: result.sessionId, stage: 'apply' });
 }
 
 export {

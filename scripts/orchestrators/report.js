@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { writeDecision } from '../lib/decision.js';
 import { resolveSessionId } from '../lib/session-resolver.js';
 
 const SUMMARY_FILES = [
@@ -32,6 +33,7 @@ export function reportSession(opts) {
   const sessionDir = path.join(projectRoot, '.harness', 'state', 'sessions', sessionId);
   if (!fs.existsSync(sessionDir)) throw new Error('report requires an existing session');
 
+  writeDecision(sessionDir, { sessionId, stage: 'report' });
   const data = readSessionEvidence(sessionDir);
   const status = deriveStatus(data);
   const markdown = renderReport({
@@ -55,6 +57,7 @@ export function reportSession(opts) {
       report_path: reportPath,
       target_project_mutated: false,
     }, null, 2));
+    writeDecision(sessionDir, { sessionId, stage: 'report' });
   }
 
   return {
@@ -67,6 +70,7 @@ export function reportSession(opts) {
 function readSessionEvidence(sessionDir) {
   return {
     summaries: Object.fromEntries(SUMMARY_FILES.map(file => [file, readJson(path.join(sessionDir, file))])),
+    decision: readJson(path.join(sessionDir, 'decision.json')),
     buildIntelligence: readJson(path.join(sessionDir, 'build-intelligence.json')),
     buildPlan: readJson(path.join(sessionDir, 'build-plan.json')),
     parallelCandidates: readJson(path.join(sessionDir, 'parallel-candidates.json')),
@@ -259,6 +263,7 @@ function trustReason(data, summary) {
 function evidenceFiles(data) {
   return [
     ...SUMMARY_FILES.filter(file => data.summaries[file]),
+    data.decision ? 'decision.json' : null,
     data.buildIntelligence ? 'build-intelligence.json' : null,
     data.buildPlan ? 'build-plan.json' : null,
     data.parallelCandidates ? 'parallel-candidates.json' : null,

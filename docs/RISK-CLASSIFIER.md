@@ -28,11 +28,28 @@ The classifier returns:
 
 Critical verification findings always require Human Gate.
 
+## Preverify Rules
+
+`verify` now runs deterministic preverify checks before Codex review. The rule checker reads the captured work diff and changed files, then writes:
+
+```text
+.harness/state/sessions/<id>/preverify-summary.json
+```
+
+Preverify does not replace Codex. It catches mechanically visible risks early and feeds those findings into the verifier context, Human Gate policy, and `decision.json`.
+
+Current preverify signals include:
+
+- API key or token environment fallback additions
+- static secret literals
+- auth, deploy, payment, env/config, or permission boundary file changes
+- destructive data operations such as `DROP TABLE` or broad deletes
+
 ## Current Enforcement
 
 - `ask` uses the classifier to shape questions and draft success criteria.
 - `dispatch` records classifier risk in routing traces.
-- `verify` uses it to decide Codex challenge and risk-policy Human Gate.
+- `verify` uses risk classification plus preverify findings to decide Codex challenge and risk-policy Human Gate.
 - `ship` rechecks risk policy so seeded or manually edited sessions cannot bypass a gate.
 
 ## Human Gate Reasons

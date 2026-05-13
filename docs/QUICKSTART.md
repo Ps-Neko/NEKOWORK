@@ -8,8 +8,8 @@ The public alpha is available on npm:
 
 ```bash
 npx -y @ps-neko/nekowork@alpha check
-npx -y @ps-neko/nekowork@alpha build "implement this safely" --dry-run
-npx -y @ps-neko/nekowork@alpha build "implement this safely" --session first-build
+npx -y @ps-neko/nekowork@alpha start "implement this safely" --dry-run
+npx -y @ps-neko/nekowork@alpha start "implement this safely" --session first-start
 npx -y @ps-neko/nekowork@alpha report --session latest
 ```
 
@@ -66,14 +66,16 @@ Use this path first. It is the recommended shortest safe loop:
 
 ```bash
 node scripts/cli.js check
-node scripts/cli.js build "implement, verify, and prepare ship readiness" --session first-build
+node scripts/cli.js start "implement, verify, and prepare ship readiness" --session first-start
 node scripts/cli.js report --session latest
 node scripts/cli.js gate status --session latest
 ```
 
 Use the decomposed `work -> verify -> ship` path only when you need phase-level control. See [BUILD.md](BUILD.md) for build modes and invariants.
 
-`build --dry-run` previews auto routing, mode, profile, workers, stages, and apply policy without creating a session. `build --explain` prints the same routing rationale and evidence list after a real build. Use `auto "task"` when NEKOWORK should repair fixable no-ship findings within a bounded budget and then stop before apply. `run` is the short safe wrapper. It runs `work -> verify -> ship`, does not apply by default, and stops on Human Gate. `report` writes a readable `REPORT.md` from the evidence already in the session. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
+`start` is the beginner alias for `build`. It prints the session decision first: verdict, reason, Human Gate state, ship readiness, and apply permission. `build --dry-run` previews auto routing, mode, profile, workers, stages, and apply policy without creating a session. `build --explain` prints the same routing rationale and evidence list after a real build. Use `auto "task"` when NEKOWORK should repair fixable no-ship findings within a bounded budget and then stop before apply. `run` is the short safe wrapper. It runs `work -> verify -> ship`, does not apply by default, and stops on Human Gate. `report` writes a readable `REPORT.md` from the evidence already in the session. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
+
+Every verified session writes `decision.json` as the machine-readable decision surface. It consolidates verdict, reason, risk tags, Human Gate state, ship readiness, apply permission, diff hash, and evidence paths. `verify` also writes `preverify-summary.json` before Codex review so deterministic checks can flag auth, secret, deploy, payment, env/config, permission, or destructive-data risk early.
 
 If a risky task is manually forced into a lower-safety mode than the risk-aware recommendation, NEKOWORK blocks it unless `--force-mode` is explicitly present.
 

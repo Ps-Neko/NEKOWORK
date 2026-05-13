@@ -118,7 +118,7 @@ test('CLI version matches package.json', () => {
 test('CLI help exposes public and advanced verbs', () => {
   const r = run(['scripts/cli.js', 'help', 'all']);
   const out = r.stdout + r.stderr;
-  for (const verb of ['check', 'init', 'install', 'ask', 'team', 'work', 'verify', 'gate', 'ship', 'apply', 'run', 'review', 'review-cycle', 'plan', 'doctor', 'ralph', 'wait', 'sessions', 'costs', 'instincts', 'version']) {
+  for (const verb of ['check', 'init', 'install', 'start', 'build', 'auto', 'ask', 'team', 'work', 'verify', 'gate', 'ship', 'apply', 'run', 'report', 'pr-prep', 'review', 'review-cycle', 'plan', 'doctor', 'ralph', 'wait', 'sessions', 'costs', 'instincts', 'version']) {
     assert.match(out, new RegExp(verb), `verb "${verb}" not shown`);
   }
 });

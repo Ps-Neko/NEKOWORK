@@ -7,6 +7,7 @@ NEKOWORK separates writing, verification, approval, and apply.
 | User | Defines the task and decides whether risk is acceptable | Must explicitly approve gates and apply |
 | Claude worker | Plans or writes a candidate change | Does not get final authority to ship |
 | Read-only team | Produces product, security, test, and planning handoffs | Does not mutate the project |
+| Preverify rules | Flags deterministic diff risk before LLM review | Produces early risk evidence, not a final ship decision |
 | Codex verifier | Challenges the work in a separate context | Produces verification evidence, not blind apply |
 | Human Gate | Records approve/block/request-fix decisions | Stops critical or repeated-risk changes |
 | Apply step | Applies a verified live-work diff | Requires ship-ready evidence |
@@ -16,12 +17,30 @@ NEKOWORK separates writing, verification, approval, and apply.
 A normal session creates:
 
 - work summary
+- preverify summary
 - verification summary
 - ship/no-ship summary
 - gate status
+- `decision.json`
 - optional `REPORT.md`
 
 The report is the primary human-readable trust surface.
+
+`decision.json` is the machine-readable trust surface. It consolidates the current verdict, reason, risk tags, Human Gate state, ship readiness, apply permission, diff hash, and evidence paths so CLI output, reports, CI, and future dashboards read the same decision.
+
+Example:
+
+```json
+{
+  "verdict": "blocked",
+  "reason": "preverify requires Human Gate for secret env fallback",
+  "risk": { "level": "critical", "tags": ["secret", "auth"] },
+  "ship_ready": false,
+  "human_gate": "required",
+  "apply_allowed": false,
+  "evidence": ["preverify-summary.json", "verify-summary.json", "REPORT.md"]
+}
+```
 
 ## Default Verifier
 
