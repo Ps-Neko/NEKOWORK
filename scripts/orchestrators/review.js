@@ -15,7 +15,7 @@ import { applyExecutionDiff, withExecutionWorkspace } from '../core/execution-wo
 import { record as instinctRecord } from '../lib/instincts.js';
 import { isSensitiveWork } from '../lib/risk-classifier.js';
 import { generateSessionId } from '../lib/session-id.js';
-import { loadUpstreamArtifact } from '../lib/upstream-artifacts.js';
+import { loadUpstreamArtifact, hasAnyUpstream } from '../lib/upstream-artifacts.js';
 
 const STAGE_INDEX = {
   ideate: '01', plan: '02', implement: '03', 'self-review': '04',
@@ -129,6 +129,7 @@ export async function reviewCycle(opts) {
     agent: 'planner', stage: 'plan', task: opts.task, live, harnessRoot, projectRoot,
     context: { upstream },
   });
+  if (hasAnyUpstream(upstream)) h2.upstream_artifacts = upstream;
   writeHandoff(h2);
 
   // mock 일 경우 prdSeed 가 같이 옴. PRD 저장.

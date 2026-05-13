@@ -6,6 +6,7 @@ import { resolveProviderCli } from '../../core/cli-resolver.js';
 import { withGitMutationGuard } from '../../core/git-mutation-guard.js';
 import { extractJson } from '../../core/json-extractor.js';
 import { spawnAndCollect } from '../../core/subprocess.js';
+import { renderUpstreamPromptSection } from '../../lib/upstream-artifacts.js';
 
 export async function runGemini(args) {
   assertDelegatedCliAuth('gemini');
@@ -84,6 +85,7 @@ function buildPrompt(a) {
     '',
     `# Task: ${a.task || '(none)'}`,
     a.promptBody ? '## Agent Body\n' + a.promptBody : '',
+    renderUpstreamPromptSection(a.context?.upstream),
     a.context?.diff ? '## Git Diff\n```diff\n' + String(a.context.diff).slice(0, 30000) + '\n```' : '',
     a.context?.prd ? '## PRD\n```json\n' + JSON.stringify(a.context.prd, null, 2) + '\n```' : '',
   ].filter(Boolean).join('\n');

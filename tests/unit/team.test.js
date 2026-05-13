@@ -19,6 +19,82 @@ test('parseWorkers defaults and rejects unknown workers', () => {
   assert.throws(() => parseWorkers('planner,executor'), /unknown team worker: executor/);
 });
 
+test('team auto-picks upstream artifacts and passes them to every worker', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-team-upstream-'));
+  const calls = [];
+  const dispatcher = async (args) => {
+    calls.push(args);
+    return {
+      stage: args.stage,
+      agent: args.agent,
+      decided: 'ok',
+      rejected: '',
+      risks: '',
+      files: [],
+      remaining: '',
+    };
+  };
+  try {
+    fs.writeFileSync(path.join(projectRoot, 'context.md'), 'ctx body');
+    fs.writeFileSync(path.join(projectRoot, 'DOMAIN.md'), 'dom body');
+    fs.writeFileSync(path.join(projectRoot, 'SPEC.md'), 'spec body');
+    fs.writeFileSync(path.join(projectRoot, 'PLAN.md'), 'plan body');
+
+    const r = await teamCycle({
+      task: 'plan a thing',
+      sessionId: 'unit-team-upstream',
+      harnessRoot: ROOT,
+      projectRoot,
+      workers: 'planner,test',
+      dispatcher,
+    });
+
+    for (const c of calls) {
+      assert.ok(c.context.upstream, 'each worker dispatch must include context.upstream');
+      assert.equal(c.context.upstream.plan.path, 'PLAN.md');
+      assert.equal(c.context.upstream.domain.path, 'DOMAIN.md');
+      assert.equal(c.context.upstream.spec.path, 'SPEC.md');
+      assert.equal(c.context.upstream.context.path, 'context.md');
+    }
+    const handoffDir = path.join(r.sessionDir, 'handoffs');
+    for (const f of fs.readdirSync(handoffDir).filter(n => n.endsWith('.json'))) {
+      const h = JSON.parse(fs.readFileSync(path.join(handoffDir, f), 'utf8'));
+      assert.ok(h.upstream_artifacts, `${f} must include upstream_artifacts`);
+      assert.equal(h.upstream_artifacts.plan.path, 'PLAN.md');
+      assert.equal(validateHandoff(h), true, JSON.stringify(validateHandoff.errors));
+    }
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('team --plan-file overrides PLAN.md auto-pick', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-team-explicit-plan-'));
+  const calls = [];
+  const dispatcher = async (args) => {
+    calls.push(args);
+    return { stage: args.stage, agent: args.agent, decided: 'ok', files: [], remaining: '' };
+  };
+  try {
+    fs.writeFileSync(path.join(projectRoot, 'PLAN.md'), 'auto body');
+    const custom = path.join(projectRoot, 'team-plan.md');
+    fs.writeFileSync(custom, 'explicit body');
+    await teamCycle({
+      task: 'x',
+      sessionId: 'unit-team-explicit-plan',
+      harnessRoot: ROOT,
+      projectRoot,
+      workers: 'planner',
+      planFile: custom,
+      dispatcher,
+    });
+    assert.equal(calls[0].context.upstream.plan.path, 'team-plan.md');
+    assert.equal(calls[0].context.upstream.plan.source, 'explicit');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 test('team writes read-only worker handoffs into target project session', async () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-team-project-root-'));
   const calls = [];

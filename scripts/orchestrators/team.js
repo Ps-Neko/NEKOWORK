@@ -3,6 +3,7 @@ import path from 'node:path';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { dispatch } from '../agents/dispatch.js';
+import { loadUpstreamArtifact, hasAnyUpstream } from '../lib/upstream-artifacts.js';
 
 const DEFAULT_WORKERS = ['planner', 'research', 'product', 'security', 'test'];
 
@@ -72,6 +73,12 @@ export async function teamCycle(opts) {
   const workers = parseWorkers(opts.workers);
   const dispatcher = opts.dispatcher || dispatch;
   const live = !!opts.live;
+  const upstream = {
+    context: loadUpstreamArtifact('context', projectRoot, opts.contextFile),
+    domain: loadUpstreamArtifact('domain', projectRoot, opts.domainFile),
+    spec: loadUpstreamArtifact('spec', projectRoot, opts.specFile),
+    plan: loadUpstreamArtifact('plan', projectRoot, opts.planFile),
+  };
   const handoffs = [];
   const tasks = workers.map((worker, index) => createTask(worker, index));
 
@@ -96,12 +103,14 @@ export async function teamCycle(opts) {
           priorHandoffs: handoffs.slice(-3),
           teamPurpose: task.purpose,
           readOnly: true,
+          upstream,
         },
         executionMode: 'read-only',
         sandboxOverride: 'read-only',
       });
 
       handoff.team_stage = `team-${task.worker}`;
+      if (hasAnyUpstream(upstream)) handoff.upstream_artifacts = upstream;
       removeUndefined(handoff);
       assertValidHandoff(harnessRoot, handoff);
       handoffs.push(handoff);

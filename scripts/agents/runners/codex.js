@@ -18,6 +18,7 @@ import { resolveProviderCli } from '../../core/cli-resolver.js';
 import { withGitMutationGuard } from '../../core/git-mutation-guard.js';
 import { extractJson } from '../../core/json-extractor.js';
 import { spawnAndCollect } from '../../core/subprocess.js';
+import { renderUpstreamPromptSection } from '../../lib/upstream-artifacts.js';
 import { classifyCategory, classifySeverity, deriveVerdict, severityCounts } from '../../lib/severity.js';
 
 export async function runCodex(args) {
@@ -86,6 +87,10 @@ function buildPrompt(a) {
   lines.push('출력은 schemas/handoff.schema.json 에 부합하는 JSON 객체 하나.');
   lines.push('');
   lines.push('# 입력');
+  const upstreamSection = renderUpstreamPromptSection(a.context?.upstream);
+  if (upstreamSection) {
+    lines.push(upstreamSection);
+  }
   if (a.context?.diff) {
     lines.push('## Git Diff');
     lines.push('```diff');

@@ -449,6 +449,10 @@ function parseTeamArgs(argv) {
     projectRoot: null,
     live: false,
     json: false,
+    contextFile: null,
+    domainFile: null,
+    specFile: null,
+    planFile: null,
   };
   const unknown = [];
 
@@ -475,6 +479,30 @@ function parseTeamArgs(argv) {
       opts.projectRoot = value;
     } else if (a.startsWith('--project-root=')) {
       opts.projectRoot = a.slice('--project-root='.length);
+    } else if (a === '--context-file') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--context-file requires a value');
+      opts.contextFile = value;
+    } else if (a.startsWith('--context-file=')) {
+      opts.contextFile = a.slice('--context-file='.length);
+    } else if (a === '--domain-file') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--domain-file requires a value');
+      opts.domainFile = value;
+    } else if (a.startsWith('--domain-file=')) {
+      opts.domainFile = a.slice('--domain-file='.length);
+    } else if (a === '--spec-file') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--spec-file requires a value');
+      opts.specFile = value;
+    } else if (a.startsWith('--spec-file=')) {
+      opts.specFile = a.slice('--spec-file='.length);
+    } else if (a === '--plan-file') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--plan-file requires a value');
+      opts.planFile = value;
+    } else if (a.startsWith('--plan-file=')) {
+      opts.planFile = a.slice('--plan-file='.length);
     } else if (a.startsWith('--')) {
       unknown.push(a);
     } else if (!opts.task) {

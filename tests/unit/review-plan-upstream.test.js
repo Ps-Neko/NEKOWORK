@@ -11,6 +11,38 @@ function mkProject(prefix) {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
 }
 
+test('reviewCycle plan handoff JSON includes upstream_artifacts and is schema-valid', async () => {
+  const projectRoot = mkProject('harness-review-handoff-upstream-');
+  try {
+    fs.writeFileSync(path.join(projectRoot, 'DOMAIN.md'), 'domain body');
+    fs.writeFileSync(path.join(projectRoot, 'SPEC.md'), 'spec body');
+
+    const r = await reviewCycle({
+      task: 'task',
+      sessionId: 'unit-review-handoff-upstream',
+      harnessRoot: ROOT,
+      projectRoot,
+      stopAfter: 'plan',
+    });
+
+    const handoffJson = JSON.parse(fs.readFileSync(path.join(r.sessionDir, 'handoffs', '02-plan.json'), 'utf8'));
+    assert.ok(handoffJson.upstream_artifacts, 'plan handoff must include upstream_artifacts');
+    assert.equal(handoffJson.upstream_artifacts.domain.path, 'DOMAIN.md');
+    assert.equal(handoffJson.upstream_artifacts.spec.path, 'SPEC.md');
+
+    // schema validation
+    const Ajv2020 = (await import('ajv/dist/2020.js')).default;
+    const addFormats = (await import('ajv-formats')).default;
+    const ajv = new Ajv2020({ allErrors: true, strict: false });
+    addFormats(ajv);
+    const schema = JSON.parse(fs.readFileSync(path.join(ROOT, 'schemas', 'handoff.schema.json'), 'utf8'));
+    const validate = ajv.compile(schema);
+    assert.equal(validate(handoffJson), true, JSON.stringify(validate.errors));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
+  }
+});
+
 test('reviewCycle stopAfter=plan records upstream domain and spec when auto-picked', async () => {
   const projectRoot = mkProject('harness-review-upstream-auto-');
   try {

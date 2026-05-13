@@ -79,9 +79,32 @@
     },
     "executionWorkspace": {
       "type": "string"
+    },
+    "upstream_artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/UpstreamArtifact" }] },
+        "domain":  { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/UpstreamArtifact" }] },
+        "spec":    { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/UpstreamArtifact" }] },
+        "plan":    { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/UpstreamArtifact" }] }
+      }
     }
   },
   "$defs": {
+    "UpstreamArtifact": {
+      "type": "object",
+      "required": ["path", "source", "size", "sha1", "truncated", "excerpt"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "source": { "enum": ["auto", "explicit"] },
+        "size": { "type": "integer", "minimum": 0 },
+        "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "truncated": { "type": "boolean" },
+        "excerpt": { "type": "string" }
+      }
+    },
     "Issue": {
       "type": "object",
       "required": ["severity", "category", "summary"],

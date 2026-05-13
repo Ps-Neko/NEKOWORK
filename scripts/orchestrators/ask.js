@@ -3,7 +3,7 @@ import path from 'node:path';
 import { buildDefaultAcceptanceCriteria } from '../lib/acceptance-criteria.js';
 import { classifyRisk } from '../lib/risk-classifier.js';
 import { profilePolicy } from '../lib/profile-policy.js';
-import { loadUpstreamArtifact } from '../lib/upstream-artifacts.js';
+import { loadUpstreamArtifact, hasAnyUpstream } from '../lib/upstream-artifacts.js';
 
 export function classifyAskTask(task = '') {
   const classification = classifyRisk({ task, files: [] });
@@ -95,6 +95,7 @@ export async function askGate(opts) {
 
   const handoff = buildQuestionGate(opts.task || '', { profile: opts.profile });
   handoff.session_id = sessionId;
+  if (hasAnyUpstream(upstream)) handoff.upstream_artifacts = upstream;
   writeAskArtifacts(sessionDir, handoffDir, sessionId, opts.task || '', handoff, upstream);
 
   return {

@@ -36,6 +36,33 @@ export function loadUpstreamBundle(projectRoot, explicits = {}) {
   return out;
 }
 
+export function hasAnyUpstream(upstream) {
+  if (!upstream || typeof upstream !== 'object') return false;
+  return Object.values(upstream).some(v => v != null);
+}
+
+const HEADINGS = {
+  context: 'Upstream Context',
+  domain: 'Upstream Domain',
+  spec: 'Upstream Spec',
+  plan: 'Upstream Plan',
+};
+
+export function renderUpstreamPromptSection(upstream) {
+  if (!hasAnyUpstream(upstream)) return '';
+  const lines = [];
+  for (const kind of ['context', 'domain', 'spec', 'plan']) {
+    const a = upstream?.[kind];
+    if (!a) continue;
+    lines.push(`## ${HEADINGS[kind]} (${a.path}${a.truncated ? ', truncated' : ''})`);
+    lines.push('```markdown');
+    lines.push(a.excerpt);
+    lines.push('```');
+    lines.push('');
+  }
+  return lines.join('\n');
+}
+
 function readArtifact(projectRoot, abs, source) {
   const body = fs.readFileSync(abs, 'utf8');
   const size = Buffer.byteLength(body, 'utf8');
