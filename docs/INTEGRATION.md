@@ -62,7 +62,7 @@ Do not run the full hybrid workflow for every task.
 
 | Work type | Recommended path |
 |---|---|
-| Bug fix, refactor, or docs-only change | `start -> report -> gate status`, then explicit `apply` only if ship-ready |
+| Bug fix, refactor, or docs-only change | `start -> report -> gate status -> apply` (apply only when `SHIP_READY` and gate is clear) |
 | Small feature with clear domain | Upstream brainstorm or writing plan -> NEKOWORK safety gate |
 | Large feature with unclear domain | Domain interview + `context.md` + `DOMAIN.md` + `SPEC.md` + `PLAN.md` -> full NEKOWORK cycle |
 | Prototype or throwaway experiment | Use the upstream workflow only; skip NEKOWORK unless the result will be applied to a real repo |
