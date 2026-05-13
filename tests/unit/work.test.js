@@ -32,6 +32,27 @@ function makeMockDispatcher(calls) {
   };
 }
 
+test('work attaches upstream_artifacts onto implement handoff JSON', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-work-handoff-upstream-'));
+  const calls = [];
+  try {
+    fs.writeFileSync(path.join(projectRoot, 'PLAN.md'), 'plan body');
+    await workCycle({
+      task: 'do thing',
+      sessionId: 'unit-work-handoff-upstream',
+      harnessRoot: ROOT,
+      projectRoot,
+      dispatcher: makeMockDispatcher(calls),
+    });
+    const handoffPath = path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-work-handoff-upstream', 'handoffs', '03-implement.json');
+    const handoffJson = JSON.parse(fs.readFileSync(handoffPath, 'utf8'));
+    assert.ok(handoffJson.upstream_artifacts, 'implement handoff must include upstream_artifacts');
+    assert.equal(handoffJson.upstream_artifacts.plan.path, 'PLAN.md');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 test('work auto-picks projectRoot/PLAN.md and passes it as context.upstream.plan', async () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-work-plan-auto-'));
   const calls = [];

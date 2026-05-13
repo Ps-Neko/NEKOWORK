@@ -5,7 +5,7 @@ import { ensureAcceptanceCriteria } from '../lib/acceptance-criteria.js';
 import { profilePolicy } from '../lib/profile-policy.js';
 import { withExecutionWorkspace } from '../core/execution-workspace.js';
 import { generateSessionId } from '../lib/session-id.js';
-import { loadUpstreamArtifact } from '../lib/upstream-artifacts.js';
+import { loadUpstreamArtifact, hasAnyUpstream } from '../lib/upstream-artifacts.js';
 
 const STAGE_INDEX = { implement: '03' };
 
@@ -51,6 +51,7 @@ export async function workCycle(opts) {
   handoff.files = dedupe([...(handoff.files || []), ...(execution.files || [])]);
   if (execution.diffPath) handoff.diffPath = execution.diffPath;
   if (execution.executionWorkspace) handoff.executionWorkspace = execution.executionWorkspace;
+  if (hasAnyUpstream(upstream)) handoff.upstream_artifacts = upstream;
 
   writeHandoff(handoffDir, handoff);
   writeSummary(sessionDir, {

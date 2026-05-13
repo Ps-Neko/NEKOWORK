@@ -7,6 +7,7 @@ import { resolveProviderCli } from '../../core/cli-resolver.js';
 import { withGitMutationGuard } from '../../core/git-mutation-guard.js';
 import { extractJson } from '../../core/json-extractor.js';
 import { spawnAndCollect } from '../../core/subprocess.js';
+import { renderUpstreamPromptSection } from '../../lib/upstream-artifacts.js';
 
 const MODEL_MAP = {
   opus: 'claude-opus-4-7',
@@ -144,6 +145,10 @@ function buildUserMessage(a) {
   lines.push('## Task');
   lines.push(a.task || '(none)');
   lines.push('');
+  const upstreamSection = renderUpstreamPromptSection(a.context?.upstream);
+  if (upstreamSection) {
+    lines.push(upstreamSection);
+  }
   if (a.context?.prd) {
     lines.push('## PRD');
     lines.push('```json');

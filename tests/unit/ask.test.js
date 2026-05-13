@@ -90,6 +90,25 @@ test('ask writes product profile checklist for product question gate', async () 
   }
 });
 
+test('ask attaches upstream_artifacts onto the question-gate handoff itself', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-ask-handoff-upstream-'));
+  try {
+    fs.writeFileSync(path.join(projectRoot, 'context.md'), 'attached body');
+    const r = await askGate({
+      task: 'do thing',
+      sessionId: 'unit-ask-handoff-upstream',
+      harnessRoot: ROOT,
+      projectRoot,
+    });
+    const handoffJson = JSON.parse(fs.readFileSync(path.join(r.sessionDir, 'handoffs', '00-question-gate.json'), 'utf8'));
+    assert.ok(handoffJson.upstream_artifacts, 'handoff JSON must include upstream_artifacts');
+    assert.equal(handoffJson.upstream_artifacts.context.path, 'context.md');
+    assert.equal(validateHandoff(handoffJson), true, JSON.stringify(validateHandoff.errors));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 test('ask records explicit --context-file artifact in ask.json', async () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-ask-context-explicit-'));
   try {
