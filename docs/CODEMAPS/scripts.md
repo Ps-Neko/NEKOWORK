@@ -68,6 +68,7 @@ scripts/
 |   |-- auto.js
 |   |-- build.js
 |   |-- gate.js
+|   |-- pr-prep.js
 |   |-- ralph.js
 |   |-- report.js
 |   |-- review.js
@@ -169,6 +170,7 @@ scripts/
 | `orchestrators/auto.js` | `autoCycle`, `autoPlan`, `normalizeAutoLevel` |  |
 | `orchestrators/build.js` | `buildCycle`, `buildModePreset`, `buildPlan`, `normalizeBuildMode` |  |
 | `orchestrators/gate.js` | `approveGate`, `blockGate`, `gateCommand`, `gateStatus`, `markerTime`, `readMarker` |  |
+| `orchestrators/pr-prep.js` | `prPrepSession` |  |
 | `orchestrators/ralph.js` | `defaultPrd`, `normalizeEngine`, `ralphLoop` | Persistent Ralph loop. It repeats an execution engine until PRD acceptance criteria pass, a human gate stops the run, cost cap is hit, or ma |
 | `orchestrators/report.js` | `deriveStatus`, `readSessionEvidence`, `reportSession` |  |
 | `orchestrators/review.js` | ` SENSITIVE_PATTERNS `, `reviewCycle` | 7 review . claude-led-codex-review SKILL Stage Routing . : - 5/6 verdict block critical/high fix loop (executor , round++) - round = 3. crit |

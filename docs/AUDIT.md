@@ -2,16 +2,16 @@
 
 Status date: 2026-05-13
 
-This audit summarizes the current NEKOWORK state for the published `0.1.0-alpha.9` alpha.
+This audit summarizes the current NEKOWORK state for the `0.1.0-alpha.10` alpha candidate. Public npm `@alpha` still points at `0.1.0-alpha.9` until alpha.10 is published.
 
 ## Current Status
 
 | Area | Status | Notes |
 |---|---|---|
-| Package metadata | OK | repository version `@ps-neko/nekowork@0.1.0-alpha.9`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness`, matching version, and `nekowork`/`harness` CLI bins |
-| npm publish | OK | alpha.9 published to npm with `--tag alpha` |
+| Package metadata | OK | repository version `@ps-neko/nekowork@0.1.0-alpha.10`, `agent.yaml` uses `name: nekowork`, `runtime_name: harness`, matching version, and `nekowork`/`harness` CLI bins |
+| npm publish | PENDING | alpha.10 candidate prepared; publish requires final owner approval |
 | Source install | OK | Clone, local checkout, and submodule workflows are documented |
-| Public npm alpha | OK | `docs/PUBLISH-ALPHA.md` records alpha publishes through `0.1.0-alpha.9` |
+| Public npm alpha | OK | `docs/PUBLISH-ALPHA.md` records alpha publishes through `0.1.0-alpha.9`; alpha.10 is the next prepared publish |
 | CLI doctor/check | OK | `check`, `doctor`, `doctor --quick`, and `doctor --gemini-smoke` are available |
 | Provider auth | OK | Local delegated CLI auth is the default path |
 | Internal provider adapter | OK | `HARNESS_PROVIDER_OVERRIDE=internal` can call an explicit JSON command adapter without weakening gates |
@@ -30,7 +30,8 @@ This audit summarizes the current NEKOWORK state for the published `0.1.0-alpha.
 | Persistent wakeup | OK | `wait` resumes supported active sessions and blocks on `HUMAN_GATE` |
 | Generated docs | OK | CODEMAP output is stable ASCII and reproducible |
 | Tests | OK | Unit, integration, and e2e suites pass locally and in CI |
-| Release | OK | `v0.1.0-alpha.9` is the matching public alpha release line |
+| PR Prep | OK | `pr-prep` generates local review artifacts without branch, commit, push, PR, apply, publish, or deploy actions |
+| Release | PENDING | `v0.1.0-alpha.10` is prepared after alpha.10 publish; `v0.1.0-alpha.9` remains the latest public prerelease |
 
 ## Verification Gates
 
@@ -55,7 +56,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 345 tests pass
+- `npm test`: 349 tests pass
 - quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass
@@ -63,10 +64,10 @@ Current local result for this working tree:
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npm publish --dry-run --access public --tag alpha`: pass
-- `npm publish --dry-run --access public --tag alpha`: pass for `0.1.0-alpha.9`
-- `npm publish --access public --tag alpha`: published `0.1.0-alpha.9`
+- `npm publish --dry-run --access public --tag alpha`: pass for `0.1.0-alpha.10`
+- `npm publish --access public --tag alpha`: pending owner approval for `0.1.0-alpha.10`
 - `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.9`; `latest` remains `0.1.0-alpha.0`
-- `npx -y @ps-neko/nekowork@alpha check`: pass with WARN summary, 6 pass, 1 warn, 0 fail
+- `npx -y @ps-neko/nekowork@alpha check`: pass with WARN summary, 6 pass, 1 warn, 0 fail for the published alpha.9 line
 
 ## Completed Work
 
@@ -94,8 +95,9 @@ Current local result for this working tree:
 - `report` gives public alpha users a readable inspect-only session artifact without applying or mutating project files.
 - Official packs expose curated install shapes without creating a second safety model.
 - Checked-in example fixtures now cover financial UI, CI hardening, quality lifecycle, and parallel-candidate canonical promotion evidence flows.
+- PR Prep now creates `PR_SUMMARY.md`, `RISK_NOTES.md`, `TEST_EVIDENCE.md`, `CHANGELOG_DRAFT.md`, `SHIP_DECISION.md`, and `pr-prep-summary.json` from existing session evidence without remote mutation.
 - Third-party case studies record NEKOWORK runs against `sindresorhus/is-plain-obj`, `jshttp/basic-auth`, `python-hyper/h11`, and `motdotla/dotenv`; local generated-app evidence records the user-provided Diary app validation.
-- Public npm alpha `0.1.0-alpha.9` is published and is the current registry `alpha` dist-tag.
+- Public npm alpha `0.1.0-alpha.9` is published and is the current registry `alpha` dist-tag; `0.1.0-alpha.10` is the repository candidate.
 
 ## Remaining Optional Work
 

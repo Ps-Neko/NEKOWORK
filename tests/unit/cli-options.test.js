@@ -52,6 +52,31 @@ test('CLI accepts ship --require-clean-gates as an explicit no-bypass marker', (
   }
 });
 
+test('CLI pr-prep writes review artifacts without remote mutation', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-pr-prep-'));
+  try {
+    seedVerifiedSession(projectRoot, 'unit-cli-pr-prep');
+    const ship = runCli(['ship', 'ship readiness smoke', '--session', 'unit-cli-pr-prep', '--project-root', projectRoot, '--json']);
+    assert.equal(ship.status, 0, ship.stderr || ship.stdout);
+
+    const prep = runCli(['pr-prep', 'prepare branch for review', '--session', 'unit-cli-pr-prep', '--project-root', projectRoot, '--json']);
+    assert.equal(prep.status, 0, prep.stderr || prep.stdout);
+    const json = JSON.parse(prep.stdout);
+    assert.equal(json.readyForPr, true);
+    assert.equal(json.noRemoteMutation, true);
+    assert.ok(json.artifacts.includes('PR_SUMMARY.md'));
+
+    const sessionDir = path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-pr-prep');
+    assert.ok(fs.existsSync(path.join(sessionDir, 'PR_SUMMARY.md')));
+    assert.ok(fs.existsSync(path.join(sessionDir, 'RISK_NOTES.md')));
+    assert.ok(fs.existsSync(path.join(sessionDir, 'TEST_EVIDENCE.md')));
+    assert.ok(fs.existsSync(path.join(sessionDir, 'CHANGELOG_DRAFT.md')));
+    assert.ok(fs.existsSync(path.join(sessionDir, 'SHIP_DECISION.md')));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 test('CLI accepts build modes as the one-command safe builder entry', () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-build-'));
   try {

@@ -1,0 +1,8 @@
+{
+  "name": "nekowork-pr-prep-smoke",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node scripts/check.mjs"
+  }
+}

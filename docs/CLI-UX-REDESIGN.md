@@ -154,7 +154,7 @@ blocked: HUMAN_GATE open
 
 ```text
 
-  ● NEKOWORK 0.1.0-alpha.9
+  ● NEKOWORK 0.1.0-alpha.10
   project: D:\claude\harness-cli-ux-phase1a  ·  installed: yes  ·  sessions: 84
 
 처음이라면 →

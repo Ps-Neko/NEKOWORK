@@ -1,7 +1,7 @@
 spec_version: gitagent/0.1.0
 name: nekowork
 runtime_name: harness
-version: 0.1.0-alpha.9
+version: 0.1.0-alpha.10
 description: "NEKOWORK - Verified autopilot for AI code changes with Codex verification, Human Gate, and explicit apply"
 license: MIT
 homepage: https://github.com/Ps-Neko/NEKOWORK
