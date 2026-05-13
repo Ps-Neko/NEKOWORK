@@ -96,11 +96,11 @@ Non-goals:
 
 ## 0.1.0-alpha.9
 
-Status: publish-ready alpha candidate.
+Status: published public alpha.
 
 Goal: promote isolated parallel candidate evidence into the canonical ship-readiness path without allowing shared-worktree multi-agent writes.
 
-Prepared scope:
+Released scope:
 
 - Keep the risk-blocking transcript and "Verified" definition near the README first screen.
 - Keep starter packs first and the full pack catalog in advanced docs.
