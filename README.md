@@ -4,7 +4,7 @@
 
 Verifies AI-made code changes before you apply them.
 
-[![validate](https://github.com/Ps-Neko/products-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
+[![validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
 Bring your coding agent. NEKOWORK proves the change before apply.
 
@@ -112,13 +112,13 @@ node scripts/cli.js start "implement this safely" --session first-start
 node scripts/cli.js report --session latest
 ```
 
+> **Reproducibility note:** `npx @ps-neko/nekowork@alpha` runs the **published** `0.1.0-alpha.9`. The repository on `main` is the `0.1.0-alpha.10` candidate. If a feature described below was added between those tags, use the source-checkout path above until alpha.10 is published.
+
 The simple path maps to the evidence loop: `check = doctor --quick`, `start = build`, `report = readable evidence`, and `apply = explicit verified diff application`. See [docs/QUICKSTART.md](docs/QUICKSTART.md) for the longer first-run guide.
 
 ## Works With Your Existing AI Workflow
 
-Use Claude Code, Cursor, Codex, Superpowers, GStack, or your own domain workflow to produce the candidate change. NEKOWORK begins after that: deterministic risk scan, independent verification, `decision.json`, `REPORT.md`, Human Gate, and explicit apply.
-
-For the artifact contract between upstream domain/spec workflows and NEKOWORK, see [docs/INTEGRATION.md](docs/INTEGRATION.md). The optional `context.md` / `DOMAIN.md` / `SPEC.md` / `PLAN.md` files are auto-picked from the project root or passed via `--context-file` / `--domain-file` / `--spec-file` / `--plan-file`.
+Use any AI coding tool (Claude Code, Cursor, Codex, ...) to create the diff. NEKOWORK starts after: risk scan, Codex verification, `decision.json`, Human Gate, and explicit apply. Optional upstream files (`context.md` / `DOMAIN.md` / `SPEC.md` / `PLAN.md`) are auto-picked from the project root — full contract in [docs/INTEGRATION.md](docs/INTEGRATION.md).
 
 ## Example Report
 
@@ -223,34 +223,10 @@ For comparison and positioning: [docs/WHY-NEKOWORK.md](docs/WHY-NEKOWORK.md).
 
 ## Documentation
 
-Core:
-
-- [docs/QUICKSTART.md](docs/QUICKSTART.md) — first run and common paths
-- [docs/CLI-STAGES.md](docs/CLI-STAGES.md) — stage contract and compatibility transition
-- [docs/INTEGRATION.md](docs/INTEGRATION.md) — artifact contract for upstream domain/spec workflows
-- [docs/BUILD.md](docs/BUILD.md) — build command modes and invariants
-- [docs/AUTONOMY.md](docs/AUTONOMY.md) — bounded autonomy and the apply boundary
-- [docs/SAFETY-GUARANTEES.md](docs/SAFETY-GUARANTEES.md) — what NEKOWORK guarantees
-- [docs/FAILURE-MODES.md](docs/FAILURE-MODES.md) — what happens when gates fail
-
-Demos and evidence:
-
-- [docs/DEMO.md](docs/DEMO.md) — sample command output
-- [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md) — readable session report UX
-- [docs/EXTERNAL-RUN.md](docs/EXTERNAL-RUN.md) — external run kit
-- [docs/case-studies](docs/case-studies) — real external project evidence
-
-Reference:
-
-- [docs/ADVANCED.md](docs/ADVANCED.md) — `ralph`, `wait`, instincts, cost tracking, Rust supervisor
-- [docs/CATALOG-PACKS.md](docs/CATALOG-PACKS.md) — curated catalog and official packs
-- [docs/PORTING.md](docs/PORTING.md) — repository-pinned install into another project
-- [docs/PR-PREP.md](docs/PR-PREP.md) — PR prep artifact contract
-- [docs/RELEASE-READINESS.md](docs/RELEASE-READINESS.md) — release and publish gates
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — system architecture
-- [docs/PRODUCT-PRINCIPLES.md](docs/PRODUCT-PRINCIPLES.md) — product invariants and CLI phase semantics
-- [docs/ROADMAP.md](docs/ROADMAP.md) — alpha roadmap and non-goals
-- [SOUL.md](SOUL.md), [RULES.md](RULES.md), [AGENTS.md](AGENTS.md) — project principles and agent rules
+- **Core:** [QUICKSTART](docs/QUICKSTART.md) · [CLI-STAGES](docs/CLI-STAGES.md) · [INTEGRATION](docs/INTEGRATION.md) · [BUILD](docs/BUILD.md) · [AUTONOMY](docs/AUTONOMY.md) · [SAFETY-GUARANTEES](docs/SAFETY-GUARANTEES.md) · [FAILURE-MODES](docs/FAILURE-MODES.md)
+- **Demos & evidence:** [DEMO](docs/DEMO.md) · [DEMO-REPORT](docs/DEMO-REPORT.md) · [EXTERNAL-RUN](docs/EXTERNAL-RUN.md) · [case-studies](docs/case-studies)
+- **Reference:** [ADVANCED](docs/ADVANCED.md) · [CATALOG-PACKS](docs/CATALOG-PACKS.md) · [PORTING](docs/PORTING.md) · [PR-PREP](docs/PR-PREP.md) · [RELEASE-READINESS](docs/RELEASE-READINESS.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [PRODUCT-PRINCIPLES](docs/PRODUCT-PRINCIPLES.md) · [ROADMAP](docs/ROADMAP.md)
+- **Project rules:** [SOUL.md](SOUL.md) · [RULES.md](RULES.md) · [AGENTS.md](AGENTS.md)
 
 ## License
 
