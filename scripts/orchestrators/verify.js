@@ -4,6 +4,8 @@ import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { dispatch } from '../agents/dispatch.js';
 import { ensureAcceptanceCriteria } from '../lib/acceptance-criteria.js';
+import { writeDecision } from '../lib/decision.js';
+import { runPreverify, writePreverifySummary } from '../lib/preverify.js';
 import { classifyRisk, gateReasonFromFindings } from '../lib/risk-classifier.js';
 import { acceptanceCoverage, acceptanceCoverageWarnings, evidenceFieldWarnings, profilePolicy } from '../lib/profile-policy.js';
 
@@ -32,7 +34,9 @@ export async function verifyCycle(opts) {
   const dispatcher = opts.dispatcher || dispatch;
   const live = !!opts.live;
   const classification = classifyRisk({ task: opts.task, files: latestImplement.files || [] });
-  const secureActive = !!opts.secure || classification.requiresCodexChallenge;
+  const preverify = runPreverify({ task: opts.task, files: latestImplement.files || [], diff });
+  writePreverifySummary(sessionDir, preverify);
+  const secureActive = !!opts.secure || classification.requiresCodexChallenge || preverify.requires_codex_challenge;
 
   const context = {
     round: nextRound(priorHandoffs, 'codex-review'),
@@ -47,6 +51,7 @@ export async function verifyCycle(opts) {
     acceptanceCriteria: acceptance.criteria,
     priorHandoffs: priorHandoffs.slice(-6),
     diff,
+    preverify,
     verifyOnly: true,
     riskClassification: classification,
   };
@@ -94,7 +99,8 @@ export async function verifyCycle(opts) {
     handoffs.push(h6);
   }
 
-  const gateReason = gateReasonFromFindings([h5, h6].filter(Boolean)) ||
+  const gateReason = preverify.reason ||
+    gateReasonFromFindings([h5, h6].filter(Boolean)) ||
     (classification.requiresHumanGate ? `risk policy requires human gate (${classification.tags.join(',') || classification.risk})` : null);
   if (gateReason) writeHumanGate(sessionDir, gateReason);
   const verificationHandoffs = [h5, h6].filter(Boolean);
@@ -130,9 +136,11 @@ export async function verifyCycle(opts) {
     acceptanceCoverage: coverage,
     strictQuality,
     strictQualityBlocked,
+    preverify,
     verdict: finalVerdict(verificationHandoffs),
   };
   writeSummary(sessionDir, result, opts.task, latestImplement, diff, acceptance, classification);
+  writeDecision(sessionDir, { sessionId, stage: 'verify' });
   return result;
 }
 
@@ -231,8 +239,13 @@ function writeSummary(sessionDir, result, task, implementHandoff, diff, acceptan
     strict_quality_blocked: Boolean(result.strictQualityBlocked),
     acceptance_coverage: result.acceptanceCoverage || [],
     evidence_warning_required: Boolean(result.profile && ['quality', 'security'].includes(result.profile)),
+    preverify_run: true,
+    preverify_verdict: result.preverify?.verdict || null,
+    preverify_findings: result.preverify?.finding_count || 0,
+    preverify_gate_required: Boolean(result.preverify?.gate_required),
+    preverify_reason: result.preverify?.reason || null,
     risk_level: classification?.risk || null,
-    risk_tags: classification?.tags || [],
+    risk_tags: [...new Set([...(classification?.tags || []), ...(result.preverify?.risk_tags || [])])],
     codex_review_run: true,
     codex_challenge_run: Boolean(result.codexChallenge),
     secure_active: result.secureActive,

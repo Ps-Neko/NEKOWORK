@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { writeDecision } from '../lib/decision.js';
 import { resolveSessionId } from '../lib/session-resolver.js';
 
 const MARKERS = {
@@ -65,6 +66,8 @@ export function gateStatus(opts) {
     humanGateReason: human?.reason || null,
     approvalReason: approval?.reason || null,
     blockReason: block?.reason || null,
+    approvalActor: approval?.actor || null,
+    blockActor: block?.actor || null,
     humanGateAt: human?.at || null,
     approvalAt: approval?.at || null,
     blockAt: block?.at || null,
@@ -82,14 +85,17 @@ export function approveGate(opts) {
   writeMarker(sessionDir, MARKERS.approved, {
     reason: opts.reason,
     humanGateReason: base.humanGateReason,
+    actor: opts.actor || defaultActor(),
   });
   appendEvent(sessionDir, {
     event: 'approve',
     reason: opts.reason,
     humanGateReason: base.humanGateReason,
+    actor: opts.actor || defaultActor(),
   });
   const result = gateStatus(opts);
   writeSummary(sessionDir, result, 'approve');
+  writeDecision(sessionDir, { sessionId: result.sessionId, stage: 'gate' });
   return result;
 }
 
@@ -104,10 +110,11 @@ export function blockGate(opts) {
 
   const reason = opts.reason;
   writeMarker(sessionDir, MARKERS.human, { reason: `manual block: ${reason}` });
-  writeMarker(sessionDir, MARKERS.blocked, { reason });
-  appendEvent(sessionDir, { event: 'block', reason });
+  writeMarker(sessionDir, MARKERS.blocked, { reason, actor: opts.actor || defaultActor() });
+  appendEvent(sessionDir, { event: 'block', reason, actor: opts.actor || defaultActor() });
   const result = gateStatus({ ...opts, sessionId });
   writeSummary(sessionDir, result, 'block');
+  writeDecision(sessionDir, { sessionId: result.sessionId, stage: 'gate' });
   return result;
 }
 
@@ -126,6 +133,7 @@ function readMarker(sessionDir, name) {
     reason: raw.match(/^reason:\s*(.+)$/m)?.[1] || null,
     at: raw.match(/^at:\s*(.+)$/m)?.[1] || null,
     humanGateReason: raw.match(/^human_gate_reason:\s*(.+)$/m)?.[1] || null,
+    actor: raw.match(/^actor:\s*(.+)$/m)?.[1] || null,
   };
 }
 
@@ -133,6 +141,7 @@ function writeMarker(sessionDir, name, fields) {
   const lines = [];
   lines.push(`reason: ${fields.reason}`);
   if (fields.humanGateReason) lines.push(`human_gate_reason: ${fields.humanGateReason}`);
+  if (fields.actor) lines.push(`actor: ${fields.actor}`);
   lines.push(`at: ${new Date().toISOString()}`);
   fs.writeFileSync(path.join(sessionDir, name), lines.join('\n') + '\n');
 }
@@ -156,10 +165,16 @@ function writeSummary(sessionDir, result, action) {
     reason: result.reason,
     human_gate_reason: result.humanGateReason,
     approval_reason: result.approvalReason,
+    approval_actor: result.approvalActor,
     block_reason: result.blockReason,
+    block_actor: result.blockActor,
     target_project_mutated: false,
     next_step: nextStep(result),
   }, null, 2));
+}
+
+function defaultActor() {
+  return process.env.GITHUB_ACTOR || process.env.USERNAME || process.env.USER || null;
 }
 
 function nextStep(result) {

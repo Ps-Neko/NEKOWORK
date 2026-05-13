@@ -5,6 +5,7 @@ import { teamCycle } from './team.js';
 import { normalizeAcceptanceCriteria } from '../lib/acceptance-criteria.js';
 import { analyzeBuildIntent } from '../lib/build-intelligence.js';
 import { assertBuildModeContract, buildModeIds, buildModeSafetyRank } from '../lib/build-modes.js';
+import { writeDecision } from '../lib/decision.js';
 
 const MODE_PRESETS = {
   fast: {
@@ -360,6 +361,7 @@ function writeSummary(result, preset) {
     safety_invariants: safetyInvariants(),
     next_step: result.nextStep,
   }, null, 2));
+  writeDecision(result.sessionDir, { sessionId: result.sessionId, stage: 'build' });
 }
 
 function safetyInvariants() {

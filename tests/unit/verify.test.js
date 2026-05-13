@@ -98,10 +98,65 @@ test('verify runs Codex review only after work handoff', async () => {
     const summary = JSON.parse(fs.readFileSync(path.join(sessionDir, 'verify-summary.json'), 'utf8'));
     assert.equal(summary.codex_review_run, true);
     assert.equal(summary.codex_challenge_run, false);
+    assert.equal(summary.preverify_run, true);
+    assert.equal(summary.preverify_findings, 0);
     assert.equal(summary.ship_run, false);
     assert.equal(summary.target_project_mutated, false);
     assert.equal(summary.acceptance_required, true);
     assert.equal(summary.acceptance_count, 3);
+    const decision = JSON.parse(fs.readFileSync(path.join(sessionDir, 'decision.json'), 'utf8'));
+    assert.equal(decision.status, 'verified');
+    assert.equal(decision.apply_allowed, false);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('verify records deterministic preverify findings before Codex context', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-verify-preverify-'));
+  const dispatcher = async (args) => {
+    assert.equal(args.context.preverify.gate_required, true);
+    assert.ok(args.context.preverify.findings.some(finding => finding.rule_id === 'secret-env-fallback'));
+    return {
+      stage: args.stage,
+      agent: args.agent,
+      round: args.context.round,
+      session_id: args.sessionId,
+      timestamp: new Date().toISOString(),
+      duration_ms: 1,
+      provider: 'mock',
+      model: 'gpt-5-codex',
+      decided: `${args.stage} ok`,
+      files: ['src/auth/login.ts'],
+      verdict: 'approve',
+      issues: [],
+    };
+  };
+
+  try {
+    const { sessionDir, diffPath } = seedImplementSession(projectRoot, 'unit-verify-preverify', {
+      files: ['src/auth/login.ts'],
+    });
+    fs.writeFileSync(diffPath, [
+      'diff --git a/src/auth/login.ts b/src/auth/login.ts',
+      '+const token = process.env.AUTH_TOKEN || "dev-token-123";',
+    ].join('\n'));
+
+    const r = await verifyCycle({
+      task: 'verify auth token fallback',
+      sessionId: 'unit-verify-preverify',
+      harnessRoot: ROOT,
+      projectRoot,
+      dispatcher,
+    });
+
+    assert.equal(r.humanGate, true);
+    assert.match(r.reason, /preverify/);
+    const summary = JSON.parse(fs.readFileSync(path.join(sessionDir, 'preverify-summary.json'), 'utf8'));
+    assert.equal(summary.gate_required, true);
+    const decision = JSON.parse(fs.readFileSync(path.join(sessionDir, 'decision.json'), 'utf8'));
+    assert.equal(decision.verdict, 'blocked');
+    assert.equal(decision.human_gate, 'required');
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }

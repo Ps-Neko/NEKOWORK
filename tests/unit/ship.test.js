@@ -114,6 +114,9 @@ test('ship writes readiness handoff after Codex approval', async () => {
     assert.equal(summary.target_project_mutated, false);
     assert.equal(summary.acceptance_required, true);
     assert.equal(summary.acceptance_count, 3);
+    const decision = JSON.parse(fs.readFileSync(path.join(sessionDir, 'decision.json'), 'utf8'));
+    assert.equal(decision.verdict, 'ship_ready');
+    assert.equal(decision.apply_allowed, true);
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }
@@ -156,6 +159,9 @@ test('ship creates a no-ship handoff when Codex found fixable issues', async () 
     assert.ok(fs.existsSync(path.join(sessionDir, 'NO_SHIP')));
     const handoff = JSON.parse(fs.readFileSync(path.join(handoffDir, '07-ship.json'), 'utf8'));
     assert.equal(handoff.verdict, 'approve_with_fixes');
+    const decision = JSON.parse(fs.readFileSync(path.join(sessionDir, 'decision.json'), 'utf8'));
+    assert.equal(decision.verdict, 'blocked');
+    assert.equal(decision.no_ship, true);
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }
