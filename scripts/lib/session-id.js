@@ -11,7 +11,7 @@ function isoDate(d) {
 }
 
 export function generateSessionId(verb, when = new Date()) {
-  if (!verb || !/^[a-z][a-z-]*$/.test(verb)) {
+  if (!verb || !/^[a-z]+$/.test(verb)) {
     throw new Error(`generateSessionId: invalid verb '${verb}'`);
   }
   const hex = randomBytes(2).toString('hex');

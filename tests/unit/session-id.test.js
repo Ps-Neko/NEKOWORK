@@ -27,3 +27,11 @@ test('generateSessionId produces distinct ids on rapid calls', () => {
   const b = generateSessionId('work');
   assert.notEqual(a, b);
 });
+
+test('generateSessionId throws on invalid verbs', () => {
+  assert.throws(() => generateSessionId(''));
+  assert.throws(() => generateSessionId(null));
+  assert.throws(() => generateSessionId('Work'));
+  assert.throws(() => generateSessionId('work-x'));
+  assert.throws(() => generateSessionId('1'));
+});
