@@ -9,7 +9,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runAutoCommand } from './cli/commands/auto-command.js';
 import { runBuildCommand } from './cli/commands/build-command.js';
-import { paint } from './lib/ui-format.js';
+import { paint, kvBlock, nextBlock } from './lib/ui-format.js';
+import { normalizeFlags } from './lib/flag-normalize.js';
+import { renderError } from './lib/ui-errors.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -839,9 +841,17 @@ function checkArgs(argv) {
     }
 
     case 'work': {
-      const opts = parseWorkArgs(rest);
+      const normalizedArgv = normalizeFlags(process.argv.slice(3), { warn: (m) => console.error(m) });
+      const opts = parseWorkArgs(normalizedArgv);
       if (!opts.task) {
-        console.error('task is required. Example: harness work "implement trading dashboard mockup"');
+        console.error(renderError({
+          message: 'task 인수가 필요합니다.',
+          examples: [
+            'nekowork work "BOM 출력 컬럼에 단가 추가"',
+            'nekowork work "타이틀바 다크모드"',
+          ],
+          helpRef: 'nekowork help work',
+        }));
         process.exit(2);
       }
       const { workCycle } = await import('./orchestrators/work.js');
@@ -861,14 +871,26 @@ function checkArgs(argv) {
           live: result.live,
         }, null, 2));
       } else {
-        console.log('=== work ===');
-        console.log('  session    : ' + result.sessionId);
-        console.log('  executor   : ' + result.handoff.agent);
-        console.log('  round      : ' + result.round);
-        console.log('  files      : ' + result.files.length);
-        console.log('  diff       : ' + (result.diffPath || '(none)'));
-        console.log('  codex      : not run');
-        console.log('  ship       : not run');
+        const tookSec = result.elapsedMs ? (result.elapsedMs / 1000).toFixed(1) : '0.0';
+        const fileCount = Array.isArray(result.handoff?.files) ? result.handoff.files.length : 0;
+        const round = result.handoff?.round ?? 1;
+        const shortId = result.sessionId.split('-').pop();
+
+        console.log('');
+        console.log(`  ${paint('ok', '✓')} work 완료              ${paint('dim', `round ${round} · ${fileCount} files · ${tookSec}s`)}`);
+        console.log(kvBlock([
+          ['session', paint('hint', result.sessionId)],
+          ['diff',    result.handoff?.diff ? '(generated)' : '(none — 다음 단계에서 생성)'],
+          ['codex',   result.handoff?.codex ? 'ok' : 'not run'],
+          ['ship',    result.handoff?.ship  ? 'ready' : 'not run'],
+        ]));
+        console.log('');
+        console.log(nextBlock([
+          { cmd: `nekowork verify --session ${shortId}`, note: 'Codex 검증 (필수)' },
+          { cmd: `nekowork report --session ${shortId}`, note: 'evidence 미리 보기' },
+          { cmd: `nekowork gate status --session ${shortId}`, note: 'HUMAN_GATE 확인' },
+        ]));
+        console.log('');
       }
       break;
     }
