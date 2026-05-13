@@ -49,6 +49,8 @@ NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `
 
 For bounded autonomy before that boundary, use `auto`: it can route, build, verify, repair fixable findings within a budget, write a report, and then stop before apply.
 
+NEKOWORK also maps the verified autopilot flow to 12 practical agentic harness patterns: routing, planning, read-only team review, independent verification, Human Gate, tool gates, memory, and evolution loops. See [docs/AGENTIC-PATTERNS.md](docs/AGENTIC-PATTERNS.md).
+
 Next track: alpha.9 focuses on evidence and product-surface clarity before adding parallel candidate writers.
 
 **Latest alpha evidence:** [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) / [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) / [smoke transcript](docs/DEMO.md#one-minute-terminal-transcript) / [report artifact](docs/DEMO-REPORT.md)
@@ -480,6 +482,7 @@ npm pack --dry-run --json
 - [docs/QUICKSTART.md](docs/QUICKSTART.md) - first run and common paths
 - [docs/BUILD.md](docs/BUILD.md) - build command modes and invariants
 - [docs/AUTONOMY.md](docs/AUTONOMY.md) - bounded autonomy, repair budgets, and the apply boundary
+- [docs/AGENTIC-PATTERNS.md](docs/AGENTIC-PATTERNS.md) - 12 practical agentic harness patterns and NEKOWORK coverage
 - [docs/PARALLEL-CANDIDATES.md](docs/PARALLEL-CANDIDATES.md) - planned isolated candidate writer contract
 - [docs/PR-PREP.md](docs/PR-PREP.md) - planned PR prep artifact contract
 - [docs/WHY-NEKOWORK.md](docs/WHY-NEKOWORK.md) - comparison and product positioning

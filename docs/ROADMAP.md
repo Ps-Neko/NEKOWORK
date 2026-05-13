@@ -108,6 +108,8 @@ Planned scope:
 - Keep Quickstart centered on `auto -> report -> gate`.
 - Reduce public `harness` naming in docs while preserving the legacy/internal alias.
 - Compare NEKOWORK by evidence surfaces, not by agent count.
+- Document how NEKOWORK maps to the 12 practical agentic harness patterns.
+- Strengthen `REPORT.md` Trust Card output as first-screen evidence for blocked, gated, ship-ready, and applied sessions.
 - Seek at least one external user run with a public transcript or quote.
 
 Non-goals:

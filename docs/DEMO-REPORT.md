@@ -60,14 +60,20 @@ This is the shape a reviewer should expect from a short quality-profile run:
 
 ## Trust Card
 
+NEKOWORK stopped this change before apply.
+
 | Check | State |
 |---|---|
+| Final decision | HUMAN_GATE |
+| Blocked | yes |
+| Why | risk policy requires human review |
 | Work produced | yes |
 | Independent verification | yes |
 | Human Gate | required |
 | Ship ready | no |
 | Apply | not applied |
 | Target project mutated | no |
+| Evidence | `verify-summary.json`, `gate-summary.json`, `NO_SHIP` |
 
 Decision: human must approve or block the gate
 

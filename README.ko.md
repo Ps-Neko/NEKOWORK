@@ -153,6 +153,28 @@ Evidence:
 
 전체 예시는 [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md)를 보세요.
 
+## 12가지 에이전틱 하네스 패턴
+
+NEKOWORK는 하나의 거대한 agent 묶음이 아니라, 일을 나누고 검증하고 승인하는 패턴을 조합합니다.
+
+이미 강하게 적용된 패턴:
+
+- 계획-실행: `ask`, `plan`, Build Intelligence mini plan
+- 생성-검토: `work -> verify`, Codex review
+- 라우터: Build Intelligence와 risk classifier
+- 전문가 팀: read-only `team` handoff
+- 순차 파이프라인: `ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply`
+- 사람 승인: Human Gate
+- 도구 게이트: provider auth, git mutation guard, explicit `apply`
+
+아직 의도적으로 partial인 패턴:
+
+- 병렬 처리: 현재는 read-only team 중심이며, isolated `auto --parallel-candidates N`은 다음 단계입니다.
+- 메모리 루프: `instincts`, `wait`, `ralph`가 기반이지만 자동 승격은 하지 않습니다.
+- 진화 루프: 관찰은 자동화하되 채택은 사람이 검토합니다.
+
+자세한 매핑은 [docs/AGENTIC-PATTERNS.md](docs/AGENTIC-PATTERNS.md)를 보세요.
+
 ## NEKOWORK가 최적화하는 것
 
 | 질문 | NEKOWORK evidence |
@@ -190,4 +212,5 @@ NEKOWORK는 실제 외부 run evidence가 중요합니다. 아래 문서를 따�
 - [Safety guarantees](docs/SAFETY-GUARANTEES.md)
 - [Trust model](docs/TRUST-MODEL.md)
 - [Why NEKOWORK](docs/WHY-NEKOWORK.md)
+- [12 agentic harness patterns](docs/AGENTIC-PATTERNS.md)
 - [External run kit](docs/EXTERNAL-RUN.md)
