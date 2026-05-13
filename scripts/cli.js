@@ -54,6 +54,8 @@ function shortHelp() {
   const root = process.cwd();
   const installed = fs.existsSync(path.join(root, '.harness')) ? 'yes' : 'no';
   const sessions = countSessions(root);
+  printShortGateHelp({ version, root, installed, sessions });
+  return;
 
   console.log('');
   console.log(`  ${paint('ok', '●')} NEKOWORK ${version}`);
@@ -74,12 +76,38 @@ function shortHelp() {
   console.log('');
 }
 
+function printShortGateHelp({ version, root, installed, sessions }) {
+  console.log('');
+  console.log(`  ${paint('ok', 'NEKOWORK')} ${version}`);
+  console.log('  ' + paint('dim', `project: ${root}  |  installed: ${installed}  |  sessions: ${sessions}`));
+  console.log('');
+  console.log(paint('hint', 'First run ->'));
+  console.log(`  1.  ${paint('hint', 'nekowork check')}          environment check`);
+  console.log(`  2.  ${paint('hint', 'nekowork init')}           install tool surfaces`);
+  console.log(`  3.  ${paint('hint', 'nekowork start "<task>"')}  verify an AI-made change before apply`);
+  console.log('');
+  console.log(paint('hint', 'Safety gate ->'));
+  console.log(`  ${paint('hint', 'start')} -> ${paint('hint', 'report')} -> ${paint('hint', 'apply')}         verified evidence before apply`);
+  console.log(`  ${paint('hint', 'gate status')}                    inspect Human Gate state`);
+  console.log(`  ${paint('hint', 'sessions')}                       list recorded sessions`);
+  console.log('');
+  console.log('  ' + paint('dim', "Full command list: 'nekowork help all'"));
+  console.log('  ' + paint('dim', "Verb help:          'nekowork help <verb>'"));
+  console.log('');
+}
+
 function fullHelp() {
   console.log(`
 nekowork <verb> [args]
 
 Legacy alias:
   harness <verb> [args]
+
+Recommended safety gate
+  check
+  start "<task>"
+  report --session latest
+  apply --session <id>                  explicit only; requires verified SHIP_READY and clear gates
 
 Install / verify
   check [--project-root <dir>] [--gemini-smoke] [--json] [--full]

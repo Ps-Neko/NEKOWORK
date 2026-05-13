@@ -63,34 +63,46 @@ test('official pack docs match install profile manifest', () => {
   assert.doesNotMatch(readme, new RegExp(`${packNames.length} packs /`));
 });
 
-test('README defines verified autopilot without overclaiming proof', () => {
+test('README defines apply-before-verify safety gate without overclaiming proof', () => {
   const readme = read('README.md');
+  const firstScreen = readme.slice(0, readme.indexOf('## One Command. One Blocked Risk.'));
 
-  assert.match(readme, /Verified Autopilot for AI code changes/);
-  assert.match(readme, /\[한국어\]\(README\.ko\.md\)/);
+  assert.match(readme, /Verifies AI-made code changes before you apply them/);
+  assert.match(readme, /NEKOWORK is a local safety gate for AI coding tools/);
   assert.match(readme, /"Verified" means independently reviewed with recorded evidence, not mathematically proven correctness/);
   assert.match(readme, /Bring your coding agent\. NEKOWORK proves the change before apply\./);
+  assert.match(readme, /diff -> deterministic risk scan -> Codex verification -> decision\.json -> REPORT\.md -> Human Gate -> explicit apply/);
   assert.match(readme, /One Command\. One Blocked Risk\./);
   assert.match(readme, /Verdict: BLOCKED/);
   assert.match(readme, /Reason: preverify requires Human Gate for secret env fallback/);
   assert.match(readme, /Apply allowed: false/);
+  assert.doesNotMatch(firstScreen, /12 practical agentic harness patterns/);
+  assert.doesNotMatch(firstScreen, /parallel candidates/i);
+  assert.doesNotMatch(firstScreen, /ralph|instincts/i);
+  assert.doesNotMatch(firstScreen, /`work`, `verify`, `ship`/);
 });
 
-test('Korean README keeps the GitHub landing page thesis and install path', () => {
+test('README quickstart, CLI stage docs, and package metadata agree on start-first path', () => {
+  const pkg = JSON.parse(read('package.json'));
+  const readme = read('README.md');
+  const quickstart = markdownSection(readme, '30-Second First Run');
+  const stages = read('docs/CLI-STAGES.md');
+
+  assert.match(pkg.description, /Verifies AI-made code changes before apply/);
+  assert.match(quickstart, /npx -y @ps-neko\/nekowork@alpha check/);
+  assert.match(quickstart, /npx -y @ps-neko\/nekowork@alpha start "fix failing tests safely"/);
+  assert.match(quickstart, /npx -y @ps-neko\/nekowork@alpha report --session latest/);
+  assert.doesNotMatch(quickstart, /work -> verify -> ship/);
+  assert.match(stages, /check -> start -> report -> gate status/);
+});
+
+test('Korean README keeps public install and evidence links visible', () => {
   const ko = read('README.ko.md');
 
   assert.match(ko, /\[English\]\(README\.md\)/);
-  assert.match(ko, /한국어 요약본입니다/);
-  assert.match(ko, /AI 코드 변경을 위한 검증 기반 오토파일럿/);
-  assert.match(ko, /AI가 만들고, Codex가 검증하고, 사람은 최종 적용 경계를 승인합니다/);
   assert.match(ko, /Node\.js 22\+/);
-  assert.match(ko, /안전한 기본값/);
-  assert.match(ko, /evidence: 실행과 검증 결과로 남는 증거 파일/);
-  assert.match(ko, /실제 provider를 사용할 때는 Claude, Codex, Gemini 같은 로컬 CLI 인증을 우선 사용합니다/);
   assert.match(ko, /npx -y @ps-neko\/nekowork@alpha check/);
-  assert.match(ko, /Risk: provider-auth \/ long-lived-secret/);
-  assert.match(ko, /Applied: false/);
   assert.match(ko, /docs\/AGENTIC-PATTERNS\.md/);
-  assert.match(ko, /Tests: 357 pass/);
+  assert.match(ko, /Tests: 358 pass/);
   assert.match(ko, /docs\/EXTERNAL-RUN\.md/);
 });

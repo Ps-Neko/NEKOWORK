@@ -1,6 +1,6 @@
 # Architecture
 
-NEKOWORK is the product and public name. It is a verified autopilot for AI code changes with one canonical catalog projected into multiple agent surfaces. The `harness` binary remains a legacy/internal CLI alias.
+NEKOWORK is the product and public name. It is an apply-before-change safety gate for AI-made code changes, with one canonical catalog projected into multiple agent surfaces. The `harness` binary remains a legacy/internal CLI alias.
 
 ## Core Idea
 
@@ -25,10 +25,10 @@ The canonical source is the repository catalog. Generated harness directories ar
 
 ## Product Invariants
 
-NEKOWORK is an AI development runtime bounded by safe build modes and verification gates, not a general agent pack:
+NEKOWORK is an AI change verification runtime bounded by safe build modes and verification gates, not a general agent pack:
 
 ```text
-fast AI build -> Codex verification -> Human Gate -> explicit apply
+AI-made change -> preverify -> Codex verification -> decision/report -> Human Gate -> explicit apply
 ```
 
 Core invariants:

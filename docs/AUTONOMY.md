@@ -1,6 +1,6 @@
-# Verified Autopilot
+# Bounded Autonomy
 
-NEKOWORK is a verified autopilot for AI code changes. It can plan, build, verify, and repair before the apply boundary, but it never applies, commits, pushes, publishes, or deploys without explicit human action.
+NEKOWORK can plan, build, verify, and repair before the apply boundary, but it never applies, commits, pushes, publishes, or deploys without explicit human action.
 
 Autonomy is bounded by the apply boundary:
 
