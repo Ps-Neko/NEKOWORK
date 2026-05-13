@@ -888,10 +888,9 @@ function checkArgs(argv) {
         const fileCount = Array.isArray(result.handoff?.files) ? result.handoff.files.length : 0;
         const round = result.handoff?.round ?? 1;
         const shortId = result.sessionId.split('-').pop();
-        const tookSec = result.elapsedMs ? ` · ${(result.elapsedMs / 1000).toFixed(1)}s` : '';
 
         console.log('');
-        console.log(`  ${paint('ok', '✓')} work 완료              ${paint('dim', `round ${round} · ${fileCount} files${tookSec}`)}`);
+        console.log(`  ${paint('ok', '✓')} work 완료              ${paint('dim', `round ${round} · ${fileCount} files`)}`);
         console.log(kvBlock([
           ['session', paint('hint', result.sessionId)],
           ['diff',    result.handoff?.diff ? '(generated)' : '(none — 다음 단계에서 생성)'],
@@ -966,14 +965,13 @@ function checkArgs(argv) {
         const fileCount = Array.isArray(result.codexReview?.files) ? result.codexReview.files.length : 0;
         const round = result.codexReview?.round ?? 1;
         const shortId = result.sessionId.split('-').pop();
-        const tookSec = result.elapsedMs ? ` · ${(result.elapsedMs / 1000).toFixed(1)}s` : '';
 
         console.log('');
-        console.log(`  ${paint('ok', '✓')} verify 완료            ${paint('dim', `round ${round} · ${fileCount} files${tookSec}`)}`);
+        console.log(`  ${paint('ok', '✓')} verify 완료            ${paint('dim', `round ${round} · ${fileCount} files reviewed`)}`);
         console.log(kvBlock([
           ['session', paint('hint', result.sessionId)],
-          ['codex',   result.codexReview ? 'ok' : 'reviewed'],
-          ['risk',    result.verdict ?? '-'],
+          ['codex',   result.codexReview ? 'ok' : 'not run'],
+          ['verdict', result.verdict ?? '-'],
           ['gate',    result.humanGate ? 'HUMAN_GATE open' : 'clear'],
         ]));
         console.log('');
