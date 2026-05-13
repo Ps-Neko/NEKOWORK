@@ -52,23 +52,11 @@ The evidence chain is intentionally narrow:
 diff -> deterministic risk scan -> Codex verification -> decision.json -> REPORT.md -> Human Gate -> explicit apply
 ```
 
-No auto-commit. No auto-push. No surprise deploy.
-
-Product principle:
-
-```text
-NEKOWORK = AI-made change -> evidence -> Human Gate -> explicit apply
-```
-
-**Public alpha evidence:** 359 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs
-
-NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
+No auto-commit. No auto-push. No surprise deploy. `apply` is explicit and requires verified ship-ready evidence.
 
 Use `start` first. It is the safe beginner entrypoint and prints the final decision before detailed build output. Advanced controls are documented later.
 
-**Latest alpha evidence:** [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) / [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) / [smoke transcript](docs/DEMO.md#one-minute-terminal-transcript) / [report artifact](docs/DEMO-REPORT.md)
-
-**One-minute demo:** [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) / [full report example](docs/DEMO-REPORT.md) / [external run kit](docs/EXTERNAL-RUN.md) / [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) / [roadmap](docs/ROADMAP.md)
+**Public alpha evidence:** 359 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs · [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) · [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) · [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) · [full report example](docs/DEMO-REPORT.md) · [external run kit](docs/EXTERNAL-RUN.md) · [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) · [roadmap](docs/ROADMAP.md)
 
 ![NEKOWORK one-minute terminal demo](docs/assets/demo-terminal.svg)
 
@@ -174,7 +162,7 @@ Full stage contract: [docs/CLI-STAGES.md](docs/CLI-STAGES.md). Build modes and r
 
 ## Starter Packs
 
-Start with these five public packs. The full catalog is in [docs/CATALOG-PACKS.md](docs/CATALOG-PACKS.md).
+Five public packs. Discovery and install in [docs/CATALOG-PACKS.md](docs/CATALOG-PACKS.md).
 
 | Pack | Adds | Use when |
 |---|---|---|
@@ -183,33 +171,6 @@ Start with these five public packs. The full catalog is in [docs/CATALOG-PACKS.m
 | `productivity` | planning, TDD, debugging, finish routines | daily AI-assisted development |
 | `security` | auth/secrets/deploy risk prompts | sensitive changes |
 | `release` | ship/no-ship evidence | pre-release checks |
-
-Pack discovery and install:
-
-```bash
-node scripts/install-plan.js --list
-node scripts/install-plan.js --pack productivity
-node scripts/install-apply.js --profile developer --project-root <target>
-```
-
-## Status
-
-- Current repository version: `0.1.0-alpha.10` alpha candidate
-- Current package name: `@ps-neko/nekowork`
-- Published CLI name: `nekowork` (`harness` remains a legacy/internal alias)
-- Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.9`
-- Current npm alpha.10 status: repository candidate; npm `@alpha` remains `0.1.0-alpha.9` until publish
-- Default mode: mock providers, no API keys, no provider CLI calls
-
-Current local verification:
-
-- `npm run lint`: pass
-- `npm test`: 359 tests pass
-- `npm audit --audit-level=moderate`: 0 vulnerabilities
-- `npm pack --dry-run --json`: pass
-- `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
-
-Live provider auth delegates to local CLI sessions (`claude auth status`, `codex login`, `gemini`). Long-lived API key env vars (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `GOOGLE_API_KEY`) are blocked by default unless `HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1`. See [docs/SETUP.md](docs/SETUP.md).
 
 ## Why NEKOWORK
 
@@ -220,6 +181,14 @@ NEKOWORK packages one source catalog, `agent.yaml`, projected into Claude Code, 
 NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profile, module, and pack must improve verification, preserve one-executor writes, produce auditable evidence, and respect Human Gate. Advanced autonomy, parallel candidates, PR prep, and agentic harness patterns are documented after the quickstart because they are optional.
 
 For comparison and positioning: [docs/WHY-NEKOWORK.md](docs/WHY-NEKOWORK.md).
+
+## Status
+
+Current repository version: `0.1.0-alpha.10` alpha candidate · Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.9` (alpha.10 is repository candidate; npm `@alpha` remains 0.1.0-alpha.9 until publish). Package: `@ps-neko/nekowork`. CLI: `nekowork` (`harness` is a legacy alias). Default: mock providers, no API keys.
+
+Verification: `npm run lint` pass · `npm test` 359 pass · `npm audit --audit-level=moderate` 0 vulns · `npm pack --dry-run --json` pass · `npx -y @ps-neko/nekowork@alpha check` pass with warnings only.
+
+Live provider auth delegates to local CLI sessions (`claude auth status`, `codex login`, `gemini`); long-lived API key env vars (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `GOOGLE_API_KEY`) are blocked unless `HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1`. See [docs/SETUP.md](docs/SETUP.md).
 
 ## Documentation
 
