@@ -74,3 +74,27 @@ test('nekowork work without task shows 3-section error', () => {
   assert.match(out, /nekowork work "/);
   assert.match(out, /도움말: nekowork help work/);
 });
+
+test('nekowork verify resolves --session by 4-char prefix', () => {
+  // first run work to create a session
+  const w = runCli(['work', 'phase1a verify prefix']);
+  const idMatch = w.stdout.match(/work-\d{4}-\d{2}-\d{2}-[0-9a-f]{4}/);
+  assert.ok(idMatch, `work did not emit new id: ${w.stdout}`);
+  const id = idMatch[0];
+  const shortId = id.split('-').pop();
+
+  const r = runCli(['verify', 'phase1a verify prefix', '--session', shortId]);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /verify 완료/);
+  // resolver exposes the full id somewhere in output
+  assert.match(r.stdout, new RegExp(id));
+  assert.match(r.stdout, /Next →/);
+});
+
+test('nekowork verify without --session emits 3-section error', () => {
+  const r = runCli(['verify', 'no session given']);
+  assert.notEqual(r.status, 0);
+  const out = r.stdout + r.stderr;
+  assert.match(out, /✗.*--session/);
+  assert.match(out, /예시:/);
+});
