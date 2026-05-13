@@ -32,19 +32,7 @@ Ship ready: false
 Apply allowed: false
 ```
 
-And the machine-readable companion, `decision.json`:
-
-```json
-{
-  "verdict": "blocked",
-  "reason": "preverify requires Human Gate for secret env fallback",
-  "ship_ready": false,
-  "human_gate": "required",
-  "apply_allowed": false,
-  "diff_hash": null,
-  "evidence": ["preverify-summary.json", "decision.json"]
-}
-```
+The machine-readable companion `decision.json` is shown in [Example Report](#example-report).
 
 The evidence chain is intentionally narrow:
 
@@ -131,7 +119,21 @@ Evidence:
 - gate-summary.json
 ```
 
-The first screen of `REPORT.md` is the trust card: work produced, deterministic preverify findings, independent verification, Human Gate, ship readiness, apply state, and whether the target project was mutated. The machine-readable companion is `decision.json`, which consolidates verdict, reason, risk, ship readiness, Human Gate state, apply permission, diff hash, and evidence paths.
+The first screen of `REPORT.md` is the trust card: work produced, deterministic preverify findings, independent verification, Human Gate, ship readiness, apply state, and whether the target project was mutated.
+
+The machine-readable companion is `decision.json`, which consolidates verdict, reason, risk, ship readiness, Human Gate state, apply permission, diff hash, and evidence paths:
+
+```json
+{
+  "verdict": "blocked",
+  "reason": "preverify requires Human Gate for secret env fallback",
+  "ship_ready": false,
+  "human_gate": "required",
+  "apply_allowed": false,
+  "diff_hash": null,
+  "evidence": ["preverify-summary.json", "decision.json"]
+}
+```
 
 See the full report contract and example artifact in [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md), and the one-minute terminal transcript in [docs/DEMO.md](docs/DEMO.md).
 
