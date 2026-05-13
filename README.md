@@ -49,7 +49,7 @@ Verified before apply.
 Human-controlled at the boundary.
 ```
 
-**Public alpha evidence:** 358 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs
+**Public alpha evidence:** 359 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -103,6 +103,12 @@ node scripts/cli.js gate status --session latest
 ```
 
 The simple path maps to the evidence loop: `check = doctor --quick`, `start = build`, `report = readable evidence`, and `apply = explicit verified diff application`.
+
+## Works With Your Existing AI Workflow
+
+Use Claude Code, Cursor, Codex, Superpowers, GStack, or your own domain workflow to produce the candidate change. NEKOWORK begins after that: deterministic risk scan, independent verification, `decision.json`, `REPORT.md`, Human Gate, and explicit apply.
+
+For the artifact contract between upstream domain/spec workflows and NEKOWORK, see [docs/INTEGRATION.md](docs/INTEGRATION.md).
 
 Advanced users can preview routing without running providers or writing session state:
 
@@ -242,7 +248,7 @@ Advanced autonomy, parallel candidates, PR prep, and agentic harness patterns ar
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 358 tests pass
+- `npm test`: 359 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
@@ -494,6 +500,7 @@ npm pack --dry-run --json
 ## Documentation
 
 - [docs/QUICKSTART.md](docs/QUICKSTART.md) - first run and common paths
+- [docs/INTEGRATION.md](docs/INTEGRATION.md) - artifact contract for upstream domain/spec workflows
 - [docs/BUILD.md](docs/BUILD.md) - build command modes and invariants
 - [docs/AUTONOMY.md](docs/AUTONOMY.md) - bounded autonomy, repair budgets, and the apply boundary
 - [docs/AGENTIC-PATTERNS.md](docs/AGENTIC-PATTERNS.md) - 12 practical agentic harness patterns and NEKOWORK coverage

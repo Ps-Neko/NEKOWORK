@@ -54,14 +54,14 @@ NEKOWORK는 기본 흐름을 mock provider 모드로 확인할 수 있습니다.
 
 ```bash
 npx -y @ps-neko/nekowork@alpha check
-npx -y @ps-neko/nekowork@alpha auto "fix failing tests safely" --session first-auto
+npx -y @ps-neko/nekowork@alpha start "fix failing tests safely" --session first-start
 npx -y @ps-neko/nekowork@alpha report --session latest
 ```
 
 먼저 실행 경로만 보고 싶다면:
 
 ```bash
-npx -y @ps-neko/nekowork@alpha auto "fix failing tests safely" --dry-run
+npx -y @ps-neko/nekowork@alpha start "fix failing tests safely" --dry-run
 npx -y @ps-neko/nekowork@alpha auto "refactor this safely" --parallel-candidates 2 --dry-run
 ```
 
@@ -192,7 +192,7 @@ NEKOWORK는 하나의 거대한 agent 묶음이 아니라, 일을 나누고 검�
 - Current alpha: `0.1.0-alpha.10` candidate
 - CLI: `nekowork`
 - Legacy/internal alias: `harness`
-- Tests: 358 pass
+- Tests: 359 pass
 - npm audit: 0 moderate+ issues
 - Fresh `npx @alpha` smoke: pass
 
@@ -208,6 +208,7 @@ NEKOWORK는 실제 외부 run evidence가 중요합니다. 아래 문서를 따�
 ## 문서
 
 - [Quickstart](docs/QUICKSTART.md)
+- [Workflow integration](docs/INTEGRATION.md)
 - [Build modes](docs/BUILD.md)
 - [Bounded autonomy](docs/AUTONOMY.md)
 - [Safety guarantees](docs/SAFETY-GUARANTEES.md)
