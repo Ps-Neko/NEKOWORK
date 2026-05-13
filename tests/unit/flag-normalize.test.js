@@ -36,3 +36,25 @@ test('unknown flags pass through unchanged', () => {
   assert.deepEqual(out, ['--session', 'a3f7', '--json']);
   assert.equal(warns.length, 0);
 });
+
+test('--pack without value throws', () => {
+  assert.throws(() => normalizeFlags(['--pack'], { warn: () => {} }), /requires a profile value/);
+});
+
+test('--pack followed by another flag throws', () => {
+  assert.throws(() => normalizeFlags(['--pack', '--json'], { warn: () => {} }), /requires a profile value/);
+});
+
+test('--secure before --profile is still ignored', () => {
+  const warns = [];
+  const out = normalizeFlags(['--secure', '--profile', 'quality'], { warn: m => warns.push(m) });
+  assert.deepEqual(out, ['--profile', 'quality']);
+  assert.match(warns[0], /--secure.*ignored/);
+});
+
+test('--fast is dropped and warns', () => {
+  const warns = [];
+  const out = normalizeFlags(['--fast'], { warn: m => warns.push(m) });
+  assert.deepEqual(out, []);
+  assert.match(warns[0], /--fast.*no-op/);
+});

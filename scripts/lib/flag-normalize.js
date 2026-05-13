@@ -6,6 +6,9 @@ export function normalizeFlags(argv, { warn = (m) => console.warn(m) } = {}) {
 
     if (token === '--pack') {
       const value = argv[i + 1];
+      if (value === undefined || value.startsWith('--')) {
+        throw new Error(`--pack requires a profile value (got: ${value === undefined ? '<missing>' : value})`);
+      }
       warn(`[deprecated] --pack is deprecated; use --profile (will be removed in 0.2.0)`);
       out.push('--profile', value);
       i++;
