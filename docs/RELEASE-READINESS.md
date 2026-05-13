@@ -31,7 +31,7 @@ The `0.1.0-alpha.8` release scope is bounded verified autopilot plus manifest-ba
 
 - bounded `auto` mode routes through build intelligence, repairs fixable no-ship findings within budget, writes `auto-summary.json`, generates `REPORT.md`, and stops before apply
 - README and package metadata position alpha.8 as a verified autopilot for AI code changes
-- `docs/PARALLEL-CANDIDATES.md` records the alpha.10 candidate evidence preview, while `docs/PR-PREP.md` remains a planned autonomy track
+- `docs/PARALLEL-CANDIDATES.md` records the alpha.10 candidate evidence, candidate verification, arbiter selection, and canonical-candidate preview, while `docs/PR-PREP.md` remains a planned autonomy track
 - build mode safety ranks live in `manifests/build-modes.json`
 - `schemas/build-modes.schema.json` validates mode policy shape
 - `validate:manifests` checks mode ordering and explicit-apply invariants
@@ -97,7 +97,7 @@ Current local verification after the decomposed workflow expansion:
 - `npm run lint`: pass
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
-- `npm test`: 298 tests pass
+- `npm test`: 299 tests pass
 - `npm run demo:quick -- --cleanup`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass

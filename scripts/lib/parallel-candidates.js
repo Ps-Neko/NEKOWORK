@@ -65,20 +65,34 @@ export async function runParallelCandidates(opts = {}) {
     });
     candidates.push(candidate);
   }
+  const verification = await verifyCandidates({
+    ...opts,
+    candidateDir,
+    candidates,
+    dispatcher,
+  });
+  const arbiter = arbitrateCandidates({ sessionDir, candidates, verification });
+  for (const candidate of candidates) {
+    candidate.selected = arbiter.selected_candidate === candidate.id;
+    candidate.ship_candidate = false;
+    candidate.remaining = candidate.selected
+      ? 'selected as canonical evidence; final Codex verification still required'
+      : 'not selected by candidate arbiter';
+  }
+  refreshCandidateArtifacts(candidateDir, candidates);
+  const canonical = promoteCanonicalCandidate({ sessionDir, arbiter, candidates });
 
   const summary = {
     sessionId: opts.sessionId,
     task: opts.task,
-    status: 'captured',
+    status: arbiter.status === 'selected' ? 'selected' : 'no_clean_candidate',
     count,
     max_count: MAX_PARALLEL_CANDIDATES,
     live: Boolean(opts.live),
     candidates,
-    arbiter: {
-      status: 'not_selected',
-      selected_candidate: null,
-      reason: 'candidate patches are evidence only in alpha.10 preview; the main auto build remains canonical',
-    },
+    verification,
+    arbiter,
+    canonical,
     target_project_mutated: false,
     safety_invariants: parallelSafetyInvariants(),
     updated_at: new Date().toISOString(),
@@ -160,10 +174,115 @@ async function runCandidate(opts) {
   return candidate;
 }
 
+async function verifyCandidates(opts) {
+  const verified = [];
+  for (const candidate of opts.candidates) {
+    const handoff = await dispatcherCall({
+      ...opts,
+      agent: 'codex-reviewer',
+      stage: 'codex-review',
+      task: `${opts.task}\n\nVerify parallel candidate ${candidate.id}. This is candidate verification only; do not mark it ship-ready or applied.`,
+      context: {
+        parallelCandidateVerification: true,
+        candidateId: candidate.id,
+        candidate,
+        evidenceOnly: true,
+        finalDiffAuthority: false,
+      },
+      live: Boolean(opts.live),
+      executionMode: 'candidate-verification',
+    });
+    const verification = {
+      id: candidate.id,
+      verifier: handoff.agent || 'codex-reviewer',
+      provider: handoff.provider || 'mock',
+      model: handoff.model || null,
+      verdict: handoff.verdict || 'approve',
+      issues: handoff.issues || [],
+      confidence: handoff.confidence ?? null,
+      selectable: isSelectable(handoff),
+      reason: verificationReason(handoff),
+    };
+    verified.push(verification);
+    fs.writeFileSync(path.join(opts.candidateDir, `${candidate.id}-verification.json`), JSON.stringify({
+      ...verification,
+      handoff,
+    }, null, 2));
+    fs.writeFileSync(path.join(opts.candidateDir, `${candidate.id}-verification.md`), renderCandidateVerification(verification));
+  }
+
+  const summary = {
+    status: 'completed',
+    candidates: verified,
+    selectable_count: verified.filter(v => v.selectable).length,
+    updated_at: new Date().toISOString(),
+  };
+  fs.writeFileSync(path.join(opts.sessionDir, 'candidate-verification.json'), JSON.stringify(summary, null, 2));
+  return summary;
+}
+
+function arbitrateCandidates({ sessionDir, candidates, verification }) {
+  const verified = verification?.candidates || [];
+  const ranked = verified
+    .map(v => ({
+      ...v,
+      score: candidateScore(v, candidates.find(candidate => candidate.id === v.id)),
+    }))
+    .sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+  const selected = ranked.find(v => v.selectable);
+  const arbiter = selected
+    ? {
+        status: 'selected',
+        selected_candidate: selected.id,
+        reason: `${selected.id} is the highest-ranked clean candidate; it still requires final Codex verification before ship/apply.`,
+        ranked_candidates: ranked,
+        final_codex_verification_required: true,
+        ship_candidate: false,
+      }
+    : {
+        status: 'rejected',
+        selected_candidate: null,
+        reason: 'No candidate passed candidate verification cleanly; keep the normal auto build path as canonical.',
+        ranked_candidates: ranked,
+        final_codex_verification_required: true,
+        ship_candidate: false,
+      };
+  fs.writeFileSync(path.join(sessionDir, 'candidate-arbiter.json'), JSON.stringify(arbiter, null, 2));
+  return arbiter;
+}
+
+function promoteCanonicalCandidate({ sessionDir, arbiter, candidates }) {
+  if (arbiter.status !== 'selected') {
+    const rejected = {
+      status: 'not_promoted',
+      selected_candidate: null,
+      reason: arbiter.reason,
+      ship_candidate: false,
+      final_codex_verification_required: true,
+    };
+    fs.writeFileSync(path.join(sessionDir, 'canonical-candidate.json'), JSON.stringify(rejected, null, 2));
+    return rejected;
+  }
+
+  const candidate = candidates.find(c => c.id === arbiter.selected_candidate);
+  const canonicalDiffPath = copyCanonicalDiff(sessionDir, candidate);
+  const canonical = {
+    status: 'selected_evidence',
+    selected_candidate: candidate?.id || arbiter.selected_candidate,
+    source_candidate: candidate,
+    canonical_diff_path: canonicalDiffPath,
+    ship_candidate: false,
+    final_codex_verification_required: true,
+    reason: 'Selected candidate is canonical evidence only until final Codex verification promotes a real ship-ready diff.',
+  };
+  fs.writeFileSync(path.join(sessionDir, 'canonical-candidate.json'), JSON.stringify(canonical, null, 2));
+  return canonical;
+}
+
 async function dispatcherCall(opts) {
   return opts.dispatcher({
-    agent: 'executor',
-    stage: 'implement',
+    agent: opts.agent || 'executor',
+    stage: opts.stage || 'implement',
     task: opts.task,
     live: Boolean(opts.live),
     harnessRoot: opts.harnessRoot,
@@ -193,6 +312,78 @@ function renderCandidate(candidate) {
   lines.push('');
   lines.push('This candidate is not ship-ready. A canonical final diff still requires arbiter selection and Codex verification.');
   return lines.join('\n') + '\n';
+}
+
+function renderCandidateVerification(verification) {
+  const lines = [];
+  lines.push(`# Parallel Candidate Verification: ${verification.id}`);
+  lines.push('');
+  lines.push(`- Verifier: ${verification.verifier}`);
+  lines.push(`- Verdict: ${verification.verdict}`);
+  lines.push(`- Selectable: ${verification.selectable ? 'yes' : 'no'}`);
+  lines.push(`- Reason: ${verification.reason}`);
+  if (verification.issues.length) {
+    lines.push('');
+    lines.push('## Issues');
+    for (const issue of verification.issues) {
+      lines.push(`- [${issue.severity}/${issue.category}] ${issue.summary}`);
+    }
+  }
+  lines.push('');
+  lines.push('Candidate verification is not final ship verification. The selected candidate still requires final Codex verification before ship/apply.');
+  return lines.join('\n') + '\n';
+}
+
+function refreshCandidateArtifacts(candidateDir, candidates) {
+  for (const candidate of candidates) {
+    const jsonPath = path.join(candidateDir, `${candidate.id}.json`);
+    const prior = readJson(jsonPath) || {};
+    fs.writeFileSync(jsonPath, JSON.stringify({
+      ...prior,
+      ...candidate,
+      handoff: prior.handoff,
+    }, null, 2));
+    fs.writeFileSync(path.join(candidateDir, `${candidate.id}.md`), renderCandidate(candidate));
+  }
+}
+
+function readJson(file) {
+  try {
+    if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch {}
+  return null;
+}
+
+function isSelectable(handoff) {
+  return (handoff.verdict || 'approve') === 'approve' && !(handoff.issues || []).some(issue => ['critical', 'high'].includes(issue.severity));
+}
+
+function verificationReason(handoff) {
+  if ((handoff.verdict || 'approve') === 'approve') return 'candidate verification approved with no blocking issues';
+  if (handoff.verdict === 'approve_with_fixes') return 'candidate requires fixes before it can become canonical';
+  if (handoff.verdict === 'block') return 'candidate was blocked by verification';
+  return 'candidate verification returned an unknown verdict';
+}
+
+function candidateScore(verification, candidate = {}) {
+  const verdictScore = verification.verdict === 'approve' ? 100 : verification.verdict === 'approve_with_fixes' ? 40 : 0;
+  const issuePenalty = (verification.issues || []).reduce((sum, issue) => {
+    if (issue.severity === 'critical') return sum + 100;
+    if (issue.severity === 'high') return sum + 40;
+    if (issue.severity === 'medium') return sum + 10;
+    return sum + 2;
+  }, 0);
+  const filePenalty = (candidate.files || []).length;
+  return verdictScore - issuePenalty - filePenalty;
+}
+
+function copyCanonicalDiff(sessionDir, candidate = {}) {
+  if (!candidate?.diff_path || !fs.existsSync(candidate.diff_path)) return null;
+  const dir = path.join(sessionDir, 'diffs');
+  fs.mkdirSync(dir, { recursive: true });
+  const target = path.join(dir, 'canonical-candidate.diff');
+  fs.copyFileSync(candidate.diff_path, target);
+  return target;
 }
 
 function parallelSafetyInvariants() {

@@ -43,7 +43,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 298 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 8 case-study flows / 5 starter packs
+**Public alpha evidence:** 299 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 8 case-study flows / 5 starter packs
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -241,7 +241,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 298 tests pass
+- `npm test`: 299 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
@@ -386,7 +386,7 @@ Risky explicit overrides are protected. For example, `build "change OAuth token 
 
 Use `auto "<task>"` when NEKOWORK should continue before the apply boundary. `auto` routes through the same build intelligence, runs `build`, repeats fixable no-ship work within `--level cautious|normal|aggressive` budgets, writes `auto-summary.json`, generates `REPORT.md`, and never accepts `--apply`.
 
-Use `auto "<task>" --parallel-candidates N` when you want isolated candidate evidence before the canonical build. In the alpha.10 preview, candidates are evidence only: they never become ship-ready until an arbiter-selected canonical diff is independently verified.
+Use `auto "<task>" --parallel-candidates N` when you want isolated candidate evidence before the canonical build. In the alpha.10 preview, NEKOWORK captures candidate patches, verifies each candidate, records an arbiter selection, and writes canonical-candidate evidence. It still does not make that candidate ship-ready until a final Codex verification promotes a real canonical diff.
 
 Use `--profile quality` or `--profile security` on `work`, `verify`, and `run` when a task needs stronger evidence prompts. Add `--strict-quality` to `verify`, `run`, or `build` when missing evidence or acceptance coverage should become a fix-required verdict before ship.
 

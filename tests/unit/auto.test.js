@@ -96,18 +96,53 @@ test('auto captures parallel candidate evidence before canonical build', async (
     });
 
     assert.equal(result.parallelCandidates.count, 2);
-    assert.equal(result.parallelCandidates.arbiter.status, 'not_selected');
+    assert.equal(result.parallelCandidates.arbiter.status, 'selected');
+    assert.equal(result.parallelCandidates.arbiter.selected_candidate, 'candidate-01');
+    assert.equal(result.parallelCandidates.canonical.status, 'selected_evidence');
     assert.equal(result.parallelCandidates.candidates.every(candidate => candidate.evidence_only), true);
+    assert.equal(result.parallelCandidates.candidates[0].selected, true);
     assert.ok(fs.existsSync(path.join(result.sessionDir, 'parallel-candidates.json')));
+    assert.ok(fs.existsSync(path.join(result.sessionDir, 'candidate-verification.json')));
+    assert.ok(fs.existsSync(path.join(result.sessionDir, 'candidate-arbiter.json')));
+    assert.ok(fs.existsSync(path.join(result.sessionDir, 'canonical-candidate.json')));
     assert.ok(fs.existsSync(path.join(result.sessionDir, 'parallel-candidates', 'candidate-01.json')));
     assert.ok(fs.existsSync(path.join(result.sessionDir, 'parallel-candidates', 'candidate-02.md')));
     const summary = JSON.parse(fs.readFileSync(path.join(result.sessionDir, 'auto-summary.json'), 'utf8'));
     assert.equal(summary.parallel_candidates.count, 2);
+    assert.equal(summary.parallel_candidates.arbiter.status, 'selected');
     assert.equal(summary.parallel_candidates.target_project_mutated, false);
     const report = fs.readFileSync(path.join(result.sessionDir, 'REPORT.md'), 'utf8');
     assert.match(report, /Parallel Candidates/);
     assert.match(report, /candidate-01/);
+    assert.match(report, /Selected candidate: candidate-01/);
     assert.equal(calls.filter(call => call.context?.parallelCandidate).length, 2);
+    assert.equal(calls.filter(call => call.context?.parallelCandidateVerification).length, 2);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('auto rejects dirty parallel candidates from canonical promotion evidence', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-auto-candidates-reject-'));
+  try {
+    const result = await autoCycle({
+      task: 'refactor parser safely',
+      level: 'cautious',
+      parallelCandidates: 2,
+      sessionId: 'unit-auto-candidates-reject',
+      harnessRoot: ROOT,
+      projectRoot,
+      dispatcher: dispatcher([], { reviewVerdicts: ['approve_with_fixes', 'block', 'approve'] }),
+    });
+
+    assert.equal(result.parallelCandidates.status, 'no_clean_candidate');
+    assert.equal(result.parallelCandidates.arbiter.status, 'rejected');
+    assert.equal(result.parallelCandidates.arbiter.selected_candidate, null);
+    assert.equal(result.parallelCandidates.canonical.status, 'not_promoted');
+    assert.equal(result.shipReady, true);
+    const report = fs.readFileSync(path.join(result.sessionDir, 'REPORT.md'), 'utf8');
+    assert.match(report, /Selected candidate: none/);
+    assert.match(report, /Canonical artifact: not_promoted/);
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }

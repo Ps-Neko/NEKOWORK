@@ -60,6 +60,9 @@ The output is `auto-summary.json` plus the normal session evidence:
 build-intelligence.json
 build-plan.json
 parallel-candidates.json
+candidate-verification.json
+candidate-arbiter.json
+canonical-candidate.json
 acceptance-criteria.json
 build-summary.json
 run-summary.json

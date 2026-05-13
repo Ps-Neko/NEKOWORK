@@ -130,7 +130,8 @@ Planned scope:
 - Add `auto --parallel-candidates N` preview.
 - Run candidate workers in isolated worktrees, temp projects, or isolated diff captures.
 - Record candidate patches as evidence, not ship-ready output.
-- Produce an arbiter summary that does not yet promote a canonical final diff.
+- Verify candidate patches as evidence before arbitration.
+- Produce an arbiter summary and canonical-candidate evidence that do not yet promote a ship-ready final diff.
 - Keep final Codex verification on the normal canonical auto build path until candidate promotion exists.
 - Report candidate decisions in `REPORT.md`.
 
