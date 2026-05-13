@@ -112,6 +112,7 @@ function buildAutoSection() {
   lines.push('```bash');
   lines.push('harness install --plan --profile core      # 설치 dry-run');
   lines.push('harness install --plan --pack quality      # curated pack dry-run');
+  lines.push('harness start "<task>" [--apply]           # AI 변경 검증 후 적용 (start -> report -> apply)');
   lines.push('harness ask "<task>"                       # question gate, no project mutation');
   lines.push('harness team "<task>"                      # read-only worker handoffs');
   lines.push('harness work "<task>"                      # single executor implement handoff');
