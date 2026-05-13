@@ -13,6 +13,11 @@ import { paint, kvBlock, nextBlock } from './lib/ui-format.js';
 import { normalizeFlags } from './lib/flag-normalize.js';
 import { renderError } from './lib/ui-errors.js';
 import { resolveSessionId } from './lib/session-resolver.js';
+import { isNewId } from './lib/session-id.js';
+
+function displayShortId(sessionId) {
+  return isNewId(sessionId) ? sessionId.split('-').pop() : sessionId;
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -887,7 +892,7 @@ function checkArgs(argv) {
       } else {
         const fileCount = Array.isArray(result.handoff?.files) ? result.handoff.files.length : 0;
         const round = result.handoff?.round ?? 1;
-        const shortId = result.sessionId.split('-').pop();
+        const shortId = displayShortId(result.sessionId);
 
         console.log('');
         console.log(`  ${paint('ok', '✓')} work 완료              ${paint('dim', `round ${round} · ${fileCount} files`)}`);
@@ -964,7 +969,7 @@ function checkArgs(argv) {
       } else {
         const fileCount = Array.isArray(result.codexReview?.files) ? result.codexReview.files.length : 0;
         const round = result.codexReview?.round ?? 1;
-        const shortId = result.sessionId.split('-').pop();
+        const shortId = displayShortId(result.sessionId);
 
         console.log('');
         console.log(`  ${paint('ok', '✓')} verify 완료            ${paint('dim', `round ${round} · ${fileCount} files reviewed`)}`);
