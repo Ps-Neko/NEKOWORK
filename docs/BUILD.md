@@ -1,6 +1,14 @@
 # Build Command
 
-`build` is NEKOWORK's productivity-first entrypoint. Start here when you want one command to move from a task to verified ship readiness:
+`start` is the beginner alias for `build`. Use it when you want one safe command with verdict-first output:
+
+```bash
+nekowork start "implement this safely"
+nekowork report --session latest
+nekowork gate status --session latest
+```
+
+`build` is NEKOWORK's productivity-first entrypoint. Use it directly when you want explicit mode flags:
 
 ```bash
 nekowork build "implement this safely"
@@ -28,6 +36,16 @@ nekowork build "implement this safely" --explain
 `--dry-run` does not create a session, call providers, write handoffs, or mutate the target project. It only resolves the build mode, profile, stages, workers, task intelligence, and safety invariants.
 
 `--explain` runs the build and then prints the selected mode rationale plus the evidence files written in the session.
+
+Real `start`/`build` runs print the final decision before the detailed build output:
+
+```text
+Verdict: BLOCKED
+Reason: preverify requires Human Gate for secret env fallback
+Human Gate: required
+Ship ready: false
+Apply allowed: false
+```
 
 By default, `build` uses `--mode auto`. Auto mode classifies the task, chooses one of the safe build presets, selects any needed read-only workers, creates acceptance criteria, and records a mini plan for the single executor.
 
@@ -112,6 +130,8 @@ Auto mode writes these evidence files:
 - `build-plan.json`
 - `acceptance-criteria.json`
 - `build-summary.json`
+- `preverify-summary.json` when verification has a work diff to inspect
+- `decision.json`
 
 `nekowork report --session <id>` includes a `Build Intelligence` section with requested mode, selected mode, task type, risk tags, workers, and the routing explanation.
 

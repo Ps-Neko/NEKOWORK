@@ -69,9 +69,11 @@ test('README defines verified autopilot without overclaiming proof', () => {
   assert.match(readme, /Verified Autopilot for AI code changes/);
   assert.match(readme, /\[한국어\]\(README\.ko\.md\)/);
   assert.match(readme, /"Verified" means independently reviewed with recorded evidence, not mathematically proven correctness/);
+  assert.match(readme, /Bring your coding agent\. NEKOWORK proves the change before apply\./);
   assert.match(readme, /One Command\. One Blocked Risk\./);
-  assert.match(readme, /Codex verdict: request_changes/);
-  assert.match(readme, /Applied: false/);
+  assert.match(readme, /Verdict: BLOCKED/);
+  assert.match(readme, /Reason: preverify requires Human Gate for secret env fallback/);
+  assert.match(readme, /Apply allowed: false/);
 });
 
 test('Korean README keeps the GitHub landing page thesis and install path', () => {
@@ -89,6 +91,6 @@ test('Korean README keeps the GitHub landing page thesis and install path', () =
   assert.match(ko, /Risk: provider-auth \/ long-lived-secret/);
   assert.match(ko, /Applied: false/);
   assert.match(ko, /docs\/AGENTIC-PATTERNS\.md/);
-  assert.match(ko, /Tests: 349 pass/);
+  assert.match(ko, /Tests: 357 pass/);
   assert.match(ko, /docs\/EXTERNAL-RUN\.md/);
 });

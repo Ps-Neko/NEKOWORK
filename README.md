@@ -10,6 +10,8 @@ AI builds. Codex verifies. You approve the boundary.
 
 NEKOWORK plans, edits, verifies, repairs, and prepares ship-ready AI code changes. Final apply remains human-controlled.
 
+Bring your coding agent. NEKOWORK proves the change before apply.
+
 Note: "Verified" means independently reviewed with recorded evidence, not mathematically proven correctness. NEKOWORK combines Codex review, test evidence, risk policy, Human Gate, and explicit apply boundaries.
 
 It runs:
@@ -43,11 +45,11 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 349 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs
+**Public alpha evidence:** 357 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
-For bounded autonomy before that boundary, use `auto`: it can route, build, verify, repair fixable findings within a budget, write a report, and then stop before apply.
+For the shortest beginner path, use `start`: it is an alias for the safe `build` entrypoint and prints the final decision first. For bounded autonomy before the apply boundary, use `auto`: it can route, build, verify, repair fixable findings within a budget, write a report, and then stop before apply.
 
 NEKOWORK also maps the verified autopilot flow to 12 practical agentic harness patterns: routing, planning, read-only team review, independent verification, Human Gate, tool gates, memory, and evolution loops. See [docs/AGENTIC-PATTERNS.md](docs/AGENTIC-PATTERNS.md).
 
@@ -62,17 +64,17 @@ Current alpha.10 track: `pr-prep` turns verified sessions into PR-ready local ev
 ## One Command. One Blocked Risk.
 
 ```bash
-npx -y @ps-neko/nekowork@alpha auto "add OPENAI_API_KEY fallback for Codex auth"
+npx -y @ps-neko/nekowork@alpha start "add OPENAI_API_KEY fallback for Codex auth"
 ```
 
 Typical blocked-risk evidence:
 
 ```text
-Risk: provider-auth / long-lived-secret
-Codex verdict: request_changes
+Verdict: BLOCKED
+Reason: preverify requires Human Gate for secret env fallback
 Human Gate: required
 Ship ready: false
-Applied: false
+Apply allowed: false
 
 Blocked because NEKOWORK defaults to delegated CLI auth and rejects long-lived provider API key paths unless the human explicitly opts in.
 ```
@@ -85,17 +87,18 @@ Use the current npm alpha for the fastest proof of the workflow:
 
 ```bash
 npx -y @ps-neko/nekowork@alpha check
-npx -y @ps-neko/nekowork@alpha auto "fix failing tests safely" --session first-auto
+npx -y @ps-neko/nekowork@alpha start "fix failing tests safely" --session first-start
 npx -y @ps-neko/nekowork@alpha report --session latest
 ```
 
-Start with `auto` when you want NEKOWORK to keep going until report/gate. Use `build` when you want one build pass. Drop down to `work`, `verify`, and `ship` only when you need phase-level control.
+Start with `start` when you want the simplest safe entrypoint. Use `auto` when you want NEKOWORK to keep going until report/gate. Use `build` when you want explicit build-mode flags. Drop down to `work`, `verify`, and `ship` only when you need phase-level control.
 
 Preview the route before running providers or writing session state:
 
 ```bash
 npx -y @ps-neko/nekowork@alpha auto "fix failing tests safely" --dry-run
 npx -y @ps-neko/nekowork@alpha auto "refactor this safely" --parallel-candidates 2 --dry-run
+npx -y @ps-neko/nekowork@alpha start "fix this safely" --dry-run
 npx -y @ps-neko/nekowork@alpha build "fix this safely" --dry-run
 ```
 
@@ -103,7 +106,7 @@ Use a source checkout for local development:
 
 ```bash
 node scripts/cli.js check
-node scripts/cli.js auto "implement this safely" --session first-auto
+node scripts/cli.js start "implement this safely" --session first-start
 node scripts/cli.js report --session latest
 node scripts/cli.js gate status --session latest
 ```
@@ -117,7 +120,7 @@ node scripts/cli.js report --session first-run
 node scripts/cli.js gate status --session first-run
 ```
 
-The simple paths map to the evidence loop: `check = doctor --quick`, `build = auto routing plus mode presets over run`, `auto = bounded build/verify/repair/report before apply`, and `run = work -> verify -> ship`.
+The simple paths map to the evidence loop: `check = doctor --quick`, `start = build`, `build = auto routing plus mode presets over run`, `auto = bounded build/verify/repair/report before apply`, and `run = work -> verify -> ship`.
 
 Use `build --dry-run` when you want to preview auto routing, mode, profile, workers, stages, and apply policy before running providers or writing session state. Use `build --explain` when you want the same routing rationale and evidence list after a real build.
 
@@ -144,12 +147,14 @@ Quality warnings: 2
 
 Evidence:
 - work-summary.json
+- preverify-summary.json
 - verify-summary.json
 - ship-summary.json
+- decision.json
 - gate-summary.json
 ```
 
-The first screen of `REPORT.md` is the trust card: work produced, independent verification, Human Gate, ship readiness, apply state, and whether the target project was mutated.
+The first screen of `REPORT.md` is the trust card: work produced, deterministic preverify findings, independent verification, Human Gate, ship readiness, apply state, and whether the target project was mutated. The machine-readable companion is `decision.json`, which consolidates verdict, reason, risk, ship readiness, Human Gate state, apply permission, diff hash, and evidence paths.
 
 See the full report contract and example artifact in [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md), and the one-minute terminal transcript in [docs/DEMO.md](docs/DEMO.md).
 
@@ -193,7 +198,8 @@ Apply command: node scripts/cli.js apply --session first-work
 
 | Trust question | NEKOWORK evidence |
 |---|---|
-| Did the tool record why ship was blocked? | `NO_SHIP`, `REPORT.md`, `gate-summary.json` |
+| Did the tool record why ship was blocked? | `decision.json`, `NO_SHIP`, `REPORT.md`, `gate-summary.json` |
+| Did deterministic risk rules run before LLM review? | `preverify-summary.json` |
 | Did it keep apply human-controlled? | `auto` rejects `--apply`; `apply` is a separate command |
 | Did it separate executor and verifier? | `work -> verify` with Codex review evidence |
 | Did it block risky mode downgrades? | manifest-backed build mode safety order |
@@ -203,6 +209,7 @@ Apply command: node scripts/cli.js apply --session first-work
 
 | Use case | NEKOWORK fit |
 |---|---|
+| You want the simplest beginner command | `start` runs the safe build entrypoint and prints verdict first |
 | You want one command to keep working until report/gate | `auto` routes, builds, verifies, repairs, and stops before apply |
 | You want one build pass with safe routing | `build` routes the task into safe mode presets |
 | You want daily planning, TDD, debugging, and finish checks | use the `productivity` pack |
@@ -215,11 +222,12 @@ Use other AI development tools when they fit your preferred authoring flow. Use 
 
 ## Three Paths
 
-Most users should start with the Autopilot path. The other paths are for explicit phase control. Legacy compatibility remains available without being the main product path.
+Most users should start with the Beginner path. The other paths are for autonomy or explicit phase control. Legacy compatibility remains available without being the main product path.
 
-1. Autopilot: `check -> auto -> report -> gate`
-2. Controlled Build: `check -> build -> report -> gate`
-3. Advanced: `ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply`
+1. Beginner: `check -> start -> report -> gate`
+2. Autopilot: `check -> auto -> report -> gate`
+3. Controlled Build: `check -> build -> report -> gate`
+4. Advanced: `ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply`
 
 Legacy: `review` / `review-cycle`
 
@@ -241,7 +249,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 349 tests pass
+- `npm test`: 357 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only

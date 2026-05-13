@@ -56,6 +56,7 @@ test('gate approve records approval for an open HUMAN_GATE', () => {
       sessionId: 'open',
       projectRoot,
       reason: 'Reviewed the finding and accepted the release risk.',
+      actor: 'unit-reviewer',
     });
     assert.equal(after.status, 'approved');
     assert.equal(after.approved, true);
@@ -65,6 +66,10 @@ test('gate approve records approval for an open HUMAN_GATE', () => {
     const summary = JSON.parse(fs.readFileSync(path.join(sessionDir, 'gate-summary.json'), 'utf8'));
     assert.equal(summary.status, 'approved');
     assert.equal(summary.target_project_mutated, false);
+    assert.equal(summary.approval_actor, 'unit-reviewer');
+    const decision = JSON.parse(fs.readFileSync(path.join(sessionDir, 'decision.json'), 'utf8'));
+    assert.equal(decision.human_gate, 'approved');
+    assert.equal(decision.approval.actor, 'unit-reviewer');
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }
@@ -98,11 +103,15 @@ test('gate block creates an explicit block and keeps ship gated', () => {
       sessionId: 'blocked',
       projectRoot,
       reason: 'Owner rejected release risk.',
+      actor: 'unit-reviewer',
     });
     assert.equal(result.status, 'blocked');
     assert.equal(result.blocked, true);
     assert.ok(fs.existsSync(path.join(sessionDir, 'HUMAN_GATE')));
     assert.ok(fs.existsSync(path.join(sessionDir, 'GATE_BLOCKED')));
+    const decision = JSON.parse(fs.readFileSync(path.join(sessionDir, 'decision.json'), 'utf8'));
+    assert.equal(decision.human_gate, 'blocked');
+    assert.equal(decision.verdict, 'blocked');
 
     assert.throws(
       () => approveGate({ sessionId: 'blocked', projectRoot, reason: 'changed mind' }),

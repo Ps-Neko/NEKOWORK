@@ -4,6 +4,7 @@ import { workCycle } from './work.js';
 import { verifyCycle } from './verify.js';
 import { shipCycle } from './ship.js';
 import { applyCycle } from './apply.js';
+import { writeDecision } from '../lib/decision.js';
 
 export async function runCycle(opts) {
   const harnessRoot = opts.harnessRoot || process.cwd();
@@ -129,6 +130,7 @@ function writeSummary(sessionDir, result) {
     target_project_mutated: result.applied,
     next_step: nextStep(result),
   }, null, 2));
+  writeDecision(sessionDir, { sessionId: result.sessionId, stage: 'run' });
 }
 
 function readAcceptanceCount(sessionDir) {

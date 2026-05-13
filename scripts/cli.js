@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // NEKOWORK CLI entrypoint. The `harness` bin remains a legacy/internal alias.
-// Public verbs: check, init, doctor, ask, plan, team, work, verify, gate, ship, apply, run, build, auto, report, pr-prep, review, review-cycle, install, validate, version.
+// Public verbs: check, init, doctor, start, build, report, apply, ask, plan, team, work, verify, gate, ship, run, auto, pr-prep, review, review-cycle, install, validate, version.
 // Advanced verbs: self-review, codex-review, ralph, wait, sessions, costs, instincts.
 
 import { spawnSync } from 'node:child_process';
@@ -62,7 +62,7 @@ function shortHelp() {
   console.log(paint('hint', '처음이라면 →'));
   console.log(`  1.  ${paint('hint', 'nekowork check')}          환경 진단 (30초)`);
   console.log(`  2.  ${paint('hint', 'nekowork init')}           프로필 설치 (1분)`);
-  console.log(`  3.  ${paint('hint', 'nekowork run "<task>"')}    첫 풀 사이클 실행`);
+  console.log(`  3.  ${paint('hint', 'nekowork start "<task>"')}  첫 안전 빌드 실행`);
   console.log('');
   console.log(paint('hint', '자주 쓰는 흐름 →'));
   console.log(`  ${paint('hint', 'work')} → ${paint('hint', 'verify')} → ${paint('hint', 'ship')} → ${paint('hint', 'apply')}     사람·게이트 통과 풀 사이클`);
@@ -97,6 +97,8 @@ Install / verify
   version
 
 Review loop
+  start "<task>" [--dry-run] [--explain] [--session <id>] [--live] [--project-root <dir>] [--json]
+                                         beginner alias for build; one safe entrypoint before report/apply
   ask "<task>" [--profile quality|product|security] [--session <id>] [--project-root <dir>] [--json]
                                          question gate only; no provider calls or project mutation
   team "<task>" [--workers planner,research,product,security,test] [--no-write] [--session <id>] [--project-root <dir>] [--live] [--json]
@@ -1215,6 +1217,7 @@ function checkArgs(argv) {
       break;
     }
 
+    case 'start':
     case 'build': {
       const result = await runBuildCommand({
         argv: rest,

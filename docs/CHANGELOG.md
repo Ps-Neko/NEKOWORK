@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Added
+- Add `nekowork start` as the beginner alias for the safe `build` entrypoint.
+- Add `decision.json` as the shared machine-readable session decision surface.
+- Add deterministic `preverify-summary.json` findings before Codex review for secret, auth, deploy, payment, env/config, permission, and destructive-data risks.
+
+### Changed
+- Print verdict, reason, Human Gate state, ship readiness, and apply permission first for real `start`/`build` runs.
+
 ## [0.1.0-alpha.10] - 2026-05-13
 
 ### Added

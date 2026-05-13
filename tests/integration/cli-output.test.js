@@ -18,7 +18,7 @@ test('nekowork (no args) shows short status + 3 recommendations', () => {
   assert.match(r.stdout, /처음이라면/);
   assert.match(r.stdout, /nekowork check/);
   assert.match(r.stdout, /nekowork init/);
-  assert.match(r.stdout, /nekowork run/);
+  assert.match(r.stdout, /nekowork start/);
   assert.match(r.stdout, /자주 쓰는 흐름/);
   // flow line mentions all four verbs in order
   assert.match(r.stdout, /work[\s\S]*verify[\s\S]*ship[\s\S]*apply/);
@@ -57,6 +57,15 @@ test('nekowork work outputs new format with session and Next block', () => {
   assert.match(r.stdout, /Next →/);
   assert.match(r.stdout, /nekowork verify --session/);
   assert.match(r.stdout, /nekowork report --session/);
+});
+
+test('nekowork start is a beginner alias for build and prints verdict-first output', () => {
+  const r = runCli(['start', 'cli output start smoke']);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /Verdict:/);
+  assert.match(r.stdout, /Human Gate:/);
+  assert.match(r.stdout, /Apply allowed:/);
+  assert.match(r.stdout, /=== build ===/);
 });
 
 test('nekowork work --pack quality emits deprecation warning and still succeeds', () => {
