@@ -187,7 +187,10 @@ Sessions / cost / learning
   instincts show <id>
   instincts ready [--max-stale-days N] [--min-diversity X] [--blocked]
                                          list promotion candidates; human confirmation required
-  instincts promote <id>                 promote only at confidence 1.0
+  instincts adopt <id> --reviewed-by <name> --reason <text>
+                                         adopt a ready pattern only after human review
+  instincts promote <id> --reviewed-by <name> --reason <text>
+                                         legacy alias for adopt
   instincts prune [--older-days N] [--dry-run]
 
 Other
@@ -1480,16 +1483,18 @@ function checkArgs(argv) {
             console.log(`\nblocked=${r.blocked.length}`);
             for (const x of r.blocked) console.log(`  ${x.id}  ${x.reason}  ${x.key}`);
           }
-          console.log('\nPromotion requires explicit command: harness instincts promote <id>');
+          console.log('\nAdoption requires explicit human review: harness instincts adopt <id> --reviewed-by <name> --reason <text>');
         }
-      } else if (sub === 'promote') {
+      } else if (sub === 'adopt' || sub === 'promote') {
         const id = rest[1];
         if (!id) {
           console.error('id is required');
           process.exit(2);
         }
-        const r = iPromote(id);
-        console.log(`promoted: ${r.id} (${r.key})`);
+        const reviewedBy = optionValue(rest, '--reviewed-by', undefined);
+        const reason = optionValue(rest, '--reason', undefined);
+        const r = iPromote(id, { reviewedBy, reason });
+        console.log(`adopted: ${r.id} (${r.key}) reviewed_by=${r.reviewed_by}`);
       } else if (sub === 'prune') {
         const dryRun = rest.includes('--dry-run');
         const olderDays = optionNumber(rest, '--older-days', undefined);
@@ -1499,7 +1504,7 @@ function checkArgs(argv) {
           for (const x of r.removed) console.log(`  - ${x.id} ${x.kind} ${x.key}`);
         }
       } else {
-        console.error(`unknown subverb: ${sub}. list | show <id> | ready | promote <id> | prune`);
+        console.error(`unknown subverb: ${sub}. list | show <id> | ready | adopt <id> | promote <id> | prune`);
         process.exit(2);
       }
       break;
