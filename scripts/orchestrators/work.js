@@ -4,13 +4,14 @@ import { dispatch } from '../agents/dispatch.js';
 import { ensureAcceptanceCriteria } from '../lib/acceptance-criteria.js';
 import { profilePolicy } from '../lib/profile-policy.js';
 import { withExecutionWorkspace } from '../core/execution-workspace.js';
+import { generateSessionId } from '../lib/session-id.js';
 
 const STAGE_INDEX = { implement: '03' };
 
 export async function workCycle(opts) {
   const harnessRoot = opts.harnessRoot || process.cwd();
   const projectRoot = opts.projectRoot || harnessRoot;
-  const sessionId = opts.sessionId || `work-${Date.now()}`;
+  const sessionId = opts.sessionId || generateSessionId('work');
   const sessionDir = path.join(projectRoot, '.harness', 'state', 'sessions', sessionId);
   const handoffDir = path.join(sessionDir, 'handoffs');
   fs.mkdirSync(handoffDir, { recursive: true });
