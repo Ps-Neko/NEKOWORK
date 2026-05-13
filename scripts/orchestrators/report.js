@@ -69,6 +69,9 @@ function readSessionEvidence(sessionDir) {
     buildIntelligence: readJson(path.join(sessionDir, 'build-intelligence.json')),
     buildPlan: readJson(path.join(sessionDir, 'build-plan.json')),
     parallelCandidates: readJson(path.join(sessionDir, 'parallel-candidates.json')),
+    candidateVerification: readJson(path.join(sessionDir, 'candidate-verification.json')),
+    candidateArbiter: readJson(path.join(sessionDir, 'candidate-arbiter.json')),
+    canonicalCandidate: readJson(path.join(sessionDir, 'canonical-candidate.json')),
     acceptance: readJson(path.join(sessionDir, 'acceptance-criteria.json')),
     markers: Object.fromEntries(MARKERS.map(name => [name, readMarker(path.join(sessionDir, name))])),
     handoffs: readHandoffs(path.join(sessionDir, 'handoffs')),
@@ -256,6 +259,9 @@ function evidenceFiles(data) {
     data.buildIntelligence ? 'build-intelligence.json' : null,
     data.buildPlan ? 'build-plan.json' : null,
     data.parallelCandidates ? 'parallel-candidates.json' : null,
+    data.candidateVerification ? 'candidate-verification.json' : null,
+    data.candidateArbiter ? 'candidate-arbiter.json' : null,
+    data.canonicalCandidate ? 'canonical-candidate.json' : null,
     data.acceptance ? 'acceptance-criteria.json' : null,
     ...MARKERS.filter(name => data.markers[name]),
   ].filter(Boolean);
@@ -345,13 +351,17 @@ function addAutonomySection(lines, data, summary) {
 function addParallelCandidatesSection(lines, data, summary) {
   const parallel = data.parallelCandidates || summary.parallelCandidates;
   if (!parallel) return;
+  const arbiter = data.candidateArbiter || parallel.arbiter || {};
+  const canonical = data.canonicalCandidate || parallel.canonical || {};
 
   lines.push('## Parallel Candidates');
   lines.push('');
   lines.push(`- Status: ${parallel.status || 'recorded'}`);
   lines.push(`- Count: ${parallel.count || 0}`);
-  lines.push(`- Canonical diff: ${parallel.arbiter?.selected_candidate || parallel.arbiter?.selectedCandidate || 'not selected'}`);
-  lines.push(`- Arbiter: ${parallel.arbiter?.reason || 'candidate evidence only'}`);
+  lines.push(`- Selected candidate: ${arbiter.selected_candidate || 'none'}`);
+  lines.push(`- Canonical artifact: ${canonical.status || 'not promoted'}`);
+  lines.push(`- Canonical diff: ${canonical.canonical_diff_path || 'not available'}`);
+  lines.push(`- Arbiter: ${arbiter.reason || 'candidate evidence only'}`);
   lines.push('- Apply: not automatic');
   lines.push('');
 
@@ -362,10 +372,13 @@ function addParallelCandidatesSection(lines, data, summary) {
     return;
   }
 
-  lines.push('| Candidate | Isolation | Status | Files | Selected |');
-  lines.push('| --- | --- | --- | --- | --- |');
+  const verifications = data.candidateVerification?.candidates || parallel.verification?.candidates || [];
+  lines.push('| Candidate | Isolation | Status | Verdict | Score | Files | Selected |');
+  lines.push('| --- | --- | --- | --- | --- | --- | --- |');
   for (const candidate of candidates) {
-    lines.push(`| ${escapeTable(candidate.id)} | ${escapeTable(candidate.isolation || '')} | ${escapeTable(candidate.status || '')} | ${escapeTable((candidate.files || []).join(', ') || 'none')} | ${candidate.selected ? 'yes' : 'no'} |`);
+    const ranked = (arbiter.ranked_candidates || []).find(row => row.id === candidate.id);
+    const verification = verifications.find(row => row.id === candidate.id);
+    lines.push(`| ${escapeTable(candidate.id)} | ${escapeTable(candidate.isolation || '')} | ${escapeTable(candidate.status || '')} | ${escapeTable(ranked?.verdict || verification?.verdict || 'n/a')} | ${escapeTable(ranked?.score ?? 'n/a')} | ${escapeTable((candidate.files || []).join(', ') || 'none')} | ${candidate.selected ? 'yes' : 'no'} |`);
   }
   lines.push('');
 }
