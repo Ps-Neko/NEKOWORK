@@ -70,7 +70,7 @@ Review loop
                                          decomposed wrapper: work -> verify -> ship, optional apply
   build "<task>" [--mode auto|fast|safe|team|tdd|release] [--dry-run] [--explain] [--force-mode] [--session <id>] [--live] [--apply] [--project-root <dir>] [--json]
                                          one-command builder wrapper; auto mode routes task intent safely
-  auto "<task>" [--level cautious|normal|aggressive] [--budget N] [--mode auto|fast|safe|team|tdd|release] [--dry-run] [--explain] [--session <id>] [--live] [--project-root <dir>] [--json]
+  auto "<task>" [--level cautious|normal|aggressive] [--budget N] [--parallel-candidates N] [--mode auto|fast|safe|team|tdd|release] [--dry-run] [--explain] [--session <id>] [--live] [--project-root <dir>] [--json]
                                          bounded autonomy before apply: route, build, verify, repair within budget, report, stop
   report --session <id> [--project-root <dir>] [--output <file>] [--stdout] [--json]
                                          summarize session evidence into REPORT.md; inspect-only

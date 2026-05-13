@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { autoCycle, autoPlan, normalizeAutoLevel } from '../../scripts/orchestrators/auto.js';
+import { normalizeParallelCandidateCount } from '../../scripts/lib/parallel-candidates.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
@@ -31,6 +32,28 @@ test('auto dry-run previews bounded autonomy without creating a session', () => 
   }
 });
 
+test('auto dry-run previews isolated parallel candidates without creating a session', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-auto-candidates-dry-run-'));
+  try {
+    const preview = autoPlan({
+      task: 'refactor auth parser safely',
+      parallelCandidates: 3,
+      sessionId: 'unit-auto-candidates-dry-run',
+      harnessRoot: ROOT,
+      projectRoot,
+      dryRun: true,
+    });
+
+    assert.equal(preview.parallelCandidates.enabled, true);
+    assert.equal(preview.parallelCandidates.count, 3);
+    assert.equal(preview.parallelCandidates.arbiter.status, 'not_selected');
+    assert.ok(preview.stages.some(stage => stage.stage === 'parallel-candidates' && stage.runs === true));
+    assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-auto-candidates-dry-run')));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 test('auto cautious runs one safe build and never applies', async () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-auto-cautious-'));
   const calls = [];
@@ -53,6 +76,38 @@ test('auto cautious runs one safe build and never applies', async () => {
     const summary = JSON.parse(fs.readFileSync(path.join(result.sessionDir, 'auto-summary.json'), 'utf8'));
     assert.equal(summary.applied, false);
     assert.equal(summary.policy.repair, false);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('auto captures parallel candidate evidence before canonical build', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-auto-candidates-'));
+  const calls = [];
+  try {
+    const result = await autoCycle({
+      task: 'refactor parser safely',
+      level: 'cautious',
+      parallelCandidates: 2,
+      sessionId: 'unit-auto-candidates',
+      harnessRoot: ROOT,
+      projectRoot,
+      dispatcher: dispatcher(calls, { reviewVerdicts: ['approve'] }),
+    });
+
+    assert.equal(result.parallelCandidates.count, 2);
+    assert.equal(result.parallelCandidates.arbiter.status, 'not_selected');
+    assert.equal(result.parallelCandidates.candidates.every(candidate => candidate.evidence_only), true);
+    assert.ok(fs.existsSync(path.join(result.sessionDir, 'parallel-candidates.json')));
+    assert.ok(fs.existsSync(path.join(result.sessionDir, 'parallel-candidates', 'candidate-01.json')));
+    assert.ok(fs.existsSync(path.join(result.sessionDir, 'parallel-candidates', 'candidate-02.md')));
+    const summary = JSON.parse(fs.readFileSync(path.join(result.sessionDir, 'auto-summary.json'), 'utf8'));
+    assert.equal(summary.parallel_candidates.count, 2);
+    assert.equal(summary.parallel_candidates.target_project_mutated, false);
+    const report = fs.readFileSync(path.join(result.sessionDir, 'REPORT.md'), 'utf8');
+    assert.match(report, /Parallel Candidates/);
+    assert.match(report, /candidate-01/);
+    assert.equal(calls.filter(call => call.context?.parallelCandidate).length, 2);
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }
@@ -113,6 +168,14 @@ test('auto level normalization rejects unknown levels', () => {
   assert.equal(normalizeAutoLevel(null), 'normal');
   assert.equal(normalizeAutoLevel('aggressive'), 'aggressive');
   assert.throws(() => normalizeAutoLevel('unsafe'), /unknown autonomy level/);
+});
+
+test('parallel candidate count normalization keeps the alpha preview bounded', () => {
+  assert.equal(normalizeParallelCandidateCount(null), 0);
+  assert.equal(normalizeParallelCandidateCount('2'), 2);
+  assert.equal(normalizeParallelCandidateCount(4), 4);
+  assert.throws(() => normalizeParallelCandidateCount(1), /between 2 and 4/);
+  assert.throws(() => normalizeParallelCandidateCount(5), /between 2 and 4/);
 });
 
 function dispatcher(calls, options = {}) {

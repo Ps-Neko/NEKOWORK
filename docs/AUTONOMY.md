@@ -17,6 +17,7 @@ nekowork auto "fix failing tests safely"
 nekowork auto "implement OAuth login" --level cautious
 nekowork auto "prepare release readiness" --level normal --mode release
 nekowork auto "large cleanup" --level aggressive --budget 5
+nekowork auto "refactor auth parser safely" --parallel-candidates 2
 ```
 
 Preview without creating a session:
@@ -58,6 +59,7 @@ The output is `auto-summary.json` plus the normal session evidence:
 ```text
 build-intelligence.json
 build-plan.json
+parallel-candidates.json
 acceptance-criteria.json
 build-summary.json
 run-summary.json

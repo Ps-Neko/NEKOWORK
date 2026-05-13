@@ -68,6 +68,7 @@ function readSessionEvidence(sessionDir) {
     summaries: Object.fromEntries(SUMMARY_FILES.map(file => [file, readJson(path.join(sessionDir, file))])),
     buildIntelligence: readJson(path.join(sessionDir, 'build-intelligence.json')),
     buildPlan: readJson(path.join(sessionDir, 'build-plan.json')),
+    parallelCandidates: readJson(path.join(sessionDir, 'parallel-candidates.json')),
     acceptance: readJson(path.join(sessionDir, 'acceptance-criteria.json')),
     markers: Object.fromEntries(MARKERS.map(name => [name, readMarker(path.join(sessionDir, name))])),
     handoffs: readHandoffs(path.join(sessionDir, 'handoffs')),
@@ -158,6 +159,7 @@ function buildSummary({ sessionId, sessionDir, data, status }) {
     mode: build?.mode || null,
     requestedMode: build?.requested_mode || null,
     buildIntelligence,
+    parallelCandidates: data.parallelCandidates || auto?.parallel_candidates || null,
     profile,
     strictQuality: Boolean(build?.strict_quality || run?.strict_quality || verify?.strict_quality),
     strictQualityBlocked: Boolean(run?.strict_quality_blocked || verify?.strict_quality_blocked),
@@ -253,6 +255,7 @@ function evidenceFiles(data) {
     ...SUMMARY_FILES.filter(file => data.summaries[file]),
     data.buildIntelligence ? 'build-intelligence.json' : null,
     data.buildPlan ? 'build-plan.json' : null,
+    data.parallelCandidates ? 'parallel-candidates.json' : null,
     data.acceptance ? 'acceptance-criteria.json' : null,
     ...MARKERS.filter(name => data.markers[name]),
   ].filter(Boolean);
@@ -283,6 +286,7 @@ function renderReport({ sessionId, sessionDir, generatedAt, data, status }) {
   lines.push('');
   addBuildIntelligenceSection(lines, data, summary);
   addAutonomySection(lines, data, summary);
+  addParallelCandidatesSection(lines, data, summary);
   addAcceptanceSection(lines, data);
   addWarningsSection(lines, summary.qualityWarnings);
   addHandoffsSection(lines, data.handoffs);
@@ -335,6 +339,34 @@ function addAutonomySection(lines, data, summary) {
   lines.push(`- Rounds: ${Array.isArray(auto.rounds) ? auto.rounds.length : 0}/${auto.policy?.maxRounds || 'n/a'}`);
   lines.push(`- Stop reason: ${auto.stop_reason || 'n/a'}`);
   lines.push(`- Apply: ${auto.applied ? 'applied' : 'not automatic'}`);
+  lines.push('');
+}
+
+function addParallelCandidatesSection(lines, data, summary) {
+  const parallel = data.parallelCandidates || summary.parallelCandidates;
+  if (!parallel) return;
+
+  lines.push('## Parallel Candidates');
+  lines.push('');
+  lines.push(`- Status: ${parallel.status || 'recorded'}`);
+  lines.push(`- Count: ${parallel.count || 0}`);
+  lines.push(`- Canonical diff: ${parallel.arbiter?.selected_candidate || parallel.arbiter?.selectedCandidate || 'not selected'}`);
+  lines.push(`- Arbiter: ${parallel.arbiter?.reason || 'candidate evidence only'}`);
+  lines.push('- Apply: not automatic');
+  lines.push('');
+
+  const candidates = parallel.candidates || [];
+  if (!candidates.length) {
+    lines.push('- No candidate records found.');
+    lines.push('');
+    return;
+  }
+
+  lines.push('| Candidate | Isolation | Status | Files | Selected |');
+  lines.push('| --- | --- | --- | --- | --- |');
+  for (const candidate of candidates) {
+    lines.push(`| ${escapeTable(candidate.id)} | ${escapeTable(candidate.isolation || '')} | ${escapeTable(candidate.status || '')} | ${escapeTable((candidate.files || []).join(', ') || 'none')} | ${candidate.selected ? 'yes' : 'no'} |`);
+  }
   lines.push('');
 }
 

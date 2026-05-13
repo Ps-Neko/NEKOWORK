@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+- Add `auto --parallel-candidates N` preview for isolated candidate evidence before the canonical build path.
+- Add `parallel-candidates.json` and `REPORT.md` Parallel Candidates evidence.
+
 ## [0.1.0-alpha.8] - 2026-05-08
 
 ### Added

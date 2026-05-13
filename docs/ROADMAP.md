@@ -121,17 +121,17 @@ Non-goals:
 
 ## 0.1.0-alpha.10
 
-Status: planned.
+Status: in progress.
 
 Goal: add isolated parallel candidate writers without allowing shared-worktree multi-agent writes.
 
 Planned scope:
 
-- Add `auto --parallel-candidates N`.
+- Add `auto --parallel-candidates N` preview.
 - Run candidate workers in isolated worktrees, temp projects, or isolated diff captures.
-- Verify and compare candidate patches as evidence, not ship-ready output.
-- Produce an arbiter summary and one canonical final diff.
-- Run Codex verification on the canonical final diff before ship/apply.
+- Record candidate patches as evidence, not ship-ready output.
+- Produce an arbiter summary that does not yet promote a canonical final diff.
+- Keep final Codex verification on the normal canonical auto build path until candidate promotion exists.
 - Report candidate decisions in `REPORT.md`.
 
 Non-goals:

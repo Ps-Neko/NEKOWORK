@@ -173,6 +173,32 @@ test('CLI auto dry-run previews bounded autonomy without creating a session', ()
   }
 });
 
+test('CLI auto dry-run previews parallel candidates without creating a session', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-auto-candidates-'));
+  try {
+    const auto = runCli(['auto', 'refactor parser safely', '--parallel-candidates', '2', '--dry-run', '--session', 'unit-cli-auto-candidates', '--project-root', projectRoot, '--json']);
+    assert.equal(auto.status, 0, auto.stderr || auto.stdout);
+    const preview = JSON.parse(auto.stdout);
+    assert.equal(preview.parallelCandidates.enabled, true);
+    assert.equal(preview.parallelCandidates.count, 2);
+    assert.ok(preview.stages.some(stage => stage.stage === 'parallel-candidates' && stage.runs === true));
+    assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-auto-candidates')));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('CLI auto rejects invalid parallel candidate counts', () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-auto-candidates-invalid-'));
+  try {
+    const auto = runCli(['auto', 'refactor parser safely', '--parallel-candidates', '5', '--dry-run', '--session', 'unit-cli-auto-candidates-invalid', '--project-root', projectRoot, '--json']);
+    assert.equal(auto.status, 2, auto.stdout || auto.stderr);
+    assert.match(auto.stderr, /--parallel-candidates requires an integer between 2 and 4/);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 test('CLI auto rejects --apply because apply is explicit', () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-cli-auto-apply-'));
   try {

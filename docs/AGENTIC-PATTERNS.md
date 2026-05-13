@@ -28,7 +28,7 @@ Choose patterns by:
 | 4 | Router | Build Intelligence, risk classifier | Strong | `build --mode auto` routes tasks to `fast`, `safe`, `team`, `tdd`, or `release`. |
 | 5 | Expert Team | `team` read-only handoffs | Strong | Planner, research, product/design, security, test, and Codex perspectives can contribute before mutation. |
 | 6 | Supervisor | `build`, `auto`, `run` | Strong | Orchestrators coordinate routing, work, verification, ship/readiness, and report output. |
-| 7 | Parallel Processing | `team`; planned `auto --parallel-candidates N` | Partial | Read-only team perspectives exist. Isolated candidate writers are planned and must not share one target worktree. |
+| 7 | Parallel Processing | `team`; `auto --parallel-candidates N` preview | Partial | Read-only team perspectives exist. Isolated candidate evidence exists; canonical diff selection is still planned. |
 | 8 | Sequential Pipeline | `ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply` | Strong | The advanced path is an auditable pipeline with explicit state artifacts. |
 | 9 | Human Approval | `gate` | Strong | Human Gate records approve/block decisions and stops risky work before apply. |
 | 10 | Memory Loop | `instincts`, `wait`, `ralph` | Partial | Patterns are recorded and can become skill candidates, but promotion remains manual. |
@@ -55,13 +55,13 @@ AI can build quickly, but changes must prove themselves before apply.
 
 ### Parallel Processing
 
-Current team mode is read-only. It gives multiple perspectives but does not yet make multiple patch candidates.
+Current team mode is read-only. It gives multiple perspectives. `auto --parallel-candidates N` now records isolated candidate evidence, but it does not yet promote candidate patches into a canonical final diff.
 
-The planned `auto --parallel-candidates N` pattern should work like this:
+The full `auto --parallel-candidates N` pattern should work like this:
 
 ```text
 planner
-  -> isolated candidate workers
+  -> isolated candidate workers (preview records this evidence)
   -> candidate verification
   -> arbiter summary
   -> one canonical final diff

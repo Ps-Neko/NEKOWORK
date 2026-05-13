@@ -62,6 +62,7 @@ npx -y @ps-neko/nekowork@alpha report --session latest
 
 ```bash
 npx -y @ps-neko/nekowork@alpha auto "fix failing tests safely" --dry-run
+npx -y @ps-neko/nekowork@alpha auto "refactor this safely" --parallel-candidates 2 --dry-run
 ```
 
 ## 한 명령. 하나의 차단된 위험.
@@ -169,7 +170,7 @@ NEKOWORK는 하나의 거대한 agent 묶음이 아니라, 일을 나누고 검�
 
 아직 의도적으로 partial인 패턴:
 
-- 병렬 처리: 현재는 read-only team 중심이며, isolated `auto --parallel-candidates N`은 다음 단계입니다.
+- 병렬 처리: `auto --parallel-candidates N` preview는 isolated candidate evidence를 남기지만, 아직 canonical diff 자동 선택은 하지 않습니다.
 - 메모리 루프: `instincts`, `wait`, `ralph`가 기반이지만 자동 승격은 하지 않습니다.
 - 진화 루프: 관찰은 자동화하되 채택은 사람이 검토합니다.
 
@@ -191,7 +192,7 @@ NEKOWORK는 하나의 거대한 agent 묶음이 아니라, 일을 나누고 검�
 - Current alpha: `0.1.0-alpha.8`
 - CLI: `nekowork`
 - Legacy/internal alias: `harness`
-- Tests: 293 pass
+- Tests: 298 pass
 - npm audit: 0 moderate+ issues
 - Fresh `npx @alpha` smoke: pass
 

@@ -89,6 +89,6 @@ test('Korean README keeps the GitHub landing page thesis and install path', () =
   assert.match(ko, /Risk: provider-auth \/ long-lived-secret/);
   assert.match(ko, /Applied: false/);
   assert.match(ko, /docs\/AGENTIC-PATTERNS\.md/);
-  assert.match(ko, /Tests: 293 pass/);
+  assert.match(ko, /Tests: 298 pass/);
   assert.match(ko, /docs\/EXTERNAL-RUN\.md/);
 });
