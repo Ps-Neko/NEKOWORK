@@ -45,6 +45,17 @@ test('--pack followed by another flag throws', () => {
   assert.throws(() => normalizeFlags(['--pack', '--json'], { warn: () => {} }), /requires a profile value/);
 });
 
+test('--pack=value (equals form) rewrites to --profile=value and warns', () => {
+  const warns = [];
+  const out = normalizeFlags(['--pack=quality'], { warn: m => warns.push(m) });
+  assert.deepEqual(out, ['--profile=quality']);
+  assert.match(warns[0], /--pack.*deprecated/);
+});
+
+test('--pack= with empty value throws', () => {
+  assert.throws(() => normalizeFlags(['--pack='], { warn: () => {} }), /requires a profile value/);
+});
+
 test('--secure before --profile is still ignored', () => {
   const warns = [];
   const out = normalizeFlags(['--secure', '--profile', 'quality'], { warn: m => warns.push(m) });

@@ -919,8 +919,8 @@ function checkArgs(argv) {
         console.log('');
         console.log(nextBlock([
           { cmd: `nekowork verify --session ${shortId}`, note: 'Codex 검증 (필수)' },
-          { cmd: `nekowork report --session ${shortId}`, note: 'evidence 미리 보기' },
-          { cmd: `nekowork gate status --session ${shortId}`, note: 'HUMAN_GATE 확인' },
+          { cmd: `nekowork report --session ${result.sessionId}`, note: 'evidence 미리 보기' },
+          { cmd: `nekowork gate status --session ${result.sessionId}`, note: 'HUMAN_GATE 확인' },
         ]));
         console.log('');
       }
@@ -995,9 +995,9 @@ function checkArgs(argv) {
         ]));
         console.log('');
         console.log(nextBlock([
-          { cmd: `nekowork ship --session ${shortId}`, note: 'ship 준비 확인' },
-          { cmd: `nekowork report --session ${shortId}`, note: 'REPORT.md 생성' },
-          { cmd: `nekowork gate status --session ${shortId}`, note: 'gate 상태' },
+          { cmd: `nekowork ship --session ${result.sessionId}`, note: 'ship 준비 확인' },
+          { cmd: `nekowork report --session ${result.sessionId}`, note: 'REPORT.md 생성' },
+          { cmd: `nekowork gate status --session ${result.sessionId}`, note: 'gate 상태' },
         ]));
         console.log('');
       }

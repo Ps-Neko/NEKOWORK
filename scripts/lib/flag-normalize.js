@@ -18,6 +18,16 @@ export function normalizeFlags(argv, { warn = (m) => console.warn(m) } = {}) {
       continue;
     }
 
+    if (token.startsWith('--pack=')) {
+      const value = token.slice('--pack='.length);
+      if (!value) {
+        throw new Error(`--pack= requires a profile value (got: <empty>)`);
+      }
+      warn(`[deprecated] --pack is deprecated; use --profile (will be removed in 0.2.0)`);
+      out.push(`--profile=${value}`);
+      continue;
+    }
+
     if (token === '--secure') {
       if (hasProfileAlready) {
         warn(`[deprecated] --secure ignored because --profile is present (will be removed in 0.2.0)`);
