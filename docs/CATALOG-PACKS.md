@@ -20,7 +20,7 @@ Packs are public install aliases over validated profiles. They make the catalog 
 5 hooks
 5 tool targets
 8 case-study flows
-293 tests
+298 tests
 ```
 
 Tool targets:

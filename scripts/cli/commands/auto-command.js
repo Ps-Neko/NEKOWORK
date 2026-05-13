@@ -9,6 +9,7 @@ export function parseAutoArgs(argv, usageError) {
     maxRounds: null,
     maxFilesChanged: null,
     maxDiffLines: null,
+    parallelCandidates: null,
     mode: 'auto',
     sessionId: null,
     projectRoot: null,
@@ -50,6 +51,8 @@ export function parseAutoArgs(argv, usageError) {
     else if (a.startsWith('--max-files=')) opts.maxFilesChanged = a.slice('--max-files='.length);
     else if (a === '--max-diff-lines') opts.maxDiffLines = takeValue(argv, ++i, '--max-diff-lines', usageError);
     else if (a.startsWith('--max-diff-lines=')) opts.maxDiffLines = a.slice('--max-diff-lines='.length);
+    else if (a === '--parallel-candidates') opts.parallelCandidates = takeValue(argv, ++i, '--parallel-candidates', usageError);
+    else if (a.startsWith('--parallel-candidates=')) opts.parallelCandidates = a.slice('--parallel-candidates='.length);
     else if (a === '--mode') opts.mode = takeValue(argv, ++i, '--mode', usageError);
     else if (a.startsWith('--mode=')) opts.mode = a.slice('--mode='.length);
     else if (a === '--profile') opts.profile = takeValue(argv, ++i, '--profile', usageError);
@@ -84,7 +87,7 @@ export async function runAutoCommand({ argv, harnessRoot, resolveProjectRoot, us
       projectRoot: resolveProjectRoot(opts.projectRoot),
     });
   } catch (e) {
-    if (/^(auto requires|unknown autonomy level|unknown build mode|build requires|run requires|verify requires|ship requires|team worker|task appears)/.test(e?.message || '')) {
+    if (/^(auto requires|unknown autonomy level|unknown build mode|build requires|run requires|verify requires|ship requires|team worker|task appears|--parallel-candidates requires|parallel candidates require)/.test(e?.message || '')) {
       throw usageError(e.message);
     }
     throw e;
@@ -119,6 +122,7 @@ function autoJsonOutput(result) {
       mode: result.mode,
       requestedMode: result.requestedMode,
       build: result.build,
+      parallelCandidates: result.parallelCandidates,
       stages: result.stages,
       applyRequested: false,
       safetyInvariants: result.safetyInvariants,
@@ -133,6 +137,7 @@ function autoJsonOutput(result) {
     mode: result.mode,
     requestedMode: result.requestedMode,
     rounds: result.rounds,
+    parallelCandidates: result.parallelCandidates,
     stopReason: result.stopReason,
     reportPath: result.report?.reportPath,
     humanGate: result.humanGate,
@@ -149,6 +154,9 @@ function printAutoPlan(result) {
   console.log('  level      : ' + result.level);
   console.log('  budget     : ' + result.policy.maxRounds + ' round(s)');
   console.log('  mode       : ' + result.mode);
+  if (result.parallelCandidates?.enabled) {
+    console.log('  candidates : ' + result.parallelCandidates.count + ' isolated evidence candidate(s)');
+  }
   console.log('  apply      : never automatic');
   console.log('');
   console.log('Stages:');
@@ -170,6 +178,9 @@ function printAutoResult(result, opts) {
   console.log('  mode       : ' + (result.mode || 'n/a'));
   console.log('  rounds     : ' + result.rounds.length + '/' + result.policy.maxRounds);
   console.log('  stop       : ' + result.stopReason);
+  if (result.parallelCandidates) {
+    console.log('  candidates : ' + result.parallelCandidates.count + ' captured; canonical diff not selected in preview');
+  }
   console.log('  human gate : ' + (result.humanGate ? 'YES' : 'no'));
   console.log('  no ship    : ' + (result.noShip ? 'YES' : 'no'));
   console.log('  ship ready : ' + (result.shipReady ? 'yes' : 'no'));

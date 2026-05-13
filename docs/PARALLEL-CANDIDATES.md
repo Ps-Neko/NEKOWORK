@@ -1,6 +1,6 @@
 # Parallel Candidate Writers
 
-Planned for `0.1.0-alpha.10`.
+Alpha.10 preview.
 
 `auto --parallel-candidates N` will make NEKOWORK feel more autonomous without allowing unsafe shared-worktree writes.
 
@@ -8,6 +8,7 @@ Planned for `0.1.0-alpha.10`.
 
 ```bash
 nekowork auto "refactor auth parser safely" --parallel-candidates 4
+nekowork auto "refactor auth parser safely" --parallel-candidates 4 --dry-run
 ```
 
 ## Contract
@@ -27,6 +28,10 @@ planner
   -> explicit apply only
 ```
 
+The current preview records isolated candidate evidence and keeps the normal `auto`
+build as the canonical ship path. Candidate patches are not promoted to
+ship-ready output yet.
+
 ## Safety Rules
 
 1. Candidate workers must never write to the same target worktree concurrently.
@@ -44,11 +49,21 @@ The report should include:
 - candidate count
 - candidate worker names
 - changed files per candidate
-- verifier verdict per candidate
+- verifier verdict per candidate when candidate verification is enabled
 - rejected candidates and reasons
 - selected canonical diff rationale
 - final Codex verdict
 - Human Gate status
+
+Current preview evidence:
+
+```text
+.harness/state/sessions/<session>/parallel-candidates.json
+.harness/state/sessions/<session>/parallel-candidates/candidate-01.json
+.harness/state/sessions/<session>/parallel-candidates/candidate-01.md
+```
+
+`REPORT.md` includes a `Parallel Candidates` section when the artifact exists.
 
 ## Non-Goals
 

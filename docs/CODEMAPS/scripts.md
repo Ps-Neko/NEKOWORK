@@ -50,6 +50,7 @@ scripts/
 |   |-- costs.js
 |   |-- instincts.js
 |   |-- keychain.js
+|   |-- parallel-candidates.js
 |   |-- profile-policy.js
 |   |-- profile-safety.js
 |   |-- risk-classifier.js
@@ -147,6 +148,7 @@ scripts/
 | `lib/costs.js` | `list`, `record`, `summarize` | . USD ~/.harness/costs.jsonl append. CLI : harness costs --since=7d ( --since=1h, 30m, all). |
 | `lib/instincts.js` | `get`, `list`, `promote`, `prune`, `ready`, `record` | continuous-learning-v2 . review ( + + verdict ) ~/.harness/instincts/<id>.json . " " . |
 | `lib/keychain.js` | `get`, `isAvailable`, `list`, `remove`, `set` | scripts/lib/keychain.js OS keychain wrapper (@napi-rs/keyring sync API). macOS Keychain / Windows Credential Manager / Linux Secret Service. |
+| `lib/parallel-candidates.js` | `MAX_PARALLEL_CANDIDATES`, `normalizeParallelCandidateCount`, `parallelCandidatePlan`, `parallelSafetyInvariants`, `runParallelCandidates` |  |
 | `lib/profile-policy.js` | `acceptanceCoverage`, `acceptanceCoverageWarnings`, `buildQualityChecklist`, `evidenceFieldWarnings`, `normalizeProfileName`, `profilePolicy` |  |
 | `lib/profile-safety.js` | `CORE_PROFILE_MODULES`, `validateProfileSafety` |  |
 | `lib/risk-classifier.js` | `SENSITIVE_PATTERNS`, `classifyRisk`, `gateReasonFromFindings`, `humanGatePolicy`, `isSensitiveWork` |  |

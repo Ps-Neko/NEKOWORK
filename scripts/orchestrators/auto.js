@@ -2,6 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { buildCycle, buildPlan } from './build.js';
 import { reportSession } from './report.js';
+import {
+  normalizeParallelCandidateCount,
+  parallelCandidatePlan,
+  runParallelCandidates,
+} from '../lib/parallel-candidates.js';
 
 const AUTONOMY_LEVELS = {
   cautious: {
@@ -42,6 +47,7 @@ export function autoPlan(opts) {
 
   const sessionId = opts.sessionId || `auto-${Date.now()}`;
   const policy = resolveAutonomyPolicy(opts);
+  const parallelCandidates = parallelCandidatePlan({ count: opts.parallelCandidates, task: opts.task });
   const build = buildPlan({
     ...opts,
     harnessRoot,
@@ -61,7 +67,8 @@ export function autoPlan(opts) {
     requestedMode: build.requestedMode,
     mode: build.mode,
     build,
-    stages: autonomyStages(build, policy),
+    parallelCandidates,
+    stages: autonomyStages(build, policy, parallelCandidates),
     applyRequested: false,
     safetyInvariants: safetyInvariants(),
     nextStep: 'run auto without --dry-run when ready; it will stop at report/gate and never auto-apply',
@@ -79,6 +86,18 @@ export async function autoCycle(opts) {
 
   const sessionId = opts.sessionId || `auto-${Date.now()}`;
   const policy = resolveAutonomyPolicy(opts);
+  const parallelCandidateCount = normalizeParallelCandidateCount(opts.parallelCandidates);
+  const sessionDir = path.join(projectRoot, '.harness', 'state', 'sessions', sessionId);
+  const parallelCandidates = await runParallelCandidates({
+    count: parallelCandidateCount,
+    task: opts.task,
+    sessionId,
+    sessionDir,
+    harnessRoot,
+    projectRoot,
+    live: !!opts.live,
+    dispatcher: opts.dispatcher,
+  });
   const rounds = [];
   let lastBuild = null;
   let stopReason = null;
@@ -122,10 +141,11 @@ export async function autoCycle(opts) {
 
   const result = {
     sessionId,
-    sessionDir: lastBuild?.sessionDir || path.join(projectRoot, '.harness', 'state', 'sessions', sessionId),
+    sessionDir: lastBuild?.sessionDir || sessionDir,
     task: opts.task,
     level: policy.level,
     policy,
+    parallelCandidates,
     requestedMode: lastBuild?.requestedMode || opts.mode || 'auto',
     mode: lastBuild?.mode || null,
     rounds,
@@ -169,12 +189,19 @@ function positiveInteger(value, fallback) {
   return Number.isInteger(n) && n > 0 ? n : fallback;
 }
 
-function autonomyStages(build, policy) {
+function autonomyStages(build, policy, parallelCandidates = null) {
   return [
     {
       stage: 'route',
       runs: true,
       output: 'task risk, mode, profile, workers, and acceptance criteria',
+    },
+    {
+      stage: 'parallel-candidates',
+      runs: Boolean(parallelCandidates?.enabled),
+      mutation: 'isolated evidence only',
+      candidates: parallelCandidates?.count || 0,
+      output: 'candidate patch evidence; no ship-ready canonical diff in alpha.10 preview',
     },
     ...build.stages.filter(stage => stage.stage !== 'apply'),
     {
@@ -230,6 +257,13 @@ function writeSummary(result) {
     requested_mode: result.requestedMode,
     selected_mode: result.mode,
     rounds: result.rounds,
+    parallel_candidates: result.parallelCandidates ? {
+      status: result.parallelCandidates.status,
+      count: result.parallelCandidates.count,
+      candidates: result.parallelCandidates.candidates,
+      arbiter: result.parallelCandidates.arbiter,
+      target_project_mutated: false,
+    } : null,
     stop_reason: result.stopReason,
     report_path: result.report?.reportPath || null,
     ship_ready: result.shipReady,
@@ -255,6 +289,7 @@ function nextStep(build, stopReason) {
 function safetyInvariants() {
   return [
     'Auto mode may plan, build, verify, and repair within budget before apply.',
+    'Parallel candidates are evidence-only until one canonical diff is selected and verified.',
     'Only one executor writes during each work round.',
     'Codex verification remains required before ship/apply.',
     'Human Gate cannot be bypassed by autonomy level.',
