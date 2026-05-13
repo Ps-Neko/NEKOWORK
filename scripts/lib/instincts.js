@@ -51,6 +51,9 @@ export function record(p) {
       confidence: 0,
       evidence: [],
       promoted: false,
+      review_status: 'observed',
+      reviewed_by: null,
+      review_reason: null,
     };
   }
   inst.count += 1;
@@ -93,14 +96,21 @@ export function get(id) {
 /**
  * 인스팅트 → 스킬 후보 마크. 실제 스킬 파일 생성은 안 함 (사용자 명시 필요).
  */
-export function promote(id) {
+export function promote(id, { reviewedBy, reason } = {}) {
   const inst = get(id);
   if (!inst) throw new Error(`instinct not found: ${id}`);
   if (inst.confidence < 1) {
     throw new Error(`confidence ${inst.confidence} < 1 (count ${inst.count}/${PROMOTE_THRESHOLD}). 더 누적 후 promote.`);
   }
+  const reviewer = String(reviewedBy || '').trim();
+  const reviewReason = String(reason || '').trim();
+  if (!reviewer) throw new Error('reviewed-by is required for instinct adoption');
+  if (!reviewReason) throw new Error('reason is required for instinct adoption');
   inst.promoted = true;
   inst.promoted_at = new Date().toISOString();
+  inst.review_status = 'adopted';
+  inst.reviewed_by = reviewer;
+  inst.review_reason = reviewReason;
   fs.writeFileSync(path.join(dir(), `${id}.json`), JSON.stringify(inst, null, 2));
   return inst;
 }
