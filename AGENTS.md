@@ -33,12 +33,14 @@ fact_forcing: true|false  # PreToolUse 사실 조사 강제 여부
 | 단계 | 담당 | 입력 | 출력 |
 |---|---|---|---|
 | 1 ideate | research, planner | 사용자 한 줄 요청 | `handoffs/01-ideate.md` |
-| 2 plan | planner (opus) | 1의 출력 | `prd-<id>.md` + `test-spec-<id>.md` |
-| 3 implement | executor (sonnet) | 2의 출력 + TDD | git diff |
+| 2 plan | planner (opus) | 1의 출력 + 선택적 upstream(`context.md`, `DOMAIN.md`, `SPEC.md`) | `prd-<id>.md` + `test-spec-<id>.md` + `plan-inputs.json` |
+| 3 implement | executor (sonnet) | 2의 출력 + 선택적 `PLAN.md` + TDD | git diff |
 | 4 self-review | code-reviewer (opus, ro) | git diff | `handoffs/04-self-review.md` (issues JSON 요약) |
 | 5 codex-review | codex-reviewer (별도 세션) | diff + 04 + PRD | `handoffs/05-codex-review.md` |
 | 6 codex-challenge | codex-challenger (별도 세션, --secure) | diff + 04 + 05 | `handoffs/06-challenge.md` |
 | 7 ship | doc-writer + git-master | 모든 핸드오프 | PR + CHANGELOG |
+
+**Upstream artifact contract.** `ask` / `plan` / `team` / `work` 는 `<projectRoot>/{context,DOMAIN,SPEC,PLAN}.md` 를 자동으로 픽업하거나 명시 플래그(`--context-file`, `--domain-file`, `--spec-file`, `--plan-file`) 로 전달받는다. 결과는 `ask.json.upstream_artifacts`, `plan-inputs.json`, `work-summary.json.upstream`, 그리고 각 단계 handoff 의 `upstream_artifacts` 필드에 기록된다. 자세한 contract 는 [docs/INTEGRATION.md](docs/INTEGRATION.md) 참고.
 
 ## 라우팅 결정 규칙
 

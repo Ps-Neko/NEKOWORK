@@ -108,7 +108,19 @@ The simple path maps to the evidence loop: `check = doctor --quick`, `start = bu
 
 Use Claude Code, Cursor, Codex, Superpowers, GStack, or your own domain workflow to produce the candidate change. NEKOWORK begins after that: deterministic risk scan, independent verification, `decision.json`, `REPORT.md`, Human Gate, and explicit apply.
 
-For the artifact contract between upstream domain/spec workflows and NEKOWORK, see [docs/INTEGRATION.md](docs/INTEGRATION.md).
+For the artifact contract between upstream domain/spec workflows and NEKOWORK, see [docs/INTEGRATION.md](docs/INTEGRATION.md). The optional upstream files are picked up automatically from the project root, or you can pass them explicitly:
+
+```bash
+# auto-picks ./context.md, ./DOMAIN.md, ./SPEC.md, ./PLAN.md if present
+node scripts/cli.js plan "add price filter" --project-root .
+node scripts/cli.js work "add price filter" --project-root .
+
+# or pass explicit paths
+node scripts/cli.js ask  "..." --context-file docs/context.md
+node scripts/cli.js plan "..." --domain-file docs/DOMAIN.md --spec-file docs/SPEC.md
+node scripts/cli.js work "..." --plan-file docs/PLAN.md
+```
+
 
 Advanced users can preview routing without running providers or writing session state:
 
