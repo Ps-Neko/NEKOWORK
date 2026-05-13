@@ -237,6 +237,18 @@ function usageError(message) {
   return err;
 }
 
+function safeNormalizeFlags(argv, helpRef) {
+  try {
+    return normalizeFlags(argv, { warn: console.error });
+  } catch (e) {
+    console.error(renderError({
+      message: e.message,
+      helpRef,
+    }));
+    process.exit(2);
+  }
+}
+
 function parseReviewArgs(argv) {
   const opts = {
     task: '',
@@ -421,6 +433,7 @@ function parseWorkArgs(argv) {
     profile: null,
     live: false,
     json: false,
+    strict: false,
   };
   const unknown = [];
 
@@ -428,6 +441,7 @@ function parseWorkArgs(argv) {
     const a = argv[i];
     if (a === '--json') opts.json = true;
     else if (a === '--live') opts.live = true;
+    else if (a === '--strict') opts.strict = true;
     else if (a === '--profile') {
       const value = argv[++i];
       if (!value || value.startsWith('--')) throw usageError('--profile requires a value');
@@ -848,7 +862,7 @@ function checkArgs(argv) {
     }
 
     case 'work': {
-      const normalizedArgv = normalizeFlags(process.argv.slice(3), { warn: (m) => console.error(m) });
+      const normalizedArgv = safeNormalizeFlags(process.argv.slice(3), 'nekowork help work');
       const opts = parseWorkArgs(normalizedArgv);
       if (!opts.task) {
         console.error(renderError({
@@ -863,7 +877,7 @@ function checkArgs(argv) {
       }
       if (opts.sessionId) {
         try {
-          opts.sessionId = resolveSessionId(opts.projectRoot || process.cwd(), opts.sessionId);
+          opts.sessionId = resolveSessionId(resolveProjectRoot(opts.projectRoot), opts.sessionId);
         } catch (e) {
           console.error(renderError({
             message: `세션 ID '${opts.sessionId}' 가 모호합니다.`,
@@ -898,7 +912,7 @@ function checkArgs(argv) {
         console.log(`  ${paint('ok', '✓')} work 완료              ${paint('dim', `round ${round} · ${fileCount} files`)}`);
         console.log(kvBlock([
           ['session', paint('hint', result.sessionId)],
-          ['diff',    result.handoff?.diff ? '(generated)' : '(none — 다음 단계에서 생성)'],
+          ['diff',    (result.handoff?.diffPath || result.diffPath) ? '(generated)' : '(none — 다음 단계에서 생성)'],
           ['codex',   result.handoff?.codex ? 'ok' : 'not run'],
           ['ship',    result.handoff?.ship  ? 'ready' : 'not run'],
         ]));
@@ -914,7 +928,7 @@ function checkArgs(argv) {
     }
 
     case 'verify': {
-      const normalizedArgv = normalizeFlags(process.argv.slice(3), { warn: (m) => console.error(m) });
+      const normalizedArgv = safeNormalizeFlags(process.argv.slice(3), 'nekowork help verify');
       const opts = parseVerifyArgs(normalizedArgv);
 
       if (!opts.sessionId) {
@@ -931,7 +945,7 @@ function checkArgs(argv) {
 
       let resolvedSessionId;
       try {
-        resolvedSessionId = resolveSessionId(opts.projectRoot || process.cwd(), opts.sessionId);
+        resolvedSessionId = resolveSessionId(resolveProjectRoot(opts.projectRoot), opts.sessionId);
       } catch (e) {
         console.error(renderError({
           message: `세션 ID '${opts.sessionId}' 가 모호합니다.`,

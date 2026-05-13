@@ -58,3 +58,20 @@ test('--fast is dropped and warns', () => {
   assert.deepEqual(out, []);
   assert.match(warns[0], /--fast.*no-op/);
 });
+
+test('--secure is ignored when --profile=value (equals form) is present', () => {
+  const warns = [];
+  const out = normalizeFlags(['--profile=quality', '--secure'], { warn: m => warns.push(m) });
+  assert.deepEqual(out, ['--profile=quality']);
+  assert.match(warns[0], /--secure.*ignored/);
+});
+
+test('--secure is ignored when --pack is present (will normalize to --profile)', () => {
+  const warns = [];
+  const out = normalizeFlags(['--pack', 'quality', '--secure'], { warn: m => warns.push(m) });
+  // --pack gets rewritten to --profile, and --secure is dropped
+  assert.deepEqual(out, ['--profile', 'quality']);
+  // there should be a warning about --secure being ignored AND --pack deprecated
+  assert.ok(warns.some(w => /--secure.*ignored/.test(w)));
+  assert.ok(warns.some(w => /--pack.*deprecated/.test(w)));
+});

@@ -1,6 +1,9 @@
 export function normalizeFlags(argv, { warn = (m) => console.warn(m) } = {}) {
   const out = [];
-  const hasProfileAlready = argv.includes('--profile');
+  const hasProfileAlready = argv.some(a =>
+    a === '--profile' || a.startsWith('--profile=') ||
+    a === '--pack'    || a.startsWith('--pack=')
+  );
   for (let i = 0; i < argv.length; i++) {
     const token = argv[i];
 
