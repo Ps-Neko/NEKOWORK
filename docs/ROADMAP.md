@@ -118,14 +118,15 @@ Non-goals:
 
 ## 0.1.0-alpha.10
 
-Status: planned.
+Status: publish-ready alpha candidate.
 
 Goal: make verified work easier to prepare for human code review.
 
-Planned scope:
+Prepared scope:
 
 - Add `nekowork pr-prep`.
 - Generate PR summary, risk notes, test evidence, changelog draft, and ship/no-ship evidence.
+- Add `REPORT.md` PR Prep section and a checked-in `examples/pr-prep-smoke` fixture.
 - Keep PR creation, branch push, release, publish, and deploy as explicit human actions.
 
 Non-goals:

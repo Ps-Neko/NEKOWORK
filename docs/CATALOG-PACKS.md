@@ -19,8 +19,8 @@ Packs are public install aliases over validated profiles. They make the catalog 
 10 skills
 5 hooks
 5 tool targets
-9 case-study flows
-345 tests
+10 case-study flows
+349 tests
 ```
 
 Tool targets:

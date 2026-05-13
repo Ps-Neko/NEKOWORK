@@ -1,10 +1,10 @@
 # Public Alpha Publish Record
 
-NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.9`.
+NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.9`. The repository is prepared for `0.1.0-alpha.10`.
 
 Do not publish from the `0.0.3` line.
 
-The repository metadata is on `0.1.0-alpha.9` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, `0.1.0-alpha.5`, `0.1.0-alpha.6`, `0.1.0-alpha.7`, and `0.1.0-alpha.8` publishes succeeded on 2026-05-08. The `0.1.0-alpha.9` publish succeeded on 2026-05-13.
+The repository metadata is on `0.1.0-alpha.10` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, `0.1.0-alpha.5`, `0.1.0-alpha.6`, `0.1.0-alpha.7`, and `0.1.0-alpha.8` publishes succeeded on 2026-05-08. The `0.1.0-alpha.9` publish succeeded on 2026-05-13. The `0.1.0-alpha.10` package dry-run passed and is the next prepared publish.
 
 The latest matching Git tag and GitHub prerelease is `v0.1.0-alpha.9`:
 
@@ -151,13 +151,13 @@ Before a future publish, explicitly confirm:
 - npm 2FA readiness
 - package name `@ps-neko/nekowork`
 - binary names `nekowork` and `harness`
-- public alpha version for the next publish, for example `0.1.0-alpha.9`
+- public alpha version for the next publish, for example `0.1.0-alpha.10`
 - `private` removed or set to `false`
 - publish tag is `alpha`, not `latest`
 
 ## Next Alpha Publish Checklist
 
-Use this checklist for `0.1.0-alpha.9` or any later alpha. Do not run it until the owner explicitly approves the publish and `npm whoami` is the package owner account.
+Use this checklist for `0.1.0-alpha.10` or any later alpha. Do not run it until the owner explicitly approves the publish and `npm whoami` is the package owner account.
 
 1. Confirm the candidate scope in [RELEASE-READINESS.md](RELEASE-READINESS.md).
 2. Move the intended changelog entries from `Unreleased` to the new version heading.

@@ -13,6 +13,7 @@ tests/
 |   |-- feedback-triage-doc.test.js
 |   |-- github-actions-hardening-example.test.js
 |   |-- parallel-candidates-example.test.js
+|   |-- pr-prep-example.test.js
 |   |-- quality-lifecycle-example.test.js
 |   |-- quick-demo.test.js
 |   |-- review-cycle.test.js
@@ -43,6 +44,7 @@ tests/
     |-- instincts.test.js
     |-- orchestrator.test.js
     |-- portability.test.js
+    |-- pr-prep.test.js
     |-- profile-safety.test.js
     |-- ralph.test.js
     |-- report.test.js
@@ -75,6 +77,7 @@ tests/
 | `e2e/feedback-triage-doc.test.js` | _(none)_ |  |
 | `e2e/github-actions-hardening-example.test.js` | _(none)_ |  |
 | `e2e/parallel-candidates-example.test.js` | _(none)_ |  |
+| `e2e/pr-prep-example.test.js` | _(none)_ |  |
 | `e2e/quality-lifecycle-example.test.js` | _(none)_ |  |
 | `e2e/quick-demo.test.js` | _(none)_ |  |
 | `e2e/review-cycle.test.js` | _(none)_ | E2E smoke tests for the deterministic mock review flow. |
@@ -102,6 +105,7 @@ tests/
 | `unit/instincts.test.js` | _(none)_ |  |
 | `unit/orchestrator.test.js` | _(none)_ | review . mock provider . node:test based orchestrator checks. |
 | `unit/portability.test.js` | _(none)_ |  |
+| `unit/pr-prep.test.js` | _(none)_ |  |
 | `unit/profile-safety.test.js` | _(none)_ |  |
 | `unit/ralph.test.js` | _(none)_ |  |
 | `unit/report.test.js` | _(none)_ |  |

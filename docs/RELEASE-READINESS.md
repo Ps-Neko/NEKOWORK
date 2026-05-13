@@ -2,17 +2,17 @@
 
 Status date: 2026-05-13
 
-NEKOWORK is release-ready for local use, repository-based installation, and public npm alpha installation. The current repository alpha and public npm alpha are `0.1.0-alpha.9`.
+NEKOWORK is release-ready for local use, repository-based installation, and public npm alpha installation. The current repository alpha candidate is `0.1.0-alpha.10`; the current public npm alpha remains `0.1.0-alpha.9` until alpha.10 is published.
 
 ## Decision
 
 - Decision: do not publish 0.0.3 to npm.
-- Repository release line: `0.1.0-alpha.9`.
-- Public alpha: `0.1.0-alpha.9`, published with `--tag alpha`.
+- Repository release line: `0.1.0-alpha.10`.
+- Public alpha: `0.1.0-alpha.9`, published with `--tag alpha`; alpha.10 is publish-ready after final owner approval.
 - `package.json` is set to `private: false` for the public alpha.
 - The canonical repo is `Ps-Neko/NEKOWORK`.
-- Current repository version is `0.1.0-alpha.9`; npm `@alpha` points at `0.1.0-alpha.9`.
-- GitHub prerelease: `v0.1.0-alpha.9`.
+- Current repository version is `0.1.0-alpha.10`; npm `@alpha` points at `0.1.0-alpha.9` until alpha.10 publish.
+- GitHub prerelease: `v0.1.0-alpha.10` is pending after publish; `v0.1.0-alpha.9` remains current public prerelease.
 - Required local provider auth is delegated CLI auth, not long-lived API keys.
 - Core workflow invariant is Claude work -> Codex verification -> Human Gate.
 - Risk classifier, acceptance criteria artifacts, and profile safety validation are part of the release gate.
@@ -24,6 +24,17 @@ NEKOWORK is release-ready for local use, repository-based installation, and publ
 Latest GitHub Release:
 
 - https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.9
+
+## 0.1.0-alpha.10 Release Scope
+
+The `0.1.0-alpha.10` release scope is PR Prep / Release Prep evidence:
+
+- `nekowork pr-prep` generates local review artifacts from an existing verified session
+- `PR_SUMMARY.md`, `RISK_NOTES.md`, `TEST_EVIDENCE.md`, `CHANGELOG_DRAFT.md`, and `SHIP_DECISION.md` are written into the session directory
+- `pr-prep-summary.json` records `ready_for_pr`, ship/no-ship state, risk, artifacts, and no-remote-mutation guarantees
+- `REPORT.md` includes a PR Prep section after `pr-prep`
+- `examples/pr-prep-smoke` records a checked-in alpha.10 fixture
+- branch creation, commits, pushes, pull request creation, apply, publish, and deploy remain explicit human actions
 
 ## 0.1.0-alpha.9 Release Scope
 
@@ -81,7 +92,7 @@ Release exit criteria:
 - required gates below pass locally
 - `published-alpha-smoke` passes in GitHub Actions
 - `npm pack --dry-run --json` contains only intended files
-- changelog `0.1.0-alpha.9` entries match the release contents
+- changelog `0.1.0-alpha.10` entries match the release contents
 - `latest` remains documented as non-stable; install examples continue to use `@alpha`
 
 ## Required Gates
@@ -111,15 +122,15 @@ Current local verification after the decomposed workflow expansion:
 - `npm run lint`: pass
 - `node scripts/sync-claude-md.js --check`: pass
 - `node scripts/build-codemaps.js --check`: pass
-- `npm test`: 345 tests pass
+- `npm test`: 349 tests pass
 - `npm run demo:quick -- --cleanup`: pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npm publish --dry-run --access public --tag alpha`: pass
-- `npm publish --dry-run --access public --tag alpha`: pass for `0.1.0-alpha.9`
-- `npm publish --access public --tag alpha`: published `0.1.0-alpha.9`
+- `npm publish --dry-run --access public --tag alpha`: pass for `0.1.0-alpha.10`
+- `npm publish --access public --tag alpha`: pending owner approval for `0.1.0-alpha.10`
 - `npm view @ps-neko/nekowork dist-tags version versions --json`: `alpha` points at `0.1.0-alpha.9`; `latest` remains `0.1.0-alpha.0`
-- `npx -y @ps-neko/nekowork@alpha check`: pass with WARN summary, 6 pass, 1 warn, 0 fail
+- `npx -y @ps-neko/nekowork@alpha check`: pass with WARN summary, 6 pass, 1 warn, 0 fail for the published alpha.9 line
 - GitHub Actions `published-alpha-smoke`: validates the fresh `npx @alpha` path against the published package
 
 ## Install Smoke

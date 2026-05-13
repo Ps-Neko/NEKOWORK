@@ -43,7 +43,7 @@ NEKOWORK is intentionally not a 100-agent pack. Every agent, skill, hook, profil
 3. produce auditable evidence,
 4. respect Human Gate.
 
-**Public alpha evidence:** 345 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 9 case-study flows / 5 starter packs
+**Public alpha evidence:** 349 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs
 
 NEKOWORK does not automatically commit, push, publish, deploy, or apply diffs. `apply` is explicit and requires verified ship-ready evidence.
 
@@ -51,7 +51,7 @@ For bounded autonomy before that boundary, use `auto`: it can route, build, veri
 
 NEKOWORK also maps the verified autopilot flow to 12 practical agentic harness patterns: routing, planning, read-only team review, independent verification, Human Gate, tool gates, memory, and evolution loops. See [docs/AGENTIC-PATTERNS.md](docs/AGENTIC-PATTERNS.md).
 
-Current alpha.9 track: isolated parallel candidate writer evidence now reaches the canonical ship-readiness path before explicit apply.
+Current alpha.10 track: `pr-prep` turns verified sessions into PR-ready local evidence without creating branches, commits, pushes, or pull requests.
 
 **Latest alpha evidence:** [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) / [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) / [smoke transcript](docs/DEMO.md#one-minute-terminal-transcript) / [report artifact](docs/DEMO-REPORT.md)
 
@@ -229,11 +229,11 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 
 ## Status
 
-- Current repository version: `0.1.0-alpha.9`
+- Current repository version: `0.1.0-alpha.10` alpha candidate
 - Current package name: `@ps-neko/nekowork`
 - Published CLI name: `nekowork` (`harness` remains a legacy/internal alias)
 - Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.9`
-- Current npm alpha.9 status: published
+- Current npm alpha.10 status: repository candidate; npm `@alpha` remains `0.1.0-alpha.9` until publish
 - Supported install path today: npm alpha, clone, submodule, or local repository integration
 - Dist-tag note: use `@alpha` until a stable release; `latest` still points at the first alpha line
 - Default mode: mock providers, no API keys, no provider CLI calls
@@ -241,7 +241,7 @@ NEKOWORK is for teams that want AI-assisted development without making the agent
 Current local verification:
 
 - `npm run lint`: pass
-- `npm test`: 345 tests pass
+- `npm test`: 349 tests pass
 - `npm audit --audit-level=moderate`: 0 vulnerabilities
 - `npm pack --dry-run --json`: pass
 - `npx -y @ps-neko/nekowork@alpha check`: pass with warnings only
@@ -388,6 +388,16 @@ Use `auto "<task>"` when NEKOWORK should continue before the apply boundary. `au
 
 Use `auto "<task>" --parallel-candidates N` when you want isolated candidate evidence before the canonical build. In alpha.9, NEKOWORK captures candidate patches, verifies each candidate, records an arbiter selection, promotes the selected candidate into canonical handoffs after final Codex verification, then runs ship readiness. Apply remains explicit.
 
+## PR Prep
+
+Use `pr-prep` after a verified session when you want review-ready local artifacts without creating a branch, commit, push, or pull request:
+
+```bash
+nekowork pr-prep --session latest
+```
+
+`pr-prep` writes `PR_SUMMARY.md`, `RISK_NOTES.md`, `TEST_EVIDENCE.md`, `CHANGELOG_DRAFT.md`, `SHIP_DECISION.md`, and `pr-prep-summary.json` into the session directory. It also refreshes `REPORT.md` with a PR Prep section. If the session is not ship-ready or has an open Human Gate, the artifacts are still written, but `ready_for_pr` is false.
+
 Use `--profile quality` or `--profile security` on `work`, `verify`, and `run` when a task needs stronger evidence prompts. Add `--strict-quality` to `verify`, `run`, or `build` when missing evidence or acceptance coverage should become a fix-required verdict before ship.
 
 Use official packs when choosing an install shape:
@@ -478,7 +488,7 @@ npm run security:hardening
 npm pack --dry-run --json
 ```
 
-`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.9.tgz`. It does not publish.
+`npm pack --dry-run --json` currently produces a package named like `ps-neko-nekowork-0.1.0-alpha.10.tgz`. It does not publish.
 
 ## Documentation
 

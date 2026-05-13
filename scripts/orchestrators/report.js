@@ -9,6 +9,7 @@ const SUMMARY_FILES = [
   'work-summary.json',
   'verify-summary.json',
   'ship-summary.json',
+  'pr-prep-summary.json',
   'gate-summary.json',
   'apply-summary.json',
   'run-summary.json',
@@ -73,6 +74,7 @@ function readSessionEvidence(sessionDir) {
     candidateArbiter: readJson(path.join(sessionDir, 'candidate-arbiter.json')),
     canonicalCandidate: readJson(path.join(sessionDir, 'canonical-candidate.json')),
     canonicalVerify: readJson(path.join(sessionDir, 'canonical-verify-summary.json')),
+    prPrep: readJson(path.join(sessionDir, 'pr-prep-summary.json')),
     acceptance: readJson(path.join(sessionDir, 'acceptance-criteria.json')),
     markers: Object.fromEntries(MARKERS.map(name => [name, readMarker(path.join(sessionDir, name))])),
     handoffs: readHandoffs(path.join(sessionDir, 'handoffs')),
@@ -295,6 +297,7 @@ function renderReport({ sessionId, sessionDir, generatedAt, data, status }) {
   addBuildIntelligenceSection(lines, data, summary);
   addAutonomySection(lines, data, summary);
   addParallelCandidatesSection(lines, data, summary);
+  addPrPrepSection(lines, data);
   addAcceptanceSection(lines, data);
   addWarningsSection(lines, summary.qualityWarnings);
   addHandoffsSection(lines, data.handoffs);
@@ -413,6 +416,27 @@ function addBuildIntelligenceSection(lines, data, summary) {
       if (index === 0 && reason.endsWith(':')) lines.push(reason);
       else lines.push(reason.startsWith('- ') ? reason : `- ${reason}`);
     }
+    lines.push('');
+  }
+}
+
+function addPrPrepSection(lines, data) {
+  const prep = data.prPrep || data.summaries['pr-prep-summary.json'];
+  if (!prep) return;
+
+  lines.push('## PR Prep');
+  lines.push('');
+  lines.push(`- Ready for PR: ${prep.ready_for_pr ? 'yes' : 'no'}`);
+  lines.push(`- Decision: ${prep.decision || 'n/a'}`);
+  lines.push(`- Ship ready: ${prep.ship_ready ? 'yes' : 'no'}`);
+  lines.push(`- Human Gate: ${prep.human_gate ? 'required' : 'clear'}`);
+  lines.push(`- Applied: ${prep.applied ? 'yes' : 'no'}`);
+  lines.push('- Remote mutation: none');
+  lines.push('');
+  const artifacts = prep.artifacts || [];
+  if (artifacts.length) {
+    lines.push('Artifacts:');
+    for (const artifact of artifacts) lines.push(`- \`${artifact}\``);
     lines.push('');
   }
 }

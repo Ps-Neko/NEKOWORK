@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // NEKOWORK CLI entrypoint. The `harness` bin remains a legacy/internal alias.
-// Public verbs: check, init, doctor, ask, plan, team, work, verify, gate, ship, apply, run, build, auto, report, review, review-cycle, install, validate, version.
+// Public verbs: check, init, doctor, ask, plan, team, work, verify, gate, ship, apply, run, build, auto, report, pr-prep, review, review-cycle, install, validate, version.
 // Advanced verbs: self-review, codex-review, ralph, wait, sessions, costs, instincts.
 
 import { spawnSync } from 'node:child_process';
@@ -123,6 +123,8 @@ Review loop
                                          bounded autonomy before apply: route, build, verify, repair within budget, report, stop
   report --session <id> [--project-root <dir>] [--output <file>] [--stdout] [--json]
                                          summarize session evidence into REPORT.md; inspect-only
+  pr-prep ["task"] [--session <id>] [--project-root <dir>] [--json]
+                                         generate PR_SUMMARY/RISK_NOTES/TEST_EVIDENCE/CHANGELOG_DRAFT without branch, commit, push, or PR creation
   review "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>] [--project-root <dir>]
                                          legacy full claude-led-codex-review workflow
   review-cycle "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>] [--project-root <dir>]
@@ -754,6 +756,43 @@ function parseReportArgs(argv) {
   return opts;
 }
 
+function parsePrPrepArgs(argv) {
+  const opts = {
+    task: '',
+    sessionId: 'latest',
+    projectRoot: null,
+    json: false,
+  };
+  const unknown = [];
+
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--json') opts.json = true;
+    else if (a === '--session') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--session requires a value');
+      opts.sessionId = value;
+    } else if (a.startsWith('--session=')) {
+      opts.sessionId = a.slice('--session='.length);
+    } else if (a === '--project-root') {
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw usageError('--project-root requires a value');
+      opts.projectRoot = value;
+    } else if (a.startsWith('--project-root=')) {
+      opts.projectRoot = a.slice('--project-root='.length);
+    } else if (a.startsWith('--')) {
+      unknown.push(a);
+    } else if (!opts.task) {
+      opts.task = a;
+    } else {
+      opts.task += ' ' + a;
+    }
+  }
+
+  if (unknown.length) throw usageError(`unknown flag: ${unknown.join(', ')}`);
+  return opts;
+}
+
 function optionValue(argv, flag, fallback = undefined) {
   const i = argv.indexOf(flag);
   if (i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--')) return argv[i + 1];
@@ -1244,6 +1283,49 @@ function checkArgs(argv) {
         console.log('  warnings   : ' + result.qualityWarnings.length);
         console.log('  report     : ' + path.relative(process.cwd(), result.reportPath).replace(/\\/g, '/'));
       }
+      break;
+    }
+
+    case 'pr-prep': {
+      const opts = parsePrPrepArgs(rest);
+      const { prPrepSession } = await import('./orchestrators/pr-prep.js');
+      let result;
+      try {
+        result = prPrepSession({
+          ...opts,
+          projectRoot: resolveProjectRoot(opts.projectRoot),
+        });
+      } catch (e) {
+        if (/^pr-prep requires/.test(e?.message || '')) throw usageError(e.message);
+        throw e;
+      }
+      if (opts.json) {
+        console.log(JSON.stringify({
+          sessionId: result.sessionId,
+          status: result.status,
+          decision: result.decision,
+          readyForPr: result.readyForPr,
+          shipReady: result.shipReady,
+          noShip: result.noShip,
+          humanGate: result.humanGate,
+          applied: result.applied,
+          artifacts: result.artifacts,
+          reportPath: result.reportPath,
+          targetProjectMutated: result.targetProjectMutated,
+          noRemoteMutation: result.noRemoteMutation,
+        }, null, 2));
+      } else {
+        console.log('=== pr-prep ===');
+        console.log('  session    : ' + result.sessionId);
+        console.log('  decision   : ' + result.decision);
+        console.log('  ready PR   : ' + (result.readyForPr ? 'yes' : 'no'));
+        console.log('  human gate : ' + (result.humanGate ? 'YES' : 'no'));
+        console.log('  no ship    : ' + (result.noShip ? 'YES' : 'no'));
+        console.log('  artifacts  : ' + result.artifacts.join(', '));
+        console.log('  report     : ' + path.relative(process.cwd(), result.reportPath).replace(/\\/g, '/'));
+        console.log('  remote     : none');
+      }
+      if (!result.readyForPr) process.exit(3);
       break;
     }
 

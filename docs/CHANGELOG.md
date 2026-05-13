@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+## [0.1.0-alpha.10] - 2026-05-13
+
+### Added
+- Add `nekowork pr-prep` to generate review-ready local artifacts from an existing verified session.
+- Add `PR_SUMMARY.md`, `RISK_NOTES.md`, `TEST_EVIDENCE.md`, `CHANGELOG_DRAFT.md`, `SHIP_DECISION.md`, and `pr-prep-summary.json` session evidence.
+- Add `REPORT.md` PR Prep section and `examples/pr-prep-smoke` fixture.
+
+### Preserved
+- `pr-prep` does not create branches, commits, pushes, pull requests, applies, publishes, or deploys.
+- Human remains responsible for commit, push, PR, release, publish, deploy, and apply decisions.
+
 ## [0.1.0-alpha.9] - 2026-05-13
 
 ### Added
