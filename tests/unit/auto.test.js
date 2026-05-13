@@ -81,7 +81,7 @@ test('auto cautious runs one safe build and never applies', async () => {
   }
 });
 
-test('auto captures parallel candidate evidence before canonical build', async () => {
+test('auto promotes a clean parallel candidate into the canonical ship path', async () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-auto-candidates-'));
   const calls = [];
   try {
@@ -98,25 +98,38 @@ test('auto captures parallel candidate evidence before canonical build', async (
     assert.equal(result.parallelCandidates.count, 2);
     assert.equal(result.parallelCandidates.arbiter.status, 'selected');
     assert.equal(result.parallelCandidates.arbiter.selected_candidate, 'candidate-01');
-    assert.equal(result.parallelCandidates.canonical.status, 'selected_evidence');
+    assert.equal(result.parallelCandidates.canonical.status, 'promoted_for_ship');
+    assert.equal(result.parallelCandidates.canonical.ship_candidate, true);
+    assert.equal(result.parallelCandidates.canonical.final_verification.verdict, 'approve');
     assert.equal(result.parallelCandidates.candidates.every(candidate => candidate.evidence_only), true);
     assert.equal(result.parallelCandidates.candidates[0].selected, true);
+    assert.equal(result.shipReady, true);
+    assert.equal(result.noShip, false);
     assert.ok(fs.existsSync(path.join(result.sessionDir, 'parallel-candidates.json')));
     assert.ok(fs.existsSync(path.join(result.sessionDir, 'candidate-verification.json')));
     assert.ok(fs.existsSync(path.join(result.sessionDir, 'candidate-arbiter.json')));
     assert.ok(fs.existsSync(path.join(result.sessionDir, 'canonical-candidate.json')));
+    assert.ok(fs.existsSync(path.join(result.sessionDir, 'canonical-verify-summary.json')));
+    assert.ok(fs.existsSync(path.join(result.sessionDir, 'handoffs', '03-implement.json')));
+    assert.ok(fs.existsSync(path.join(result.sessionDir, 'handoffs', '05-codex-review.json')));
+    assert.ok(fs.existsSync(path.join(result.sessionDir, 'SHIP_READY')));
     assert.ok(fs.existsSync(path.join(result.sessionDir, 'parallel-candidates', 'candidate-01.json')));
     assert.ok(fs.existsSync(path.join(result.sessionDir, 'parallel-candidates', 'candidate-02.md')));
     const summary = JSON.parse(fs.readFileSync(path.join(result.sessionDir, 'auto-summary.json'), 'utf8'));
     assert.equal(summary.parallel_candidates.count, 2);
     assert.equal(summary.parallel_candidates.arbiter.status, 'selected');
+    assert.equal(summary.parallel_candidates.canonical.status, 'promoted_for_ship');
     assert.equal(summary.parallel_candidates.target_project_mutated, false);
     const report = fs.readFileSync(path.join(result.sessionDir, 'REPORT.md'), 'utf8');
     assert.match(report, /Parallel Candidates/);
     assert.match(report, /candidate-01/);
     assert.match(report, /Selected candidate: candidate-01/);
+    assert.match(report, /Canonical artifact: promoted_for_ship/);
+    assert.match(report, /Final verification: approve/);
     assert.equal(calls.filter(call => call.context?.parallelCandidate).length, 2);
     assert.equal(calls.filter(call => call.context?.parallelCandidateVerification).length, 2);
+    assert.equal(calls.filter(call => call.context?.canonicalCandidateFinalVerification).length, 1);
+    assert.equal(calls.filter(call => call.stage === 'ship').length, 1);
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }
@@ -139,10 +152,42 @@ test('auto rejects dirty parallel candidates from canonical promotion evidence',
     assert.equal(result.parallelCandidates.arbiter.status, 'rejected');
     assert.equal(result.parallelCandidates.arbiter.selected_candidate, null);
     assert.equal(result.parallelCandidates.canonical.status, 'not_promoted');
-    assert.equal(result.shipReady, true);
+    assert.equal(result.shipReady, false);
+    assert.equal(result.noShip, true);
+    assert.ok(fs.existsSync(path.join(result.sessionDir, 'NO_SHIP')));
     const report = fs.readFileSync(path.join(result.sessionDir, 'REPORT.md'), 'utf8');
     assert.match(report, /Selected candidate: none/);
     assert.match(report, /Canonical artifact: not_promoted/);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('auto blocks selected parallel candidate when final verification fails', async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-auto-candidates-final-fail-'));
+  try {
+    const result = await autoCycle({
+      task: 'refactor parser safely',
+      level: 'cautious',
+      parallelCandidates: 2,
+      sessionId: 'unit-auto-candidates-final-fail',
+      harnessRoot: ROOT,
+      projectRoot,
+      dispatcher: dispatcher([], { reviewVerdicts: ['approve', 'approve', 'approve_with_fixes'] }),
+    });
+
+    assert.equal(result.parallelCandidates.arbiter.status, 'selected');
+    assert.equal(result.parallelCandidates.canonical.status, 'final_verification_failed');
+    assert.equal(result.parallelCandidates.canonical.ship_candidate, false);
+    assert.equal(result.parallelCandidates.canonical.final_verification.verdict, 'approve_with_fixes');
+    assert.equal(result.shipReady, false);
+    assert.equal(result.noShip, true);
+    assert.ok(fs.existsSync(path.join(result.sessionDir, 'canonical-verify-summary.json')));
+    assert.ok(!fs.existsSync(path.join(result.sessionDir, 'SHIP_READY')));
+    assert.ok(fs.existsSync(path.join(result.sessionDir, 'NO_SHIP')));
+    const report = fs.readFileSync(path.join(result.sessionDir, 'REPORT.md'), 'utf8');
+    assert.match(report, /Canonical artifact: final_verification_failed/);
+    assert.match(report, /Final verification: approve_with_fixes/);
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }

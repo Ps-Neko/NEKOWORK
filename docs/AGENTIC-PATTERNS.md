@@ -28,7 +28,7 @@ Choose patterns by:
 | 4 | Router | Build Intelligence, risk classifier | Strong | `build --mode auto` routes tasks to `fast`, `safe`, `team`, `tdd`, or `release`. |
 | 5 | Expert Team | `team` read-only handoffs | Strong | Planner, research, product/design, security, test, and Codex perspectives can contribute before mutation. |
 | 6 | Supervisor | `build`, `auto`, `run` | Strong | Orchestrators coordinate routing, work, verification, ship/readiness, and report output. |
-| 7 | Parallel Processing | `team`; `auto --parallel-candidates N` preview | Partial | Read-only team perspectives exist. Isolated candidate evidence, candidate verification, and arbiter selection exist; ship-ready final diff promotion is still planned. |
+| 7 | Parallel Processing | `team`; `auto --parallel-candidates N` preview | Strong | Read-only team perspectives exist. Isolated candidate evidence, candidate verification, arbiter selection, canonical handoff promotion, and ship readiness are connected. |
 | 8 | Sequential Pipeline | `ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply` | Strong | The advanced path is an auditable pipeline with explicit state artifacts. |
 | 9 | Human Approval | `gate` | Strong | Human Gate records approve/block decisions and stops risky work before apply. |
 | 10 | Memory Loop | `instincts`, `wait`, `ralph` | Partial | Patterns are recorded and can become skill candidates, but promotion remains manual. |
@@ -55,7 +55,7 @@ AI can build quickly, but changes must prove themselves before apply.
 
 ### Parallel Processing
 
-Current team mode is read-only. It gives multiple perspectives. `auto --parallel-candidates N` now records isolated candidate evidence, verifies candidates, and writes arbiter/canonical-candidate evidence, but it does not yet promote candidate patches into a ship-ready final diff.
+Current team mode is read-only. It gives multiple perspectives. `auto --parallel-candidates N` records isolated candidate evidence, verifies candidates, writes arbiter/canonical-candidate evidence, promotes a clean selected candidate into the canonical handoff path, and then runs ship readiness.
 
 The full `auto --parallel-candidates N` pattern should work like this:
 
@@ -63,8 +63,8 @@ The full `auto --parallel-candidates N` pattern should work like this:
 planner
   -> isolated candidate workers (preview records this evidence)
   -> candidate verification (preview records this evidence)
-  -> arbiter summary (preview records selected candidate evidence)
-  -> one canonical final diff (planned)
+  -> arbiter summary
+  -> one canonical final diff / handoff path when final verification passes
   -> Codex verification
   -> report / Human Gate / ship
   -> explicit apply only

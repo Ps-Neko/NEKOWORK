@@ -179,7 +179,7 @@ function printAutoResult(result, opts) {
   console.log('  rounds     : ' + result.rounds.length + '/' + result.policy.maxRounds);
   console.log('  stop       : ' + result.stopReason);
   if (result.parallelCandidates) {
-    console.log('  candidates : ' + result.parallelCandidates.count + ' captured; canonical diff not selected in preview');
+    console.log('  candidates : ' + result.parallelCandidates.count + ' captured; selected candidate verified before ship');
   }
   console.log('  human gate : ' + (result.humanGate ? 'YES' : 'no'));
   console.log('  no ship    : ' + (result.noShip ? 'YES' : 'no'));

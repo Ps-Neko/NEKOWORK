@@ -29,9 +29,9 @@ planner
 ```
 
 The current preview records isolated candidate evidence, verifies each candidate,
-writes an arbiter selection, and records canonical-candidate evidence. It keeps
-the normal `auto` build as the canonical ship path until final diff promotion is
-implemented. Candidate patches are not promoted to ship-ready output yet.
+writes an arbiter selection, records canonical-candidate evidence, promotes a
+clean selected candidate into canonical handoffs after final Codex verification,
+and then runs ship readiness. Apply remains explicit.
 
 ## Safety Rules
 
@@ -63,10 +63,15 @@ Current preview evidence:
 .harness/state/sessions/<session>/candidate-verification.json
 .harness/state/sessions/<session>/candidate-arbiter.json
 .harness/state/sessions/<session>/canonical-candidate.json
+.harness/state/sessions/<session>/canonical-verify-summary.json
 .harness/state/sessions/<session>/parallel-candidates/candidate-01.json
 .harness/state/sessions/<session>/parallel-candidates/candidate-01.md
 .harness/state/sessions/<session>/parallel-candidates/candidate-01-verification.json
 .harness/state/sessions/<session>/parallel-candidates/candidate-01-verification.md
+.harness/state/sessions/<session>/parallel-candidates/canonical-final-verification.json
+.harness/state/sessions/<session>/parallel-candidates/canonical-final-verification.md
+.harness/state/sessions/<session>/handoffs/03-implement.json
+.harness/state/sessions/<session>/handoffs/05-codex-review.json
 ```
 
 `REPORT.md` includes a `Parallel Candidates` section when the artifact exists.
