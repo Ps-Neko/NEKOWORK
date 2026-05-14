@@ -42,6 +42,10 @@ test('external project demo creates target harness outputs', () => {
       assert.ok(fs.existsSync(path.join(target, file)), `${file} should exist`);
     }
   } finally {
-    fs.rmSync(target, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+    try {
+      fs.rmSync(target, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+    } catch (err) {
+      if (err?.code !== 'EPERM' && err?.code !== 'EBUSY' && err?.code !== 'ENOTEMPTY') throw err;
+    }
   }
 });
