@@ -1,6 +1,6 @@
 # HARNESS Rust Runtime
 
-Persistent supervisor + IPC bridge for HARNESS. It complements the Node `harness wait` loop with SQLite-backed state, wakeup polling, and stdio JSON-RPC.
+Persistent supervisor + IPC bridge for HARNESS. It complements the Node `nekowork wait` loop with SQLite-backed state, wakeup polling, and stdio JSON-RPC.
 
 ## Build
 

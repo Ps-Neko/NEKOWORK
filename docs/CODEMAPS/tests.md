@@ -32,6 +32,7 @@ tests/
     |-- auto.test.js
     |-- build-intelligence.test.js
     |-- build.test.js
+    |-- check-version.test.js
     |-- cli-options.test.js
     |-- codex-isolation.test.js
     |-- core-utils.test.js
@@ -49,10 +50,13 @@ tests/
     |-- preverify.test.js
     |-- profile-safety.test.js
     |-- ralph.test.js
+    |-- ready-alias.test.js
     |-- report.test.js
+    |-- review-plan-upstream.test.js
     |-- risk-classifier.test.js
     |-- router.test.js
     |-- run.test.js
+    |-- runner-upstream-prompt.test.js
     |-- runners-extract.test.js
     |-- security-hardening.test.js
     |-- session-id.test.js
@@ -64,6 +68,7 @@ tests/
     |-- token-vault.test.js
     |-- ui-errors.test.js
     |-- ui-format.test.js
+    |-- upstream-artifacts.test.js
     |-- verify.test.js
     |-- version-consistency.test.js
     |-- wait.test.js
@@ -95,6 +100,7 @@ tests/
 | `unit/auto.test.js` | _(none)_ |  |
 | `unit/build-intelligence.test.js` | _(none)_ |  |
 | `unit/build.test.js` | _(none)_ |  |
+| `unit/check-version.test.js` | _(none)_ |  |
 | `unit/cli-options.test.js` | _(none)_ |  |
 | `unit/codex-isolation.test.js` | _(none)_ | Codex Claude . 2 "Claude , Codex " . codex buildPrompt Claude /agent body prompt leak . |
 | `unit/core-utils.test.js` | _(none)_ |  |
@@ -112,10 +118,13 @@ tests/
 | `unit/preverify.test.js` | _(none)_ |  |
 | `unit/profile-safety.test.js` | _(none)_ |  |
 | `unit/ralph.test.js` | _(none)_ |  |
+| `unit/ready-alias.test.js` | _(none)_ | `nekowork ready` is a docs-friendly alias for `nekowork ship`. We don't rename the underlying command, marker, schema, or summary - `ready`  |
 | `unit/report.test.js` | _(none)_ |  |
+| `unit/review-plan-upstream.test.js` | _(none)_ |  |
 | `unit/risk-classifier.test.js` | _(none)_ |  |
 | `unit/router.test.js` | _(none)_ |  |
 | `unit/run.test.js` | _(none)_ |  |
+| `unit/runner-upstream-prompt.test.js` | _(none)_ | Verify that live runner prompt builders include the upstream artifact excerpts from context.upstream so live LLMs actually see DOMAIN/SPEC/P |
 | `unit/runners-extract.test.js` | _(none)_ | live runner JSON / prompt . Claude/Codex CLI ( ). |
 | `unit/security-hardening.test.js` | _(none)_ |  |
 | `unit/session-id.test.js` | _(none)_ |  |
@@ -127,6 +136,7 @@ tests/
 | `unit/token-vault.test.js` | _(none)_ |  |
 | `unit/ui-errors.test.js` | _(none)_ |  |
 | `unit/ui-format.test.js` | _(none)_ |  |
+| `unit/upstream-artifacts.test.js` | _(none)_ |  |
 | `unit/verify.test.js` | _(none)_ |  |
 | `unit/version-consistency.test.js` | _(none)_ |  |
 | `unit/wait.test.js` | _(none)_ |  |

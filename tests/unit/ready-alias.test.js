@@ -1,4 +1,4 @@
-// `harness ready` is a docs-friendly alias for `harness ship`.
+// `nekowork ready` is a docs-friendly alias for `nekowork ship`.
 // We don't rename the underlying command, marker, schema, or summary -
 // `ready` just dispatches to the same case branch and shares parseShipArgs.
 

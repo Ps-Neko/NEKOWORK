@@ -1,5 +1,5 @@
 // 비용 트래커. 매 도구 호출 후 모델·토큰·USD 추정값을 ~/.harness/costs.jsonl 에 append.
-// CLI 조회: harness costs --since=7d (또는 --since=1h, 30m, all).
+// CLI 조회: nekowork costs --since=7d (또는 --since=1h, 30m, all).
 
 import fs from 'node:fs';
 import path from 'node:path';

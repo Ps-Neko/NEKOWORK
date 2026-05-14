@@ -50,7 +50,7 @@ export function applyCycle(opts) {
     });
   }
   if (!shipReady) {
-    throw new Error('apply requires SHIP_READY. Run harness ship first after verification and gate resolution.');
+    throw new Error('apply requires SHIP_READY. Run nekowork ship first after verification and gate resolution.');
   }
 
   const appliedMarker = readMarker(sessionDir, 'APPLIED_DIFF');

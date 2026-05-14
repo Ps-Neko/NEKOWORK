@@ -169,7 +169,7 @@ unset ANTHROPIC_API_KEY                   # 있으면 OAuth가 무시됨
 echo 'unset ANTHROPIC_API_KEY' >> ~/.bashrc
 
 # NEKOWORK 사용:
-harness review "<task>"                   # claude CLI 통해 자동 위임
+nekowork review "<task>"                  # claude CLI 통해 자동 위임
 ```
 
 ### 5.2 Codex CLI 사용자
@@ -177,7 +177,7 @@ harness review "<task>"                   # claude CLI 통해 자동 위임
 ```bash
 codex auth login                          # ChatGPT 로그인 세션
 unset OPENAI_API_KEY                      # 구독 사용 시
-harness review "<task>" --no-ship         # 단계 5 codex-review 포함
+nekowork review "<task>" --no-ship        # 단계 5 codex-review 포함
 ```
 
 ### 5.3 GitHub
@@ -258,7 +258,7 @@ claude /status
 
 # 2. subscription override 가드 동작 — 차단되어야 함
 export ANTHROPIC_API_KEY=dummy
-harness review "<task>"
+nekowork review "<task>"
 # 기대: pre-bash-dispatcher 가
 #   "구독 보호: ... ANTHROPIC_API_KEY 가 환경에 설정되어 있습니다 ..."
 # 메시지로 차단 (exit 2)

@@ -49,9 +49,9 @@ Use the advanced path when the change needs a separate plan artifact, read-only 
 Quality-sensitive runs can add profile policy:
 
 ```bash
-harness ask "task" --profile quality
-harness work "task" --profile quality --session <id>
-harness verify "task" --profile quality --strict-quality --session <id>
+nekowork ask "task" --profile quality
+nekowork work "task" --profile quality --session <id>
+nekowork verify "task" --profile quality --strict-quality --session <id>
 ```
 
 `--strict-quality` turns missing evidence or acceptance coverage warnings into a fix-required verification verdict.
@@ -74,9 +74,9 @@ For the current alpha line:
 These flags are accepted as public intent markers:
 
 ```bash
-harness team "task" --no-write
-harness work "task" --single-executor
-harness ship "task" --session <id> --require-clean-gates
+nekowork team "task" --no-write
+nekowork work "task" --single-executor
+nekowork ship "task" --session <id> --require-clean-gates
 ```
 
 They do not weaken behavior. They make the contract readable at the call site.

@@ -64,4 +64,4 @@ const parsed = Body.parse(req.body);   // 실패 시 ZodError 던짐
 ## 9. 에이전트 지원
 
 - 보안 변경: `security-reviewer` 에이전트로 사전 검토.
-- 인증 / 결제 / PII 다루는 PR 은 `harness review --secure` 로 codex-challenge 단계 강제.
+- 인증 / 결제 / PII 다루는 PR 은 `nekowork review --secure` 로 codex-challenge 단계 강제.

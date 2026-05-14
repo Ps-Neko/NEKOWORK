@@ -23,6 +23,7 @@ scripts/
 |-- ci/
 |   |-- catalog.js
 |   |-- check-markers.js
+|   |-- check-version.js
 |   |-- security-hardening.js
 |   |-- validate-agents.js
 |   |-- validate-hooks.js
@@ -63,7 +64,8 @@ scripts/
 |   |-- severity.js
 |   |-- token-vault.js
 |   |-- ui-errors.js
-|   `-- ui-format.js
+|   |-- ui-format.js
+|   `-- upstream-artifacts.js
 |-- orchestrators/
 |   |-- apply.js
 |   |-- ask.js
@@ -126,6 +128,7 @@ scripts/
 | `build-opencode.js` | _(none)_ | .opencode/ . opencode : JSON (config_format: json). agents/skills/hooks JSON . |
 | `ci/catalog.js` | _(none)_ | . agent.yaml agents/skills/commands , . |
 | `ci/check-markers.js` | _(none)_ | HARNESS:START / HARNESS:END . . |
+| `ci/check-version.js` | _(none)_ | . `VERSION`, `package.json`, `WORKING-CONTEXT.md`, `README.md`/`README.ko.md` Status . : - VERSION package.json.version . - WORKING-CONTEXT. |
 | `ci/security-hardening.js` | `checkSecurityHardening`, `isPinnedActionRef`, `isSemverMcpPin` | Security hardening CI gate: workflow permissions/timeouts/action pins, MCP pins, package spec hygiene, package-lock presence, and OIDC cloud |
 | `ci/validate-agents.js` | _(none)_ | agents/<name>.md frontmatter schemas/agent.schema.json . agent.yaml agents . |
 | `ci/validate-hooks.js` | _(none)_ | hooks/hooks.json schemas/hooks.schema.json . |
@@ -152,7 +155,7 @@ scripts/
 | `lib/acceptance-criteria.js` | `buildDefaultAcceptanceCriteria`, `ensureAcceptanceCriteria`, `normalizeAcceptanceCriteria`, `readAcceptanceCriteria` |  |
 | `lib/build-intelligence.js` | `analyzeBuildIntent` |  |
 | `lib/build-modes.js` | `assertBuildModeContract`, `buildModeIds`, `buildModePolicy`, `buildModeSafetyRank`, `loadBuildModes` |  |
-| `lib/costs.js` | `list`, `record`, `summarize` | . USD ~/.harness/costs.jsonl append. CLI : harness costs --since=7d ( --since=1h, 30m, all). |
+| `lib/costs.js` | `list`, `record`, `summarize` | . USD ~/.harness/costs.jsonl append. CLI : nekowork costs --since=7d ( --since=1h, 30m, all). |
 | `lib/decision.js` | `buildDecision`, `writeDecision` |  |
 | `lib/flag-normalize.js` | `normalizeFlags` |  |
 | `lib/instincts.js` | `get`, `list`, `promote`, `prune`, `ready`, `record` | continuous-learning-v2 . review ( + + verdict ) ~/.harness/instincts/<id>.json . " " . |
@@ -169,6 +172,7 @@ scripts/
 | `lib/token-vault.js` | `audit`, `backend`, `list`, `load`, `redact`, `remove`, `save` | scripts/lib/token-vault.js auth.token_store: os-keychain (default) encrypted-file. : HARNESS_TOKEN_STORE_KIND=os-keychain keychain only ( th |
 | `lib/ui-errors.js` | `renderBlocked`, `renderError` |  |
 | `lib/ui-format.js` | `isColorEnabled`, `kvBlock`, `nextBlock`, `paint` |  |
+| `lib/upstream-artifacts.js` | `UPSTREAM_EXCERPT_LIMIT`, `hasAnyUpstream`, `loadUpstreamArtifact`, `loadUpstreamBundle`, `renderUpstreamPromptSection` |  |
 | `orchestrators/apply.js` | `applyCycle`, `latestStageHandoff`, `readApplyGitStatus`, `readDiffForHandoff`, `readPriorHandoffs` |  |
 | `orchestrators/ask.js` | `askGate`, `buildQuestionGate`, `classifyAskTask` |  |
 | `orchestrators/auto.js` | `autoCycle`, `autoPlan`, `normalizeAutoLevel` |  |

@@ -16,11 +16,11 @@ Claude 가 구현하고 Codex 가 의심하는 7단계 풀사이클. **HARNESS �
 ## 호출
 
 ```bash
-harness review "<task>"                    # 전체 사이클
-harness review "<task>" --secure           # + 단계 6 codex-challenge 강제
-harness review "<task>" --fast             # 단계 1·6 스킵
-harness review "<task>" --no-ship          # 단계 7 생략 (리뷰까지만)
-harness review "<task>" --no-codex         # 단계 5·6 스킵 (Codex 검증 생략)
+nekowork review "<task>"                   # 전체 사이클
+nekowork review "<task>" --secure          # + 단계 6 codex-challenge 강제
+nekowork review "<task>" --fast            # 단계 1·6 스킵
+nekowork review "<task>" --no-ship         # 단계 7 생략 (리뷰까지만)
+nekowork review "<task>" --no-codex        # 단계 5·6 스킵 (Codex 검증 생략)
 ```
 
 또는 슬래시: `/claude-led-codex-review <task> [--flags]`

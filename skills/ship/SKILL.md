@@ -36,7 +36,7 @@ claude-led-codex-review 단계 7. 자동 push 는 하지 않는다 (사용자 / 
 ## 출력
 
 ```
-✓ harness review --no-ship 모드 종료
+✓ nekowork review --no-ship 모드 종료
   PR 초안: <branch> → main
   핸드오프: handoffs/01..07 (7개)
   CHANGELOG diff: docs/CHANGELOG.md

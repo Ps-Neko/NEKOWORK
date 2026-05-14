@@ -91,7 +91,7 @@ npm test -- tests/unit/severity.test.js   # severity 분류 회귀
    - 진행 중인 모든 wakeup.json 파일 삭제.
    - `ANTHROPIC_API_KEY` 같은 환경 변수를 자식 프로세스에서 제거 (덮어쓰기 방어).
    - HUMAN_GATE 자동 생성 + audit jsonl 에 기록.
-4. 사용자가 `harness wait --resume` 으로 명시 재시작.
+4. 사용자가 `nekowork wait --resume` 으로 명시 재시작.
 
 **수용 가능 임시 대안**: `HARNESS_RALPH_MAX_ITER` 강제 + `HARNESS_DAILY_COST_CAP_USD` 비용 차단.
 
