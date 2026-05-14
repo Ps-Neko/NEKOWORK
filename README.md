@@ -44,7 +44,7 @@ No auto-commit. No auto-push. No surprise deploy. `apply` is explicit and requir
 
 Use `start` first. It is the safe beginner entrypoint and prints the final decision before detailed build output. Advanced controls are documented later.
 
-**Public alpha evidence:** 359 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs · [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) · [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) · [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) · [full report example](docs/DEMO-REPORT.md) · [external run kit](docs/EXTERNAL-RUN.md) · [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) · [roadmap](docs/ROADMAP.md)
+**Public alpha evidence:** 398 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs · [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) · [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) · [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) · [full report example](docs/DEMO-REPORT.md) · [external run kit](docs/EXTERNAL-RUN.md) · [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) · [roadmap](docs/ROADMAP.md)
 
 ![NEKOWORK one-minute terminal demo](docs/assets/demo-terminal.svg)
 
@@ -88,7 +88,7 @@ node scripts/cli.js start "implement this safely" --session first-start
 node scripts/cli.js report --session latest
 ```
 
-> **Reproducibility note:** `npx @ps-neko/nekowork@alpha` runs the **published** `0.1.0-alpha.9`. The repository on `main` is the `0.1.0-alpha.10` candidate. If a feature described below was added between those tags, use the source-checkout path above until alpha.10 is published.
+> **Reproducibility note:** `npx @ps-neko/nekowork@alpha` runs the **published** `0.1.0-alpha.10`. The repository on `main` matches that tag. If you need the previous published behavior, pin `@ps-neko/nekowork@0.1.0-alpha.9` explicitly.
 
 The simple path maps to the evidence loop: `check = doctor --quick`, `start = build`, `report = readable evidence`, and `apply = explicit verified diff application`. See [docs/QUICKSTART.md](docs/QUICKSTART.md) for the longer first-run guide.
 
@@ -186,9 +186,9 @@ For comparison and positioning: [docs/WHY-NEKOWORK.md](docs/WHY-NEKOWORK.md).
 
 ## Status
 
-Current repository version: `0.1.0-alpha.10` alpha candidate · Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.9` (alpha.10 is repository candidate; npm `@alpha` remains 0.1.0-alpha.9 until publish). Package: `@ps-neko/nekowork`. CLI: `nekowork` (`harness` is a legacy alias). Default: mock providers, no API keys.
+Current repository version: `0.1.0-alpha.10` · Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.10` (published 2026-05-14, `@alpha` dist-tag). Package: `@ps-neko/nekowork`. CLI: `nekowork` (`harness` is a legacy alias). Default: mock providers, no API keys.
 
-Verification: `npm run lint` pass · `npm test` 359 pass · `npm audit --audit-level=moderate` 0 vulns · `npm pack --dry-run --json` pass · `npx -y @ps-neko/nekowork@alpha check` pass with warnings only.
+Verification: `npm run lint` pass · `npm test` 398 tests / 397 pass (1 Windows-only EPERM cleanup flake) · `npm audit --audit-level=moderate` 0 vulns · `npm pack --dry-run --json` pass · `npx -y @ps-neko/nekowork@alpha check` pass with warnings only.
 
 Live provider auth delegates to local CLI sessions (`claude auth status`, `codex login`, `gemini`); long-lived API key env vars (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `GOOGLE_API_KEY`) are blocked unless `HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1`. See [docs/SETUP.md](docs/SETUP.md).
 

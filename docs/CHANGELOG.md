@@ -4,20 +4,21 @@
 
 ## [Unreleased]
 
+## [0.1.0-alpha.10] - 2026-05-14
+
 ### Added
 - Add `nekowork start` as the beginner alias for the safe `build` entrypoint.
 - Add `decision.json` as the shared machine-readable session decision surface.
 - Add deterministic `preverify-summary.json` findings before Codex review for secret, auth, deploy, payment, env/config, permission, and destructive-data risks.
-
-### Changed
-- Print verdict, reason, Human Gate state, ship readiness, and apply permission first for real `start`/`build` runs.
-
-## [0.1.0-alpha.10] - 2026-05-13
-
-### Added
 - Add `nekowork pr-prep` to generate review-ready local artifacts from an existing verified session.
 - Add `PR_SUMMARY.md`, `RISK_NOTES.md`, `TEST_EVIDENCE.md`, `CHANGELOG_DRAFT.md`, `SHIP_DECISION.md`, and `pr-prep-summary.json` session evidence.
 - Add `REPORT.md` PR Prep section and `examples/pr-prep-smoke` fixture.
+- Add Beta Graduation Criteria burndown and alpha.10 evidence log in `docs/FEEDBACK-TRIAGE.md`.
+- Promote `nekowork` as the canonical CLI verb prefix (`harness` retained as permanent alias).
+
+### Changed
+- Print verdict, reason, Human Gate state, ship readiness, and apply permission first for real `start`/`build` runs.
+- Lock alpha.10 version consistency across `VERSION`, `package.json`, Provider Mode surface, and upstream artifact catalog.
 
 ### Preserved
 - `pr-prep` does not create branches, commits, pushes, pull requests, applies, publishes, or deploys.
