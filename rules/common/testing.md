@@ -55,4 +55,4 @@
 
 - `npm run test` (또는 언어별 등가) 가 PR 단계에서 통과해야 한다.
 - `npm run validate:all` 도 함께 통과해야 한다.
-- `harness review --no-ship` 으로 로컬 풀체인 미리 돌려볼 수 있다.
+- `nekowork review --no-ship` 으로 로컬 풀체인 미리 돌려볼 수 있다.

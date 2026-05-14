@@ -14,8 +14,8 @@ tags: [persistent, loop]
 PRD 의 acceptance criteria 가 모두 PASS 될 때까지 review 사이클을 자동 반복. 매직 키워드 감지는 **하지 않는다** (사용자 환경의 "자동 활성 금지" 류 룰을 우회하지 않기 위함). 명시 호출만:
 
 ```bash
-harness ralph --task "기능 X" [--max-iter 10] [--secure] [--live]
-harness wait --start                      # 데몬 활성. rate-limit 풀리면 재개
+nekowork ralph --task "기능 X" [--max-iter 10] [--secure] [--live]
+nekowork wait --start                     # 데몬 활성. rate-limit 풀리면 재개
 ```
 
 ## 동작
@@ -35,7 +35,7 @@ harness wait --start                      # 데몬 활성. rate-limit 풀리면 
 
 ## Stop 훅과의 결합
 
-`hooks/scripts/persistent-mode.mjs` 가 세션 종료 시 `.harness/state/sessions/<id>/active` 를 본다. ralph 모드일 때만 active 플래그가 박힘 → wakeup.json drop. `harness wait --start` 데몬이 wakeup 을 폴링해서 외부 레이트 리밋 풀린 시점에 다시 시작.
+`hooks/scripts/persistent-mode.mjs` 가 세션 종료 시 `.harness/state/sessions/<id>/active` 를 본다. ralph 모드일 때만 active 플래그가 박힘 → wakeup.json drop. `nekowork wait --start` 데몬이 wakeup 을 폴링해서 외부 레이트 리밋 풀린 시점에 다시 시작.
 
 ## ScheduleWakeup 결합 (Claude Code 안에서 호출 시)
 
@@ -44,5 +44,5 @@ Claude Code 안에서 `/ralph` 호출하면 SkillUse 훅이 자동 ScheduleWakeu
 ## 비활성 (안전 디폴트)
 
 - 글로벌 매직 키워드 감지 OFF (CLAUDE.md 명시).
-- `harness ralph` 명시 호출 또는 `/ralph` 슬래시만 활성.
+- `nekowork ralph` 명시 호출 또는 `/ralph` 슬래시만 활성.
 - 어떤 자연어 입력도 자동 활성하지 않는다.

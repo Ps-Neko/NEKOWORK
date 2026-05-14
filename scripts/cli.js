@@ -943,7 +943,7 @@ function checkArgs(argv) {
     case 'ask': {
       const opts = parseAskArgs(rest);
       if (!opts.task) {
-        console.error('task is required. Example: harness ask "trading dashboard mockup"');
+        console.error('task is required. Example: nekowork ask "trading dashboard mockup"');
         process.exit(2);
       }
       const { askGate } = await import('./orchestrators/ask.js');
@@ -968,7 +968,7 @@ function checkArgs(argv) {
     case 'team': {
       const opts = parseTeamArgs(rest);
       if (!opts.task) {
-        console.error('task is required. Example: harness team "trading dashboard mockup"');
+        console.error('task is required. Example: nekowork team "trading dashboard mockup"');
         process.exit(2);
       }
       const { teamCycle } = await import('./orchestrators/team.js');
@@ -1269,7 +1269,7 @@ function checkArgs(argv) {
     case 'run': {
       const opts = parseRunArgs(rest);
       if (!opts.task) {
-        console.error('task is required. Example: harness run "implement and verify dashboard"');
+        console.error('task is required. Example: nekowork run "implement and verify dashboard"');
         process.exit(2);
       }
       const { runCycle } = await import('./orchestrators/run.js');
@@ -1432,7 +1432,7 @@ function checkArgs(argv) {
     case 'review-cycle': {
       const opts = parseReviewArgs(rest);
       if (!opts.task) {
-        console.error(`task is required. Example: harness ${verb} "add JWT validation"`);
+        console.error(`task is required. Example: nekowork ${verb} "add JWT validation"`);
         process.exit(2);
       }
       await dynamicReview(opts);
@@ -1442,7 +1442,7 @@ function checkArgs(argv) {
     case 'ralph': {
       const opts = parseRalphArgs(rest);
       if (!opts.task) {
-        console.error('task is required. Example: harness ralph "feature X" --max-iter 5');
+        console.error('task is required. Example: nekowork ralph "feature X" --max-iter 5');
         process.exit(2);
       }
       const { ralphLoop } = await import('./orchestrators/ralph.js');
@@ -1460,7 +1460,7 @@ function checkArgs(argv) {
     case 'team-lite': {
       const opts = parseReviewArgs(rest);
       if (!opts.task) {
-        console.error('task is required. Example: harness team-lite "refactor auth guard"');
+        console.error('task is required. Example: nekowork team-lite "refactor auth guard"');
         process.exit(2);
       }
       const { teamLiteCycle } = await import('./orchestrators/team-lite.js');

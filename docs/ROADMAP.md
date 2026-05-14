@@ -1,6 +1,6 @@
 # Roadmap
 
-Status date: 2026-05-13
+Status date: 2026-05-14
 
 This roadmap is intentionally small. NEKOWORK should improve the apply-before-change safety gate and evidence surface before expanding the agent catalog.
 
@@ -128,7 +128,36 @@ Prepared scope:
 - Generate PR summary, risk notes, test evidence, changelog draft, and ship/no-ship evidence.
 - Add `REPORT.md` PR Prep section and a checked-in `examples/pr-prep-smoke` fixture.
 - Keep PR creation, branch push, release, publish, and deploy as explicit human actions.
+- Lock version consistency at lint time with `scripts/ci/check-version.js` and its unit fixture.
+- Expose Provider Mode (`runtime.mode`, `runtime.providers`, `runtime.source`) on every decision artifact and surface it in `REPORT.md` and `nekowork build` verdict output.
+- Publish the upstream artifact catalog as `docs/UPSTREAM-RECIPES.md` and link it from README "Works With" and `docs/INTEGRATION.md`.
+- Re-sort the generated CLAUDE.md command surface into Beginner / Advanced / Legacy / Install, with `nekowork` as the canonical verb prefix.
 
 Non-goals:
 
 - No automatic apply, commit, push, publish, deploy, or PR creation.
+- No removal of the `harness` compatibility alias.
+
+## Beta Graduation Criteria
+
+Status: target.
+
+The 0.1.0-alpha line can graduate to a 0.2.0-beta line only when every criterion below holds at the same time. Each one is gated by checkable evidence, not opinion.
+
+| # | Criterion | Evidence source |
+|---|---|---|
+| 1 | Version consistency is automated | `npm run lint` runs `check-version`; `VERSION`, `package.json`, `agent.yaml`, `WORKING-CONTEXT.md`, generated `CLAUDE.md`/`.claude/CLAUDE.md` stay aligned without manual fan-out |
+| 2 | Provider Mode transparency | `decision.json.runtime` (mode, providers, source) is present on every handoff and rendered in `REPORT.md` Trust Card and `nekowork build` verdict for both mock and live runs |
+| 3 | External alpha feedback absorbed | At least five external alpha users have submitted `check --json` plus `REPORT.md` evidence, and `docs/FEEDBACK-TRIAGE.md` records that no blocking issue is open |
+| 4 | Smoke evidence streak | Seven consecutive days of green `@alpha` smoke across local and GitHub Actions, with the `@alpha` dist-tag matching the latest published version |
+| 5 | Documentation completeness | README, QUICKSTART, AUTH-MIGRATION, UPSTREAM-RECIPES, and PRODUCT-PRINCIPLES each pass an external-reviewer pass without back-channel clarification (recorded in `docs/FEEDBACK-TRIAGE.md`) |
+| 6 | Audit hygiene | `nekowork audit` reports zero moderate-or-higher findings within the last seven days |
+| 7 | CLI naming canonical | All user-facing strings (CLI error output, docs code blocks, skill snippets) use `nekowork` as the canonical verb prefix; `harness` remains a permanent alias only |
+| 8 | No automatic side effects | `apply`, `commit`, `push`, `publish`, `deploy`, and PR creation remain explicit human actions; no autonomy level (`cautious`, `normal`, `aggressive`) can bypass them |
+
+Beta-line non-goals:
+
+- No removal of the `harness` compatibility alias.
+- No automatic apply, commit, push, publish, deploy, or PR creation.
+- No bulk import of external agent packs.
+- No API-key-first provider setup.

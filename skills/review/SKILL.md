@@ -15,7 +15,7 @@ Claude self-review 단계. code-reviewer 에이전트(opus, ro)를 호출해 git
 ## 호출
 
 ```bash
-harness self-review                   # 단독
+nekowork self-review                  # 단독
 # claude-led-codex-review 의 단계 4 로 자동 호출됨
 ```
 

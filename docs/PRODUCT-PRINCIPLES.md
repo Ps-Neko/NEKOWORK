@@ -136,8 +136,8 @@ codex review handoff
 The public command is:
 
 ```bash
-harness team "<task>" --workers planner,research,product,security,test
-harness team "<task>" --workers planner,research,product,security,test --no-write
+nekowork team "<task>" --workers planner,research,product,security,test
+nekowork team "<task>" --workers planner,research,product,security,test --no-write
 ```
 
 The initial rule is simple:
@@ -158,9 +158,9 @@ Advanced `team-lite` remains a handoff and coordination surface. It records read
 The public command is:
 
 ```bash
-harness work "<task>" --session <id>
-harness work "<task>" --single-executor --session <id>
-harness work "<task>" --profile quality --session <id>
+nekowork work "<task>" --session <id>
+nekowork work "<task>" --single-executor --session <id>
+nekowork work "<task>" --profile quality --session <id>
 ```
 
 `work` is the single-executor mutation phase. In the current alpha line it is deliberately conservative:
@@ -181,8 +181,8 @@ The next step after `work` is verification before any apply or ship path.
 The public command is:
 
 ```bash
-harness verify "<task>" --session <id>
-harness verify "<task>" --profile quality --strict-quality --session <id>
+nekowork verify "<task>" --session <id>
+nekowork verify "<task>" --profile quality --strict-quality --session <id>
 ```
 
 `verify` is the Codex-only verification phase:
@@ -204,9 +204,9 @@ harness verify "<task>" --profile quality --strict-quality --session <id>
 The public commands are:
 
 ```bash
-harness gate status --session <id>
-harness gate approve --session <id> --reason "<why>"
-harness gate block --session <id> --reason "<why>"
+nekowork gate status --session <id>
+nekowork gate approve --session <id> --reason "<why>"
+nekowork gate block --session <id> --reason "<why>"
 ```
 
 `gate` is the explicit human decision phase:
@@ -223,8 +223,8 @@ harness gate block --session <id> --reason "<why>"
 The public command is:
 
 ```bash
-harness ship "<task>" --session <id>
-harness ship "<task>" --require-clean-gates --session <id>
+nekowork ship "<task>" --session <id>
+nekowork ship "<task>" --require-clean-gates --session <id>
 ```
 
 `ship` is the readiness phase:
@@ -242,7 +242,7 @@ harness ship "<task>" --require-clean-gates --session <id>
 The public command is:
 
 ```bash
-harness report --session <id>
+nekowork report --session <id>
 ```
 
 `report` is the readable evidence phase:
@@ -259,7 +259,7 @@ harness report --session <id>
 The public command is:
 
 ```bash
-harness apply --session <id>
+nekowork apply --session <id>
 ```
 
 `apply` is the controlled mutation phase:
@@ -280,7 +280,7 @@ harness apply --session <id>
 The public command is:
 
 ```bash
-harness run "<task>" --session <id>
+nekowork run "<task>" --session <id>
 ```
 
 `run` is a convenience wrapper:
@@ -300,7 +300,7 @@ harness run "<task>" --session <id>
 The public command is:
 
 ```bash
-harness ralph "<task>" --engine review|run --max-iter <n>
+nekowork ralph "<task>" --engine review|run --max-iter <n>
 ```
 
 `ralph` is advanced and explicit:
@@ -316,9 +316,9 @@ harness ralph "<task>" --engine review|run --max-iter <n>
 The public commands are:
 
 ```bash
-harness wait status
-harness wait start
-harness wait stop
+nekowork wait status
+nekowork wait start
+nekowork wait stop
 ```
 
 `wait` is an advanced persistent resume surface:

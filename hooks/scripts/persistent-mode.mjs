@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Stop persistent-mode.
 // If .harness/state/sessions/<id>/active exists, drop wakeup.json for
-// `harness wait start` to process.
+// `nekowork wait start` to process.
 
 import fs from 'node:fs';
 import path from 'node:path';
