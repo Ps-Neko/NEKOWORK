@@ -60,6 +60,7 @@ export function buildDecision(sessionDir, opts = {}) {
   const applyAllowed = Boolean(shipReady && !noShip && gate.state !== 'required' && gate.state !== 'blocked' && !applied);
   const reason = deriveReason({ gate, markers, preverify, ship, verify, run, build, apply, report });
   const evidence = evidenceFiles({ summaries, markers, preverify });
+  const runtime = deriveRuntime(handoffs);
 
   return {
     version: DECISION_VERSION,
@@ -70,6 +71,7 @@ export function buildDecision(sessionDir, opts = {}) {
     verdict,
     reason,
     next: nextStep({ status, applyAllowed, applied, gate, noShip, shipReady, summaries }),
+    runtime,
     risk,
     ship_ready: shipReady,
     no_ship: noShip,
@@ -176,6 +178,33 @@ function deriveRisk({ preverify, verify, ship, build }) {
     level,
     tags: [...new Set(tags)].sort(),
   };
+}
+
+function deriveRuntime(handoffs) {
+  const providers = new Set();
+  for (const handoff of handoffs) {
+    if (handoff?.provider) providers.add(String(handoff.provider));
+  }
+
+  if (providers.size === 0) {
+    const envLive = process.env.HARNESS_LIVE === '1' || /^(true|live)$/i.test(process.env.HARNESS_MODE || '');
+    return {
+      mode: envLive ? 'live' : 'mock',
+      providers: [],
+      source: 'fallback',
+    };
+  }
+
+  const sorted = [...providers].sort();
+  const live = sorted.filter(provider => provider !== 'mock');
+  const hasMock = providers.has('mock');
+
+  let mode;
+  if (live.length === 0) mode = 'mock';
+  else if (hasMock) mode = 'mixed';
+  else mode = 'live';
+
+  return { mode, providers: sorted, source: 'handoff' };
 }
 
 function deriveReason({ gate, markers, preverify, ship, verify, run, build, apply, report }) {

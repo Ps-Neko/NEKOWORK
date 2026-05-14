@@ -206,8 +206,14 @@ function printBuildPlan(result) {
 function printBuildResult(result, opts) {
   const decision = safeDecision(result.sessionDir);
   if (decision) {
+    const runtime = decision.runtime || { mode: 'mock', providers: [] };
+    const liveProviders = (runtime.providers || []).filter(provider => provider && provider !== 'mock');
+    let runtimeLabel = runtime.mode || 'mock';
+    if (runtime.mode === 'live' && liveProviders.length) runtimeLabel = `live (${liveProviders.join(', ')})`;
+    else if (runtime.mode === 'mixed' && liveProviders.length) runtimeLabel = `mixed (mock + ${liveProviders.join(', ')})`;
     console.log('Verdict: ' + String(decision.verdict || 'unknown').toUpperCase());
     console.log('Reason: ' + (decision.reason || 'none'));
+    console.log('Provider Mode: ' + runtimeLabel);
     console.log('Human Gate: ' + decision.human_gate);
     console.log('Ship ready: ' + String(decision.ship_ready));
     console.log('Apply allowed: ' + String(decision.apply_allowed));

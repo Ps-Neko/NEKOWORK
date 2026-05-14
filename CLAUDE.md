@@ -39,26 +39,50 @@
 
 ## 핵심 명령어
 
+README 의 Main Surface 3계층(Beginner / Advanced / Legacy) 과 정렬한다. 신규 사용자는 Beginner 4종만 먼저 익히면 된다.
+
+### Beginner — 안전 게이트 4종
+
 ```bash
-harness install --plan --profile core      # 설치 dry-run
-harness install --plan --pack quality      # curated pack dry-run
-harness start "<task>" [--apply]           # AI 변경 검증 후 적용 (start -> report -> apply)
-harness ask "<task>"                       # question gate, no project mutation
-harness team "<task>"                      # read-only worker handoffs
-harness work "<task>"                      # single executor implement handoff
-harness verify "<task>" --session <id>     # Codex-only verification
-harness gate status --session <id>         # inspect or resolve HUMAN_GATE state
-harness ship "<task>" --session <id>       # ship/no-ship readiness handoff
-harness report --session <id>              # readable evidence report
-harness apply --session <id>               # apply verified SHIP_READY live-work diff
-harness run "<task>" --session <id>        # work -> verify -> ship, optional --apply
-harness review "<task>" [--secure|--fast|--no-ship]  # legacy full cycle
-harness review-cycle "<task>" [--secure|--fast|--no-ship]  # explicit legacy alias
-harness plan "<task>"
-harness self-review
-harness codex-review                       # 단계 5 단독
-harness sessions
-harness costs --since=7d
+nekowork check                              # 환경 진단 (30초)
+nekowork start "<task>"                     # 검증 결과(verdict 카드) 우선 출력
+nekowork report --session latest            # 세션 증거 → readable REPORT.md
+nekowork apply --session <id>               # 명시적 적용. SHIP_READY 와 clear gate 필수
+```
+
+### Advanced — 단계별 제어
+
+```bash
+nekowork ask "<task>"                       # question gate, no project mutation
+nekowork plan "<task>"                      # plan-only
+nekowork team "<task>"                      # read-only worker handoffs
+nekowork work "<task>"                      # single executor implement handoff
+nekowork verify "<task>" --session <id>     # Codex-only verification
+nekowork gate status --session <id>         # HUMAN_GATE / approval / block 확인
+nekowork ship "<task>" --session <id>       # SHIP_READY / NO_SHIP 결정
+nekowork run "<task>" --session <id>        # work -> verify -> ship 래퍼
+nekowork build "<task>" [--mode auto|...]   # 일체형 빌더 래퍼
+nekowork auto "<task>" [--level cautious|...]  # bounded autonomy (apply 는 별도)
+nekowork pr-prep --session <id>             # PR 자료만, 브랜치/푸시/PR 생성 X
+```
+
+### Legacy — 하위 호환
+
+```bash
+nekowork review "<task>" [--secure|--fast|--no-ship]   # legacy full cycle
+nekowork review-cycle "<task>"                          # explicit legacy alias
+nekowork self-review
+nekowork codex-review                       # 단계 5 단독
+```
+
+### Install / Diagnostics
+
+```bash
+nekowork install --plan --profile core      # 설치 dry-run
+nekowork install --plan --pack quality      # curated pack dry-run
+nekowork install --apply --profile <p>      # 실제 설치
+nekowork sessions                           # 세션 목록
+nekowork costs --since=7d                   # 비용 추정
 ```
 
 ## State 경로
@@ -69,7 +93,7 @@ harness costs --since=7d
 
 ## 매직 키워드 → 스킬 (명시 옵트인만)
 
-자동 활성 키워드 감지는 **사용**하지 않는다. 사용자 룰("확인 후 실행") 우선. 모든 스킬은 슬래시 명령(`/claude-led-codex-review`) 또는 CLI(`harness review`) 로 명시 호출.
+자동 활성 키워드 감지는 **사용**하지 않는다. 사용자 룰("확인 후 실행") 우선. 모든 스킬은 슬래시 명령(`/claude-led-codex-review`) 또는 CLI(`nekowork review`) 로 명시 호출.
 
 ## 핸드오프 5필드
 

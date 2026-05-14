@@ -89,6 +89,85 @@ test('decision permits apply only for clear ship-ready sessions', () => {
   }
 });
 
+test('decision.runtime defaults to mock when handoffs lack provider', () => {
+  const { projectRoot, sessionDir } = seedSession();
+  try {
+    const decision = buildDecision(sessionDir, {});
+    assert.equal(decision.runtime.mode, 'mock');
+    assert.deepEqual(decision.runtime.providers, []);
+    assert.equal(decision.runtime.source, 'fallback');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('decision.runtime reports mock when every handoff used the mock provider', () => {
+  const { projectRoot, sessionDir } = seedSession();
+  try {
+    const handoffDir = path.join(sessionDir, 'handoffs');
+    fs.writeFileSync(path.join(handoffDir, '01-plan.json'), JSON.stringify({
+      stage: 'plan', agent: 'planner', provider: 'mock',
+    }, null, 2));
+    const decision = buildDecision(sessionDir, {});
+    assert.equal(decision.runtime.mode, 'mock');
+    assert.deepEqual(decision.runtime.providers, ['mock']);
+    assert.equal(decision.runtime.source, 'handoff');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('decision.runtime reports live when handoffs used real providers only', () => {
+  const { projectRoot, sessionDir } = seedSession();
+  try {
+    const handoffDir = path.join(sessionDir, 'handoffs');
+    fs.writeFileSync(path.join(handoffDir, '01-plan.json'), JSON.stringify({
+      stage: 'plan', agent: 'planner', provider: 'claude',
+    }, null, 2));
+    fs.writeFileSync(path.join(handoffDir, '02-verify.json'), JSON.stringify({
+      stage: 'codex-review', agent: 'codex-reviewer', provider: 'codex',
+    }, null, 2));
+    const decision = buildDecision(sessionDir, {});
+    assert.equal(decision.runtime.mode, 'live');
+    assert.deepEqual(decision.runtime.providers, ['claude', 'codex']);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('decision.runtime reports mixed when mock and live providers coexist', () => {
+  const { projectRoot, sessionDir } = seedSession();
+  try {
+    const handoffDir = path.join(sessionDir, 'handoffs');
+    fs.writeFileSync(path.join(handoffDir, '01-plan.json'), JSON.stringify({
+      stage: 'plan', agent: 'planner', provider: 'mock',
+    }, null, 2));
+    fs.writeFileSync(path.join(handoffDir, '02-verify.json'), JSON.stringify({
+      stage: 'codex-review', agent: 'codex-reviewer', provider: 'codex',
+    }, null, 2));
+    const decision = buildDecision(sessionDir, {});
+    assert.equal(decision.runtime.mode, 'mixed');
+    assert.deepEqual(decision.runtime.providers, ['codex', 'mock']);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test('decision.runtime falls back to live when HARNESS_LIVE env is set', () => {
+  const { projectRoot, sessionDir } = seedSession();
+  const prev = process.env.HARNESS_LIVE;
+  process.env.HARNESS_LIVE = '1';
+  try {
+    const decision = buildDecision(sessionDir, {});
+    assert.equal(decision.runtime.mode, 'live');
+    assert.equal(decision.runtime.source, 'fallback');
+  } finally {
+    if (prev === undefined) delete process.env.HARNESS_LIVE;
+    else process.env.HARNESS_LIVE = prev;
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
 test('decision reads approval actor from gate marker when summary is absent', () => {
   const { projectRoot, sessionId, sessionDir } = seedSession();
   try {

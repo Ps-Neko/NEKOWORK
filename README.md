@@ -94,7 +94,7 @@ The simple path maps to the evidence loop: `check = doctor --quick`, `start = bu
 
 ## Works With Your Existing AI Workflow
 
-Use any AI coding tool (Claude Code, Cursor, Codex, ...) to create the diff. NEKOWORK starts after: risk scan, Codex verification, `decision.json`, Human Gate, and explicit apply. Optional upstream files (`context.md` / `DOMAIN.md` / `SPEC.md` / `PLAN.md`) are auto-picked from the project root — full contract in [docs/INTEGRATION.md](docs/INTEGRATION.md).
+Use any AI coding tool (Claude Code, Cursor, Codex, ...) to create the diff. NEKOWORK starts after: risk scan, Codex verification, `decision.json`, Human Gate, and explicit apply. Optional upstream files (`context.md` / `DOMAIN.md` / `SPEC.md` / `PLAN.md`) are auto-picked from the project root — full contract in [docs/INTEGRATION.md](docs/INTEGRATION.md). Tools that produce those files (brainstorming, office-hours, DDD passes, writing-plans, etc.) are cataloged in [docs/UPSTREAM-RECIPES.md](docs/UPSTREAM-RECIPES.md).
 
 ## Example Report
 
@@ -194,7 +194,7 @@ Live provider auth delegates to local CLI sessions (`claude auth status`, `codex
 
 ## Documentation
 
-- **Core:** [QUICKSTART](docs/QUICKSTART.md) · [CLI-STAGES](docs/CLI-STAGES.md) · [INTEGRATION](docs/INTEGRATION.md) · [BUILD](docs/BUILD.md) · [AUTONOMY](docs/AUTONOMY.md) · [SAFETY-GUARANTEES](docs/SAFETY-GUARANTEES.md) · [FAILURE-MODES](docs/FAILURE-MODES.md)
+- **Core:** [QUICKSTART](docs/QUICKSTART.md) · [CLI-STAGES](docs/CLI-STAGES.md) · [INTEGRATION](docs/INTEGRATION.md) · [UPSTREAM-RECIPES](docs/UPSTREAM-RECIPES.md) · [BUILD](docs/BUILD.md) · [AUTONOMY](docs/AUTONOMY.md) · [SAFETY-GUARANTEES](docs/SAFETY-GUARANTEES.md) · [FAILURE-MODES](docs/FAILURE-MODES.md)
 - **Demos & evidence:** [DEMO](docs/DEMO.md) · [DEMO-REPORT](docs/DEMO-REPORT.md) · [EXTERNAL-RUN](docs/EXTERNAL-RUN.md) · [case-studies](docs/case-studies)
 - **Reference:** [ADVANCED](docs/ADVANCED.md) · [CATALOG-PACKS](docs/CATALOG-PACKS.md) · [PORTING](docs/PORTING.md) · [PR-PREP](docs/PR-PREP.md) · [RELEASE-READINESS](docs/RELEASE-READINESS.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [PRODUCT-PRINCIPLES](docs/PRODUCT-PRINCIPLES.md) · [ROADMAP](docs/ROADMAP.md)
 - **Project rules:** [SOUL.md](SOUL.md) · [RULES.md](RULES.md) · [AGENTS.md](AGENTS.md)
