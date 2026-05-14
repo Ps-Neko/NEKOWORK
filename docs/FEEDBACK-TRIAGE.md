@@ -1,6 +1,6 @@
 # Alpha Feedback Triage
 
-Status date: 2026-05-08
+Status date: 2026-05-14
 
 This guide turns public alpha feedback into evidence-backed next steps without weakening NEKOWORK's safety model.
 
@@ -139,7 +139,7 @@ Next step:
 - ship/apply status should remain:
 ```
 
-## Alpha.3 Gate
+## Alpha Gate
 
 Do not publish a new alpha for feedback-only changes until:
 
@@ -147,3 +147,27 @@ Do not publish a new alpha for feedback-only changes until:
 - new feedback docs or templates are covered by tests
 - any release-blocker feedback is closed or documented as unresolved
 - changelog entries match the intended alpha contents
+
+## Alpha.10 Evidence Log
+
+Tracks Beta Graduation Criteria #3 (external alpha feedback, 5+ entries) and #4 (seven consecutive smoke green days).
+
+### Maintainer Smoke
+
+| Date (UTC) | Source | Result | Notes |
+|---|---|---|---|
+| 2026-05-14 | maintainer (cafe_reo) | 5 PASS · 2 WARN · 0 FAIL | First post-publish smoke. Fresh temp directory, `npx -y @ps-neko/nekowork@alpha check`. Both WARNs expected: `git worktree` (temp dir is not a git repo), `gemini cli` (non-interactive auth check). Node 24.14.1. Package metadata reported `0.1.0-alpha.10`. |
+
+### External Reports
+
+_(empty — awaiting first external `check --json` or `REPORT.md` submission)_
+
+Each entry must include the minimum evidence listed in §Minimum Evidence above. Redact secrets, tokens, and private paths before adding rows.
+
+### Beta Graduation Burndown
+
+| Criterion | Target | Current |
+|---|---|---|
+| #3 External alpha feedback | 5+ unique reporters, no blocking issue open | 0/5 |
+| #4 Seven consecutive smoke days | 7 days of green `@alpha` smoke | 1/7 (2026-05-14 OK) |
+| #6 Audit hygiene | `nekowork audit` reports zero moderate+ within last 7 days | run pending |
