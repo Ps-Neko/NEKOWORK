@@ -82,3 +82,7 @@ NEKOWORK should not absorb upstream discovery features into the core runtime:
 
 The integration point is the artifact contract. Upstream tools own domain clarity. NEKOWORK owns the evidence-backed apply boundary.
 
+## Concrete recipes
+
+For a catalog of tools that produce `context.md`, `DOMAIN.md`, `SPEC.md`, and `PLAN.md` (brainstorming skill, gstack `/office-hours`, DDD passes, `writing-plans`, etc.), see [UPSTREAM-RECIPES.md](UPSTREAM-RECIPES.md).
+

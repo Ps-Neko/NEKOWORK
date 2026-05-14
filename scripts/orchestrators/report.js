@@ -279,14 +279,17 @@ function evidenceFiles(data) {
 function renderReport({ sessionId, sessionDir, generatedAt, data, status }) {
   const summary = buildSummary({ sessionId, sessionDir, data, status });
   const lines = [];
+  const runtime = data.decision?.runtime || { mode: 'mock', providers: [] };
+  const runtimeLabel = renderRuntimeLabel(runtime);
   lines.push('# NEKOWORK Session Report');
   lines.push('');
   lines.push(`Session: \`${sessionId}\``);
   lines.push(`Status: \`${summary.status}\``);
   lines.push(`Verdict: \`${summary.verdict || 'n/a'}\``);
+  lines.push(`Provider Mode: ${runtimeLabel}`);
   lines.push(`Generated: ${generatedAt}`);
   lines.push('');
-  addTrustCardSection(lines, data, summary);
+  addTrustCardSection(lines, data, summary, runtimeLabel);
   lines.push('## Summary');
   lines.push('');
   if (summary.mode) lines.push(`- Build Mode: ${summary.mode}`);
@@ -310,7 +313,7 @@ function renderReport({ sessionId, sessionDir, generatedAt, data, status }) {
   return lines.join('\n') + '\n';
 }
 
-function addTrustCardSection(lines, data, summary) {
+function addTrustCardSection(lines, data, summary, runtimeLabel) {
   const decision = trustDecision(summary);
   const verified = Boolean(data.summaries['verify-summary.json'] || data.handoffs.some(handoff => handoff.value?.stage === 'codex-review'));
   const workProduced = Boolean(data.summaries['work-summary.json'] || data.handoffs.some(handoff => handoff.value?.stage === 'implement'));
@@ -332,6 +335,7 @@ function addTrustCardSection(lines, data, summary) {
   lines.push(`| Final decision | ${decision.finalDecision} |`);
   lines.push(`| Blocked | ${decision.blocked ? 'yes' : 'no'} |`);
   lines.push(`| Why | ${escapeTable(trustReason(data, summary)) || 'n/a'} |`);
+  lines.push(`| Provider Mode | ${escapeTable(runtimeLabel || 'mock')} |`);
   lines.push(`| Work produced | ${workProduced ? 'yes' : 'no'} |`);
   lines.push(`| Independent verification | ${verified ? 'yes' : 'no'} |`);
   lines.push(`| Human Gate | ${gateState} |`);
@@ -342,6 +346,14 @@ function addTrustCardSection(lines, data, summary) {
   lines.push('');
   lines.push(`Decision: ${summary.nextStep}`);
   lines.push('');
+}
+
+function renderRuntimeLabel(runtime) {
+  if (!runtime || !runtime.mode) return 'mock';
+  const liveProviders = (runtime.providers || []).filter(provider => provider && provider !== 'mock');
+  if (runtime.mode === 'live' && liveProviders.length) return `live (${liveProviders.join(', ')})`;
+  if (runtime.mode === 'mixed' && liveProviders.length) return `mixed (mock + ${liveProviders.join(', ')})`;
+  return runtime.mode;
 }
 
 function addAutonomySection(lines, data, summary) {

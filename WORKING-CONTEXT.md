@@ -10,7 +10,7 @@
 ## Current Truth
 
 - 위치: `REPO_ROOT/` · 브랜치: `main`
-- 버전: `0.0.2` (2026-04-29 P1 회수 릴리스)
+- 버전: `0.1.0-alpha.10` (repo candidate, npm alpha = 0.1.0-alpha.9)
 - 카탈로그: 11 agents · 5 skills (+1 ralph) · 5 hooks · 6 modules · 5 profiles
 - 5 빌더 모두 동작 (claude / codex / cursor / gemini / opencode) + codemaps
 - `npm test`, `npm run lint`, `npm audit --audit-level=moderate`, provider live smoke, Rust release build 검증 경로 유지
@@ -37,7 +37,7 @@
 
 ## Interfaces
 
-- CLI: `harness <verb> <args>`
+- CLI: `nekowork <verb> <args>` (legacy alias: `harness`, 영구 유지)
 - MCP: `mcp__harness__<tool>` (단일 게이트웨이)
 - Hooks: PreToolUse / PostToolUse / PreCompact / Stop / UserPromptSubmit / SessionStart
 
