@@ -63,19 +63,24 @@ test('official pack docs match install profile manifest', () => {
   assert.doesNotMatch(readme, new RegExp(`${packNames.length} packs /`));
 });
 
-test('README defines apply-before-verify safety gate without overclaiming proof', () => {
+test('README leads with verification gate identity (SCOPE-1.0 Phase 0)', () => {
   const readme = read('README.md');
   const firstScreen = readme.slice(0, readme.indexOf('## One Command. One Blocked Risk.'));
 
-  assert.match(readme, /Verifies AI-made code changes before you apply them/);
-  assert.match(readme, /NEKOWORK is a local safety gate for AI coding tools/);
-  assert.match(readme, /"Verified" means independently reviewed with recorded evidence, not mathematically proven correctness/);
-  assert.match(readme, /Bring your coding agent\. NEKOWORK proves the change before apply\./);
-  assert.match(readme, /diff -> deterministic risk scan -> Codex verification -> decision\.json -> REPORT\.md -> Human Gate -> explicit apply/);
+  // 1.0 hero: 검증 게이트 정체성
+  assert.match(readme, /\*\*Don't merge AI code without verification\.\*\*/);
+  assert.match(readme, /local verification gate for AI-generated code/);
+  assert.match(readme, /"Verified" means independently reviewed with recorded evidence — not mathematically proven correct/);
+  assert.match(readme, /Optional Codex review is recorded as an advisor note only and never controls the verdict/);
+  assert.match(readme, /diff -> deterministic risk rules -> checks \(test\/lint\/typecheck\/audit\) -> evidence package -> deterministic decision -> REPORT\.md -> Human Gate -> explicit apply/);
+  assert.match(readme, /docs\/SCOPE-1\.0\.md/);
+  assert.match(readme, /docs\/VISION\.md/);
+  // 기존 구조 보존 (BLOCK 예시 등 후속 섹션은 별도 PR 에서 verify-pr 으로 교체 예정)
   assert.match(readme, /One Command\. One Blocked Risk\./);
   assert.match(readme, /Verdict: BLOCKED/);
   assert.match(readme, /Reason: preverify requires Human Gate for secret env fallback/);
   assert.match(readme, /Apply allowed: false/);
+  // hero noise gate: 알파 시기 의 over-claim 패턴 차단
   assert.doesNotMatch(firstScreen, /12 practical agentic harness patterns/);
   assert.doesNotMatch(firstScreen, /parallel candidates/i);
   assert.doesNotMatch(firstScreen, /ralph|instincts/i);
