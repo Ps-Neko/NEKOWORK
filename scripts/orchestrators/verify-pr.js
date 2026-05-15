@@ -24,6 +24,7 @@ import {
 } from '../lib/diff-parser.js';
 import { detectProject } from '../lib/project-detector.js';
 import { scanDiff as scanSecretFallback } from '../lib/rules/secret-fallback.js';
+import { scanDiff as scanAutoApply } from '../lib/rules/auto-apply-commit-push.js';
 
 const SCHEMA_VERSION = 'verify-pr-v0';
 
@@ -97,7 +98,9 @@ function loadDiff({ mode, projectRoot, opts }) {
 function runRules(parsedDiff) {
   const findings = [];
   findings.push(...scanSecretFallback(parsedDiff));
-  // Supporting rules wire in here as they land.
+  findings.push(...scanAutoApply(parsedDiff));
+  // Remaining supporting rules (Hardcoded Credential, Test-Disable,
+  // Package-Lockfile) wire in here as they land.
   return findings;
 }
 

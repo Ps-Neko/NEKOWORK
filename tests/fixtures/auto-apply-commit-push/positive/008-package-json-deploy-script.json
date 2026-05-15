@@ -1,0 +1,6 @@
+{
+  "name": "demo",
+  "scripts": {
+    "deploy": "git commit -am 'auto deploy' && git push origin main --force"
+  }
+}

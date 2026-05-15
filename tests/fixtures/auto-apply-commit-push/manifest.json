@@ -1,0 +1,167 @@
+{
+  "fixture_set": "auto-apply-commit-push",
+  "schema_version": "0.1",
+  "generated_at": "2026-05-16",
+  "notes": "1차 synthetic seed (8 positive / 6 negative). NEKOWORK 정체성 직결 rule 이므로 CRITICAL 게이트가 가장 중요. positive=any-detection, FP=CRITICAL-only.",
+  "targets": {
+    "any_detection_recall": 0.90,
+    "critical_fp_rate": 0.10
+  },
+  "entries": [
+    {
+      "id": "aacp-pos-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/001-shell-git-push.sh",
+      "pattern": "git-push-line",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "line": 5, "severity": "high" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "plain git push in deploy script — HIGH (context-dependent)"
+    },
+    {
+      "id": "aacp-pos-002",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/002-shell-git-push-force.sh",
+      "pattern": "git-push-force",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "line": 4, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "git push --force — CRITICAL, rewrites remote"
+    },
+    {
+      "id": "aacp-pos-003",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/003-spawn-git-push.js",
+      "pattern": "subprocess-git-push",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "line": 5, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "spawnSync 로 git push — CRITICAL, 정체성 직결"
+    },
+    {
+      "id": "aacp-pos-004",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/004-github-actions-auto-push.yml",
+      "pattern": "git-commit-auto, git-push-line",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "line": 11, "severity": "high" },
+        { "rule": "auto-apply-commit-push", "line": 12, "severity": "high" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "GitHub Actions auto-commit + push step"
+    },
+    {
+      "id": "aacp-pos-005",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/005-rm-rf-variable.sh",
+      "pattern": "rm-rf-variable",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "line": 5, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "rm -rf with $VAR — if empty, wipes parent"
+    },
+    {
+      "id": "aacp-pos-006",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/006-auto-merge-yaml.yml",
+      "pattern": "auto-merge-config",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "line": 7, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "dependabot 식 auto-merge: true"
+    },
+    {
+      "id": "aacp-pos-007",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/007-rm-rf-system.sh",
+      "pattern": "rm-rf-system",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "line": 4, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "rm -rf /usr/local — wipes system libs"
+    },
+    {
+      "id": "aacp-pos-008",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/008-package-json-deploy-script.json",
+      "pattern": "git-push-force, git-commit-auto",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "line": 4, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "package.json deploy script: git commit + git push --force"
+    },
+    {
+      "id": "aacp-neg-001",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/001-force-with-lease.sh",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "line": 5, "severity": "high" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "--force-with-lease 는 git-push-force 아닌 git-push-line(HIGH) 만. CRITICAL FP 아님."
+    },
+    {
+      "id": "aacp-neg-002",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/002-readme-doc-mention.md",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "line": 5, "severity": "high" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "markdown code fence 안의 git push. HIGH 경고 발생하지만 CRITICAL 아님 → REPORT 에서 사용자가 dismiss. .md 파일 컨텍스트 무시는 1.x 개선."
+    },
+    {
+      "id": "aacp-neg-003",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/003-rm-rf-tmp-safe.sh",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "rm -rf 가 /tmp, /var/cache, /home/runner 같은 stoplist 대상이면 무시"
+    },
+    {
+      "id": "aacp-neg-004",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/004-git-log-only.yml",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "CI 에서 git log 만 — push/commit 없음"
+    },
+    {
+      "id": "aacp-neg-005",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/005-auto-merge-false.yml",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "auto-merge: false 는 매치되지 않음"
+    },
+    {
+      "id": "aacp-neg-006",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/006-test-mocks-git.js",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "테스트 파일에서 'git push' 문자열은 주석/문자열 안 — comment stripper 가 제거"
+    }
+  ]
+}
