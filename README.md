@@ -2,15 +2,15 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
-Verifies AI-made code changes before you apply them.
+**Don't merge AI code without verification.**
 
 [![validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
-Bring your coding agent. NEKOWORK proves the change before apply.
+NEKOWORK is a local verification gate for AI-generated code. It analyzes the diff, runs deterministic risk rules, collects evidence, and decides whether the change is safe to merge or apply — without auto-committing, auto-pushing, or trusting LLM verdicts.
 
-NEKOWORK is a local safety gate for AI coding tools. It checks the diff, records evidence, requires a Human Gate for risky work, and only applies a verified change when you explicitly ask it to.
+Note: "Verified" means independently reviewed with recorded evidence — not mathematically proven correct. The verdict is decided by deterministic rules and check results. Optional Codex review is recorded as an advisor note only and never controls the verdict.
 
-Note: "Verified" means independently reviewed with recorded evidence, not mathematically proven correctness. NEKOWORK combines Codex review, test evidence, risk policy, Human Gate, and explicit apply boundaries.
+> 1.0 scope and roadmap: [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md). Long-term vision (Verification-first AI development OS): [docs/VISION.md](docs/VISION.md).
 
 Note: "ship" in NEKOWORK is a **readiness decision** (`SHIP_READY` or `NO_SHIP`), not a deployment. The `ship` step decides whether `apply` is allowed; it never commits, pushes, deploys, or publishes by itself.
 
@@ -38,7 +38,7 @@ The machine-readable companion `decision.json` is shown in [Example Report](#exa
 The evidence chain is intentionally narrow:
 
 ```text
-diff -> deterministic risk scan -> Codex verification -> decision.json -> REPORT.md -> Human Gate -> explicit apply
+diff -> deterministic risk rules -> checks (test/lint/typecheck/audit) -> evidence package -> deterministic decision -> REPORT.md -> Human Gate -> explicit apply
 ```
 
 No auto-commit. No auto-push. No surprise deploy. `apply` is explicit and requires verified ship-ready evidence.
@@ -147,7 +147,8 @@ The user-facing CLI is intentionally small. Three layers:
 **Beginner — start here:**
 
 - `check` — local readiness probe
-- `start` — safe beginner entrypoint, prints verdict first
+- `verify-pr` — verify a diff / PR against deterministic risk rules and produce REPORT.md (1.0 핵심, in progress)
+- `start` — legacy beginner entrypoint, prints verdict first (Phased Cut: see [SCOPE-1.0.md](docs/SCOPE-1.0.md))
 - `report` — readable evidence into `REPORT.md`
 - `apply` — explicit verified diff application (refuses without `SHIP_READY` and clear gate)
 
@@ -199,6 +200,7 @@ Live provider auth delegates to local CLI sessions (`claude auth status`, `codex
 
 - **Core:** [QUICKSTART](docs/QUICKSTART.md) · [CLI-STAGES](docs/CLI-STAGES.md) · [INTEGRATION](docs/INTEGRATION.md) · [UPSTREAM-RECIPES](docs/UPSTREAM-RECIPES.md) · [BUILD](docs/BUILD.md) · [AUTONOMY](docs/AUTONOMY.md) · [SAFETY-GUARANTEES](docs/SAFETY-GUARANTEES.md) · [FAILURE-MODES](docs/FAILURE-MODES.md)
 - **Demos & evidence:** [DEMO](docs/DEMO.md) · [DEMO-REPORT](docs/DEMO-REPORT.md) · [EXTERNAL-RUN](docs/EXTERNAL-RUN.md) · [case-studies](docs/case-studies)
+- **1.0 direction:** [SCOPE-1.0.md](docs/SCOPE-1.0.md) — scope, risk rules, decision policy, fixture sourcing · [VISION.md](docs/VISION.md) — long-term verification-first OS vision
 - **Reference:** [GUIDED-MODE](docs/GUIDED-MODE.md) · [ADVANCED](docs/ADVANCED.md) · [CATALOG-PACKS](docs/CATALOG-PACKS.md) · [PORTING](docs/PORTING.md) · [PR-PREP](docs/PR-PREP.md) · [RELEASE-READINESS](docs/RELEASE-READINESS.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [PRODUCT-PRINCIPLES](docs/PRODUCT-PRINCIPLES.md) · [ROADMAP](docs/ROADMAP.md)
 - **Project rules:** [SOUL.md](SOUL.md) · [RULES.md](RULES.md) · [AGENTS.md](AGENTS.md)
 

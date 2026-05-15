@@ -2,17 +2,17 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
-AI 코드 변경을 위한 검증 기반 오토파일럿입니다.
+**AI 가 만든 코드, 검증 없이는 통과시키지 마세요.**
 
 [![validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
-AI가 만들고, Codex가 검증하고, 사람은 최종 적용 경계를 승인합니다.
-
-NEKOWORK는 AI가 계획, 수정, 검증, 제한된 재수정, 리포트 생성을 수행하도록 돕습니다. 하지만 최종 `apply`는 항상 사람이 명시적으로 실행해야 합니다.
+NEKOWORK 는 AI 가 생성한 코드를 위한 로컬 검증 게이트입니다. diff 를 분석하고, 결정적 위험 룰을 실행하고, 증거를 수집한 뒤, 머지 / 적용 가능 여부를 판정합니다 — auto-commit / auto-push 없이, LLM 판정에 의존하지 않고.
 
 > 이 문서는 한국어 요약본입니다. 전체 상세 설명과 모든 고급 옵션은 [English README](README.md)를 참고하세요.
 
-여기서 "검증됨"은 정답을 수학적으로 보증한다는 뜻이 아닙니다. 독립 리뷰, 테스트 evidence, 위험 정책, Human Gate, 명시적 apply 경계를 기록했다는 뜻입니다.
+여기서 "검증됨"은 정답을 수학적으로 보증한다는 뜻이 아닙니다. verdict 는 결정적 룰과 검증 결과만 결정합니다. 선택적 Codex 리뷰는 advisor 노트로만 기록되며 verdict 에 영향을 주지 않습니다.
+
+> 1.0 scope 와 로드맵: [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md). 장기 비전 (검증 우선 AI 개발 OS): [docs/VISION.md](docs/VISION.md).
 
 ## 용어
 
@@ -25,12 +25,13 @@ NEKOWORK는 AI가 계획, 수정, 검증, 제한된 재수정, 리포트 생성�
 ## 핵심 원칙
 
 ```text
-NEKOWORK = 검증 기반 오토파일럿 -> Codex 검증 -> Human Gate -> 명시적 apply
+NEKOWORK = diff -> 결정적 위험 룰 -> 검증 명령 -> 증거 -> 결정적 verdict -> REPORT -> Human Gate -> 명시적 apply
 ```
 
 ```text
-apply 전까지는 자율적으로.
-ship 전에는 독립 검증.
+증거 없으면 통과 없음.
+LLM 의견은 verdict 아님.
+테스트 없으면 PASS 아님 (INSUFFICIENT_EVIDENCE).
 경계에서는 사람이 통제.
 ```
 
