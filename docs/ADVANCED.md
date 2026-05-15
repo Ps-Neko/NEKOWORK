@@ -1,5 +1,21 @@
 # Advanced Features
 
+> ## Phased Cut status
+>
+> 이 페이지의 대부분 명령은 알파.10 시기의 wide CLI surface 입니다.
+> NEKOWORK 1.0 은 [검증 게이트 정체성](SCOPE-1.0.md) 에 집중하며,
+> 이 명령들은 [Phased Cut](SCOPE-1.0.md#2-phased-cut-단계) 을 거칩니다.
+>
+> | Phase | 시기 | 상태 |
+> |---|---|---|
+> | Phase 0 | now (0.1.x → 0.2.x) | **functional** + hero 강등 |
+> | Phase 1 | 0.3.x → 1.0 | `[deprecated]` 마크 + "removed in 2.0" 경고 |
+> | Phase 2 | 1.x → 2.0 | 제거 또는 `@ps-neko/nekowork-legacy` 분리 |
+>
+> 1.0 의 hero 명령 4종 — `check / verify-pr / report / apply` — 으로 이주를 권장합니다.
+> 명령별 운명은 [SCOPE-1.0.md §3](SCOPE-1.0.md#3-명령-운명-표) 참고.
+> 장기 비전은 [VISION.md](VISION.md) 참고.
+
 The public alpha path focuses on `doctor`, `build`, `report`, `gate`, and the decomposed `ask`, `plan`, `team`, `work`, `verify`, `ship`, `apply`, `run`, `review`, `review-cycle`, and install/apply surfaces. This page keeps the larger runtime surface discoverable without crowding the first-run docs.
 
 ## team
