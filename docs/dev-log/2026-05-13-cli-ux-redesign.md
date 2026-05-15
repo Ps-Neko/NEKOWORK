@@ -1,5 +1,7 @@
 # NEKOWORK CLI UX 재설계 (draft v0)
 
+> **Archived 2026-05-15**: Phase 1a는 PR #54로 머지됨. 본 시안은 dev-log 보존용.
+
 > 작성: 2026-05-13
 > 상태: **합의 전 시안**. 구현 계획 아님. 코드 변경 0.
 > 시각 시안: `.tmp_ecc/cli-design/index.html` (로컬 임시, 미커밋)
