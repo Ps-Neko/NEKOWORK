@@ -25,6 +25,14 @@ ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
 Most users should start with this Beginner path:
 
 ```text
+cockpit -> check -> start -> report -> gate status
+```
+
+`cockpit` is the choice-first launcher. In a TTY, `nekowork` opens a guided menu with project state, latest session state, recommended next action, and safe actions such as start, report, PR prep, and apply. In scripts or docs, use `nekowork cockpit --preview` for the same card-style overview without prompting.
+
+The direct Beginner path remains:
+
+```text
 check -> start -> report -> gate status
 ```
 

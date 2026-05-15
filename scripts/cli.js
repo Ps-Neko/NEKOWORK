@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // NEKOWORK CLI entrypoint. The `harness` bin remains a legacy/internal alias.
-// Public verbs: check, init, doctor, start, build, report, apply, ask, plan, team, work, verify, gate, ship (alias: ready), run, auto, pr-prep, review, review-cycle, install, validate, version.
+// Public verbs: cockpit, guided, check, init, doctor, start, build, report, apply, ask, plan, team, work, verify, gate, ship (alias: ready), run, auto, pr-prep, review, review-cycle, install, validate, version.
 // Advanced verbs: self-review, codex-review, ralph, wait, sessions, costs, instincts.
 
 import { spawnSync } from 'node:child_process';
@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runAutoCommand } from './cli/commands/auto-command.js';
 import { runBuildCommand } from './cli/commands/build-command.js';
+import { runCockpitCommand } from './cli/commands/cockpit-command.js';
 import { paint, kvBlock, nextBlock } from './lib/ui-format.js';
 import { normalizeFlags } from './lib/flag-normalize.js';
 import { renderError } from './lib/ui-errors.js';
@@ -81,6 +82,10 @@ function printShortGateHelp({ version, root, installed, sessions }) {
   console.log(`  ${paint('ok', 'NEKOWORK')} ${version}`);
   console.log('  ' + paint('dim', `project: ${root}  |  installed: ${installed}  |  sessions: ${sessions}`));
   console.log('');
+  console.log(paint('hint', 'Cockpit ->'));
+  console.log(`  ${paint('hint', 'nekowork')}                  guided choices in an interactive terminal`);
+  console.log(`  ${paint('hint', 'nekowork cockpit --preview')}  non-interactive cockpit preview`);
+  console.log('');
   console.log(paint('hint', 'First run ->'));
   console.log(`  1.  ${paint('hint', 'nekowork check')}          environment check`);
   console.log(`  2.  ${paint('hint', 'nekowork init')}           install tool surfaces`);
@@ -104,6 +109,7 @@ Legacy alias:
   harness <verb> [args]
 
 Recommended safety gate
+  cockpit                              guided choice-first launcher
   check
   start "<task>"
   report --session latest
@@ -125,6 +131,8 @@ Install / verify
   version
 
 Review loop
+  cockpit [--preview] [--project-root <dir>] [--json]
+                                         guided terminal cockpit; choose the next safe action
   start "<task>" [--dry-run] [--explain] [--session <id>] [--live] [--project-root <dir>] [--json]
                                          beginner alias for build; one safe entrypoint before report/apply
   ask "<task>" [--profile quality|product|security] [--session <id>] [--project-root <dir>] [--json]
@@ -194,13 +202,119 @@ Sessions / cost / learning
   instincts prune [--older-days N] [--dry-run]
 
 Other
-  validate, check, init, doctor, version, help
+  validate, check, init, doctor, cockpit, version, help
 `);
 }
 
 function help() { fullHelp(); }
 
 const VERB_HELP = {
+  cockpit: () => {
+    console.log('');
+    console.log('nekowork cockpit [--preview] [--project-root <dir>]');
+    console.log('');
+    console.log('  Guided choice-first launcher. Shows a project cockpit, recommended next action,');
+    console.log('  session evidence, safety defaults, and menu choices for start/report/apply.');
+    console.log('');
+    console.log('Options:');
+    console.log('  --preview             render the cockpit without prompting');
+    console.log('  --no-interactive      same as preview; useful in scripts');
+    console.log('  --project-root <dir>  target project root');
+    console.log('  --json                machine-readable cockpit state');
+    console.log('');
+    console.log('Examples:');
+    console.log('  nekowork');
+    console.log('  nekowork cockpit --preview');
+    console.log('  nekowork cockpit --project-root ../my-app');
+    console.log('');
+  },
+  start: () => {
+    console.log('');
+    console.log('nekowork start "<task>" [options]');
+    console.log('');
+    console.log('  Safe beginner entrypoint. Routes the task through build intelligence, writes');
+    console.log('  evidence, and stops before apply.');
+    console.log('');
+    console.log('Options:');
+    console.log('  --dry-run             show planned mode, risk, and workers');
+    console.log('  --explain             print routing and evidence summary');
+    console.log('  --session <id>        write artifacts to a named session');
+    console.log('  --live                use local provider CLIs');
+    console.log('  --project-root <dir>  target project root');
+    console.log('  --json                machine-readable output');
+    console.log('');
+    console.log('Next:');
+    console.log('  nekowork report --session <id>');
+    console.log('  nekowork apply --session <id>');
+    console.log('');
+  },
+  auto: () => {
+    console.log('');
+    console.log('nekowork auto "<task>" [options]');
+    console.log('');
+    console.log('  Bounded autonomy before apply: route, build, verify, repair within budget,');
+    console.log('  report, and stop. It never commits, pushes, deploys, publishes, or applies.');
+    console.log('');
+    console.log('Options:');
+    console.log('  --level cautious|normal|aggressive');
+    console.log('  --budget N');
+    console.log('  --parallel-candidates N');
+    console.log('  --mode auto|fast|safe|team|tdd|release');
+    console.log('  --dry-run');
+    console.log('  --explain');
+    console.log('  --session <id>');
+    console.log('  --live');
+    console.log('  --project-root <dir>');
+    console.log('  --json');
+    console.log('');
+  },
+  ready: () => {
+    console.log('');
+    console.log('nekowork ready --session <id>');
+    console.log('');
+    console.log('  Inspect ship readiness. Alias for the ship readiness decision; this is not');
+    console.log('  a deployment and it does not mutate the target project.');
+    console.log('');
+    console.log('Examples:');
+    console.log('  nekowork ready --session latest');
+    console.log('  nekowork ready --session auth-fix --json');
+    console.log('');
+  },
+  report: () => {
+    console.log('');
+    console.log('nekowork report --session <id> [options]');
+    console.log('');
+    console.log('  Render recorded session evidence into REPORT.md. Inspect-only.');
+    console.log('');
+    console.log('Options:');
+    console.log('  --session <id>');
+    console.log('  --output <file>');
+    console.log('  --stdout');
+    console.log('  --json');
+    console.log('');
+  },
+  apply: () => {
+    console.log('');
+    console.log('nekowork apply --session <id> [options]');
+    console.log('');
+    console.log('  Explicit apply boundary. Refuses without verified SHIP_READY evidence and');
+    console.log('  clear Human Gate state. Never commits, pushes, deploys, or publishes.');
+    console.log('');
+    console.log('Options:');
+    console.log('  --session <id>');
+    console.log('  --allow-dirty');
+    console.log('  --force');
+    console.log('  --json');
+    console.log('');
+  },
+  'pr-prep': () => {
+    console.log('');
+    console.log('nekowork pr-prep ["task"] --session <id>');
+    console.log('');
+    console.log('  Generate PR_SUMMARY, RISK_NOTES, TEST_EVIDENCE, CHANGELOG_DRAFT, and');
+    console.log('  SHIP_DECISION from a verified session. No branch, commit, push, or PR is made.');
+    console.log('');
+  },
   work: () => {
     console.log('');
     console.log('nekowork work "<task>" [options]');
@@ -916,6 +1030,10 @@ function checkArgs(argv) {
 }
 
 (async () => {
+  if (verb && verb !== 'help' && (rest.includes('--help') || rest.includes('-h'))) {
+    process.exit(verbHelp(verb));
+  }
+
   switch (verb) {
     case 'check':
       run('doctor.js', checkArgs(rest));
@@ -935,6 +1053,18 @@ function checkArgs(argv) {
     case 'validate':
       run('install-plan.js', ['--profile', 'core', '--verbose']);
       break;
+
+    case 'cockpit':
+    case 'guided': {
+      const result = await runCockpitCommand({
+        argv: rest,
+        cliPath: path.join(__dirname, 'cli.js'),
+        version: readPkgVersion(),
+        resolveProjectRoot,
+      });
+      if (result.exitCode) process.exit(result.exitCode);
+      break;
+    }
 
     case 'doctor':
       run('doctor.js', rest);
@@ -1618,6 +1748,20 @@ function checkArgs(argv) {
     }
 
     case undefined:
+      if (process.stdin.isTTY && process.stdout.isTTY && process.env.NEKOWORK_NO_INTERACTIVE !== '1' && !process.env.CI) {
+        const result = await runCockpitCommand({
+          argv: [],
+          cliPath: path.join(__dirname, 'cli.js'),
+          version: readPkgVersion(),
+          resolveProjectRoot,
+        });
+        if (result.exitCode) process.exit(result.exitCode);
+      } else {
+        shortHelp();
+      }
+      process.exit(0);
+      break;
+
     case '--help':
     case '-h':
       shortHelp();

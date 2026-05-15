@@ -16,6 +16,8 @@ test('nekowork (no args) shows narrow safety-gate recommendations', () => {
   const r = runCli([]);
   assert.equal(r.status, 0);
   assert.match(r.stdout, /NEKOWORK \d+\.\d+\.\d+/);
+  assert.match(r.stdout, /Cockpit ->/);
+  assert.match(r.stdout, /nekowork cockpit --preview/);
   assert.match(r.stdout, /First run ->/);
   assert.match(r.stdout, /nekowork check/);
   assert.match(r.stdout, /nekowork init/);
@@ -25,10 +27,33 @@ test('nekowork (no args) shows narrow safety-gate recommendations', () => {
   assert.doesNotMatch(r.stdout, /work[\s\S]*verify[\s\S]*ship[\s\S]*apply/);
 });
 
+test('nekowork cockpit preview shows a choice-first terminal cockpit', () => {
+  const r = runCli(['cockpit', '--preview']);
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /NEKOWORK Cockpit/);
+  assert.match(r.stdout, /Recommended next action/);
+  assert.match(r.stdout, /Start safe AI work/);
+  assert.match(r.stdout, /Apply verified diff/);
+  assert.match(r.stdout, /Safety Defaults Active/);
+  assert.match(r.stdout, /No auto-apply/);
+});
+
+test('nekowork cockpit json exposes choices and latest state', () => {
+  const r = runCli(['cockpit', '--json']);
+  assert.equal(r.status, 0);
+  const json = JSON.parse(r.stdout);
+  assert.equal(json.version.match(/^\d+\.\d+\.\d+/) !== null, true);
+  assert.ok(Array.isArray(json.choices));
+  assert.ok(json.choices.includes('Start safe AI work'));
+  assert.ok(Array.isArray(json.safeDefaults));
+  assert.ok(json.safeDefaults.includes('No auto-apply'));
+});
+
 test('nekowork help all shows full legacy help', () => {
   const r = runCli(['help', 'all']);
   assert.equal(r.status, 0);
   assert.match(r.stdout, /Recommended safety gate/);
+  assert.match(r.stdout, /cockpit/);
   assert.match(r.stdout, /start "<task>"/);
   assert.match(r.stdout, /Install \/ verify/);
   assert.match(r.stdout, /Review loop/);
@@ -42,6 +67,14 @@ test('nekowork help work shows verb-specific help', () => {
   assert.match(r.stdout, /nekowork work/);
   assert.match(r.stdout, /--profile/);
   assert.match(r.stdout, /Options:/);
+});
+
+test('nekowork verb --help works for guided surfaces', () => {
+  for (const verb of ['cockpit', 'start', 'auto', 'ready', 'report', 'apply', 'pr-prep']) {
+    const r = runCli([verb, '--help']);
+    assert.equal(r.status, 0, `${verb}: ${r.stderr || r.stdout}`);
+    assert.match(r.stdout, new RegExp(`nekowork ${verb === 'ready' ? 'ready' : verb}`));
+  }
 });
 
 test('nekowork help unknown-verb prints fallback notice', () => {

@@ -56,7 +56,7 @@ Current local result for this working tree:
 - `npm run test:unit`: covered by full `npm test`
 - `npm run validate:all`: pass
 - `npm run lint`: pass
-- `npm test`: 398 tests (397 pass · 1 Windows EPERM cleanup flake, see tests/e2e/external-demo.test.js)
+- `npm test`: 401 tests pass
 - quick run demo: pass through `npm run demo:quick -- --cleanup`
 - external project e2e smoke: pass through `npm test`
 - `node scripts/sync-claude-md.js --check`: pass

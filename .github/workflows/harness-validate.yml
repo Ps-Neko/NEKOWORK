@@ -95,4 +95,3 @@ jobs:
           node scripts/build-cursor.js
           node scripts/build-gemini.js
           node scripts/build-opencode.js
-          node scripts/build-codemaps.js --check

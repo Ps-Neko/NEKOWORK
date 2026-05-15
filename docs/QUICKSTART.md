@@ -7,11 +7,14 @@ This guide gets a new user from a clean checkout to the first NEKOWORK run.
 The public alpha is available on npm:
 
 ```bash
+npx -y @ps-neko/nekowork@alpha cockpit --preview
 npx -y @ps-neko/nekowork@alpha check
 npx -y @ps-neko/nekowork@alpha start "implement this safely" --dry-run
 npx -y @ps-neko/nekowork@alpha start "implement this safely" --session first-start
 npx -y @ps-neko/nekowork@alpha report --session latest
 ```
+
+In an interactive terminal, `npx -y @ps-neko/nekowork@alpha` opens Guided Mode: a choice-first cockpit with project state, latest session state, recommended next action, and safe actions for start/report/apply.
 
 ## 2. Install From Source
 
@@ -26,6 +29,7 @@ npm ci
 Verify the checkout:
 
 ```bash
+node scripts/cli.js cockpit --preview
 node scripts/cli.js check
 ```
 
@@ -65,11 +69,14 @@ Demo completed: mode=team, verdict=approve_with_fixes, ship_ready=false, applied
 Use this path first. It is the recommended shortest safe loop:
 
 ```bash
+node scripts/cli.js cockpit --preview
 node scripts/cli.js check
 node scripts/cli.js start "implement, verify, and prepare ship readiness" --session first-start
 node scripts/cli.js report --session latest
 node scripts/cli.js gate status --session latest
 ```
+
+Use plain `node scripts/cli.js` in an interactive terminal when you want Guided Mode to ask for the next safe action instead of typing the direct commands.
 
 Use the decomposed `work -> verify -> ship` path only when you need phase-level control. See [BUILD.md](BUILD.md) for build modes and invariants.
 

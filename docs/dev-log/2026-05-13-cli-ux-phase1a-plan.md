@@ -1,5 +1,7 @@
 # NEKOWORK CLI UX — Phase 1a 구현 계획
 
+> **Archived 2026-05-15**: 본 계획은 PR #54로 머지 완료. 본 문서는 dev-log 보존용이며 실행 가이드로는 사용하지 않는다.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** `docs/CLI-UX-REDESIGN.md`의 Phase 1 중 첫 번째 슬라이스 — 공용 출력 인프라를 도입하고 `nekowork` 단독 출력 + `work`/`verify` 두 동사에만 새 UX(사람 친화 세션 ID, Next 블록, 3단 에러, 색상 5톤, 플래그 alias)를 적용한다. 나머지 동사(ship/apply/gate/run/build/auto/review)는 Phase 1b로 분리.
