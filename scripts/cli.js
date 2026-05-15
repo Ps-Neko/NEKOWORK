@@ -1271,6 +1271,22 @@ function checkArgs(argv) {
       break;
     }
 
+    case 'verify-pr': {
+      const { parseVerifyPrArgs, printVerifyPrSummary, verifyPrCycle } =
+        await import('./orchestrators/verify-pr.js');
+      const opts = parseVerifyPrArgs(rest);
+      const result = await verifyPrCycle({
+        ...opts,
+        projectRoot: resolveProjectRoot(opts.projectRoot),
+      });
+      if (opts.json) {
+        console.log(JSON.stringify(result.decision, null, 2));
+      } else {
+        printVerifyPrSummary(result);
+      }
+      process.exit(result.exitCode);
+    }
+
     case 'ready':
     case 'ship': {
       const opts = parseShipArgs(rest);

@@ -8,6 +8,7 @@
 
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import path from 'node:path';
 
 const HEADER_RE = /^diff --git a\/(.+?) b\/(.+?)$/;
 const HUNK_RE = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
@@ -171,29 +172,82 @@ export function addedLines(parsed) {
  * Run `git diff` in `cwd` and return the parsed result.
  * Supports working tree (default), staged, or a range.
  *
+ * For mode='working' (the common dev case where AI just wrote files), this
+ * also synthesizes diffs for untracked files so `verify-pr` can see brand-new
+ * files the AI created. Without this, `git diff` reports nothing for new
+ * files until they are staged.
+ *
  * @param {object} opts
  * @param {string} [opts.cwd]            git working directory
  * @param {'working' | 'staged' | 'range'} [opts.mode='working']
  * @param {string} [opts.range]          required when mode='range', e.g. 'main...HEAD'
  * @param {string[]} [opts.extraArgs]    extra args appended after the mode args
+ * @param {boolean} [opts.includeUntracked=true]  for mode='working', synthesize
+ *                                                untracked files as added.
  */
 export function getGitDiff(opts = {}) {
   const cwd = opts.cwd || process.cwd();
   const mode = opts.mode || 'working';
+  const includeUntracked = opts.includeUntracked !== false;
   const args = ['diff', '--no-color', '--no-ext-diff'];
   if (mode === 'staged') args.push('--cached');
   else if (mode === 'range') {
     if (!opts.range) throw new Error('getGitDiff: range mode requires opts.range');
     args.push(opts.range);
+  } else if (mode === 'working') {
+    args.push('HEAD');
   }
   if (Array.isArray(opts.extraArgs)) args.push(...opts.extraArgs);
 
   const result = spawnSync('git', args, { cwd, encoding: 'utf8', windowsHide: true });
   if (result.error) throw result.error;
+  let stdout = result.stdout || '';
   if (result.status !== 0) {
-    throw new Error(`git ${args.join(' ')} exited ${result.status}: ${result.stderr || ''}`);
+    // `git diff HEAD` fails in a repo with no commits yet. Fall back to plain
+    // `git diff` (which compares working tree to index) in that case.
+    if (mode === 'working' && /unknown revision|bad revision|ambiguous argument 'HEAD'/i.test(result.stderr || '')) {
+      const fallback = spawnSync('git', ['diff', '--no-color', '--no-ext-diff'], { cwd, encoding: 'utf8', windowsHide: true });
+      if (fallback.status !== 0) {
+        throw new Error(`git diff fallback exited ${fallback.status}: ${fallback.stderr || ''}`);
+      }
+      stdout = fallback.stdout || '';
+    } else {
+      throw new Error(`git ${args.join(' ')} exited ${result.status}: ${result.stderr || ''}`);
+    }
   }
-  return parseDiff(result.stdout || '');
+
+  if (mode === 'working' && includeUntracked) {
+    stdout += synthesizeUntrackedDiff(cwd);
+  }
+
+  return parseDiff(stdout);
+}
+
+function synthesizeUntrackedDiff(cwd) {
+  const ls = spawnSync('git', ['ls-files', '--others', '--exclude-standard'], { cwd, encoding: 'utf8', windowsHide: true });
+  if (ls.status !== 0 || !ls.stdout) return '';
+  const files = ls.stdout.split('\n').map(s => s.trim()).filter(Boolean);
+  let chunks = '';
+  for (const rel of files) {
+    const full = path.join(cwd, rel);
+    let content;
+    try {
+      const stat = fs.statSync(full);
+      if (!stat.isFile()) continue;
+      content = fs.readFileSync(full, 'utf8');
+    } catch { continue; }
+    const lines = content.split('\n');
+    // strip trailing empty entry if file ends with newline (split adds one).
+    if (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
+    chunks += `diff --git a/${rel} b/${rel}\n`;
+    chunks += `new file mode 100644\n`;
+    chunks += `index 0000000..1111111\n`;
+    chunks += `--- /dev/null\n`;
+    chunks += `+++ b/${rel}\n`;
+    chunks += `@@ -0,0 +1,${lines.length} @@\n`;
+    for (const line of lines) chunks += `+${line}\n`;
+  }
+  return chunks;
 }
 
 /**
