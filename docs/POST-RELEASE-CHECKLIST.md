@@ -6,12 +6,24 @@
 
 ## 0. 사전 확인 (publish 전)
 
+### 0.1 로컬 검증
+
 - [x] git tag `v0.1.0-alpha.11` 로컬 생성 (커밋 `c8f55bd`)
 - [ ] `npm test` 통과 (494/494)
 - [ ] `npm run bench:rules` 5/5 PASS
 - [ ] `npm run lint` 통과
 - [ ] `npm audit --audit-level=moderate` 0 vulns
 - [ ] `npm pack --dry-run --json` 정상
+
+### 0.2 CI green 게이트 (publish 차단)
+
+**로컬 PASS ≠ CI PASS.** `.gitignore` / 환경 변수 / fixture 경로 차이로 환경이 갈릴 수 있음. publish 전 다음 3개를 모두 확인:
+
+- [ ] **마지막 1 commit CI 성공** — `gh run list --branch main --limit 1 --json conclusion --jq '.[0].conclusion'` 가 `success`
+- [ ] **최근 5 commit CI 추세** — `gh run list --branch main --limit 5 --json conclusion --jq '[.[] | .conclusion] | join(",")'` 결과에 `failure` 가 1개라도 있으면 publish 금지. red streak 의 근본 원인을 먼저 잡고 다음 commit 으로 green 회복 확인 후 진행
+- [ ] **fixture / `.gitignore` 변경이 있었다면 충돌 검토** — 새 fixture 가 시크릿 룰 (`*.pem` / `*.key` / `*.crt` / `*.p12` / `*.pfx` / `credentials*.json`) 에 차단되지 않는지 `git check-ignore <fixture-path>` 로 확인. 차단되면 `!tests/fixtures/**/<pattern>` 예외 룰 추가
+
+> **2026-05-16 사고 (이 게이트의 도출 근거):** alpha.11 가 **CI red 6 commit streak** 상태에서 publish 됨. 원인: `.gitignore` 의 `*.pem` 룰이 secret-detection 룰 자체의 fixture (`positive/004-private-key.pem`, `negative/005-public-key.pem`) 까지 차단. 로컬 `npm test` 는 fixture 가 존재하므로 PASS, CI 체크아웃은 fixture 가 없어서 FAIL. **NEKOWORK 가 NEKOWORK 자신의 CI 를 깨뜨린 자기모순.** commit `6a0e862` 로 `.gitignore` 예외 + 두 synthetic fixture commit 으로 복구. 위 3개 게이트가 이 사고에서 도출됨. 다음 alpha 에서는 0.1 → 0.2 순서로 검증 후 publish.
 
 ## 1. Publish (사용자 수동)
 
