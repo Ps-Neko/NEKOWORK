@@ -33,37 +33,42 @@ npx -y @ps-neko/nekowork@alpha --version
 
 ## 2. README 즉시 갱신 (publish 직후 1 commit)
 
-`README.md` 의 Status 섹션 라인 한 줄:
+> ✅ alpha.11 (2026-05-16) 에서 이미 완료. 다음 alpha publish 시 동일 패턴.
 
-```diff
-- Current repository version: `0.1.0-alpha.11` · Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.10` (published 2026-05-14, `@alpha` dist-tag).
-+ Current repository version: `0.1.0-alpha.11` · Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.11` (published <YYYY-MM-DD>, `@alpha` dist-tag).
-```
+publish 직후 update 가 필요한 파일들:
 
-`docs/SETUP.md` 와 `docs/PORTING.md` 의 첫 문단도 같이 갱신:
-
-```diff
-- The published `@ps-neko/nekowork@alpha` package points at `0.1.0-alpha.10` until alpha.11 is published.
-+ The published `@ps-neko/nekowork@alpha` package points at `0.1.0-alpha.11`.
-```
-
-`docs/CHANGELOG.md` 의 `[0.1.0-alpha.11] - TBD` → `- YYYY-MM-DD`.
+- `README.md` Status 섹션: `Current npm alpha: ...` 라인 + `npm test N tests pass` 라인
+- `README.ko.md` "현재 alpha 상태" 섹션: Current alpha + Tests 라인
+- `docs/SETUP.md`: 첫 문단 published alpha 핀
+- `docs/PORTING.md`: 첫 문단 published alpha 핀
+- `docs/CHANGELOG.md`: `[0.1.0-alpha.X] - TBD` → `- YYYY-MM-DD`
+- `docs/DEMO.md`: doctor example 의 alpha 버전 라인 (version-consistency.test.js 가 SVG + README 와 교차 검증)
+- `docs/assets/demo-terminal.svg`: package metadata 의 alpha 버전 (version-consistency.test.js 가 README 의 npmAlpha 와 일치 강제)
+- `WORKING-CONTEXT.md`: 버전 라인 ("repo + npm alpha 동기" 표현으로)
+- `tests/unit/version-consistency.test.js`: `Tests: N` assertion 의 N 갱신
 
 ## 3. Smoke test (publish 직후)
 
-새 임시 디렉토리에서:
+새 임시 디렉토리에서. **중요**: 베이스 파일만 먼저 commit 하고, AI 가 만들었을 법한
+위험 변경은 untracked / unstaged 로 남겨야 verify-pr 의 working-tree 모드가
+그 변경을 잡습니다 (diff-parser 가 ls-files --others 로 untracked 도 흡수).
+전부 한 번에 `git add -A` 하면 diff 가 비어서 ALLOW 가 됩니다.
 
 ```bash
-mkdir /tmp/neko-smoke && cd $_ && git init -q && git config user.email t@t && git config user.name t
-echo '{"name":"smoke","scripts":{"test":"echo ok"}}' > package.json
-git add -A && git commit -q -m init
+TMP=$(mktemp -d) && cd "$TMP"
+git init -q && git config user.email t@t && git config user.name t
 
-# 1. AI 가 만들었을 법한 위험 변경
+# 1. 베이스만 commit (untracked 가 working-tree diff 에 들어가도록)
+echo '{"name":"smoke","scripts":{"test":"echo ok"}}' > package.json
+git add package.json && git commit -q -m init
+
+# 2. AI 가 만들었을 법한 위험 변경 — untracked 로 둠
+mkdir -p src
 cat > src/auth.ts <<'EOF'
 export const k = process.env.API_KEY || "sk-leaked-fallback-test";
 EOF
 
-# 2. verify-pr 실행
+# 3. verify-pr 실행
 npx -y @ps-neko/nekowork@alpha verify-pr
 
 # 3. 기대: verdict BLOCK, exit 2, REPORT.md 와 decision.json 생성

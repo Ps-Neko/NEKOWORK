@@ -2,7 +2,7 @@
 
 Start with [QUICKSTART.md](QUICKSTART.md) if this is your first run. This page is the deeper contributor setup guide.
 
-NEKOWORK `0.1.0-alpha.11` is the current repository alpha candidate. The published `@ps-neko/nekowork@alpha` package points at `0.1.0-alpha.10` until alpha.11 is published. Use npm alpha for the shortest first-run path, or use a source checkout, submodule, or local repository integration when you need examples, tests, or repository-pinned workflows.
+NEKOWORK `0.1.0-alpha.11` is the current repository and published alpha (npm `@ps-neko/nekowork@alpha`, published 2026-05-16). Use npm alpha for the shortest first-run path, or use a source checkout, submodule, or local repository integration when you need examples, tests, or repository-pinned workflows.
 
 ## Requirements
 
