@@ -10,7 +10,7 @@ NEKOWORK is a local verification gate for AI-generated code. It analyzes the dif
 
 Note: "Verified" means independently reviewed with recorded evidence — not mathematically proven correct. The verdict is decided by deterministic rules and check results. Optional Codex review is recorded as an advisor note only and never controls the verdict.
 
-> 1.0 scope and roadmap: [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md). Long-term vision (Verification-first AI development OS): [docs/VISION.md](docs/VISION.md).
+> 1.0 scope and roadmap: [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md). Long-term vision (Verification-first AI development factory): [docs/VISION.md](docs/VISION.md).
 
 Note: "ship" in NEKOWORK is a **readiness decision** (`SHIP_READY` or `NO_SHIP`), not a deployment. The `ship` step decides whether `apply` is allowed; it never commits, pushes, deploys, or publishes by itself.
 

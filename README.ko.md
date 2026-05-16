@@ -12,7 +12,7 @@ NEKOWORK 는 AI 가 생성한 코드를 위한 로컬 검증 게이트입니다.
 
 여기서 "검증됨"은 정답을 수학적으로 보증한다는 뜻이 아닙니다. verdict 는 결정적 룰과 검증 결과만 결정합니다. 선택적 Codex 리뷰는 advisor 노트로만 기록되며 verdict 에 영향을 주지 않습니다.
 
-> 1.0 scope 와 로드맵: [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md). 장기 비전 (검증 우선 AI 개발 OS): [docs/VISION.md](docs/VISION.md).
+> 1.0 scope 와 로드맵: [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md). 장기 비전 (검증 우선 AI 개발 공장): [docs/VISION.md](docs/VISION.md).
 
 ## 용어
 

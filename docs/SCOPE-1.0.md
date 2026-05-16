@@ -5,7 +5,7 @@
 ## 1. 결정 요약
 
 NEKOWORK 1.0 은 **AI 가 만든 PR/diff 를 머지해도 되는지 판정하는 검증 게이트** 로 포지셔닝한다.
-장기 비전 ("Verification-first AI development OS") 은 `docs/VISION.md` 에만 남기고, 1.0 의 README/CLI hero/마케팅에는 노출하지 않는다.
+장기 비전 ("Verification-first AI development factory") 은 `docs/VISION.md` 에만 남기고, 1.0 의 README/CLI hero/마케팅에는 노출하지 않는다.
 
 알파.10 의 wide surface (19개 명령) 는 **Phased Cut** 으로 좁힌다 — 1.0 에서는 hero 강등만, 실제 breaking 은 2.0.
 
