@@ -17,33 +17,34 @@ Note: "ship" in NEKOWORK is a **readiness decision** (`SHIP_READY` or `NO_SHIP`)
 Default path:
 
 ```bash
-npx -y @ps-neko/nekowork@alpha
 npx -y @ps-neko/nekowork@alpha check
-npx -y @ps-neko/nekowork@alpha start "fix failing tests safely" --session first-start
-npx -y @ps-neko/nekowork@alpha report --session latest
+npx -y @ps-neko/nekowork@alpha verify-pr
+cat REPORT.md
+cat .nekowork/decision.json
 ```
 
-Every real `start` run puts the decision first:
+Every real `verify-pr` run puts the verdict first:
 
 ```text
-Verdict: BLOCKED
-Reason: preverify requires Human Gate for secret env fallback
-Human Gate: required
-Ship ready: false
-Apply allowed: false
+=== verify-pr ===
+  verdict        : BLOCK
+  reason         : Hardcoded secret fallback detected (src/auth.ts:42)
+  merge_allowed  : false
+  apply_allowed  : false
+  risk_level     : CRITICAL
 ```
 
-The machine-readable companion `decision.json` is shown in [Example Report](#example-report).
+The machine-readable companion `decision.json` and the full report are in [Example Report](#example-report).
 
 The evidence chain is intentionally narrow:
 
 ```text
-diff -> deterministic risk rules -> checks (test/lint/typecheck/audit) -> evidence package -> deterministic decision -> REPORT.md -> Human Gate -> explicit apply
+diff -> deterministic risk rules -> available checks (detected, executed in a later alpha) -> evidence package -> deterministic decision -> REPORT.md -> Human Gate -> explicit apply
 ```
 
-No auto-commit. No auto-push. No surprise deploy. `apply` is explicit and requires verified ship-ready evidence.
+No auto-commit. No auto-push. No surprise deploy. `apply` is explicit; it requires a `decision.json` whose `apply_allowed` is `true`.
 
-Use `nekowork` for guided choices, or use `start` directly when you already know the task. `start` is the safe beginner entrypoint and prints the final decision before detailed build output. Advanced controls are documented later.
+Bring your AI tool (Cursor / Claude Code / Codex). NEKOWORK starts after the diff is on disk. Advanced and legacy commands are documented in [docs/ADVANCED.md](docs/ADVANCED.md) and gated under Phased Cut (see [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md)).
 
 **Public alpha evidence:** 401 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs · [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) · [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) · [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) · [full report example](docs/DEMO-REPORT.md) · [external run kit](docs/EXTERNAL-RUN.md) · [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) · [roadmap](docs/ROADMAP.md)
 
@@ -75,29 +76,27 @@ That is the thesis: AI can write the change, but `verify-pr` runs deterministic 
 
 ## 30-Second First Run
 
-Requirements: Node.js 22+, npm, and git.
+Requirements: Node.js 22+, npm, and git. A git repo with at least one commit.
 
 ```bash
 npx -y @ps-neko/nekowork@alpha check
 npx -y @ps-neko/nekowork@alpha verify-pr
-npx -y @ps-neko/nekowork@alpha report
-npx -y @ps-neko/nekowork@alpha apply       # only if verdict allows
+cat REPORT.md
+cat .nekowork/decision.json
 ```
 
-`check` confirms the environment is ready. `verify-pr` is the 1.0 entrypoint — it scans the current working tree diff with deterministic risk rules, writes evidence to `.nekowork/`, and decides whether the change is safe to merge or apply.
+`check` confirms the environment is ready. `verify-pr` scans the current working tree diff with deterministic risk rules, writes evidence to `.nekowork/evidence/`, and decides whether the change is safe to merge or apply. It writes `REPORT.md` at the project root and `.nekowork/decision.json`.
 
 Source checkout for local development:
 
 ```bash
-node scripts/cli.js cockpit --preview
 node scripts/cli.js check
-node scripts/cli.js start "implement this safely" --session first-start
-node scripts/cli.js report --session latest
+node scripts/cli.js verify-pr
 ```
 
-> **Reproducibility note:** `npx @ps-neko/nekowork@alpha` runs the **published** `0.1.0-alpha.10`. The published package matches tag `v0.1.0-alpha.10`; `main` may include post-release hygiene commits. If you need the previous published behavior, pin `@ps-neko/nekowork@0.1.0-alpha.9` explicitly.
+> **Reproducibility note:** `npx @ps-neko/nekowork@alpha` resolves to the most recently published alpha. The published alpha may lag behind `main`. Pin an exact version (e.g. `@ps-neko/nekowork@0.1.0-alpha.11`) for reproducible behavior.
 
-The simple path maps to the evidence loop: `cockpit = guided choices`, `check = doctor --quick`, `start = build`, `report = readable evidence`, and `apply = explicit verified diff application`. See [docs/GUIDED-MODE.md](docs/GUIDED-MODE.md) for the choice-first launcher and [docs/QUICKSTART.md](docs/QUICKSTART.md) for the longer first-run guide.
+Compatibility / legacy commands (`cockpit`, `start`, `ask`, `plan`, `team`, `work`, `verify`, `gate`, `ship`, `run`, `build`, `auto`, `pr-prep`, `report --session`, `apply --session`, `review`) are documented in [docs/ADVANCED.md](docs/ADVANCED.md). They are scheduled for deprecation in 2.0 per [SCOPE-1.0.md](docs/SCOPE-1.0.md).
 
 ## Works With Your Existing AI Workflow
 
@@ -146,29 +145,35 @@ See the full report contract and example artifact in [docs/DEMO-REPORT.md](docs/
 
 ## Main Surface
 
-The user-facing CLI is intentionally small. Three layers:
-
-**Beginner — start here:**
+**1.0 front surface — start here:**
 
 - `check` — local readiness probe
-- `verify-pr` — verify a diff / PR against deterministic risk rules and produce REPORT.md (1.0 핵심, in progress)
-- `start` — legacy beginner entrypoint, prints verdict first (Phased Cut: see [SCOPE-1.0.md](docs/SCOPE-1.0.md))
-- `report` — readable evidence into `REPORT.md`
-- `apply` — explicit verified diff application (refuses without `SHIP_READY` and clear gate)
+- `verify-pr` — verify a diff / PR against deterministic risk rules; writes `REPORT.md` and `.nekowork/decision.json`
+- `verify-pr --comment-file <path>` — emit GitHub PR comment markdown for CI integration
+- `verify-pr --ci-exit-soft` — treat `NEEDS_HUMAN_REVIEW` / `INSUFFICIENT_EVIDENCE` as exit 0 (label-driven CI)
 
-**Advanced — phase control:**
+The CI exit code matrix is fixed:
 
-- `ask` / `plan` / `team` / `work` — decomposed authoring with single-executor writes
-- `verify` / `gate` / `ship` — Codex verification, Human Gate, ship-readiness handoff
-- `build` / `auto` / `run` — wrappers over the safety gate; `auto` and `build` never accept `--apply`
-- `pr-prep` — review-ready local artifacts without branch, commit, push, or PR
+```text
+ALLOW                  = 0
+ALLOW_WITH_WARNINGS    = 0
+NEEDS_HUMAN_REVIEW     = 1
+INSUFFICIENT_EVIDENCE  = 1
+BLOCK                  = 2
+```
 
-**Legacy — compatibility:**
+GitHub Actions example: [docs/examples/github-actions-verify-pr.yml](docs/examples/github-actions-verify-pr.yml).
 
-- `review` / `review-cycle` — older full Claude-led / Codex-reviewed workflow
-- `harness` binary — legacy alias for `nekowork`
+**Compatibility / labs — scheduled for deprecation in 2.0:**
 
-Full stage contract: [docs/CLI-STAGES.md](docs/CLI-STAGES.md). Build modes and routing: [docs/BUILD.md](docs/BUILD.md). Bounded autonomy and the apply boundary: [docs/AUTONOMY.md](docs/AUTONOMY.md). Advanced runtime (`ralph`, `wait`, instincts, cost tracking, Rust supervisor): [docs/ADVANCED.md](docs/ADVANCED.md).
+- Session-based gate: `start` / `report --session` / `apply --session` / `gate status` / `ship --session`
+- Decomposed authoring: `ask` / `plan` / `team` / `work` / `verify` / `pr-prep`
+- Wrappers: `build` / `auto` / `run`
+- Legacy alias: `review` / `review-cycle` / `harness` binary
+
+These commands are functional in alpha and documented in [docs/ADVANCED.md](docs/ADVANCED.md). They will get `[deprecated]` labels in 0.3.x and be removed in 2.0 per [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md). Pure 1.0 users should not need them.
+
+Stage contract for legacy commands: [docs/CLI-STAGES.md](docs/CLI-STAGES.md). Build modes: [docs/BUILD.md](docs/BUILD.md). Bounded autonomy: [docs/AUTONOMY.md](docs/AUTONOMY.md). Advanced runtime (`ralph`, `wait`, instincts, cost tracking, Rust supervisor): [docs/ADVANCED.md](docs/ADVANCED.md).
 
 ## Starter Packs
 
