@@ -6,6 +6,36 @@
 >
 > 목표: 5명 응답 (per [SCOPE-1.0.md §13.1](SCOPE-1.0.md#131-외부-알파-5명-모집-채널)).
 > 채널: 직접 아는 사람 1-2 + r/cursor 또는 r/ClaudeAI 1-2 + GeekNews (한국) 1-2.
+>
+> **모집의 목표는 홍보가 아니라 실제 AI 생성 diff 수집** — SCOPE-1.0 §9 의
+> stage 2/3 fixture 와 §13.2 의 1.0 release gate 를 동시에 만족시키는 경로.
+
+## Pasteable Template — 짧은 버전 (DM / 슬랙 / Discord 등)
+
+가장 빠른 복사용. 친한 사람에게 바로 보낼 때:
+
+```text
+AI 가 만든 PR / diff 를 NEKOWORK verify-pr 로 검증해줄 외부 알파를 찾습니다.
+
+목표는 자동 코딩이 아니라,
+"이 AI 변경을 머지해도 되는가?" 를 REPORT.md 와 decision.json 으로 판정하는 것.
+
+필요한 것:
+- 최근 Claude Code / Cursor / Codex 가 만든 diff 또는 PR
+- npx 로 verify-pr 실행
+- REPORT.md / decision.json 결과 공유
+- 오탐 / 미탐 / 이해 가능성 피드백
+
+10분 정도 부탁드려요.
+
+설치 + 실행:
+  npx -y @ps-neko/nekowork@alpha verify-pr
+
+피드백 양식:
+  https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml
+```
+
+긴 채널별 메시지는 아래 섹션에 보존. 상황에 맞게 골라 사용.
 
 ## 공통 정체성 한 줄
 
