@@ -16,14 +16,14 @@ test('nekowork (no args) shows narrow safety-gate recommendations', () => {
   const r = runCli([]);
   assert.equal(r.status, 0);
   assert.match(r.stdout, /NEKOWORK \d+\.\d+\.\d+/);
-  assert.match(r.stdout, /Cockpit ->/);
-  assert.match(r.stdout, /nekowork cockpit --preview/);
   assert.match(r.stdout, /First run ->/);
   assert.match(r.stdout, /nekowork check/);
-  assert.match(r.stdout, /nekowork init/);
-  assert.match(r.stdout, /nekowork start/);
-  assert.match(r.stdout, /Safety gate ->/);
-  assert.match(r.stdout, /start[\s\S]*report[\s\S]*apply/);
+  assert.match(r.stdout, /nekowork verify-pr/);
+  assert.match(r.stdout, /cat REPORT\.md/);
+  assert.match(r.stdout, /CI ->/);
+  assert.match(r.stdout, /--comment-file/);
+  assert.match(r.stdout, /--ci-exit-soft/);
+  assert.match(r.stdout, /Compat \/ labs ->/);
   assert.doesNotMatch(r.stdout, /work[\s\S]*verify[\s\S]*ship[\s\S]*apply/);
 });
 
@@ -49,10 +49,12 @@ test('nekowork cockpit json exposes choices and latest state', () => {
   assert.ok(json.safeDefaults.includes('No auto-apply'));
 });
 
-test('nekowork help all shows full legacy help', () => {
+test('nekowork help all shows verification-first help with compat section', () => {
   const r = runCli(['help', 'all']);
   assert.equal(r.status, 0);
-  assert.match(r.stdout, /Recommended safety gate/);
+  assert.match(r.stdout, /Recommended verification gate/);
+  assert.match(r.stdout, /verify-pr/);
+  assert.match(r.stdout, /Compatibility \/ labs/);
   assert.match(r.stdout, /cockpit/);
   assert.match(r.stdout, /start "<task>"/);
   assert.match(r.stdout, /Install \/ verify/);
