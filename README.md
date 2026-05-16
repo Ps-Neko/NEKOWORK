@@ -51,36 +51,40 @@ Use `nekowork` for guided choices, or use `start` directly when you already know
 
 ## One Command. One Blocked Risk.
 
+After your AI tool (Cursor / Claude Code / Codex) writes a `process.env.X || "fallback"` into your auth code, run:
+
 ```bash
-npx -y @ps-neko/nekowork@alpha start "add OPENAI_API_KEY fallback for Codex auth"
+npx -y @ps-neko/nekowork@alpha verify-pr
 ```
 
-Typical blocked-risk evidence:
+Typical blocked-risk output:
 
 ```text
-Verdict: BLOCKED
-Reason: preverify requires Human Gate for secret env fallback
-Human Gate: required
-Ship ready: false
-Apply allowed: false
-
-Blocked because NEKOWORK defaults to delegated CLI auth and rejects long-lived provider API key paths unless the human explicitly opts in.
+=== verify-pr ===
+  verdict        : BLOCK
+  reason         : Hardcoded secret fallback detected (src/auth.ts:42)
+  risk_level     : CRITICAL
+  merge_allowed  : false
+  apply_allowed  : false
+  findings       : critical=1 high=0 medium=0 low=0
+  top findings:
+    - [CRITICAL] Hardcoded secret fallback detected (src/auth.ts:42)
 ```
 
-That is the thesis: the coding agent can produce the change, but risky ship/apply decisions stay evidence-backed and human-controlled.
+That is the thesis: AI can write the change, but `verify-pr` runs deterministic rules over the diff and refuses to let unverified changes merge or apply.
 
 ## 30-Second First Run
 
 Requirements: Node.js 22+, npm, and git.
 
 ```bash
-npx -y @ps-neko/nekowork@alpha cockpit --preview
 npx -y @ps-neko/nekowork@alpha check
-npx -y @ps-neko/nekowork@alpha start "fix failing tests safely" --session first-start
-npx -y @ps-neko/nekowork@alpha report --session latest
+npx -y @ps-neko/nekowork@alpha verify-pr
+npx -y @ps-neko/nekowork@alpha report
+npx -y @ps-neko/nekowork@alpha apply       # only if verdict allows
 ```
 
-Start with `nekowork` when you want a choice-first cockpit. Start with `start` when you want the simplest direct command. It is the only task command a new user needs before reading the report.
+`check` confirms the environment is ready. `verify-pr` is the 1.0 entrypoint — it scans the current working tree diff with deterministic risk rules, writes evidence to `.nekowork/`, and decides whether the change is safe to merge or apply.
 
 Source checkout for local development:
 
@@ -190,7 +194,7 @@ For comparison and positioning: [docs/WHY-NEKOWORK.md](docs/WHY-NEKOWORK.md).
 
 ## Status
 
-Current repository version: `0.1.0-alpha.10` · Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.10` (published 2026-05-14, `@alpha` dist-tag). Package: `@ps-neko/nekowork`. CLI: `nekowork` (`harness` is a legacy alias). Default: mock providers, no API keys.
+Current repository version: `0.1.0-alpha.11` · Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.10` (published 2026-05-14, `@alpha` dist-tag). Package: `@ps-neko/nekowork`. CLI: `nekowork` (`harness` is a legacy alias). Default: mock providers, no API keys.
 
 Verification: `npm run lint` pass · `npm test` 401 tests pass · `npm audit --audit-level=moderate` 0 vulns · `npm pack --dry-run --json` pass · `npx -y @ps-neko/nekowork@alpha check` pass with warnings only.
 

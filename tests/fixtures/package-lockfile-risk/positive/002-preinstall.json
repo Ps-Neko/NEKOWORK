@@ -1,0 +1,6 @@
+{
+  "name": "demo",
+  "scripts": {
+    "preinstall": "echo 'about to install'"
+  }
+}

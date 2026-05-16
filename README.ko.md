@@ -55,9 +55,12 @@ NEKOWORK는 기본 흐름을 mock provider 모드로 확인할 수 있습니다.
 
 ```bash
 npx -y @ps-neko/nekowork@alpha check
-npx -y @ps-neko/nekowork@alpha start "fix failing tests safely" --session first-start
-npx -y @ps-neko/nekowork@alpha report --session latest
+npx -y @ps-neko/nekowork@alpha verify-pr
+npx -y @ps-neko/nekowork@alpha report
+npx -y @ps-neko/nekowork@alpha apply       # verdict 가 허용할 때만
 ```
+
+`check` 가 환경을 진단합니다. `verify-pr` 가 1.0 의 진입점 — 현재 working tree diff 를 결정적 위험 룰로 스캔하고, `.nekowork/` 에 증거를 남기고, 머지/적용 가능 여부를 판정합니다.
 
 먼저 실행 경로만 보고 싶다면:
 

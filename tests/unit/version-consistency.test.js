@@ -87,7 +87,7 @@ test('README leads with verification gate identity (SCOPE-1.0 Phase 0)', () => {
   assert.doesNotMatch(firstScreen, /`work`, `verify`, `ship`/);
 });
 
-test('README quickstart, CLI stage docs, and package metadata agree on start-first path', () => {
+test('README quickstart, CLI stage docs, and package metadata agree on verify-first path', () => {
   const pkg = JSON.parse(read('package.json'));
   const readme = read('README.md');
   const quickstart = markdownSection(readme, '30-Second First Run');
@@ -95,9 +95,11 @@ test('README quickstart, CLI stage docs, and package metadata agree on start-fir
 
   assert.match(pkg.description, /Verifies AI-made code changes before apply/);
   assert.match(quickstart, /npx -y @ps-neko\/nekowork@alpha check/);
-  assert.match(quickstart, /npx -y @ps-neko\/nekowork@alpha start "fix failing tests safely"/);
-  assert.match(quickstart, /npx -y @ps-neko\/nekowork@alpha report --session latest/);
+  assert.match(quickstart, /npx -y @ps-neko\/nekowork@alpha verify-pr/);
+  assert.match(quickstart, /npx -y @ps-neko\/nekowork@alpha report/);
+  assert.match(quickstart, /npx -y @ps-neko\/nekowork@alpha apply/);
   assert.doesNotMatch(quickstart, /work -> verify -> ship/);
+  // CLI-STAGES.md 는 별도 PR 에서 verify-pr 흐름으로 갱신 — 1.0 정렬 전까지 legacy 표현 유지
   assert.match(stages, /check -> start -> report -> gate status/);
 });
 

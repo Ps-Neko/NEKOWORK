@@ -4,6 +4,33 @@
 
 ## [Unreleased]
 
+## [0.1.0-alpha.11] - TBD
+
+### Added
+- Add `nekowork verify-pr` 1.0 entrypoint: scans diff (working tree / staged / range / patch file) with deterministic risk rules, writes evidence to `.nekowork/evidence/`, decides verdict from rule findings + check availability, renders `REPORT.md`.
+- Add 5 deterministic risk rules: Secret Fallback (killer), Auto-Apply-Commit-Push, Hardcoded Credential, Test-Or-Security-Disable, Package-Lockfile-Risk. All pass synthetic seed gate (recall ≥ 0.90, CRITICAL FP ≤ 0.10).
+- Add `INSUFFICIENT_EVIDENCE` verdict: source change with no test command available no longer auto-passes — explicit "cannot verify" state per SCOPE-1.0 §7.
+- Add `--comment-file <path>` option: emits GitHub PR comment markdown.
+- Add `--ci-exit-soft` option: exits 0 for NEEDS_HUMAN_REVIEW / INSUFFICIENT_EVIDENCE so check is informational, not blocking.
+- Add CI exit-code mapping (SCOPE-1.0 §8): ALLOW/ALLOW_WITH_WARNINGS=0, NEEDS_HUMAN_REVIEW/INSUFFICIENT_EVIDENCE=1, BLOCK=2.
+- Add `scripts/lib/diff-parser.js`: unified diff parsing + working-tree git diff (incl. untracked synthesis) + patch-file loading.
+- Add `scripts/lib/project-detector.js`: language / package manager / test / lint / typecheck / build / audit / CI / security file detection.
+- Add `scripts/benchmark/rules.js` and `npm run bench:rules`: per-rule recall + FP measurement against fixture manifests, exits non-zero on 1.0 gate regression.
+- Add `docs/examples/github-actions-verify-pr.yml`: drop-in workflow that posts the verdict as a PR comment and applies labels (`neko/needs-review`, `neko/no-evidence`, `neko/blocked`).
+- Add `docs/SCOPE-1.0.md`: Phased Cut plan (Phase 0 / 1 / 2), risk rules, decision policy, fixture sourcing.
+- Add `docs/VISION.md`: long-term "Verification-first AI development OS" vision separated from current 1.0 product surface.
+- Add `tests/fixtures/secret-fallback`, `tests/fixtures/auto-apply-commit-push`, `tests/fixtures/hardcoded-credential`, `tests/fixtures/test-or-security-disable`, `tests/fixtures/package-lockfile-risk`, `tests/fixtures/oss-negatives` synthetic + real-OSS corpus with `manifest.json` and benchmark targets.
+
+### Changed
+- README hero aligned with verification-gate identity ("Don't merge AI code without verification" / "AI 가 만든 코드, 검증 없이는 통과시키지 마세요"). Codex repositioned as optional advisor, never controls verdict.
+- README 30-second flow and "One Command. One Blocked Risk." promote `verify-pr` as the 1.0 entrypoint; `start` documented under Phased Cut.
+- `docs/ADVANCED.md` gains Phased Cut banner with Phase 0 / 1 / 2 status table — 19 alpha-era commands remain functional but are scheduled for deprecation in 2.0 in favor of the verification-first surface.
+
+### Preserved
+- Codex review remains opt-in advisor only — never affects `decision.json.verdict`.
+- No auto-commit, auto-push, auto-merge, or auto-apply behavior is introduced.
+- Existing `check / start / report / apply` and the wider Advanced / Legacy surface continue to function for alpha users; deprecation begins in 0.3.x per SCOPE-1.0 Phase 1.
+
 ## [0.1.0-alpha.10] - 2026-05-14
 
 ### Added
