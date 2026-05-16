@@ -4,7 +4,7 @@
 
 ## [Unreleased]
 
-## [0.1.0-alpha.11] - TBD
+## [0.1.0-alpha.11] - 2026-05-16
 
 ### Added
 - Add `nekowork verify-pr` 1.0 entrypoint: scans diff (working tree / staged / range / patch file) with deterministic risk rules, writes evidence to `.nekowork/evidence/`, decides verdict from rule findings + check availability, renders `REPORT.md`.
