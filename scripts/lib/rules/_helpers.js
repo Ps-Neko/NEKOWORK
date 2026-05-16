@@ -11,7 +11,10 @@ import { addedLines as collectAddedLines } from '../diff-parser.js';
  */
 export function stripCommentsPreservingOffsets(text) {
   let out = text.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '));
-  out = out.replace(/\/\/[^\n]*/g, (m) => ' '.repeat(m.length));
+  // // comment, but NOT inside a URL scheme like `https://`. Negative
+  // lookbehind for `:` keeps `://` intact while still stripping `// real
+  // comments`.
+  out = out.replace(/(?<!:)\/\/[^\n]*/g, (m) => ' '.repeat(m.length));
   // Also handle # comments (shell, yaml, dockerfile). Be conservative — only
   // strip when # is at line start or preceded by whitespace, to avoid
   // mangling URL fragments or shell parameter expansions like ${#var}.
@@ -74,12 +77,15 @@ export function makeRegexScanner(cfg) {
     const seen = new Set();
 
     for (const pat of patterns) {
+      // `raw: true` patterns scan the original text (needed for directives
+      // that live inside comments, like @ts-nocheck or /* eslint-disable */).
+      const haystack = pat.raw ? content : clean;
       pat.re.lastIndex = 0;
       let m;
-      while ((m = pat.re.exec(clean)) !== null) {
+      while ((m = pat.re.exec(haystack)) !== null) {
         if (pat.filter && !pat.filter(m)) continue;
-        const severity = pat.pickSeverity ? pat.pickSeverity(m, clean) : (pat.severity || 'high');
-        const line = lineNumberFromIndex(clean, m.index) + lineOffset;
+        const severity = pat.pickSeverity ? pat.pickSeverity(m, haystack) : (pat.severity || 'high');
+        const line = lineNumberFromIndex(haystack, m.index) + lineOffset;
         const seenKey = `${pat.id}:${line}`;
         if (seen.has(seenKey)) continue;
         seen.add(seenKey);

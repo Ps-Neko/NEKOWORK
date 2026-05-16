@@ -1,0 +1,6 @@
+{
+  "name": "demo",
+  "dependencies": {
+    "vendor-pkg": "https://example.com/vendor-pkg.tgz"
+  }
+}

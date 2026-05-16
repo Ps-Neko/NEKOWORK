@@ -1,0 +1,6 @@
+{
+  "name": "demo",
+  "dependencies": {
+    "unstable-fork": "git+https://github.com/example/unstable-fork.git"
+  }
+}

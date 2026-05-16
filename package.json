@@ -1,6 +1,6 @@
 {
   "name": "@ps-neko/nekowork",
-  "version": "0.1.0-alpha.10",
+  "version": "0.1.0-alpha.11",
   "description": "Verifies AI-made code changes before apply with Codex verification, Human Gate, and explicit apply",
   "keywords": [
     "claude",
@@ -71,6 +71,7 @@
     "test:integration": "node --test tests/integration/*.test.js",
     "test:e2e": "node --test tests/e2e/*.test.js",
     "test:catalog": "node scripts/ci/catalog.js",
+    "bench:rules": "node scripts/benchmark/rules.js",
     "security:hardening": "node scripts/ci/security-hardening.js",
     "validate:agents": "node scripts/ci/validate-agents.js",
     "validate:skills": "node scripts/ci/validate-skills.js",

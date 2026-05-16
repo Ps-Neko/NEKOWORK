@@ -145,6 +145,45 @@ test('--no-write 시 disk 에 .nekowork 생성 안 함', async () => {
   }
 });
 
+test('--comment-file 옵션: PR comment markdown 생성', async () => {
+  const root = makeTempProject();
+  try {
+    writeAndStage(root, 'src/leak.ts', 'export const k = process.env.API_KEY || "sk-leaked-fallback-test";');
+    const commentPath = path.join(root, 'pr-comment.md');
+    const result = await verifyPrCycle({
+      projectRoot: root,
+      write: false,
+      commentFile: commentPath,
+    });
+    assert.equal(result.decision.verdict, VERDICT.BLOCK);
+    assert.ok(fs.existsSync(commentPath));
+    const comment = fs.readFileSync(commentPath, 'utf8');
+    assert.match(comment, /NEKOWORK verify-pr.*BLOCK/);
+    assert.match(comment, /Blocking findings/);
+    assert.match(comment, /Hardcoded secret fallback/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('--ci-exit-soft: NEEDS_HUMAN_REVIEW → exit 0 강제', async () => {
+  const root = makeTempProject();
+  try {
+    // Generate HIGH (not CRITICAL): trigger ts-ignore which is MEDIUM... we
+    // need HIGH for NEEDS_HUMAN_REVIEW. Use it.skip which is HIGH severity.
+    writeAndStage(root, 'src/x.test.ts', "import { test } from 'node:test';\ntest.skip('x', () => {});\n");
+    const result = await verifyPrCycle({
+      projectRoot: root,
+      write: false,
+      ciExitSoft: true,
+    });
+    assert.equal(result.decision.verdict, VERDICT.NEEDS_HUMAN_REVIEW);
+    assert.equal(result.exitCode, 0, '--ci-exit-soft 가 NEEDS_HUMAN_REVIEW 의 exit code 를 0 으로 만들어야 함');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('--from-patch 모드: patch file 입력으로 검증', async () => {
   const root = makeTempProject();
   try {

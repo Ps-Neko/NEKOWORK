@@ -1,0 +1,6 @@
+{
+  "name": "demo",
+  "scripts": {
+    "postinstall": "node scripts/setup.js"
+  }
+}
