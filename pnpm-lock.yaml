@@ -10,6 +10,9 @@ importers:
 
   packages/forge-engine:
     dependencies:
+      '@ps-neko/quality-core':
+        specifier: workspace:*
+        version: link:../quality-core
       ajv:
         specifier: ^8.17.1
         version: 8.20.0

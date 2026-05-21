@@ -21,6 +21,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
+    "@ps-neko/quality-core": "workspace:*",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "cli-table3": "^0.6.5",

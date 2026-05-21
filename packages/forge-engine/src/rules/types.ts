@@ -2,29 +2,21 @@
  * Deterministic rule 인터페이스 — ARCHITECTURE.md §6, SECURITY.md §3.
  *
  * rule 은 순수 함수. 외부 네트워크·hooks 에 의존하지 않는다.
+ *
+ * Severity / RuleFinding / ReviewSnapshot 의 type contract 는
+ * @ps-neko/quality-core 가 정의한다. 본 모듈은 forge-engine 내부 rule 작성에
+ * 필요한 추가 type (PolicyFlags, RuleContext, DeterministicRule, makeFinding)
+ * 만 정의하고 contract type 은 re-export.
  */
 import type { Diff } from "../utils/diff.js";
+import type { Severity, RuleFinding, ReviewSnapshot } from "@ps-neko/quality-core";
 
-export type Severity = "info" | "warning" | "high" | "critical";
-
-export interface RuleFinding {
-  ruleId: string;
-  severity: Severity;
-  file?: string;
-  line?: number;
-  message: string;
-}
+export type { Severity, RuleFinding, ReviewSnapshot };
 
 export interface PolicyFlags {
   testFirst?: boolean;
   securityFirst?: boolean;
   reviewFirst?: boolean;
-}
-
-export interface ReviewSnapshot {
-  status: "passed" | "warnings" | "failed" | "not_run";
-  adapterCount: number;
-  criticalFindings: number;
 }
 
 export interface RuleContext {
