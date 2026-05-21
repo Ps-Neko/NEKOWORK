@@ -10,6 +10,7 @@ import {
 } from '../../scripts/ci/security-hardening.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
+const MONOREPO_ROOT = path.resolve(ROOT, '..', '..');
 
 test('security hardening accepts pinned major-version and SHA action refs', () => {
   assert.equal(isPinnedActionRef('actions/checkout@v5'), true);
@@ -28,7 +29,7 @@ test('security hardening validates exact semver MCP pins', () => {
 });
 
 test('security hardening passes the repository policy', () => {
-  const report = checkSecurityHardening(ROOT);
+  const report = checkSecurityHardening(MONOREPO_ROOT);
   assert.deepEqual(report.errors, []);
   assert.equal(report.stats.workflows, 2);
   assert.ok(report.stats.actions >= 2);

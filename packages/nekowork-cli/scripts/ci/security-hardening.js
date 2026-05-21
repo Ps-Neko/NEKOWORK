@@ -56,7 +56,7 @@ export function checkSecurityHardening(root = ROOT) {
     packageSpecs: 0,
   };
 
-  const manifest = readYaml(root, 'agent.yaml', errors);
+  const manifest = readAgentManifest(root, errors);
   const security = manifest?.security || {};
 
   checkDeadManConfig(security, errors);
@@ -171,8 +171,10 @@ function checkMcpPins(servers, security, errors, stats) {
 
 function checkPackageSupplyChain(root, security, errors, stats) {
   if (security.supply_chain?.package_lock_required !== false) {
-    if (!fs.existsSync(path.join(root, 'package-lock.json'))) {
-      errors.push('package-lock.json is required for npm supply-chain reproducibility');
+    const hasNpmLock = fs.existsSync(path.join(root, 'package-lock.json'));
+    const hasPnpmLock = fs.existsSync(path.join(root, 'pnpm-lock.yaml'));
+    if (!hasNpmLock && !hasPnpmLock) {
+      errors.push('package-lock.json or pnpm-lock.yaml is required for supply-chain reproducibility');
     }
   }
 
@@ -225,6 +227,17 @@ function readYaml(root, rel, errors) {
     errors.push(`${rel}: load failed: ${e.message}`);
     return null;
   }
+}
+
+function readAgentManifest(root, errors) {
+  if (fs.existsSync(path.join(root, 'agent.yaml'))) {
+    return readYaml(root, 'agent.yaml', errors);
+  }
+  const monorepoCandidate = path.join(root, 'packages', 'nekowork-cli', 'agent.yaml');
+  if (fs.existsSync(monorepoCandidate)) {
+    return readYaml(path.dirname(monorepoCandidate), 'agent.yaml', errors);
+  }
+  return readYaml(root, 'agent.yaml', errors);
 }
 
 function readJson(root, rel, errors) {

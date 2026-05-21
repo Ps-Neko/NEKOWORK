@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
+const MONOREPO_ROOT = path.resolve(ROOT, '..', '..');
 
 test('feedback triage guide preserves alpha safety workflow', () => {
   const doc = fs.readFileSync(path.join(ROOT, 'docs', 'FEEDBACK-TRIAGE.md'), 'utf8');
@@ -17,7 +18,7 @@ test('feedback triage guide preserves alpha safety workflow', () => {
 });
 
 test('alpha feedback template collects triage classification evidence', () => {
-  const template = fs.readFileSync(path.join(ROOT, '.github', 'ISSUE_TEMPLATE', 'alpha-feedback.yml'), 'utf8');
+  const template = fs.readFileSync(path.join(MONOREPO_ROOT, '.github', 'ISSUE_TEMPLATE', 'alpha-feedback.yml'), 'utf8');
 
   assert.match(template, /id: feedback_class/);
   assert.match(template, /install failure/);
@@ -28,7 +29,7 @@ test('alpha feedback template collects triage classification evidence', () => {
 
 test('external run kit collects public evidence without private source', () => {
   const doc = fs.readFileSync(path.join(ROOT, 'docs', 'EXTERNAL-RUN.md'), 'utf8');
-  const template = fs.readFileSync(path.join(ROOT, '.github', 'ISSUE_TEMPLATE', 'external-run.yml'), 'utf8');
+  const template = fs.readFileSync(path.join(MONOREPO_ROOT, '.github', 'ISSUE_TEMPLATE', 'external-run.yml'), 'utf8');
   const readme = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
 
   assert.match(doc, /1 external user/);
@@ -46,7 +47,7 @@ test('external run kit collects public evidence without private source', () => {
 });
 
 test('bug report template asks for impact classification', () => {
-  const template = fs.readFileSync(path.join(ROOT, '.github', 'ISSUE_TEMPLATE', 'bug-report.yml'), 'utf8');
+  const template = fs.readFileSync(path.join(MONOREPO_ROOT, '.github', 'ISSUE_TEMPLATE', 'bug-report.yml'), 'utf8');
 
   assert.match(template, /id: impact/);
   assert.match(template, /install path blocked/);
