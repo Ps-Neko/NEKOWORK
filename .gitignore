@@ -10,15 +10,23 @@ node_modules/
 .gemini/
 .opencode/
 .claude-plugin/
+**/.claude/
+**/.codex/
+**/.cursor/
+**/.gemini/
+**/.opencode/
+**/.claude-plugin/
 dist/
 build/
 *.tsbuildinfo
 
 # bridge bundle (생성물)
 bridge/*.cjs
+**/bridge/*.cjs
 
 # Rust
 runtime/target/
+**/runtime/target/
 
 # 런타임 상태 (영속이지만 커밋 금지)
 .harness/
@@ -60,6 +68,8 @@ coverage/
 
 # 개인 작업 노트 (외부 공개 X). CHANGELOG / RUNBOOK 만 docs/ 에 commit.
 docs/dev-log/
+**/docs/dev-log/
 
 # 자동 생성 코드맵 (scripts/build-codemaps.js 산출물). 로컬 생성만.
 docs/CODEMAPS/
+**/docs/CODEMAPS/
