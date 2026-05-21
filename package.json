@@ -1,0 +1,20 @@
+{
+  "name": "@ps-neko/nekowork-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "NEKOWORK monorepo root — workspace orchestration only (no publish)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ps-Neko/NEKOWORK.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "test": "pnpm -r run test",
+    "lint": "pnpm -r run lint",
+    "build": "pnpm -r run build"
+  }
+}
