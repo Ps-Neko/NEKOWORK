@@ -3,32 +3,19 @@
  *
  * 입력 : finding 배열 + 테스트 상태 + review 상태.
  * 출력 : verdict + riskLevel + humanApprovalRequired + 사유 목록.
+ *
+ * Type contract는 @ps-neko/quality-core 가 정의한다. 본 모듈은 구현만 보유.
+ * relative import 호환을 위해 동일 type 을 re-export.
  */
-import type { RuleFinding } from "../../rules/types.js";
+import type {
+  RuleFinding,
+  Verdict,
+  RiskLevel,
+  VerdictInputs,
+  VerdictOutput
+} from "@ps-neko/quality-core";
 
-export type Verdict =
-  | "PASS"
-  | "PASS_WITH_WARNINGS"
-  | "NEEDS_HUMAN_REVIEW"
-  | "BLOCK"
-  | "INSUFFICIENT_EVIDENCE";
-
-export type RiskLevel = "low" | "medium" | "high" | "critical";
-
-export interface VerdictInputs {
-  findings: readonly RuleFinding[];
-  testStatus: "passed" | "failed" | "not_run" | "insufficient";
-  reviewStatus: "passed" | "warnings" | "failed" | "not_run";
-  evidenceMissing?: boolean;
-  schemaFailed?: boolean;
-}
-
-export interface VerdictOutput {
-  verdict: Verdict;
-  riskLevel: RiskLevel;
-  humanApprovalRequired: boolean;
-  reasons: string[];
-}
+export type { Verdict, RiskLevel, VerdictInputs, VerdictOutput };
 
 export function computeVerdict(input: VerdictInputs): VerdictOutput {
   const reasons: string[] = [];
