@@ -40,11 +40,12 @@ test('release surfaces record repository version and published alpha', () => {
 
 test('package exposes product and runtime CLI names', () => {
   const pkg = JSON.parse(read('package.json'));
-  const lock = JSON.parse(read('package-lock.json'));
-
   assert.equal(pkg.bin.nekowork, 'scripts/cli.js');
   assert.equal(pkg.bin.harness, 'scripts/cli.js');
-  assert.deepEqual(lock.packages[''].bin, pkg.bin);
+
+  const monorepoRoot = path.resolve(ROOT, '..', '..');
+  const lockYaml = fs.readFileSync(path.join(monorepoRoot, 'pnpm-lock.yaml'), 'utf8');
+  assert.match(lockYaml, /packages\/nekowork-cli:/, 'pnpm-lock.yaml must record nekowork-cli importer');
 });
 
 test('official pack docs match install profile manifest', () => {
