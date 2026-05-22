@@ -1,0 +1,36 @@
+{
+  "fixture_set": "oss-negatives",
+  "schema_version": "0.1",
+  "generated_at": "2026-05-16",
+  "purpose": "Real-world OSS code that should NOT trigger any verify-pr CRITICAL finding. Used to validate FP rate against well-known, well-reviewed Node code. All entries fetched verbatim from upstream — see source field for repo + commit SHA.",
+  "applies_to_rules": ["secret-fallback", "auto-apply-commit-push", "hardcoded-credential", "test-or-security-disable", "package-lockfile-risk"],
+  "entries": [
+    {
+      "id": "oss-neg-expressjs-auth",
+      "label": "negative",
+      "source": "github:expressjs/express@f873ac23124ffcff8c040b4bd257b32c29828d53:examples/auth/index.js",
+      "fetched_at": "2026-05-16",
+      "file": "expressjs-auth-index.js",
+      "expected_findings_critical": 0,
+      "notes": "Express auth example. Uses session({ secret: 'shhhh, very secret' }) — example literal, not a provider credential signature."
+    },
+    {
+      "id": "oss-neg-expressjs-cookie-sessions",
+      "label": "negative",
+      "source": "github:expressjs/express@f873ac23124ffcff8c040b4bd257b32c29828d53:examples/cookie-sessions/index.js",
+      "fetched_at": "2026-05-16",
+      "file": "expressjs-cookie-sessions-index.js",
+      "expected_findings_critical": 0,
+      "notes": "Express cookie-sessions example. Demo secret 'manny is cool' — not a provider signature."
+    },
+    {
+      "id": "oss-neg-expressjs-web-service",
+      "label": "negative",
+      "source": "github:expressjs/express@f873ac23124ffcff8c040b4bd257b32c29828d53:examples/web-service/index.js",
+      "fetched_at": "2026-05-16",
+      "file": "expressjs-web-service-index.js",
+      "expected_findings_critical": 0,
+      "notes": "Express web-service example. API key middleware in plain Express."
+    }
+  ]
+}

@@ -82,22 +82,19 @@ function printShortGateHelp({ version, root, installed, sessions }) {
   console.log(`  ${paint('ok', 'NEKOWORK')} ${version}`);
   console.log('  ' + paint('dim', `project: ${root}  |  installed: ${installed}  |  sessions: ${sessions}`));
   console.log('');
-  console.log(paint('hint', 'Cockpit ->'));
-  console.log(`  ${paint('hint', 'nekowork')}                  guided choices in an interactive terminal`);
-  console.log(`  ${paint('hint', 'nekowork cockpit --preview')}  non-interactive cockpit preview`);
-  console.log('');
   console.log(paint('hint', 'First run ->'));
-  console.log(`  1.  ${paint('hint', 'nekowork check')}          environment check`);
-  console.log(`  2.  ${paint('hint', 'nekowork init')}           install tool surfaces`);
-  console.log(`  3.  ${paint('hint', 'nekowork start "<task>"')}  verify an AI-made change before apply`);
+  console.log(`  1.  ${paint('hint', 'nekowork check')}        environment check`);
+  console.log(`  2.  ${paint('hint', 'nekowork verify-pr')}    deterministic risk rules on the working tree diff`);
+  console.log(`  3.  ${paint('hint', 'cat REPORT.md')}          read the verdict + evidence paths`);
   console.log('');
-  console.log(paint('hint', 'Safety gate ->'));
-  console.log(`  ${paint('hint', 'start')} -> ${paint('hint', 'report')} -> ${paint('hint', 'apply')}         verified evidence before apply`);
-  console.log(`  ${paint('hint', 'gate status')}                    inspect Human Gate state`);
-  console.log(`  ${paint('hint', 'sessions')}                       list recorded sessions`);
+  console.log(paint('hint', 'CI ->'));
+  console.log(`  ${paint('hint', 'nekowork verify-pr --comment-file .nekowork/pr-comment.md')}`);
+  console.log(`  ${paint('hint', 'nekowork verify-pr --ci-exit-soft')}   exit 0 for NEEDS_REVIEW / INSUFFICIENT_EVIDENCE`);
   console.log('');
-  console.log('  ' + paint('dim', "Full command list: 'nekowork help all'"));
-  console.log('  ' + paint('dim', "Verb help:          'nekowork help <verb>'"));
+  console.log(paint('hint', 'Compat / labs ->'));
+  console.log(`  ${paint('hint', 'nekowork help all')}      session-based start / report / apply and others (deprecation pending)`);
+  console.log('');
+  console.log('  ' + paint('dim', "Verb help: 'nekowork help <verb>'"));
   console.log('');
 }
 
@@ -108,12 +105,17 @@ nekowork <verb> [args]
 Legacy alias:
   harness <verb> [args]
 
-Recommended safety gate
-  cockpit                              guided choice-first launcher
-  check
-  start "<task>"
-  report --session latest
-  apply --session <id>                  explicit only; requires verified SHIP_READY and clear gates
+Recommended verification gate (1.0 front surface)
+  check                                local readiness probe
+  verify-pr [--from-working-tree]       deterministic risk rules → REPORT.md + .nekowork/decision.json
+  verify-pr --comment-file <path>       GitHub PR comment markdown for CI integration
+  verify-pr --ci-exit-soft              treat NEEDS_HUMAN_REVIEW / INSUFFICIENT_EVIDENCE as exit 0
+
+Compatibility / labs (session-based; deprecation pending)
+  cockpit                              guided choice-first launcher (legacy)
+  start "<task>" [--session <id>]      session-based safe build entrypoint
+  report --session <id>                 summarize session evidence
+  apply --session <id>                  apply a verified SHIP_READY live-work diff
 
 Install / verify
   check [--project-root <dir>] [--gemini-smoke] [--json] [--full]
@@ -1269,6 +1271,22 @@ function checkArgs(argv) {
       }
       if (result.humanGate) process.exit(3);
       break;
+    }
+
+    case 'verify-pr': {
+      const { parseVerifyPrArgs, printVerifyPrSummary, verifyPrCycle } =
+        await import('./orchestrators/verify-pr.js');
+      const opts = parseVerifyPrArgs(rest);
+      const result = await verifyPrCycle({
+        ...opts,
+        projectRoot: resolveProjectRoot(opts.projectRoot),
+      });
+      if (opts.json) {
+        console.log(JSON.stringify(result.decision, null, 2));
+      } else {
+        printVerifyPrSummary(result);
+      }
+      process.exit(result.exitCode);
     }
 
     case 'ready':

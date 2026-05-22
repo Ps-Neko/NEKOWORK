@@ -1,0 +1,113 @@
+{
+  "fixture_set": "test-or-security-disable",
+  "schema_version": "0.1",
+  "generated_at": "2026-05-16",
+  "notes": "test 또는 security check 침묵화 패턴. ts-nocheck / file-wide eslint-disable 만 CRITICAL, 나머지는 HIGH/MEDIUM (사람 리뷰 필요).",
+  "targets": {
+    "any_detection_recall": 0.90,
+    "critical_fp_rate": 0.10
+  },
+  "entries": [
+    {
+      "id": "td-pos-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/001-it-skip.test.ts",
+      "pattern": "js-test-skip",
+      "expected_findings": [{ "rule": "test-or-security-disable", "line": 3, "severity": "high" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "td-pos-002",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/002-describe-skip.test.ts",
+      "pattern": "js-test-skip",
+      "expected_findings": [{ "rule": "test-or-security-disable", "line": 1, "severity": "high" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "td-pos-003",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/003-xit.test.ts",
+      "pattern": "js-x-prefix-skip",
+      "expected_findings": [
+        { "rule": "test-or-security-disable", "line": 1, "severity": "high" },
+        { "rule": "test-or-security-disable", "line": 2, "severity": "high" }
+      ],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "td-pos-004",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/004-ts-nocheck.ts",
+      "pattern": "ts-nocheck-file",
+      "expected_findings": [{ "rule": "test-or-security-disable", "line": 1, "severity": "critical" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "td-pos-005",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/005-eslint-disable-file.ts",
+      "pattern": "eslint-disable-file",
+      "expected_findings": [{ "rule": "test-or-security-disable", "line": 1, "severity": "critical" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "td-pos-006",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/006-pytest-skip.py",
+      "pattern": "python-pytest-skip",
+      "expected_findings": [{ "rule": "test-or-security-disable", "line": 3, "severity": "high" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "td-neg-001",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/001-normal-test.test.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "td-neg-002",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/002-it-only-allowed.test.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "it.only 은 focus 이지 skip 이 아님 — Test-Disable rule 의 책임 아님"
+    },
+    {
+      "id": "td-neg-003",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/003-ts-expect-error.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "@ts-expect-error 는 우리가 잡지 않음 (안전한 변형)"
+    },
+    {
+      "id": "td-neg-004",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/004-eslint-specific-rule.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "rule list 가 명시된 eslint-disable 은 우리가 잡지 않음 (file-wide 만 CRITICAL)"
+    },
+    {
+      "id": "td-neg-005",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/005-test-skip-mentioned-in-doc.md",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "markdown docs 의 'it.skip()' 언급 — 함수 호출 아님 (괄호 없음). regex 가 자연스럽게 무시"
+    }
+  ]
+}

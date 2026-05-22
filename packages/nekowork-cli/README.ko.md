@@ -2,17 +2,17 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
-AI 코드 변경을 위한 검증 기반 오토파일럿입니다.
+**AI 가 만든 코드, 검증 없이는 통과시키지 마세요.**
 
 [![validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
-AI가 만들고, Codex가 검증하고, 사람은 최종 적용 경계를 승인합니다.
-
-NEKOWORK는 AI가 계획, 수정, 검증, 제한된 재수정, 리포트 생성을 수행하도록 돕습니다. 하지만 최종 `apply`는 항상 사람이 명시적으로 실행해야 합니다.
+NEKOWORK 는 AI 가 생성한 코드를 위한 로컬 검증 게이트입니다. diff 를 분석하고, 결정적 위험 룰을 실행하고, 증거를 수집한 뒤, 머지 / 적용 가능 여부를 판정합니다 — auto-commit / auto-push 없이, LLM 판정에 의존하지 않고.
 
 > 이 문서는 한국어 요약본입니다. 전체 상세 설명과 모든 고급 옵션은 [English README](README.md)를 참고하세요.
 
-여기서 "검증됨"은 정답을 수학적으로 보증한다는 뜻이 아닙니다. 독립 리뷰, 테스트 evidence, 위험 정책, Human Gate, 명시적 apply 경계를 기록했다는 뜻입니다.
+여기서 "검증됨"은 정답을 수학적으로 보증한다는 뜻이 아닙니다. verdict 는 결정적 룰과 검증 결과만 결정합니다. 선택적 Codex 리뷰는 advisor 노트로만 기록되며 verdict 에 영향을 주지 않습니다.
+
+> 1.0 scope 와 로드맵: [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md). 장기 비전 (검증 우선 AI 개발 공장): [docs/VISION.md](docs/VISION.md).
 
 ## 용어
 
@@ -25,12 +25,13 @@ NEKOWORK는 AI가 계획, 수정, 검증, 제한된 재수정, 리포트 생성�
 ## 핵심 원칙
 
 ```text
-NEKOWORK = 검증 기반 오토파일럿 -> Codex 검증 -> Human Gate -> 명시적 apply
+NEKOWORK = diff -> 결정적 위험 룰 -> 검증 명령 -> 증거 -> 결정적 verdict -> REPORT -> Human Gate -> 명시적 apply
 ```
 
 ```text
-apply 전까지는 자율적으로.
-ship 전에는 독립 검증.
+증거 없으면 통과 없음.
+LLM 의견은 verdict 아님.
+테스트 없으면 PASS 아님 (INSUFFICIENT_EVIDENCE).
 경계에서는 사람이 통제.
 ```
 
@@ -50,42 +51,41 @@ NEKOWORK는 기본 흐름을 mock provider 모드로 확인할 수 있습니다.
 
 ## 30초 실행
 
-현재 npm alpha를 바로 실행할 수 있습니다.
+요구사항: Node.js 22+, npm, git. commit 이 하나 이상 있는 git repo.
 
 ```bash
 npx -y @ps-neko/nekowork@alpha check
-npx -y @ps-neko/nekowork@alpha start "fix failing tests safely" --session first-start
-npx -y @ps-neko/nekowork@alpha report --session latest
+npx -y @ps-neko/nekowork@alpha verify-pr
+cat REPORT.md
+cat .nekowork/decision.json
 ```
 
-먼저 실행 경로만 보고 싶다면:
+`check` 가 환경을 진단합니다. `verify-pr` 가 현재 working tree diff 를 결정적 위험 룰로 스캔하고, `.nekowork/evidence/` 에 증거를 남기고, 머지/적용 가능 여부를 판정합니다. 프로젝트 루트에 `REPORT.md` 와 `.nekowork/decision.json` 을 작성합니다.
 
-```bash
-npx -y @ps-neko/nekowork@alpha start "fix failing tests safely" --dry-run
-npx -y @ps-neko/nekowork@alpha auto "refactor this safely" --parallel-candidates 2 --dry-run
-```
+> **재현성 메모:** `npx @ps-neko/nekowork@alpha` 는 가장 최근 publish 된 alpha 로 resolve 됩니다. publish 된 alpha 는 `main` 보다 뒤일 수 있습니다. 재현 가능한 동작을 원하면 정확한 버전 (예: `@ps-neko/nekowork@0.1.0-alpha.11`) 을 핀하세요.
+
+Compatibility / legacy 명령 (`cockpit`, `start`, `ask`, `plan`, `team`, `work`, `verify`, `gate`, `ship`, `run`, `build`, `auto`, `pr-prep`, `report --session`, `apply --session`, `review`) 은 [docs/ADVANCED.md](docs/ADVANCED.md) 에 있습니다. 2.0 에서 제거 예정 ([docs/SCOPE-1.0.md](docs/SCOPE-1.0.md) Phased Cut).
 
 ## 한 명령. 하나의 차단된 위험.
 
+AI 가 작성한 변경에 `process.env.X || "fallback"` 이 들어가면:
+
 ```bash
-npx -y @ps-neko/nekowork@alpha auto "add OPENAI_API_KEY fallback for Codex auth"
+npx -y @ps-neko/nekowork@alpha verify-pr
 ```
 
-예시 출력:
+전형적 BLOCK 출력:
 
 ```text
-Risk: provider-auth / long-lived-secret
-Codex verdict: request_changes
-Human Gate: required
-Ship ready: false
-Applied: false
-
-Blocked because NEKOWORK defaults to delegated CLI auth and rejects long-lived provider API key paths unless the human explicitly opts in.
+=== verify-pr ===
+  verdict        : BLOCK
+  reason         : Hardcoded secret fallback detected (src/auth.ts:42)
+  merge_allowed  : false
+  apply_allowed  : false
+  risk_level     : CRITICAL
 ```
 
-설명: NEKOWORK는 delegated CLI auth를 기본값으로 두고, 장기 provider API key 경로는 사람이 명시적으로 선택하지 않는 한 거부합니다.
-
-이것이 NEKOWORK의 핵심입니다. 오토파일럿은 경계 전까지 계속 일할 수 있지만, 위험한 ship/apply 결정은 evidence와 사람의 승인 아래에 둡니다.
+NEKOWORK 의 핵심: AI 는 변경을 만들 수 있지만, 위험한 ship/apply 결정은 결정적 룰과 사람 승인 아래에 둡니다. LLM verdict 는 게이트를 통과할 수 없습니다.
 
 ## 왜 필요한가
 
@@ -189,10 +189,10 @@ NEKOWORK는 하나의 거대한 agent 묶음이 아니라, 일을 나누고 검�
 ## 현재 alpha 상태
 
 - Package: `@ps-neko/nekowork`
-- Current alpha: `0.1.0-alpha.10` (npm `@alpha` published 2026-05-14)
+- Current alpha: `0.1.0-alpha.11` (npm `@alpha` published 2026-05-16)
 - CLI: `nekowork`
 - Legacy/internal alias: `harness`
-- Tests: 401 pass
+- Tests: 496 pass
 - npm audit: 0 moderate+ issues
 - Fresh `npx @alpha` smoke: pass
 

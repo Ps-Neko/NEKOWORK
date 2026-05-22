@@ -10,7 +10,7 @@
 ## Current Truth
 
 - 위치: `REPO_ROOT/` · 브랜치: `main`
-- 버전: `0.1.0-alpha.10` (repo candidate, npm alpha = 0.1.0-alpha.9)
+- 버전: `0.1.0-alpha.11` (repo + npm alpha 동기, published 2026-05-16)
 - 카탈로그: 11 agents · 5 skills (+1 ralph) · 5 hooks · 6 modules · 5 profiles
 - 5 빌더 모두 동작 (claude / codex / cursor / gemini / opencode) + codemaps
 - `npm test`, `npm run lint`, `npm audit --audit-level=moderate`, provider live smoke, Rust release build 검증 경로 유지
@@ -26,14 +26,21 @@
 ## Active Queues
 
 ### In Progress
-- 2.5시간 잡티 제거 배치 (CHANGELOG / WORKING-CONTEXT / Validator 경고 / RUNBOOK·PORTING / Security Bar)
+- 외부 알파 5명 모집 + 7일 피드백 수집 (POST-RELEASE-CHECKLIST §4-§5, **사용자 수동 social work**)
 
 ### Next
-- AUDIT 잔존: npm publish 결정, 사내 PoC 결합, OIDC/dead-man/supply-chain 심화
+- 1.0 게이트 5조건 점검 (SCOPE-1.0 §13.2): recall ≥ 0.90, FP ≤ 0.10 (real-world corpus), 외부 알파 3/5 "다시 쓰겠다", CRITICAL 미탐 0, 치명적 오탐 0
+- real-world fixture 추가 후 `npm run bench:rules` 재측정
+- 코드 품질 핫스팟 3건 (cli.js 분해 / orchestrator 보일러플레이트 추출 / 미사용 export) — **publish 게이트 통과 이후**
+
+### 절대 금지 (현 단계)
+- 코드 추가 (외부 피드백 없이 추측으로 룰 늘리기 금지)
+- scope 확장 (verify-skill / verify-release 등은 1.x)
+- "1.0 곧 출시" 류 마케팅
 
 ## Open PR Classification
 
-(없음 — 레포 미 push)
+(이전 작업 — auth migration / harness.dev placeholder / 검증 게이트 cut 등은 main 머지 완료, 메모리 `nekowork-*` 참조)
 
 ## Interfaces
 
@@ -50,3 +57,6 @@
 - 2026-04-29: P1 회수 세션 완료 (`docs/dev-log/2026-04-29-p1-recovery.md`). 빈 디렉터리 6 → 0, 미구현 스크립트 9 → 0, ARCHITECTURE 528줄, 73 테스트.
 - 2026-04-29: 잡티 제거 배치 진행 중 — 본 파일 갱신 + Validator 경고 정합 + RUNBOOK/PORTING/Security Bar 보완.
 - 2026-04-30: **auth migration 완료**. PR #1-#3 (3계층 인증 + GitHub OAuth + OS keychain) main 머지 (`60e9de9` → `7c4f2c8`, +4 commits, rebase merge). PR #2/#3 은 phase-1 옛 SHA 포함으로 force-push 1회씩(`--onto origin/main bf72841`/`b2b1bce` + `--force-with-lease`). Smoke 3/4 PASS (#1 `claude /status` Claude Max, #2 override 차단 3 케이스, #4 keychain Windows Credential Manager). #3 GitHub OAuth Device Flow 는 OAuth App 미등록으로 사용자 자율 보류 — 실제 GitHub automation 사용 시점에 수행. PR #4 (codex 0.125+ 호환) 는 본 작업과 무관 OPEN 잔존.
+- 2026-05-14: **alpha.10 npm publish 완료**. dist-tag `@alpha`. 19개 CLI 명령 wide surface. 코드 품질 핫스팟 3건 진단 (cli.js 1543 LOC / orchestrator 보일러플레이트 / 미사용 export 3건) — publish 게이트 후 처리.
+- 2026-05-15~16: **1.0 검증 게이트 cut + alpha.11 publish**. `feat(verify-pr)` 5 deterministic rules + Auto-Apply-Commit-Push + GitHub Actions PR comment + bench:rules. 정체성을 "verification-first AI development factory" 12-Station 으로 정제 (VISION.md). README hero 는 검증 게이트 카피 유지.
+- 2026-05-16: **post-publish CI red 사고 복구** (`6a0e862`). `.gitignore *.pem` 룰이 secret-detection 룰 자체 fixture 까지 차단 → alpha.11 가 CI red 6 commit streak 상태로 publish. `!tests/fixtures/**/*.pem` 예외 + synthetic fixture 2개 commit 으로 복구. POST-RELEASE-CHECKLIST §0.2 에 CI green 3항목 게이트 추가 (`f6995ab`). 메모리 `nekowork-alpha11-verify-pr` 의 '자기모순' 섹션 참조.

@@ -1,0 +1,222 @@
+{
+  "fixture_set": "secret-fallback",
+  "schema_version": "0.1",
+  "generated_at": "2026-05-16",
+  "notes": "1차 synthetic seed (10 positive / 10 negative). recall/FP 측정의 sanity baseline. 실제 측정은 OSS curation + AI 생성 fixture 가 추가된 후. plan §9 의 synthetic 비율 30% cap 안에 들어감.",
+  "targets": {
+    "secret_fallback_recall": 0.90,
+    "secret_fallback_fp_rate": 0.10
+  },
+  "entries": [
+    {
+      "id": "sf-pos-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/001-env-or-literal.ts",
+      "pattern": "env-or-literal",
+      "expected_findings": [
+        { "rule": "secret-fallback", "line": 4, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "process.env.X || \"literal\" 의 가장 흔한 형태"
+    },
+    {
+      "id": "sf-pos-002",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/002-nullish-fallback.ts",
+      "pattern": "nullish-fallback",
+      "expected_findings": [
+        { "rule": "secret-fallback", "line": 4, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "process.env.X ?? \"literal\""
+    },
+    {
+      "id": "sf-pos-003",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/003-ternary.ts",
+      "pattern": "ternary",
+      "expected_findings": [
+        { "rule": "secret-fallback", "line": 4, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "process.env.X ? process.env.X : \"literal\""
+    },
+    {
+      "id": "sf-pos-004",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/004-if-not-fallback.ts",
+      "pattern": "if-not-fallback",
+      "expected_findings": [
+        { "rule": "secret-fallback", "line": 5, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "if (!token) token = \"literal\" — flow-based, regex 로는 multi-line scope 필요"
+    },
+    {
+      "id": "sf-pos-005",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/005-config-or-literal.ts",
+      "pattern": "config-or-literal",
+      "expected_findings": [
+        { "rule": "secret-fallback", "line": 6, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "config.apiKey || \"literal\" — env 가 아닌 config 객체 경유"
+    },
+    {
+      "id": "sf-pos-006",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/006-config-fallback-path.ts",
+      "pattern": "config-fallback-property",
+      "expected_findings": [
+        { "rule": "secret-fallback", "line": 6, "severity": "high" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "config.fallback.key — 구조적 fallback (literal 아님). high 등급. stretch goal."
+    },
+    {
+      "id": "sf-pos-007",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/007-template-literal-fallback.ts",
+      "pattern": "template-literal-fallback",
+      "expected_findings": [
+        { "rule": "secret-fallback", "line": 5, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "process.env.X || `template literal`"
+    },
+    {
+      "id": "sf-pos-008",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/008-secret-with-different-name.ts",
+      "pattern": "env-or-literal",
+      "expected_findings": [
+        { "rule": "secret-fallback", "line": 7, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "JWT 시그닝 콘텍스트 — secret 이름이 일반적이지 않아도 잡혀야 함"
+    },
+    {
+      "id": "sf-pos-009",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/009-destructure-or-literal.ts",
+      "pattern": "destructure-default",
+      "expected_findings": [
+        { "rule": "secret-fallback", "line": 5, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "const { X = \"literal\" } = process.env — destructure default"
+    },
+    {
+      "id": "sf-pos-010",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/010-nested-or-fallback.ts",
+      "pattern": "nested-or-fallback",
+      "expected_findings": [
+        { "rule": "secret-fallback", "line": 8, "severity": "critical" }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "env || env || \"literal\" — OR 체인의 마지막이 literal. 라인 위치는 literal 이 있는 줄."
+    },
+    {
+      "id": "sf-neg-001",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/001-env-no-fallback.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "fallback 없음, fail-closed"
+    },
+    {
+      "id": "sf-neg-002",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/002-fail-closed.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "missing 시 throw"
+    },
+    {
+      "id": "sf-neg-003",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/003-zod-validated.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "zod schema 검증, literal fallback 없음"
+    },
+    {
+      "id": "sf-neg-004",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/004-port-fallback.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "fallback 있지만 secret 이 아님 (port number)"
+    },
+    {
+      "id": "sf-neg-005",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/005-hostname-fallback.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "fallback 있지만 hostname (secret 아님)"
+    },
+    {
+      "id": "sf-neg-006",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/006-boolean-flag-fallback.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "boolean flag fallback"
+    },
+    {
+      "id": "sf-neg-007",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/007-test-fixture-using-env.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "test 콘텍스트에서 process.env mock — 1.0 에선 무시 가능 (or low)"
+    },
+    {
+      "id": "sf-neg-008",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/008-dotenv-load.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "dotenv 로 .env 로드, hardcoded literal 없음"
+    },
+    {
+      "id": "sf-neg-009",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/009-retry-timeout-fallback.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "retry / timeout 숫자 fallback (secret 아님)"
+    },
+    {
+      "id": "sf-neg-010",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/010-comment-mention-only.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "주석에 fallback 언급 있지만 실제 코드는 fail-closed"
+    }
+  ]
+}
