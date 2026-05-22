@@ -56,7 +56,127 @@ jobs:
           fi
           echo "published alpha init smoke: v${expected_version}"
 
-  validate:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      forge: ${{ steps.filter.outputs.forge }}
+      quality: ${{ steps.filter.outputs.quality }}
+      cli: ${{ steps.filter.outputs.cli }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            forge:
+              - 'packages/forge-engine/**'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.github/workflows/harness-validate.yml'
+            quality:
+              - 'packages/quality-core/**'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.github/workflows/harness-validate.yml'
+            cli:
+              - 'packages/nekowork-cli/**'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.github/workflows/harness-validate.yml'
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Security hardening gate
+        run: pnpm --filter @ps-neko/nekowork run security:hardening
+
+      - name: Dependency audit
+        run: pnpm audit --audit-level=moderate
+
+  validate-quality:
+    needs: changes
+    if: needs.changes.outputs.quality == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build workspace packages
+        run: pnpm -r run build
+
+      - name: quality-core tests
+        run: pnpm --filter @ps-neko/quality-core run test
+
+      - name: quality-core typecheck
+        run: pnpm --filter @ps-neko/quality-core run typecheck
+
+  validate-forge:
+    needs: changes
+    if: needs.changes.outputs.forge == 'true' || needs.changes.outputs.quality == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build workspace packages
+        run: pnpm -r run build
+
+      - name: forge-engine tests
+        run: pnpm --filter nekoforge run test
+
+      - name: forge-engine typecheck
+        run: pnpm --filter nekoforge run typecheck
+
+  validate-cli:
+    needs: changes
+    if: needs.changes.outputs.cli == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -76,6 +196,9 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build workspace packages
+        run: pnpm -r run build
+
       - name: Validate manifests and catalog
         run: |
           node packages/nekowork-cli/scripts/install-plan.js --profile core --verbose
@@ -86,20 +209,8 @@ jobs:
           node packages/nekowork-cli/scripts/ci/catalog.js
           node packages/nekowork-cli/scripts/ci/check-markers.js
 
-      - name: Security hardening gate
-        run: pnpm --filter @ps-neko/nekowork run security:hardening
-
-      - name: Build workspace packages
-        run: pnpm -r run build
-
-      - name: Unit and integration tests
-        run: pnpm -r run test
-
-      - name: Typecheck workspace
-        run: pnpm -r run typecheck
-
-      - name: Dependency audit
-        run: pnpm audit --audit-level=moderate
+      - name: nekowork-cli tests
+        run: pnpm --filter @ps-neko/nekowork run test
 
       - name: Build projections
         run: |
@@ -108,3 +219,38 @@ jobs:
           node packages/nekowork-cli/scripts/build-cursor.js
           node packages/nekowork-cli/scripts/build-gemini.js
           node packages/nekowork-cli/scripts/build-opencode.js
+
+  validate-all:
+    needs: [security, validate-quality, validate-forge, validate-cli]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Aggregate verdict
+        env:
+          R_SECURITY: ${{ needs.security.result }}
+          R_QUALITY: ${{ needs.validate-quality.result }}
+          R_FORGE: ${{ needs.validate-forge.result }}
+          R_CLI: ${{ needs.validate-cli.result }}
+        run: |
+          set -euo pipefail
+          fail=0
+          for k in security quality forge cli; do
+            upper="$(echo "$k" | tr '[:lower:]' '[:upper:]')"
+            var="R_${upper}"
+            result="${!var}"
+            case "$result" in
+              success|skipped)
+                echo "$k: $result"
+                ;;
+              *)
+                echo "::error::$k = $result"
+                fail=1
+                ;;
+            esac
+          done
+          if [ "$fail" = "1" ]; then
+            echo "::error::one or more required jobs failed"
+            exit 1
+          fi
+          echo "all required jobs satisfied (success or skipped)"
