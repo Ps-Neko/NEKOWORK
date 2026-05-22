@@ -46,6 +46,9 @@ runtime/target/
 credentials*.json
 *-credentials.json
 
+# 위 시크릿 룰은 사용자 코드 보호용. 테스트 fixture 는 검증 룰을 시연·검증하기 위해 필요.
+!tests/fixtures/**/*.pem
+
 # IDE / OS
 .idea/
 .vscode/

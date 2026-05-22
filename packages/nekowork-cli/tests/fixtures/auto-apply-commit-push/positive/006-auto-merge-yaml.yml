@@ -1,0 +1,7 @@
+# positive: dependabot-style auto-merge enabled
+version: 2
+updates:
+  - package-ecosystem: npm
+    schedule:
+      interval: daily
+    auto-merge: true

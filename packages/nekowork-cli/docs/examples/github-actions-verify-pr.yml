@@ -1,0 +1,90 @@
+# NEKOWORK verify-pr — GitHub Actions example
+#
+# Drop this into .github/workflows/nekowork-verify-pr.yml in your repo.
+# It runs `nekowork verify-pr` on every PR, posts the verdict as a PR comment,
+# and uses exit codes per docs/SCOPE-1.0.md §8 to gate merge.
+#
+# Exit code matrix (default — see --ci-exit-soft below):
+#   ALLOW                 → 0  (check passes)
+#   ALLOW_WITH_WARNINGS   → 0  (check passes, comment only)
+#   NEEDS_HUMAN_REVIEW    → 1  (check fails, branch protection blocks)
+#   INSUFFICIENT_EVIDENCE → 1  (check fails, branch protection blocks)
+#   BLOCK                 → 2  (check fails strongly)
+#
+# If you want NEEDS_HUMAN_REVIEW / INSUFFICIENT_EVIDENCE to comment but NOT
+# fail the check (e.g. you rely on PR label workflow instead), pass
+# --ci-exit-soft.
+
+name: NEKOWORK verify-pr
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  verify-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run NEKOWORK verify-pr
+        id: nekowork
+        run: |
+          npx -y @ps-neko/nekowork@alpha verify-pr \
+            --range ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} \
+            --comment-file .nekowork/pr-comment.md
+        continue-on-error: true
+
+      - name: Post verdict as PR comment
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f .nekowork/pr-comment.md ]; then
+            gh pr comment ${{ github.event.pull_request.number }} \
+              --body-file .nekowork/pr-comment.md
+          fi
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nekowork-evidence
+          path: |
+            .nekowork/
+            REPORT.md
+          if-no-files-found: ignore
+
+      - name: Fail step if verify-pr failed
+        if: steps.nekowork.outcome == 'failure'
+        run: exit 1
+
+      - name: Apply PR labels based on verdict
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f .nekowork/decision.json ]; then
+            VERDICT=$(node -e "console.log(require('./.nekowork/decision.json').verdict)")
+            case "$VERDICT" in
+              NEEDS_HUMAN_REVIEW)
+                gh pr edit ${{ github.event.pull_request.number }} --add-label "neko/needs-review" ;;
+              INSUFFICIENT_EVIDENCE)
+                gh pr edit ${{ github.event.pull_request.number }} --add-label "neko/no-evidence" ;;
+              BLOCK)
+                gh pr edit ${{ github.event.pull_request.number }} --add-label "neko/blocked" ;;
+            esac
+          fi
