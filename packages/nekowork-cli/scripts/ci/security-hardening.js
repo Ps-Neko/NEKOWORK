@@ -45,7 +45,17 @@ export function isSemverMcpPin(pin) {
   return /@\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(pin);
 }
 
-export function checkSecurityHardening(root = ROOT) {
+export function resolveEffectiveRoot(start) {
+  // Monorepo 자동 감지: packages/<x>/ 에서 호출되면 워크스페이스 루트로 폴백.
+  const candidate = path.resolve(start, '..', '..');
+  if (fs.existsSync(path.join(candidate, 'pnpm-workspace.yaml'))) {
+    return candidate;
+  }
+  return start;
+}
+
+export function checkSecurityHardening(rawRoot = ROOT) {
+  const root = resolveEffectiveRoot(rawRoot);
   const errors = [];
   const warnings = [];
   const stats = {

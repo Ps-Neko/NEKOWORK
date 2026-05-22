@@ -7,6 +7,7 @@ import {
   checkSecurityHardening,
   isPinnedActionRef,
   isSemverMcpPin,
+  resolveEffectiveRoot,
 } from '../../scripts/ci/security-hardening.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
@@ -33,6 +34,23 @@ test('security hardening passes the repository policy', () => {
   assert.deepEqual(report.errors, []);
   assert.equal(report.stats.workflows, 2);
   assert.ok(report.stats.actions >= 2);
+});
+
+test('resolveEffectiveRoot detects monorepo workspace root from package dir', () => {
+  // packages/nekowork-cli/ → monorepo root 폴백
+  assert.equal(resolveEffectiveRoot(ROOT), MONOREPO_ROOT);
+  // monorepo root 자체 → 그대로 반환 (상위에 pnpm-workspace.yaml 없음)
+  assert.equal(resolveEffectiveRoot(MONOREPO_ROOT), MONOREPO_ROOT);
+});
+
+test('security hardening accepts pnpm-lock.yaml from monorepo root when invoked from package dir', () => {
+  // 패키지 디렉터리 기본 ROOT 로 호출해도 lockfile 에러 없어야 함.
+  // (CI/CLI 가 `pnpm -F nekowork-cli run security:hardening` 으로 실행할 때 시나리오)
+  const report = checkSecurityHardening(ROOT);
+  const lockfileErrors = report.errors.filter((e) =>
+    /package-lock\.json or pnpm-lock\.yaml is required/.test(e),
+  );
+  assert.deepEqual(lockfileErrors, [], `unexpected lockfile error: ${JSON.stringify(report.errors)}`);
 });
 
 test('security hardening catches unsafe workflow triggers and action refs', () => {
