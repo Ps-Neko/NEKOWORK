@@ -1,0 +1,109 @@
+{
+  "name": "@ps-neko/nekowork",
+  "version": "0.1.0-alpha.11",
+  "description": "Verifies AI-made code changes before apply with Codex verification, Human Gate, and explicit apply",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "codex",
+    "ai-agent",
+    "ai-code-review",
+    "ai-safety",
+    "ai-development-runtime",
+    "verified-autopilot",
+    "autopilot",
+    "safe-build",
+    "verified-build",
+    "code-review",
+    "human-gate",
+    "local-first",
+    "second-opinion",
+    "ship-readiness",
+    "verification",
+    "mcp",
+    "harness",
+    "multi-agent"
+  ],
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ps-Neko/NEKOWORK.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "bin": {
+    "harness": "scripts/cli.js",
+    "nekowork": "scripts/cli.js"
+  },
+  "files": [
+    "agent.yaml",
+    "agents/",
+    "skills/",
+    "commands/",
+    "hooks/",
+    "rules/",
+    "manifests/",
+    "schemas/",
+    "scripts/",
+    "bridge/",
+    "examples/",
+    "docs/",
+    "SOUL.md",
+    "RULES.md",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "WORKING-CONTEXT.md",
+    "REVIEW.md"
+  ],
+  "scripts": {
+    "build": "echo 'build: harness-specific projection scripts run via prepack' && exit 0",
+    "build:claude": "node scripts/build-claude.js",
+    "build:codex": "node scripts/build-codex.js",
+    "build:cursor": "node scripts/build-cursor.js",
+    "build:gemini": "node scripts/build-gemini.js",
+    "build:codemaps": "node scripts/build-codemaps.js",
+    "lint": "node scripts/ci/catalog.js && npm run validate:all && npm run security:hardening && node scripts/ci/check-version.js",
+    "test": "node --test tests/unit/*.test.js tests/integration/*.test.js tests/e2e/*.test.js",
+    "test:unit": "node --test tests/unit/*.test.js",
+    "test:integration": "node --test tests/integration/*.test.js",
+    "test:e2e": "node --test tests/e2e/*.test.js",
+    "test:catalog": "node scripts/ci/catalog.js",
+    "bench:rules": "node scripts/benchmark/rules.js",
+    "security:hardening": "node scripts/ci/security-hardening.js",
+    "validate:agents": "node scripts/ci/validate-agents.js",
+    "validate:skills": "node scripts/ci/validate-skills.js",
+    "validate:hooks": "node scripts/ci/validate-hooks.js",
+    "validate:manifests": "node scripts/ci/validate-manifests.js",
+    "validate:all": "npm run validate:agents && npm run validate:skills && npm run validate:hooks && npm run validate:manifests",
+    "install:plan": "node scripts/install-plan.js",
+    "install:apply": "node scripts/install-apply.js",
+    "demo:quick": "node scripts/demo-quick-run.js",
+    "demo:external": "node scripts/demo-external-project.js",
+    "verify:claude": "node scripts/verify/claude-live.js",
+    "verify:codex": "node scripts/verify/codex-live.js",
+    "verify:gemini": "node scripts/verify/gemini-live.js",
+    "verify:runtime": "node scripts/verify/runtime.js",
+    "auth:github:login": "node scripts/auth/github-login.js",
+    "auth:github:status": "node scripts/auth/github-status.js",
+    "auth:github:logout": "node scripts/auth/github-logout.js",
+    "test:keychain": "node --test tests/optional/keychain-smoke.test.js",
+    "auth:github:import-gh": "node scripts/auth/github-import-gh.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@napi-rs/keyring": "^1.2.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "yaml": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2"
+  },
+  "optionalDependencies": {
+    "@anthropic-ai/sdk": "^0.92.0"
+  }
+}
