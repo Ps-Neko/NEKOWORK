@@ -89,6 +89,9 @@ jobs:
       - name: Security hardening gate
         run: pnpm --filter @ps-neko/nekowork run security:hardening
 
+      - name: Build workspace packages
+        run: pnpm -r run build
+
       - name: Unit and integration tests
         run: pnpm -r run test
 
