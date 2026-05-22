@@ -72,16 +72,19 @@ jobs:
           filters: |
             forge:
               - 'packages/forge-engine/**'
+              - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
               - '.github/workflows/harness-validate.yml'
             quality:
               - 'packages/quality-core/**'
+              - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
               - '.github/workflows/harness-validate.yml'
             cli:
               - 'packages/nekowork-cli/**'
+              - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
               - '.github/workflows/harness-validate.yml'
