@@ -195,4 +195,18 @@ test("M3a: full 30초 path runs end-to-end", async (t) => {
   assert.ok(types.has("command_start"));
   assert.ok(types.has("command_end"));
   assert.ok(types.has("gate_verdict"));
+
+  // 4,5 — gate_verdict 가 입력 diff 와 decision 을 content hash 로 결박(증거 추적성).
+  const gv = auditLines
+    .map(
+      (l) =>
+        JSON.parse(l) as {
+          type: string;
+          inputDiffHash?: string;
+          decisionHash?: string;
+        }
+    )
+    .find((e) => e.type === "gate_verdict");
+  assert.match(gv?.inputDiffHash ?? "", /^[0-9a-f]{64}$/, "gate_verdict.inputDiffHash 결박");
+  assert.match(gv?.decisionHash ?? "", /^[0-9a-f]{64}$/, "gate_verdict.decisionHash 결박");
 });
