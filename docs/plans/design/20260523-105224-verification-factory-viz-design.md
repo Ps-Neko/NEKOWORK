@@ -118,6 +118,7 @@ A 는 핵심 narrative 없이는 wedge 못 전달, C 는 6주 시계 + 5-user we
 ## Distribution Plan
 
 **locked decisions (spec review 흡수)**:
+- **12-station ↔ forge-engine 14단계 매핑** (VIZ-STATION-MAP lock, post-Phase 1.0 ship patch 2026-05-23): visualizer 의 12-station = forge-engine FACTORY-CELLS.md 14단계의 wedge frame 우선 부분집합. station 6 (deterministic-rules) 가 BLOCK 발생, station 10 (advisor-review) 가 LGTM 발생. 1:1 매핑은 `packages/nekowork-cli/docs/visualizer/src/stations.ts` 의 헤더 주석에 lock (intake/clarify+spec/context+harness-design+plan/work/preverify/quality-policy/quality-contract/quality-score/self-review/codex+architecture+design-review/gate/apply).
 - **번들러**: **Vite + TypeScript** (plain HTML/CSS/TS 안 함 — 1.5주 추정의 핵심 변수라 doc 단계 lock 강제)
 - **GitHub Pages 배포**: **`actions/deploy-pages@v4` + `actions/upload-pages-artifact`** 표준 (gh-pages branch 안 씀)
 - **GIF 인코더**: **ffmpeg** (gifski 보다 CI 표준)

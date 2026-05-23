@@ -1,59 +1,21 @@
 /**
- * Fixture schemas — D8 lock의 visualizer 자체 분기.
+ * Fixture schemas — D8 lock 의 visualizer 분기 (VIZ-SCHEMA-DRIFT partial 진행 후).
  *
- * 본래 plan D8 명시는 forge-engine 의 createValidator() 직접 호출이지만,
- * forge-engine package.json 에 `exports` 가 없어 cross-package import 가
- * 까다롭다. 1차 분기 결정 (Phase 1.0): decision schema 의 핵심 필드만
- * visualizer 안에 inline 정의 + forge-engine 과의 drift 감지는 별도 TODO
- * (VIZ-SCHEMA-DRIFT) 로 후속.
+ * decision schema 의 정본 = `forge-engine` (workspace package `nekoforge`) 의
+ * `src/schemas/decision.schema.ts`. visualizer 는 `nekoforge/schemas/decision`
+ * 의 `decisionSchema` 를 직접 import 해 drift 0 을 보장한다. forge-engine 의
+ * `package.json` 의 `exports` 가 본 import 를 노출 (VIZ-SCHEMA-DRIFT 의
+ * Phase 1.0 ship 직후 작업).
  *
- * 후속 (TODOS.md 등록): T16 의 Phase 1.0 ship 직후 작업.
- *   1. forge-engine 의 package.json 에 exports 추가
- *   2. visualizer 가 forge-engine 의 decisionSchema 직접 사용
- *   3. visualizer 자체 schema 삭제 (drift 자동 제거)
+ * 나머지 4 schema (samplePr / claudeReview / preverify / verify) 는 visualizer
+ * 자체 inline 정의로 유지 — forge-engine 의 등록 schema 13종에 포함되지 않은
+ * 산출물이라 visualizer 가 own 한다. 향후 forge-engine 으로 흡수 시
+ * VIZ-SCHEMA-DRIFT 의 Stage 2 작업.
  */
 
-export const decisionFixtureSchema = {
-  $id: 'visualizer-fixture-decision',
-  type: 'object',
-  required: [
-    'schemaVersion',
-    'project',
-    'taskId',
-    'workflowStage',
-    'verdict',
-    'riskLevel',
-    'humanApprovalRequired',
-    'humanApproved',
-    'evidence',
-    'apply'
-  ],
-  properties: {
-    schemaVersion: { type: 'string', const: '0.5' },
-    project: { type: 'string', minLength: 1 },
-    taskId: { type: 'string', minLength: 1 },
-    workflowStage: { type: 'string' },
-    verdict: {
-      type: 'string',
-      enum: ['PASS', 'PASS_WITH_WARNINGS', 'NEEDS_HUMAN_REVIEW', 'BLOCK', 'INSUFFICIENT_EVIDENCE']
-    },
-    riskLevel: { type: 'string', enum: ['low', 'medium', 'high', 'critical'] },
-    humanApprovalRequired: { type: 'boolean' },
-    humanApproved: { type: 'boolean' },
-    evidence: {
-      type: 'object',
-      additionalProperties: { type: 'string' }
-    },
-    apply: {
-      type: 'object',
-      required: ['allowed'],
-      properties: {
-        allowed: { type: 'boolean' },
-        reason: { type: 'string' }
-      }
-    }
-  }
-} as const;
+import { decisionSchema as forgeDecisionSchema } from 'nekoforge/schemas/decision';
+
+export const decisionFixtureSchema = forgeDecisionSchema;
 
 export const samplePrFixtureSchema = {
   $id: 'visualizer-fixture-sample-pr',
@@ -197,18 +159,12 @@ export const verifySummaryFixtureSchema = {
   }
 } as const;
 
-export interface FixtureSchemaMap {
-  readonly samplePr: typeof samplePrFixtureSchema;
-  readonly decision: typeof decisionFixtureSchema;
-  readonly claudeReview: typeof claudeReviewFixtureSchema;
-  readonly preverifySummary: typeof preverifySummaryFixtureSchema;
-  readonly verifySummary: typeof verifySummaryFixtureSchema;
-}
-
-export const fixtureSchemas: FixtureSchemaMap = {
+export const fixtureSchemas = {
   samplePr: samplePrFixtureSchema,
   decision: decisionFixtureSchema,
   claudeReview: claudeReviewFixtureSchema,
   preverifySummary: preverifySummaryFixtureSchema,
   verifySummary: verifySummaryFixtureSchema
-};
+} as const;
+
+export type FixtureSchemaMap = typeof fixtureSchemas;
