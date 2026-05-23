@@ -95,14 +95,21 @@ test.describe('Visualizer a11y (T11) + mobile (T14)', () => {
   test('prefers-reduced-motion respected (T14)', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
-    await page.goto(FIXTURE_URL, { waitUntil: 'networkidle' });
+    await page.goto(FIXTURE_URL, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.station', { state: 'visible' });
 
-    // styles.css 의 @media (prefers-reduced-motion: reduce) 가 transition-duration 0.001ms 강제.
-    const transitionMs = await page
+    // styles.css 의 @media (prefers-reduced-motion: reduce) 가
+    // transition-duration 0.001ms 강제. 브라우저는 이를 "0s", "0.001ms",
+    // "0.0001ms", "1e-06s" 등 다양한 표현으로 noremalize — parseFloat 으로
+    // numeric 비교 (< 10ms = 0.01s).
+    const transitionStr = await page
       .locator('.station')
       .first()
       .evaluate((el) => getComputedStyle(el).transitionDuration);
-    expect(transitionMs, 'reduced-motion transition duration').toMatch(/^0\.0+1?m?s$|^0s$/);
+    const seconds = parseFloat(transitionStr);
+    expect(seconds, `reduced-motion transition duration (raw "${transitionStr}")`).toBeLessThan(
+      0.01
+    );
     await context.close();
   });
 });
