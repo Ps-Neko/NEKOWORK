@@ -175,8 +175,13 @@ export async function runApply(
     const approvalText = (await deps.artifact.readMarkdown("approval.txt")) ?? "";
     const ok = approvalLineMatches(approvalText, decision);
     if (!ok) {
+      const hash12 = approvalDecisionHash(decision);
       throw new ApplyApprovalError(
-        `verdict=NEEDS_HUMAN_REVIEW; .harness/approval.txt missing or token mismatch for ${decision.taskId}`
+        `verdict=NEEDS_HUMAN_REVIEW; .harness/approval.txt missing or token mismatch for ${decision.taskId}. ` +
+          `Expected a line bound to the current decision, e.g.: ` +
+          `approve ${decision.taskId} verdict=${decision.verdict} decision=${hash12} ` +
+          `(decision=<first 12 chars of the current decision.json content hash>; ` +
+          `an old token from a different decision is rejected)`
       );
     }
   }
@@ -257,12 +262,29 @@ export async function runApply(
   };
 }
 
+/** 현재 decision.json content hash 의 앞 12자 — approval 토큰이 바인딩되는 값. */
+function approvalDecisionHash(decision: DecisionJson): string {
+  return canonicalHash(decision).slice(0, 12);
+}
+
+/**
+ * approval.txt 의 한 줄이 현재 decision 을 승인하는지 검사한다.
+ *
+ * 보안 강화(decision-binding): 다음 세 토큰이 한 라인에 **모두** 있어야 통과한다.
+ *   1. `approve <taskId>`
+ *   2. `verdict=<verdict>`
+ *   3. `decision=<hash12>`  ← 현재 decision.json canonicalHash 앞 12자
+ * decision= 토큰이 없거나 hash 가 다르면(=오래된/다른 decision 의 토큰) 거부된다.
+ * 토큰 순서는 자유 — 각 토큰을 독립적으로 검사한다.
+ */
 function approvalLineMatches(text: string, decision: DecisionJson): boolean {
-  const lines = text.split(/\r?\n/);
-  const re = new RegExp(
-    `\\bapprove\\s+${escapeRe(decision.taskId)}\\b.*\\bverdict=${escapeRe(decision.verdict)}\\b`
-  );
-  return lines.some((l) => re.test(l));
+  const hash12 = approvalDecisionHash(decision);
+  const taskRe = new RegExp(`\\bapprove\\s+${escapeRe(decision.taskId)}\\b`);
+  const verdictRe = new RegExp(`\\bverdict=${escapeRe(decision.verdict)}\\b`);
+  const decisionRe = new RegExp(`\\bdecision=${escapeRe(hash12)}\\b`);
+  return text
+    .split(/\r?\n/)
+    .some((l) => taskRe.test(l) && verdictRe.test(l) && decisionRe.test(l));
 }
 
 function escapeRe(s: string): string {
