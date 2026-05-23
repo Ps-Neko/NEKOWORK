@@ -1,0 +1,7 @@
+# Visualizer source — excluded from npm tarball (D2 lock, 2026-05-23 plan)
+# Reason: docs/visualizer/ is a Vite + TypeScript build artifact scope.
+# Including it would leak dev-only tsconfig/vite.config + bloat the tarball
+# beyond the alpha.11 baseline + 1MB delta guard.
+# Counterpart CI assertion: .github/workflows/harness-validate.yml
+# (tarball-size-guard job).
+docs/visualizer/

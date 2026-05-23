@@ -1,0 +1,424 @@
+/*
+ * Visualizer styles — Phase 1.0.
+ * Visual hierarchy (VISION-UI-CHECKLIST §2): NEKOWORK rule > Claude advisor.
+ * - NEKOWORK badge: WCAG AAA contrast (>= 7:1) on dark surface.
+ * - Claude badge:   WCAG AA contrast (>= 4.5:1) on neutral surface.
+ * - Tap targets >= 44x44 (mobile baseline).
+ * - prefers-reduced-motion honored.
+ */
+
+:root {
+  --bg: #0b0d12;
+  --surface: #141821;
+  --surface-2: #1c2230;
+  --text: #f3f5f9;
+  --text-muted: #a8b0bf;
+
+  --advisor-bg: #1c2230;
+  --advisor-fg: #c7cdda;
+  --advisor-accent: #6fa1ff;
+
+  --neko-bg: #2a0f10;
+  --neko-fg: #ffd6d7;
+  --neko-accent: #ff5a5f;
+
+  --pass: #38c172;
+  --warn: #f6b73c;
+  --fail: #ff4d4f;
+  --pending: #888c97;
+  --skip: #525866;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --radius: 10px;
+  --gap: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans CJK KR', 'Helvetica Neue', Arial,
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+body {
+  min-height: 100vh;
+}
+
+main.layout {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+  display: grid;
+  gap: 24px;
+}
+
+/* --- Wedge (above the fold, design doc Path 1) --- */
+
+.wedge {
+  text-align: center;
+  padding: 40px 20px 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.wedge__title {
+  font-size: clamp(28px, 4.5vw, 44px);
+  line-height: 1.2;
+  margin: 0 0 12px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+
+.wedge__sub {
+  font-size: clamp(15px, 1.8vw, 18px);
+  margin: 0;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* --- PR summary --- */
+
+.pr-summary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+}
+
+.pr-summary__title {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.pr-summary__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 12px;
+  font-family: ui-monospace, SFMono-Regular, 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.pr-summary__meta span {
+  background: var(--surface-2);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.pr-summary__purpose {
+  margin: 0;
+  color: var(--text);
+}
+
+/* --- Conflict frame (Claude vs NEKOWORK) --- */
+
+.conflict {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: var(--gap);
+}
+
+.conflict__column {
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  border: 1px solid var(--border);
+  min-height: 220px;
+}
+
+.conflict__column--advisor {
+  background: var(--advisor-bg);
+  color: var(--advisor-fg);
+}
+
+.conflict__column--neko {
+  background: linear-gradient(180deg, var(--neko-bg) 0%, #1a0708 100%);
+  color: var(--neko-fg);
+  box-shadow: 0 0 0 1px rgba(255, 90, 95, 0.35);
+}
+
+.conflict__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.conflict__verdict {
+  margin: 0 0 14px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.conflict__column--neko .conflict__verdict {
+  font-size: 28px;
+  letter-spacing: -0.01em;
+}
+
+.conflict__rule,
+.conflict__comments {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+}
+
+.conflict__rule li,
+.conflict__comments li {
+  margin-bottom: 6px;
+}
+
+.conflict__apply {
+  margin: 16px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 14px;
+}
+
+.conflict__rule-empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* --- Badges --- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.badge--advisor {
+  background: var(--surface-2);
+  color: var(--advisor-accent);
+  border: 1px solid rgba(111, 161, 255, 0.35);
+}
+
+.badge--advisor-info {
+  background: rgba(111, 161, 255, 0.18);
+  color: #cfe0ff;
+}
+
+.badge--advisor-warn {
+  background: rgba(246, 183, 60, 0.18);
+  color: #ffe1a5;
+}
+
+.badge--neko {
+  background: rgba(255, 90, 95, 0.18);
+  color: #ffd6d7;
+  border: 1px solid rgba(255, 90, 95, 0.45);
+}
+
+.badge--block {
+  background: #ff5a5f;
+  color: #1a0708;
+  font-size: 14px;
+  padding: 6px 14px;
+}
+
+.badge--pass {
+  background: var(--pass);
+  color: #052013;
+  font-size: 14px;
+  padding: 6px 14px;
+}
+
+.badge--warn {
+  background: var(--warn);
+  color: #2a1a00;
+  font-size: 14px;
+  padding: 6px 14px;
+}
+
+.source-tag {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+}
+
+.source-tag--manufactured {
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+}
+
+.source-tag--recorded {
+  border: 1px solid rgba(56, 193, 114, 0.45);
+  color: #bcefd0;
+}
+
+/* --- 12-station grid --- */
+
+.stations__title {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.stations__grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.station {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 14px 16px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  row-gap: 4px;
+  min-height: 88px;
+  min-width: 0;
+  position: relative;
+  transition: transform 120ms ease, border-color 120ms ease;
+}
+
+.station:focus-within,
+.station:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.station__pos {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.station__label {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.station__status {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.station__desc {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.station--pass .station__status {
+  background: rgba(56, 193, 114, 0.22);
+  color: #bcefd0;
+}
+.station--warn .station__status {
+  background: rgba(246, 183, 60, 0.22);
+  color: #ffe1a5;
+}
+.station--fail .station__status {
+  background: rgba(255, 77, 79, 0.28);
+  color: #ffd6d7;
+}
+.station--fail {
+  border-color: rgba(255, 77, 79, 0.45);
+  box-shadow: 0 0 0 1px rgba(255, 77, 79, 0.18) inset;
+}
+.station--pending .station__status {
+  background: rgba(136, 140, 151, 0.22);
+  color: var(--text-muted);
+}
+.station--skip .station__status {
+  background: rgba(82, 88, 102, 0.22);
+  color: var(--text-muted);
+}
+
+/* --- Evidence trail --- */
+
+.evidence__title {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.evidence__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+  font-family: ui-monospace, SFMono-Regular, 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+
+.evidence__list li {
+  background: var(--surface);
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+/* --- Responsive (mobile 320px+) --- */
+
+@media (max-width: 720px) {
+  .conflict {
+    grid-template-columns: 1fr;
+  }
+  .stations__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 420px) {
+  .stations__grid {
+    grid-template-columns: 1fr;
+  }
+  main.layout {
+    padding: 16px 14px 60px;
+  }
+}
+
+/* --- Tap target baseline --- */
+
+button,
+a,
+.station {
+  min-height: 44px;
+}
+
+/* --- Reduced motion --- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

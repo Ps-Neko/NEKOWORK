@@ -1,0 +1,19 @@
+{
+  "id": "sample-pr-001",
+  "title": "feat(auth): JWT 검증 미들웨어 추가",
+  "description": "보호 라우트 진입 전 JWT 검증 미들웨어를 신설한다. 환경변수에서 시크릿을 읽되 누락 시 dev fallback 키로 fallback 한다.",
+  "audience": "한국 OSS 메인테이너 — Express.js 운영 경험",
+  "purpose": "wedge 첫 사례 — hardcoded secret fallback 패턴이 NEKOWORK 규칙으로 BLOCK 되는 반면 Claude advisor 는 LGTM 으로 통과시키는 충돌 상황을 보인다.",
+  "language": "ko",
+  "pr_id": "sample-pr-001",
+  "base_branch": "main",
+  "head_branch": "feat/jwt-middleware",
+  "files_changed": ["src/auth.js"],
+  "stats": {
+    "additions": 18,
+    "deletions": 0,
+    "files": 1
+  },
+  "diff_hash": "sha256:7c4a8d09ca3762af61e59520943dc26494f8941b3e6d8c1abc",
+  "diff_content": "diff --git a/src/auth.js b/src/auth.js\nnew file mode 100644\nindex 0000000..3e6d8c1\n--- /dev/null\n+++ b/src/auth.js\n@@ -0,0 +1,18 @@\n+import jwt from 'jsonwebtoken';\n+\n+const JWT_SECRET = process.env.JWT_SECRET || \"dev-fallback-key\";\n+\n+export function verifyToken(req, res, next) {\n+  const header = req.headers['authorization'] || '';\n+  const token = header.replace(/^Bearer /, '');\n+  if (!token) return res.status(401).json({ error: 'missing token' });\n+\n+  try {\n+    const payload = jwt.verify(token, JWT_SECRET);\n+    req.user = payload;\n+    next();\n+  } catch (err) {\n+    return res.status(403).json({ error: 'invalid token' });\n+  }\n+}\n+\n"
+}
