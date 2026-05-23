@@ -52,45 +52,45 @@ function cleanFramesDir(): void {
   }
 }
 
-function startPreviewServer(): Promise<ChildProcess> {
-  return new Promise((resolve, reject) => {
-    const proc = spawn(
-      'pnpm',
-      ['exec', 'vite', 'preview', '--port', PORT, '--strictPort'],
-      {
-        cwd: visualizerRoot,
-        stdio: ['ignore', 'pipe', 'pipe'],
-        shell: process.platform === 'win32'
-      }
-    );
-
-    const timer = setTimeout(() => {
-      proc.kill();
-      reject(new Error('vite preview start timeout (15s)'));
-    }, 15_000);
-
-    proc.stdout?.on('data', (chunk: Buffer) => {
-      const text = chunk.toString();
-      if (text.includes('Local:') || text.includes('localhost:' + PORT)) {
-        clearTimeout(timer);
-        resolve(proc);
-      }
-    });
-
-    proc.stderr?.on('data', (chunk: Buffer) => {
-      const text = chunk.toString();
-      if (text.toLowerCase().includes('error')) {
-        clearTimeout(timer);
-        proc.kill();
-        reject(new Error(`vite preview stderr: ${text}`));
-      }
-    });
-
-    proc.on('error', (err) => {
-      clearTimeout(timer);
-      reject(err);
-    });
+async function startPreviewServer(): Promise<ChildProcess> {
+  // shell: true 로 통일 (ubuntu/macOS/Windows 모두). spawn('pnpm') 직접 호출이
+  // CI ubuntu 에서 stdout 의 "Local:" 출력을 buffer 처리하지 않을 가능성을
+  // HTTP polling 으로 우회. 더 robust.
+  const proc = spawn('pnpm', ['exec', 'vite', 'preview', '--port', PORT, '--strictPort'], {
+    cwd: visualizerRoot,
+    stdio: ['ignore', 'pipe', 'pipe'],
+    shell: true
   });
+
+  // 디버깅: stdout/stderr 를 그대로 host stdout 으로 (CI 의 fail log 분석 용).
+  proc.stdout?.on('data', (chunk: Buffer) => {
+    process.stdout.write(`[vite preview] ${chunk.toString()}`);
+  });
+  proc.stderr?.on('data', (chunk: Buffer) => {
+    process.stderr.write(`[vite preview stderr] ${chunk.toString()}`);
+  });
+
+  // Ready detection = HTTP HEAD 요청 polling (stdout parsing 보다 안정).
+  const readyUrl = `http://localhost:${PORT}/NEKOWORK/`;
+  const deadline = Date.now() + 30_000;
+  while (Date.now() < deadline) {
+    if (proc.exitCode !== null) {
+      throw new Error(`vite preview exited early (code ${proc.exitCode})`);
+    }
+    try {
+      const res = await fetch(readyUrl, { method: 'HEAD' });
+      if (res.status >= 200 && res.status < 500) {
+        console.log(`vite preview ready: ${readyUrl} (status ${res.status})`);
+        return proc;
+      }
+    } catch {
+      // not ready yet, continue polling
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+
+  proc.kill();
+  throw new Error(`vite preview not ready within 30s at ${readyUrl}`);
 }
 
 async function captureFrames(): Promise<void> {
