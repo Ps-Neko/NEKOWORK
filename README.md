@@ -48,6 +48,14 @@ Bring your AI tool (Cursor / Claude Code / Codex). NEKOWORK starts after the dif
 
 **Public alpha evidence:** 401 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs · [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) · [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) · [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) · [full report example](docs/DEMO-REPORT.md) · [external run kit](docs/EXTERNAL-RUN.md) · [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) · [roadmap](docs/ROADMAP.md)
 
+<p align="center">
+  <a href="https://ps-neko.github.io/NEKOWORK/?fixture=sample-pr-001">
+    <img src="packages/nekowork-cli/docs/assets/hero.gif" alt="NEKOWORK Verification Factory — Claude advisor 가 LGTM 한 코드를 NEKOWORK 결정적 규칙이 BLOCK 하는 12-station 시연" width="800" />
+  </a>
+  <br/>
+  <em>Claude said LGTM. NEKOWORK blocked.</em> &nbsp;·&nbsp; <a href="https://ps-neko.github.io/NEKOWORK/?fixture=sample-pr-001"><strong>Live demo →</strong></a>
+</p>
+
 ![NEKOWORK one-minute terminal demo](docs/assets/demo-terminal.svg)
 
 ## One Command. One Blocked Risk.
