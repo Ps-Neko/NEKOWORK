@@ -131,11 +131,14 @@ A 는 핵심 narrative 없이는 wedge 못 전달, C 는 6주 시계 + 5-user we
 - Fixture: `packages/nekowork-cli/docs/visualizer/fixtures/sample-pr-001/{sample-pr.json, decision.json, REPORT.md, evidence/*.json, claude-review.json}` (Claude review attribution: `"source": "manufactured"` 또는 `"source": "recorded", "pr_url": "..."`, 정직성 강제)
 
 **JSON schema 명세** (Phase 1 시작 전 lock 필수, spec review critical):
-- `sample-pr.json`: `{ pr_id, title, base_branch, head_branch, files_changed[], stats: {additions, deletions, files}, diff_hash }`
-- `decision.json`: alpha.11 의 실 산출물 schema 그대로 사용 (verdict, reason, risk_level, merge_allowed, apply_allowed, findings, evidence[])
-- `REPORT.md`: alpha.11 그대로
-- `evidence/*.json`: `preverify-summary.json`, `verify-summary.json`, `decision.json` (alpha.11 그대로)
-- `claude-review.json`: `{ source: "manufactured"|"recorded", verdict: "LGTM"|"REQUEST_CHANGES", comments[]: {file, line, body}, attribution?: string }`
+
+> Lock 결과 (2026-05-23 plan-eng-review, D4-D6, post-Phase 1.0 patch 2026-05-23): 실 `decision.schema.ts` (forge-engine, `schemaVersion: "0.5"`) 가 source-of-truth. 본 명세는 visualizer 의 first-frame 표시 우선순위 + fixture 작성 가이드.
+
+- `sample-pr.json` (D5 lock): `{ id, title, description, audience, purpose, language, pr_id, base_branch, head_branch, files_changed[], stats: {additions, deletions, files}, diff_hash, diff_content }` — diff_content 는 JSON string escape 로 embed (별도 .diff 파일 미생성).
+- `decision.json` (D4 lock — `schemaVersion: "0.5"` 정본): 필수 fields = `schemaVersion, project, taskId, workflowStage, verdict, riskLevel, humanApprovalRequired, humanApproved, evidence, apply`. verdict enum = `PASS | PASS_WITH_WARNINGS | NEEDS_HUMAN_REVIEW | BLOCK | INSUFFICIENT_EVIDENCE`. riskLevel enum = `low | medium | high | critical`. 선택 fields = `deterministicRules, reviewAdapters, qualityPolicy, qualityContract, qualityScore, factoryCells, architectureReview, designReview, workerFactory, rulePacks, skillPacks`. **Visualizer 의 first-frame 표시 우선순위** = `verdict` → `riskLevel` → `deterministicRules.triggeredRules[]` → `apply.allowed` → `apply.reason`. evidence 는 `Record<string, string>` (경로/식별자만). design doc 초안의 "merge_allowed / reason / findings / evidence[] (array)" 는 실 schema 의 `apply.allowed / apply.reason / reviewAdapters[].findingsCount / evidence{key:path}` 로 mapping.
+- `REPORT.md`: plain markdown (frontmatter 없음). alpha.11 산출 형식 그대로 — verdict, risk, triggered rules, advisor input, apply decision, evidence trail.
+- `evidence/*.json` (D4): 3종 = `preverify-summary.json` (`schemaVersion: "preverify-v0"`) + `verify-summary.json` (`schemaVersion: "verify-v0"`, acceptance_coverage 확장) + `decision.json` (`schemaVersion: "0.5"` sub-stage decision). forge-engine 의 schema loader 가 root decision 만 직접 검증, evidence/* 은 visualizer 자체 inline schema 가 검증 ([[VIZ-SCHEMA-DRIFT]] TODO 로 forge-engine 직접 import 까지 후속).
+- `claude-review.json` (D6 lock): `{ source: "manufactured"|"recorded", verdict: "LGTM"|"REQUEST_CHANGES", comments[]: {file:string, line:int, body:string}, attribution?: string }`. `source="recorded"` 일 때 attribution required (Ajv if/then).
 
 **Distribution channel** (Assignment 의 3·5명 ID 리스트와 매핑):
 - (A) README hero GIF + "Live demo →" 링크 (GitHub Pages URL) — 자연 유입
