@@ -176,15 +176,24 @@ async function main(): Promise<void> {
     assertSize();
   } finally {
     server.kill();
-    // Windows 의 vite preview 가 SIGTERM 무시할 수 있어 짧게 SIGKILL
-    setTimeout(() => {
+    // vite preview 가 SIGTERM 무시할 수 있어 짧게 SIGKILL.
+    // unref() 로 event loop 가 본 timer 때문에 살아 있지 않도록.
+    const sigkillTimer = setTimeout(() => {
       if (!server.killed) server.kill('SIGKILL');
     }, 500);
+    sigkillTimer.unref();
+    // 자식 process 의 stdio handle 이 event loop 잡지 않도록.
+    server.unref();
   }
 }
 
-main().catch((e: unknown) => {
-  const msg = e instanceof Error ? e.message : String(e);
-  console.error('gen-hero-gif failed:', msg);
-  process.exitCode = 1;
-});
+main()
+  .then(() => {
+    // 자식 process 가 살아 있으면 event loop 안 끝남 → 명시 exit.
+    process.exit(0);
+  })
+  .catch((e: unknown) => {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error('gen-hero-gif failed:', msg);
+    process.exit(1);
+  });
