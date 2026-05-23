@@ -8,7 +8,8 @@
 import type { StageDeps } from "../stage-runner.js";
 import { evaluateAutoApplyBlock } from "../../rules/auto-apply-block.js";
 import { isoNow } from "../../utils/time.js";
-import { appendAuditEvent } from "../../utils/audit.js";
+import { appendAuditEvent, readAuditChain } from "../../utils/audit.js";
+import { canonicalHash, extractLastDecisionHash } from "../../utils/integrity.js";
 import { readGitDiff } from "../../utils/git.js";
 import { runHooks } from "../../hooks/runner.js";
 import type { Hook } from "../../hooks/types.js";
@@ -93,6 +94,18 @@ export async function runApply(
   if (!decision) {
     throw new ApplyPrecondError(
       "decision.json missing or schema invalid (run `harness gate`)"
+    );
+  }
+
+  // ⓒ decision.json 무결성 — gate 가 audit.jsonl 에 박은 content hash 와 대조.
+  // decision.json 을 gate 이후 사후 편집하면 해시가 어긋나 거부된다.
+  // (decisionHash 가 없는 legacy audit 은 기존 tamper 휴리스틱에 위임하고 통과)
+  const { rawText: auditText } = await readAuditChain(deps.cwd);
+  const anchoredHash = extractLastDecisionHash(auditText);
+  if (anchoredHash !== null && canonicalHash(decision) !== anchoredHash) {
+    throw new ApplyPrecondError(
+      "decision.json integrity check failed: content hash does not match the value " +
+        "anchored in audit.jsonl by gate (decision.json edited after gate?)"
     );
   }
 

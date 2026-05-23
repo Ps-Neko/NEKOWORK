@@ -38,6 +38,8 @@ export interface AuditEvent {
   exitCode?: number;
   verdict?: string;
   reason?: string;
+  /** ⓒ gate_verdict 이벤트에 박는 decision.json canonical content hash. */
+  decisionHash?: string;
   at?: string;
 }
 
