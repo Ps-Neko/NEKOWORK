@@ -6,6 +6,14 @@
 
 [![validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
+<p align="center">
+  <a href="https://ps-neko.github.io/NEKOWORK/?fixture=sample-pr-001">
+    <img src="docs/assets/hero.gif" alt="NEKOWORK Verification Factory — Claude advisor 가 LGTM 한 코드를 NEKOWORK 결정적 규칙이 BLOCK 하는 12-station 시연" width="800" />
+  </a>
+  <br/>
+  <em>Claude said LGTM. NEKOWORK blocked.</em> &nbsp;·&nbsp; <a href="https://ps-neko.github.io/NEKOWORK/?fixture=sample-pr-001"><strong>Live demo →</strong></a>
+</p>
+
 NEKOWORK is a local verification gate for AI-generated code. It analyzes the diff, runs deterministic risk rules, collects evidence, and decides whether the change is safe to merge or apply — without auto-committing, auto-pushing, or trusting LLM verdicts.
 
 Note: "Verified" means independently reviewed with recorded evidence — not mathematically proven correct. The verdict is decided by deterministic rules and check results. Optional Codex review is recorded as an advisor note only and never controls the verdict.
@@ -47,14 +55,6 @@ No auto-commit. No auto-push. No surprise deploy. `apply` is explicit; it requir
 Bring your AI tool (Cursor / Claude Code / Codex). NEKOWORK starts after the diff is on disk. Advanced and legacy commands are documented in [docs/ADVANCED.md](docs/ADVANCED.md) and gated under Phased Cut (see [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md)).
 
 **Public alpha evidence:** 401 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs · [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) · [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) · [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) · [full report example](docs/DEMO-REPORT.md) · [external run kit](docs/EXTERNAL-RUN.md) · [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) · [roadmap](docs/ROADMAP.md)
-
-<p align="center">
-  <a href="https://ps-neko.github.io/NEKOWORK/?fixture=sample-pr-001">
-    <img src="docs/assets/hero.gif" alt="NEKOWORK Verification Factory — Claude advisor 가 LGTM 한 코드를 NEKOWORK 결정적 규칙이 BLOCK 하는 12-station 시연" width="800" />
-  </a>
-  <br/>
-  <em>Claude said LGTM. NEKOWORK blocked.</em> &nbsp;·&nbsp; <a href="https://ps-neko.github.io/NEKOWORK/?fixture=sample-pr-001"><strong>Live demo →</strong></a>
-</p>
 
 ![NEKOWORK one-minute terminal demo](docs/assets/demo-terminal.svg)
 

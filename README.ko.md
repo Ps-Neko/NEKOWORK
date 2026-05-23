@@ -6,6 +6,14 @@
 
 [![validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
+<p align="center">
+  <a href="https://ps-neko.github.io/NEKOWORK/?fixture=sample-pr-001">
+    <img src="packages/nekowork-cli/docs/assets/hero.gif" alt="NEKOWORK Verification Factory — Claude advisor 가 LGTM 한 코드를 NEKOWORK 결정적 규칙이 BLOCK 하는 12-station 시연" width="800" />
+  </a>
+  <br/>
+  <em>Claude said LGTM. NEKOWORK blocked.</em> &nbsp;·&nbsp; <a href="https://ps-neko.github.io/NEKOWORK/?fixture=sample-pr-001"><strong>라이브 데모 →</strong></a>
+</p>
+
 NEKOWORK 는 AI 가 생성한 코드를 위한 로컬 검증 게이트입니다. diff 를 분석하고, 결정적 위험 룰을 실행하고, 증거를 수집한 뒤, 머지 / 적용 가능 여부를 판정합니다 — auto-commit / auto-push 없이, LLM 판정에 의존하지 않고.
 
 > 이 문서는 한국어 요약본입니다. 전체 상세 설명과 모든 고급 옵션은 [English README](README.md)를 참고하세요.
