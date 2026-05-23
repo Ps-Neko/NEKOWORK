@@ -181,7 +181,10 @@ jobs:
     needs: changes
     if: needs.changes.outputs.cli == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # timeout-minutes: 20 — security-hardening 의 dead-man max 20 룰 준수.
+    # visualizer step (playwright install + gen-hero-gif + a11y + lighthouse) 가
+    # 5분 단축 필요시 step optimize 또는 dead-man max 룰 갱신 (별도 결정).
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
 
@@ -332,10 +335,21 @@ jobs:
           echo "OK npm pack delta within 1MB"
 
       - name: Visualizer absence check (.npmignore working)
+        working-directory: packages/nekowork-cli
         run: |
           set -euo pipefail
-          if jq -e '.[0].files[] | select(.path | startswith("docs/visualizer"))' /tmp/pack.json > /dev/null; then
+          LEAKED=$(jq -r '.[0].files[] | select(.path | startswith("docs/visualizer")) | .path' /tmp/pack.json || true)
+          if [ -n "$LEAKED" ]; then
             echo "::error::docs/visualizer/ leaked into npm tarball — check packages/nekowork-cli/.npmignore"
+            echo ""
+            echo "=== Leaked paths (top 20) ==="
+            echo "$LEAKED" | head -20
+            echo ""
+            echo "=== .npmignore content ==="
+            cat .npmignore || echo "(missing!)"
+            echo ""
+            echo "=== ls -la docs/ ==="
+            ls -la docs/ | head -10
             exit 1
           fi
           echo "OK docs/visualizer/ excluded from tarball"

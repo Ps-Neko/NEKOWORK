@@ -4,4 +4,15 @@
 # beyond the alpha.11 baseline + 1MB delta guard.
 # Counterpart CI assertion: .github/workflows/harness-validate.yml
 # (tarball-size-guard job).
+#
+# Multiple syntactic forms for cross-version npm robustness
+# (initial single-form `docs/visualizer/` failed CI tarball-size-guard
+# 2026-05-23T05:29 — see commit 347e6c1 fail log).
+docs/visualizer
 docs/visualizer/
+docs/visualizer/**
+**/docs/visualizer
+**/docs/visualizer/**
+/docs/visualizer
+/docs/visualizer/
+/docs/visualizer/**
