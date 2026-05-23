@@ -94,7 +94,11 @@ async function startPreviewServer(): Promise<ChildProcess> {
 }
 
 async function captureFrames(): Promise<void> {
-  const browser = await chromium.launch({ headless: true });
+  // CI ubuntu 권장 args (sandbox + /dev/shm 우회).
+  const browser = await chromium.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-dev-shm-usage']
+  });
   try {
     const context = await browser.newContext({
       viewport: { width: 1280, height: 720 },
@@ -102,7 +106,10 @@ async function captureFrames(): Promise<void> {
       deviceScaleFactor: 2
     });
     const page = await context.newPage();
-    await page.goto(BASE_URL, { waitUntil: 'networkidle' });
+    // networkidle 은 CI 에서 hang 가능 (background analytics 등) → domcontentloaded + 명시 timeout.
+    await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 15_000 });
+    // styles 의 font/layout 안정화 대기.
+    await page.waitForSelector('.wedge', { state: 'visible', timeout: 10_000 });
     await page.waitForTimeout(800);
 
     const sections = ['.wedge', '.conflict', '.stations', '.evidence'];
