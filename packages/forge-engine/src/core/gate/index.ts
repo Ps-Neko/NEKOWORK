@@ -28,6 +28,7 @@ import {
   writeAuditAnchor
 } from "../../utils/audit.js";
 import { makeFinding } from "../../rules/types.js";
+import { canonicalHash } from "../../utils/integrity.js";
 import { computeVerdict, type Verdict } from "./verdict.js";
 import {
   calculateQualityScore,
@@ -749,7 +750,8 @@ export async function runGate(
     {
       type: "gate_verdict",
       verdict: verdict.verdict,
-      reason: triggered.length === 0 ? "no triggered rules" : triggered.join(", ")
+      reason: triggered.length === 0 ? "no triggered rules" : triggered.join(", "),
+      decisionHash: canonicalHash(decision)
     },
     deps.cwd
   );
