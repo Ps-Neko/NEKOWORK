@@ -35,6 +35,8 @@
 
 * {
   box-sizing: border-box;
+  /* 모바일 320px overflow 방지 — code/path/긴 단어 자동 줄바꿈. */
+  min-width: 0;
 }
 
 html,
@@ -48,6 +50,15 @@ body {
     sans-serif;
   font-size: 16px;
   line-height: 1.55;
+  /* 모바일 320px 의 horizontal scroll 방지 (T14). */
+  overflow-x: hidden;
+}
+
+code,
+.evidence__list code,
+.conflict__rule code {
+  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 
 body {
