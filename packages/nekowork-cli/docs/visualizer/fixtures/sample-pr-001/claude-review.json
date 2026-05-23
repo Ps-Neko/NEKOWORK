@@ -1,0 +1,16 @@
+{
+  "source": "manufactured",
+  "verdict": "LGTM",
+  "comments": [
+    {
+      "file": "src/auth.js",
+      "line": 12,
+      "body": "JWT 검증 흐름이 정상이다. try/catch 로 invalid token 을 403 으로 분리 처리한 것도 표준 패턴이다."
+    },
+    {
+      "file": "src/auth.js",
+      "line": 8,
+      "body": "Bearer 헤더 파싱은 견고하다. 다만 multi-token 시나리오는 별도 처리 가능."
+    }
+  ]
+}

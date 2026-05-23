@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "0.5",
+  "project": "sample-pr-001",
+  "taskId": "demo-jwt-middleware",
+  "workflowStage": "verify-deterministic",
+  "verdict": "BLOCK",
+  "riskLevel": "critical",
+  "humanApprovalRequired": true,
+  "humanApproved": false,
+  "deterministicRules": {
+    "status": "failed",
+    "triggeredRules": ["hardcoded-credential-fallback"]
+  },
+  "qualityPolicy": {
+    "rules": "packages/forge-engine/packs/rule/hardcoded-credential-fallback",
+    "status": "violated",
+    "violations": [
+      "src/auth.js:3 — process.env.JWT_SECRET || \"dev-fallback-key\""
+    ]
+  },
+  "evidence": {
+    "rule_pack": "hardcoded-credential-fallback",
+    "file": "src/auth.js",
+    "line": "3",
+    "rule_pattern": "process.env.X || \"<literal>\"",
+    "stage": "verify-deterministic"
+  },
+  "apply": {
+    "allowed": false,
+    "reason": "verify-deterministic stage 에서 hardcoded-credential-fallback rule 이 critical 로 trigger 됨. 최종 decision 으로 propagate."
+  },
+  "generatedAt": "2026-05-23T05:29:48.000Z"
+}

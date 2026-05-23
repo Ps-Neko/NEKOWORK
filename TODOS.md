@@ -40,6 +40,51 @@
 - **Cons:** open PR 별로 monorepo 의 다른 디렉토리 (`packages/forge-engine/`) 로 변환 필요 — 자동화 안 됨. 수작업.
 - **Depends on / blocked by:** T10 (Release compat) → T11 (npm deprecate + archive) 순서. 본 인벤토리는 T11 직전.
 
+## 2026-05-23 — VIZ-FONT-VERIFY
+
+- **What:** playwright headless chromium 의 한국어 폰트 fallback 검증 방법론 lock. fonts-noto-cjk 가 정상 로드되는지 확인 + tofu (사각 박스) 발견 시 CI fail.
+- **Why:** plan D9 의 GIF 사이즈/FCP/bundle hard block 으로는 한글 렌더 실패 탐지 불가. design doc Reviewer Concerns RESIDUAL → 첫 CI run 후 결정 lock 됐으나 방법론 자체는 미결.
+- **Context:** Phase 1.0 의 hero GIF 가 한국 OSS 메인테이너의 첨 인지 대상. 폰트 tofu 시 wedge 메시지 깨짐 — share velocity 직접 손상. plan §Edge Cases.
+- **Pros:** 첫 CI run 후 baseline 비교로 0.5h 결정 가능 (font.check API + screenshot pixel hash 비교, 또는 OCR ≥99%).
+- **Cons:** 방법론 lock 늦으면 1.0 ship 직전 마지막 시간 압박.
+- **Depends on / blocked by:** Phase 1.0 T8 (gen-hero-gif step) 실 첫 run 의 산출물.
+
+## 2026-05-23 — VIZ-PR-PREVIEW
+
+- **What:** PR 단계의 visualizer preview Pages URL 자동 발급. plan D11 lock 으로 main only 결정됐으나 메인테이너 contribution 시 visualizer 변경 review 가 어려움.
+- **Why:** D11 lock 이유: free tier quota + multi-env 비공식. 그러나 외부 PR (Stage 2 의 fixture 추가 PR 등) 의 review 효율성 손실.
+- **Context:** GitHub Pages 의 native multi-env 부재. peaceiris/actions-gh-pages 또는 Cloudflare Pages 의 native preview 검토.
+- **Pros:** contributor 의 visualizer review 가능 + share velocity 보조.
+- **Cons:** quota 소모 + 설정 ~2-3h.
+- **Depends on / blocked by:** design doc Phase 2 의 P4 정성 시그널 결과. Stage 2 entry 결정 시 동반.
+
+## 2026-05-23 — VIZ-FIXTURE-WRITER
+
+- **What:** fixture writer 도구. design doc Open Question 1 의 follow-up. Stage 2 의 3·5 fixture 추가의 critical path.
+- **Why:** Phase 1.0 의 1 fixture 는 수작업으로 OK. Stage 2 entry 후 3-5 fixture 추가 시 수작업이 시간 압박.
+- **Context:** nekowork CLI 의 자체 명령 (`nekowork bench --emit-fixture`) 또는 별도 dev tool. forge-engine 의 Ajv schema 재사용 (plan D4/D8).
+- **Pros:** Stage 2 진입 1주 단축.
+- **Cons:** 별도 tool ~5-8h 개발 비용. Stage 2 enter 결정 전 미상.
+- **Depends on / blocked by:** Stage 2 entry 결정 (P4 정성 시그널 ≥2건).
+
+## 2026-05-23 — VIZ-SCHEMA-DRIFT
+
+- **What:** visualizer 의 inline fixture schema (`packages/nekowork-cli/docs/visualizer/src/fixture-schema.ts`) 와 forge-engine 의 정본 schema (`packages/forge-engine/src/schemas/*.schema.ts`) 의 drift 자동 감지. 권장 종착: forge-engine 의 package.json 에 `exports` 추가 → visualizer 가 forge-engine 의 `decisionSchema` 직접 사용 → visualizer 의 inline schema 삭제.
+- **Why:** Phase 1.0 implementation 시점에 forge-engine package.json 에 entry point 없어 cross-package schema import 가 까다로움. visualizer 가 자체 schema inline 으로 분기했고, forge-engine 의 schema 가 갱신될 때 visualizer 의 fixture 검증이 silent 하게 stale 해질 수 있음.
+- **Context:** plan D8 의 본래 의도는 forge-engine 의 `createValidator()` 직접 호출. 본 세션의 fixture-schema.ts §주석 참조.
+- **Pros:** drift 0 → fixture 가 정본 schema 와 항상 정합. Phase 1.0 후속 schema 진화 시 visualizer 가 자동 따라감. 코드 중복 제거.
+- **Cons:** forge-engine 의 package.json 변경 (`exports` 신설) + visualizer 의 import 갱신 + 정합성 test 추가. ~2-3h.
+- **Depends on / blocked by:** forge-engine 의 npm publish strategy (현재 nekoforge 가 private). package name rename (TODOS#NEKOFORGE-PR-INVENTORY) 와 같이 처리하면 한 PR.
+
+## 2026-05-23 — VIZ-STATION-MAP
+
+- **What:** visualizer 의 12-station 정의 (`packages/nekowork-cli/docs/visualizer/src/stations.ts`) 와 forge-engine 의 14단계 공정 (`packages/forge-engine/docs/FACTORY-CELLS.md`) 의 1:1 매핑 lock + design doc 1줄 patch.
+- **Why:** plan T3 의 12-station grid 는 자연 선정 (forge-engine 14단계 중 핵심 12). design doc 도 "12-station" 표현이고 plan 도 동일하지만 정확한 매핑은 미명시. 첫 외부 메인테이너가 visualizer 와 forge-engine 의 station 명세를 같이 보는 시점 (Stage 2 의 3·5 fixture 또는 contributor PR) 에 혼선 가능.
+- **Context:** forge-engine FACTORY-CELLS.md 의 14단계: clarify, spec, intake, context, harness-design, plan, team, work, quality-policy, quality-contract, quality-score, self-review, codex-review, architecture-review, design-review, gate, apply (Memory 부속 별도). visualizer 의 12: intake, spec, plan, build, preverify, deterministic-rules, quality-contract, quality-score, self-review, advisor-review, human-gate, apply.
+- **Pros:** 정합성 1:1 → docs · visualizer · 실 산출물 의 station 라벨 통일. external contributor 의 entry friction 0.
+- **Cons:** ~30min 의 design doc patch + visualizer station label rename 가능.
+- **Depends on / blocked by:** plan T15 (design doc patch — 별도 PC 에 있는 design doc) 과 같이 처리.
+
 ## DONE
 
 - _완료된 TODO 는 여기에 옮긴다. 형식: `## YYYY-MM-DD — KEY (DONE @ commit/PR)` + 1줄 결과 요약._

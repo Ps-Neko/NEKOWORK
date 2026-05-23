@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "verify-v0",
+  "project": "sample-pr-001",
+  "taskId": "demo-jwt-middleware",
+  "generatedAt": "2026-05-23T05:29:48.000Z",
+  "acceptance_coverage": {
+    "required": ["deterministic-rules", "advisor-review", "human-gate"],
+    "met": ["deterministic-rules", "advisor-review"],
+    "missing": ["human-gate"]
+  },
+  "gates": [
+    {
+      "id": "deterministic-rules",
+      "status": "failed",
+      "summary": "1 critical rule triggered (hardcoded-credential-fallback)"
+    },
+    {
+      "id": "advisor-review",
+      "status": "warnings",
+      "summary": "Claude advisor LGTM (manufactured) — does not override deterministic block"
+    },
+    {
+      "id": "human-gate",
+      "status": "pending",
+      "summary": "humanApprovalRequired=true; awaiting reviewer"
+    }
+  ],
+  "summary": {
+    "verdict": "BLOCK",
+    "riskLevel": "critical",
+    "applyAllowed": false
+  }
+}

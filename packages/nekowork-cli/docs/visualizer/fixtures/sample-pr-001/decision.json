@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "0.5",
+  "project": "sample-pr-001",
+  "taskId": "demo-jwt-middleware",
+  "workflowStage": "verify",
+  "verdict": "BLOCK",
+  "riskLevel": "critical",
+  "humanApprovalRequired": true,
+  "humanApproved": false,
+  "deterministicRules": {
+    "status": "failed",
+    "triggeredRules": ["hardcoded-credential-fallback"]
+  },
+  "qualityPolicy": {
+    "rules": "packages/forge-engine/packs/rule/hardcoded-credential-fallback",
+    "hooks": "packages/forge-engine/packs/skill/security-baseline",
+    "contextPolicy": "deterministic-first",
+    "status": "violated",
+    "violations": [
+      "src/auth.js:3 — process.env.JWT_SECRET || \"dev-fallback-key\""
+    ]
+  },
+  "reviewAdapters": [
+    {
+      "adapterId": "claude",
+      "status": "warnings",
+      "findingsCount": 0,
+      "criticalFindings": 0,
+      "summary": "advisor LGTM — implementation flow 는 정상이나 hardcoded fallback 패턴은 별도 deterministic rule 의 책임 (advisor 한계)"
+    }
+  ],
+  "deterministicRulesDetail": {
+    "ruleId": "hardcoded-credential-fallback",
+    "file": "src/auth.js",
+    "line": 3,
+    "pattern": "process.env.X || \"<literal>\""
+  },
+  "evidence": {
+    "report_path": "REPORT.md",
+    "preverify_summary": "evidence/preverify-summary.json",
+    "verify_summary": "evidence/verify-summary.json",
+    "stage_decision": "evidence/decision.json",
+    "advisor_claude": "claude-review.json"
+  },
+  "apply": {
+    "allowed": false,
+    "reason": "deterministic rule hardcoded-credential-fallback triggered with critical severity at src/auth.js:3; Claude advisor LGTM 의견과 별개로 NEKOWORK rule 가 apply 차단."
+  },
+  "generatedAt": "2026-05-23T05:30:00.000Z"
+}
