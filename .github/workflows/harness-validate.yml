@@ -181,7 +181,7 @@ jobs:
     needs: changes
     if: needs.changes.outputs.cli == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
 
@@ -222,6 +222,69 @@ jobs:
           node packages/nekowork-cli/scripts/build-cursor.js
           node packages/nekowork-cli/scripts/build-gemini.js
           node packages/nekowork-cli/scripts/build-opencode.js
+
+      # ---- Phase 1.0 visualizer hardening (T8, T10, T11) ----
+
+      - name: Install system deps (ffmpeg + Korean fonts for hero GIF)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-noto-cjk ffmpeg
+
+      - name: Install Playwright browsers
+        run: pnpm --filter @ps-neko/visualizer exec playwright install --with-deps chromium
+
+      - name: Visualizer bundle size assertion (D9 — gzip < 100KB)
+        run: |
+          set -euo pipefail
+          DIR=packages/nekowork-cli/docs/visualizer/dist/assets
+          JS_FILE=$(find "$DIR" -name "index-*.js" -not -name "*.map" | head -1)
+          CSS_FILE=$(find "$DIR" -name "index-*.css" | head -1 || true)
+          if [ -z "$JS_FILE" ]; then
+            echo "::error::visualizer JS bundle missing in $DIR (did pnpm -r run build succeed?)"
+            exit 1
+          fi
+          JS_GZIP=$(gzip -9 -c "$JS_FILE" | wc -c)
+          CSS_GZIP=0
+          if [ -n "$CSS_FILE" ]; then
+            CSS_GZIP=$(gzip -9 -c "$CSS_FILE" | wc -c)
+          fi
+          TOTAL=$((JS_GZIP + CSS_GZIP))
+          MAX=102400
+          echo "JS gzip:    ${JS_GZIP} bytes"
+          echo "CSS gzip:   ${CSS_GZIP} bytes"
+          echo "TOTAL gzip: ${TOTAL} bytes (max ${MAX} = 100KB)"
+          if [ "$TOTAL" -gt "$MAX" ]; then
+            echo "::error::visualizer bundle gzip ${TOTAL} exceeds 100KB"
+            exit 1
+          fi
+
+      - name: Generate hero GIF (T5 → T8)
+        run: pnpm --filter @ps-neko/visualizer run gen-hero-gif
+
+      - name: Hero GIF size assertion (D9 — < 5MB)
+        run: |
+          set -euo pipefail
+          GIF=packages/nekowork-cli/docs/assets/hero.gif
+          if [ ! -f "$GIF" ]; then
+            echo "::error::hero.gif not generated at ${GIF}"
+            exit 1
+          fi
+          SIZE=$(stat -c%s "$GIF")
+          MAX=5242880
+          echo "hero.gif: ${SIZE} bytes (max ${MAX} = 5MB)"
+          if [ "$SIZE" -gt "$MAX" ]; then
+            echo "::error::hero.gif ${SIZE} exceeds 5MB"
+            exit 1
+          fi
+
+      - name: Visualizer a11y test (T11)
+        run: pnpm --filter @ps-neko/visualizer run test:a11y
+
+      - name: Upload hero GIF artifact (PR review aid)
+        if: always() && hashFiles('packages/nekowork-cli/docs/assets/hero.gif') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: hero-gif
+          path: packages/nekowork-cli/docs/assets/hero.gif
+          retention-days: 30
 
   tarball-size-guard:
     needs: changes

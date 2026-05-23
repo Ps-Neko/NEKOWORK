@@ -60,6 +60,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -67,3 +69,28 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  lighthouse:
+    # T9 — D9 lock: FCP < 1.5s hard block (3 run mean).
+    # deploy 직후 live Pages URL 에 lighthouse autorun.
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Wait for Pages to settle (avoid 1st-request edge cache miss)
+        run: sleep 30
+
+      - name: Lighthouse CI (FCP < 1.5s, 3 run mean)
+        run: |
+          set -euo pipefail
+          URL="${{ needs.deploy.outputs.page_url }}?fixture=sample-pr-001"
+          echo "Auditing: ${URL}"
+          npx -y @lhci/cli@0.14 autorun \
+            --config=packages/nekowork-cli/docs/visualizer/lighthouserc.json \
+            --collect.url="${URL}"
