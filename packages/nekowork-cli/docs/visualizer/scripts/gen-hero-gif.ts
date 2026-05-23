@@ -175,14 +175,9 @@ async function main(): Promise<void> {
     encodeGif();
     assertSize();
   } finally {
-    server.kill();
-    // vite preview 가 SIGTERM 무시할 수 있어 짧게 SIGKILL.
-    // unref() 로 event loop 가 본 timer 때문에 살아 있지 않도록.
-    const sigkillTimer = setTimeout(() => {
-      if (!server.killed) server.kill('SIGKILL');
-    }, 500);
-    sigkillTimer.unref();
-    // 자식 process 의 stdio handle 이 event loop 잡지 않도록.
+    // SIGKILL 직접 — vite preview 가 SIGTERM 무시 또는 부모 종료 후 orphan 가능성.
+    // SIGTERM → setTimeout 패턴은 process.exit() 후 callback 실행 안 됨.
+    server.kill('SIGKILL');
     server.unref();
   }
 }
