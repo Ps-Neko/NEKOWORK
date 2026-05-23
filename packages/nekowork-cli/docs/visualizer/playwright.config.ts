@@ -19,7 +19,9 @@ export default defineConfig({
   webServer: {
     command: 'pnpm exec vite preview --port 4173 --strictPort',
     url: 'http://localhost:4173/NEKOWORK/',
-    reuseExistingServer: !process.env['CI'],
+    // CI 에서도 reuse — gen-hero-gif 의 server 가 still running 가능성 (port 4173).
+    // 보험. fresh start 가 필요하면 별도 cleanup step 추가.
+    reuseExistingServer: true,
     timeout: 30_000,
     stdout: 'ignore',
     stderr: 'pipe'
