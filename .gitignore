@@ -76,3 +76,4 @@ docs/dev-log/
 # 자동 생성 코드맵 (scripts/build-codemaps.js 산출물). 로컬 생성만.
 docs/CODEMAPS/
 **/docs/CODEMAPS/
+.gstack/
