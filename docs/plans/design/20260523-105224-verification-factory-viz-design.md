@@ -228,6 +228,20 @@ Codex 가 인용한 사용자의 진짜 흥분점 — "verification memory that 
 
 이 3·5명의 채널·timing·언어 결정이 success criteria (a)/(b)/(c) 의 sample size 와 직접 연결되며, TODOS#REACTION-COLLECTOR 의 메인테이너 리스트와도 일관 (한 명이 두 작업 sample 에 동시 포함 가능).
 
+### 5명 list (2026-05-23 확정)
+
+a/b/c trichotomy 커버 — 외부 web search + 사용자 cherry-pick:
+
+| # | 이름 / 핸들 | 채널 | 카테고리 | 기대 반응 |
+|---|---|---|---|---|
+| 1 | Hugh Kim | hugh-kim.space (cc-sync-template / claude-code-plugins) | A 동족 빌더 | (b) sharp 비교 |
+| 2 | MiloDev (김민제) | alswp006.github.io/ai-factory (AI Harness #1-#13) | A 14단계 매핑 | (b) + (c) 시리즈 인용 |
+| 3 | AGUMON (ljlm0402) | github.com/ljlm0402/typescript-express-starter (2.9k stars) | B Express auth 직결 | (b) fixture 적용 |
+| 4 | Hong Minhee (@hongminhee) | hollo.social/@hongminhee, fedify, Hackers' Pub | C 글로벌 OSS | (c) share leverage |
+| 5 | Caesiumy (윤창식) | caesiumy.dev (Claude 스킬 가이드 번역) | C 사용자 perspective | (a) install 질문 |
+
+자세한 push 메시지 톤 draft + Phase 2 트리거 조건 = 사용자 메모리 `project_the_assignment_list.md`.
+
 ## What I noticed about how you think
 
 - "**목업부터 뽑고 결정**" — 한 줄로 추상적 4-option 비교를 visual artifact 비교로 reframe 했습니다. 이건 본인 메모리 패턴 (HTML 목업 우선) 과 일치하지만 office-hours 의 sub-text (디자인 doc 작성용 컨텍스트 수집) 를 살짝 무시하고 본인 작업 방식 (visual-first) 으로 끌어온 게 흥미롭습니다. office-hours 자체에도 본인 메소드를 적용했다는 신호.
