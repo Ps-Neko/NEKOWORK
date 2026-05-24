@@ -268,7 +268,10 @@ export function compareAnchor(
   current: AuditAnchor
 ): AnchorComparison {
   if (!prev) return { match: true };
-  if (prev.firstHash !== current.firstHash) {
+  // prev.firstHash 가 null 이면 빈 chain 으로 계산된 anchor(첫 gate 가 gate_verdict
+  // append 전에 anchor 를 쓴 경우). null → non-null 은 정상 성장이지 chain 재구성이
+  // 아니므로 firstHash 비교를 건너뛴다(연속 gate 오탐 방지). lineCount 가드는 유지.
+  if (prev.firstHash !== null && prev.firstHash !== current.firstHash) {
     return {
       match: false,
       reason: `firstHash changed (chain reorganized): ${prev.firstHash} → ${current.firstHash}`

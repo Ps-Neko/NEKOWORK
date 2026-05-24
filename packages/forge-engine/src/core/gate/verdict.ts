@@ -8,7 +8,6 @@
  * relative import 호환을 위해 동일 type 을 re-export.
  */
 import type {
-  RuleFinding,
   Verdict,
   RiskLevel,
   VerdictInputs,
