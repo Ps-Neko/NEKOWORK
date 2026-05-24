@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "0.5",
+  "project": "sample-pr-002",
+  "taskId": "demo-approval-binding",
+  "workflowStage": "verify",
+  "verdict": "BLOCK",
+  "riskLevel": "critical",
+  "humanApprovalRequired": true,
+  "humanApproved": false,
+  "deterministicRules": {
+    "status": "failed",
+    "triggeredRules": ["audit-integrity"]
+  },
+  "deterministicRulesDetail": {
+    "ruleId": "audit-integrity",
+    "file": "src/auth.js",
+    "line": 3,
+    "pattern": "audit anchor mismatch: 승인 decision 해시 ≠ 현재 (7c4a8d09… ≠ 9f2b1c7d…)"
+  },
+  "reviewAdapters": [
+    {
+      "adapterId": "claude",
+      "status": "warnings",
+      "findingsCount": 0,
+      "criticalFindings": 0,
+      "summary": "advisor LGTM — 현재 코드 흐름은 정상으로 보지만, 승인이 다른 decision 해시에 결박됐다는 사실은 advisor 시야 밖 (audit-integrity 책임)"
+    }
+  ],
+  "evidence": {
+    "report_path": "REPORT.md",
+    "preverify_summary": "evidence/preverify-summary.json",
+    "verify_summary": "evidence/verify-summary.json",
+    "stage_decision": "evidence/decision.json",
+    "approved_decision_hash": "sha256:7c4a8d09ca3762af61e59520943dc26494f8941b3e6d8c1abc",
+    "current_decision_hash": "sha256:9f2b1c7d3e0a5486bb12f4c8a01d9e77b3556ad2c4e8f019d",
+    "advisor_claude": "claude-review.json"
+  },
+  "apply": {
+    "allowed": false,
+    "reason": "audit-integrity 위반 — 승인 시점 decision/anchor 해시(sha256:7c4a8d09…)와 현재 해시(sha256:9f2b1c7d…) 불일치. forge-engine integrity.ts: apply 가 decision 을 재해싱해 audit anchor 와 대조하고 어긋나면 거부한다. 승인 후 코드 변조는 자동 무효 → 'A 승인 → B 머지' 불가."
+  },
+  "generatedAt": "2026-05-24T06:00:00.000Z"
+}

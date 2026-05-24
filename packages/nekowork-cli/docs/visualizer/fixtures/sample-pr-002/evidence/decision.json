@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "0.5",
+  "project": "sample-pr-002",
+  "taskId": "demo-approval-binding",
+  "workflowStage": "verify-deterministic",
+  "verdict": "BLOCK",
+  "riskLevel": "critical",
+  "humanApprovalRequired": true,
+  "humanApproved": false,
+  "deterministicRules": { "status": "failed", "triggeredRules": ["audit-integrity"] },
+  "evidence": {
+    "finding": "audit-integrity",
+    "approved_decision_hash": "sha256:7c4a8d09ca3762af61e59520943dc26494f8941b3e6d8c1abc",
+    "current_decision_hash": "sha256:9f2b1c7d3e0a5486bb12f4c8a01d9e77b3556ad2c4e8f019d",
+    "stage": "verify-deterministic"
+  },
+  "apply": {
+    "allowed": false,
+    "reason": "verify-deterministic 에서 audit anchor mismatch 감지 (승인 decision 해시 ≠ 현재). 최종 decision 으로 propagate."
+  },
+  "generatedAt": "2026-05-24T05:59:40.000Z"
+}
