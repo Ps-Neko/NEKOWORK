@@ -1,5 +1,5 @@
 ---
-name: claude-led-codex-review
+name: nekowork-full-cycle
 description: "Claude 주도 + Codex 위임 7단계 풀사이클 (idea → ship). Week 1 데모 정전(canon)."
 origin: harness-core
 level: 3
@@ -9,7 +9,7 @@ auto_inject_keywords: []
 tags: [workflow, review, codex, primary]
 ---
 
-# claude-led-codex-review
+# nekowork-full-cycle
 
 Claude 가 구현하고 Codex 가 의심하는 7단계 풀사이클. **HARNESS 의 정전 워크플로우.** 자동 활성 키워드는 비워두고 명시 호출만 받는다 (사용자 환경의 "확인 후 실행" 류 룰을 우회하지 않기 위함).
 
@@ -23,7 +23,7 @@ nekowork review "<task>" --no-ship         # 단계 7 생략 (리뷰까지만)
 nekowork review "<task>" --no-codex        # 단계 5·6 스킵 (Codex 검증 생략)
 ```
 
-또는 슬래시: `/claude-led-codex-review <task> [--flags]`
+또는 슬래시: `/nekowork-full-cycle <task> [--flags]`
 
 ## 7단계
 

@@ -1,5 +1,5 @@
 // 7단계 review 오케스트레이터.
-// claude-led-codex-review SKILL 의 Stage Routing 표를 코드로 구현.
+// nekowork-full-cycle SKILL 의 Stage Routing 표를 코드로 구현.
 //
 // 핵심 규칙:
 //   - 단계 5/6 의 verdict 가 block 또는 critical/high 발견 시 fix loop (executor 재호출, round++)

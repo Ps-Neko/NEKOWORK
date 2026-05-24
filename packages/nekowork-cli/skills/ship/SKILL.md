@@ -10,7 +10,7 @@ tags: [release, pr]
 
 # ship
 
-claude-led-codex-review 단계 7. 자동 push 는 하지 않는다 (사용자 / CI 환경에서 명시 트리거).
+nekowork-full-cycle 단계 7. 자동 push 는 하지 않는다 (사용자 / CI 환경에서 명시 트리거).
 
 ## 사전 조건 (모두 PASS 필요)
 

@@ -106,10 +106,10 @@
       "target": { "claude": ".claude/agents/doc-writer.md" }
     },
 
-    "skill:claude-led-codex-review": {
+    "skill:nekowork-full-cycle": {
       "type": "skill",
-      "source": "skills/claude-led-codex-review/",
-      "target": { "claude": ".claude/skills/claude-led-codex-review/" }
+      "source": "skills/nekowork-full-cycle/",
+      "target": { "claude": ".claude/skills/nekowork-full-cycle/" }
     },
     "skill:plan-eng-review": {
       "type": "skill",
@@ -152,10 +152,10 @@
       "target": { "claude": ".claude/skills/porting/" }
     },
 
-    "command:claude-led-codex-review": {
+    "command:nekowork-full-cycle": {
       "type": "command",
-      "source": "commands/claude-led-codex-review.md",
-      "target": { "claude": ".claude/commands/claude-led-codex-review.md" }
+      "source": "commands/nekowork-full-cycle.md",
+      "target": { "claude": ".claude/commands/nekowork-full-cycle.md" }
     },
 
     "hook:gateguard-fact-force": {

@@ -113,7 +113,7 @@ const cursorrules = `# Auto-generated. agent.yaml + agents/*.md 가 원본.
 
 이 워크스페이스는 HARNESS 카탈로그를 기반으로 한다.
 .cursor/rules/agents/  : 11개 에이전트 (provider/model 메타데이터 포함)
-.cursor/rules/skills/  : ${manifest.skills?.length || 0}개 스킬 (claude-led-codex-review 등)
+.cursor/rules/skills/  : ${manifest.skills?.length || 0}개 스킬 (nekowork-full-cycle 등)
 .cursor/hooks.json     : Cursor 이벤트 (beforeTool/afterTool/...) 어댑터
 
 직접 편집 금지. 변경은 정규 카탈로그(agents/, skills/, agent.yaml)에서 하고

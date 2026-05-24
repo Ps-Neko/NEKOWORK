@@ -93,7 +93,7 @@ nekowork costs --since=7d                   # 비용 추정
 
 ## 매직 키워드 → 스킬 (명시 옵트인만)
 
-자동 활성 키워드 감지는 **사용**하지 않는다. 사용자 룰("확인 후 실행") 우선. 모든 스킬은 슬래시 명령(`/claude-led-codex-review`) 또는 CLI(`nekowork review`) 로 명시 호출.
+자동 활성 키워드 감지는 **사용**하지 않는다. 사용자 룰("확인 후 실행") 우선. 모든 스킬은 슬래시 명령(`/nekowork-full-cycle`) 또는 CLI(`nekowork review`) 로 명시 호출.
 
 ## 핸드오프 5필드
 
