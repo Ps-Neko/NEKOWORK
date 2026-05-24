@@ -3,7 +3,7 @@
   "title": "feat(auth): JWT 검증 미들웨어 추가",
   "description": "보호 라우트 진입 전 JWT 검증 미들웨어를 신설한다. 환경변수에서 시크릿을 읽되 누락 시 dev fallback 키로 fallback 한다.",
   "audience": "한국 OSS 메인테이너 — Express.js 운영 경험",
-  "purpose": "환경변수 누락 시 하드코딩 시크릿으로 fallback 하는 패턴 — Claude advisor 는 LGTM 으로 통과시키지만, NEKOWORK 규칙은 critical 로 BLOCK 한다.",
+  "purpose": "환경변수 누락 시 하드코딩 시크릿으로 fallback 하는 패턴 — Claude advisor 는 “괜찮다”고 통과시키지만, NEKOWORK 규칙은 critical 로 BLOCK 한다.",
   "language": "ko",
   "pr_id": "sample-pr-001",
   "base_branch": "main",

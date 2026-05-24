@@ -44,7 +44,7 @@
   },
   "apply": {
     "allowed": false,
-    "reason": "deterministic rule hardcoded-credential-fallback triggered with critical severity at src/auth.js:3; Claude advisor LGTM 의견과 별개로 NEKOWORK rule 가 apply 차단."
+    "reason": "deterministic rule hardcoded-credential-fallback triggered with critical severity at src/auth.js:3; Claude advisor 의 “괜찮다”는 의견과 별개로 NEKOWORK rule 가 apply 차단."
   },
   "generatedAt": "2026-05-23T05:30:00.000Z"
 }

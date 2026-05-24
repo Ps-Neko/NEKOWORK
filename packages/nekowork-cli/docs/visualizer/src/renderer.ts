@@ -42,8 +42,8 @@ function renderConflictFrame(fixture: Fixture): string {
   const nekoBadge = badgeFor(decision.verdict, decision.riskLevel);
   const advisorBadge =
     claudeReview.verdict === 'LGTM'
-      ? '<span class="badge badge--advisor-info">LGTM</span>'
-      : '<span class="badge badge--advisor-warn">REQUEST_CHANGES</span>';
+      ? '<span class="badge badge--advisor-info">괜찮음</span>'
+      : '<span class="badge badge--advisor-warn">변경 요청</span>';
 
   const sourceLabel =
     claudeReview.source === 'manufactured'
