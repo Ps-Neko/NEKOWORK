@@ -68,6 +68,12 @@ AI 도구가 슬쩍 끼워 넣곤 하는 것들을 위한 결정적(deterministi
 시크릿, 위험한 `process.env.X || "fallback"` 패턴, 위험한 인증/배포 수정 등.
 전체 규칙 카탈로그와 1.0 범위: [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md).
 
+## NEKOWORK가 아닌 것
+
+- IDE도, 또 하나의 에이전트 묶음도 아닙니다.
+- 코드를 스스로 push하는 오토파일럿이 아닙니다.
+- Cursor·Claude Code·Codex의 경쟁자가 아닙니다 — 그들의 출력을 NEKOWORK로 **흘려보내세요**.
+
 ## 상태 — 공개 알파
 
 초기 알파이고, 솔직히 피드백을 찾는 중입니다. 오늘 실제로 되는 것: npm 배포,

@@ -68,6 +68,12 @@ Deterministic rules for the things AI tools quietly slip in — hardcoded secret
 unsafe `process.env.X || "fallback"` patterns, risky auth/deploy edits, and more.
 Full rule catalog and 1.0 scope: [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md).
 
+## What NEKOWORK is not
+
+- Not an IDE, and not another agent pack.
+- Not an autopilot that pushes code on its own.
+- Not a competitor to Cursor, Claude Code, or Codex — pipe their output **through** NEKOWORK instead.
+
 ## Status — public alpha
 
 Early alpha, and honestly looking for feedback. What's real today: published on npm,
