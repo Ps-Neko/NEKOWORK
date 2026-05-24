@@ -52,6 +52,7 @@ function renderConflictFrame(fixture: Fixture): string {
 
   return `
     <section class="conflict" aria-label="Claude advisor vs NEKOWORK rule comparison">
+      <h2 class="conflict__title">같은 코드, 다른 결론</h2>
       <article class="conflict__column conflict__column--advisor" data-source="advisor" aria-label="Advisor opinion">
         <header class="conflict__header">
           <span class="badge badge--advisor">Advisor: Claude</span>

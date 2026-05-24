@@ -39,73 +39,73 @@ export const STATIONS: readonly Station[] = [
     id: 'intake',
     label: 'Intake',
     cellGroup: 'product',
-    description: 'PR 인입 — diff_hash + 변경 파일 list 수집 (forge-engine: intake)'
+    description: 'PR 인입 — diff_hash + 변경 파일 list 수집'
   },
   {
     id: 'spec',
     label: 'Spec',
     cellGroup: 'product',
-    description: '요구사항 명세 — task title/description 분명화 (forge-engine: clarify + spec)'
+    description: '요구사항 명세 — task title/description 분명화'
   },
   {
     id: 'plan',
     label: 'Plan',
     cellGroup: 'build',
-    description: '작업 계획 — 단위 분해 (forge-engine: context + harness-design + plan)'
+    description: '작업 계획 — 단위 분해'
   },
   {
     id: 'build',
     label: 'Build',
     cellGroup: 'build',
-    description: 'work 수행 — diff 적용 (forge-engine: work, single-executor)'
+    description: 'work 수행 — diff 적용'
   },
   {
     id: 'preverify',
     label: 'Preverify',
     cellGroup: 'quality',
-    description: '6-axis 사전 체크 — structure/context/plan/execution/verification/improve (visualizer 전용)'
+    description: '6-axis 사전 체크 — structure / context / plan / execution / verification / improve'
   },
   {
     id: 'deterministic-rules',
     label: 'Deterministic Rules',
     cellGroup: 'quality',
-    description: 'rule pack 검증 — hardcoded-credential 등 critical pattern 차단 (forge-engine: quality-policy, wedge BLOCK 발생)'
+    description: 'rule pack 검증 — hardcoded-credential 등 critical pattern 차단'
   },
   {
     id: 'quality-contract',
     label: 'Quality Contract',
     cellGroup: 'quality',
-    description: '품질 계약 점검 — failedBars 추적 (forge-engine: quality-contract)'
+    description: '품질 계약 점검 — failedBars 추적'
   },
   {
     id: 'quality-score',
     label: 'Quality Score',
     cellGroup: 'quality',
-    description: '품질 점수 — overall vs minimumRequired (forge-engine: quality-score)'
+    description: '품질 점수 — overall vs minimumRequired'
   },
   {
     id: 'self-review',
     label: 'Self Review',
     cellGroup: 'review',
-    description: '자기 검토 — 1차 sanity (forge-engine: self-review)'
+    description: '자기 검토 — 1차 sanity'
   },
   {
     id: 'advisor-review',
     label: 'Advisor Review',
     cellGroup: 'review',
-    description: 'Claude/Codex advisor opinion (verdict 아님) — forge-engine: codex-review + architecture-review + design-review (wedge LGTM 발생)'
+    description: 'Claude / Codex advisor 의견 (verdict 아님)'
   },
   {
     id: 'human-gate',
     label: 'Human Gate',
     cellGroup: 'gate',
-    description: '사람 승인 — humanApprovalRequired 시 차단 (forge-engine: gate)'
+    description: '사람 승인 — humanApprovalRequired 시 차단'
   },
   {
     id: 'apply',
     label: 'Apply',
     cellGroup: 'gate',
-    description: '최종 적용 — apply.allowed=true 시만 진행 (forge-engine: apply)'
+    description: '최종 적용 — apply.allowed=true 시만 진행'
   }
 ];
 
