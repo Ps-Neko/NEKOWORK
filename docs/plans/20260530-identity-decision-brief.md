@@ -28,6 +28,13 @@
 - **2번 "un-foolable gate" 확정 = 5번 "게이트 통합" 사실상 강제** (안 하면 포지셔닝이 출고물보다 과대).
 - `sample-pr-002` 데모는 forge-engine 메커니즘을 보임 → 컨셉/엔진엔 정직하나 `npx nekowork`가 *오늘* 주는 것과는 갭. sharp 메인테이너(AGUMON/Hugh)가 짚을 수 있는 지점 → push 메시지는 "엔진/접근"으로 framing(오늘의 CLI가 다 한다고 과대주장 금지).
 
+**[2026-05-25 코드 실측 — ★ 모순 확대: 새 hero `verify-pr`도 동일]**
+- `verify-pr`(README·자기 헤더가 칭한 1.0 hero) = 정규식 위험룰 5종 + 체크 *availability* 감지뿐. **content-hash·audit-integrity·Codex·Human Gate 전무** (`scripts/orchestrators/verify-pr.js`, `lib/project-detector.js` — execSync/spawn 0).
+- → forge-engine 해자는 **옛(start/build/auto)·새(verify-pr) user-facing 표면 둘 다** 미호출 → #5 "게이트 통합" 대상에 verify-pr 포함.
+- **과대주장 이미 출고**: `package.json:4` description = *"Verifies … with Codex verification, Human Gate, and explicit apply"* (verify-pr는 셋 다 안 함), keywords=`verified-autopilot`/`ai-development-runtime`. → ★의 "포지셔닝>출고물" 경고가 npm 메타데이터에 이미 현실.
+- carry(next publish): description 사실화 · `verify-pr.js:6` 주석 stale(실제 5룰) · `evidence-manifest.json` artifacts 누락 + `input_source` 하드코딩.
+- 출처: 2026-05-25 검증 세션 (verify-pr / project-detector / secret-fallback / cli / package.json / SCOPE-1.0 실측).
+
 ## 빈 칸 (현재 0)
 - **(d) 신호 = 0** (push 보류 → 외부 수요 미측정). 2번 핵심 입력 부재.
 - 외부 사용자 0 · 본인 14단계 실사용 1 사이클(얇음).
