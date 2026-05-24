@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// claude-led-codex-review 풀사이클 시뮬레이션 (Week 1 데모).
+// nekowork-full-cycle 풀사이클 시뮬레이션 (Week 1 데모).
 // 실제 LLM 호출은 안 함 — 7단계의 핸드오프 파일 / 상태 / round 카운터가 잘 흐르는지만 검증.
 // 사용자 룰("git push 사용자 확인") 우선이라 실 ship 은 안 함.
 
@@ -19,7 +19,7 @@ const NO_SHIP = process.argv.includes('--no-ship');
 const SESSION_DIR = path.join(ROOT, '.harness', 'state', 'sessions', SESSION_ID);
 fs.mkdirSync(path.join(SESSION_DIR, 'handoffs'), { recursive: true });
 
-console.log(`\n=== claude-led-codex-review demo ===`);
+console.log(`\n=== nekowork-full-cycle demo ===`);
 console.log(`session : ${SESSION_ID}`);
 console.log(`task    : ${TASK}`);
 console.log(`flags   : ${SECURE ? '--secure ' : ''}${NO_SHIP ? '--no-ship' : ''}`);

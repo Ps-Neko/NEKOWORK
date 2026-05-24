@@ -5,7 +5,7 @@ provider: codex
 model: gpt-5-codex
 level: 3
 disallowedTools: [Write, Edit, Bash, Network]
-trigger: ["codex challenge", "--secure", "claude-led-codex-review:6"]
+trigger: ["codex challenge", "--secure", "nekowork-full-cycle:6"]
 hand_off_to: []
 sandbox: read-only
 network_access: false

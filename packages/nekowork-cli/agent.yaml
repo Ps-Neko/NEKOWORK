@@ -23,7 +23,7 @@ agents:
   - doc-writer
 
 skills:
-  - claude-led-codex-review
+  - nekowork-full-cycle
   - plan-eng-review
   - tdd-workflow
   - acceptance-coverage
@@ -37,7 +37,7 @@ skills:
 
 commands:
   # legacy compat (slash entry). 신규 추가 금지.
-  - claude-led-codex-review
+  - nekowork-full-cycle
 
 hooks:
   file: hooks/hooks.json
@@ -201,7 +201,7 @@ auth:
     deny_static_api_keys_in_repo: true
 
 routing:
-  # 단계별 routing 표는 skills/claude-led-codex-review/SKILL.md 가 정전(canon).
+  # 단계별 routing 표는 skills/nekowork-full-cycle/SKILL.md 가 정전(canon).
   eco_mode_floor: sonnet
   human_gate_triggers:
     severity: critical

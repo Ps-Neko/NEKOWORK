@@ -2,7 +2,7 @@
 // 입력: stage, task, files, ecoMode, riskLevel
 // 출력: { agent, model, provider, rationale, alternatives }
 //
-// SKILL claude-led-codex-review 의 Stage Routing 표 + AGENTS.md 의
+// SKILL nekowork-full-cycle 의 Stage Routing 표 + AGENTS.md 의
 // 권한 매트릭스를 코드로 구현.
 
 import fs from 'node:fs';

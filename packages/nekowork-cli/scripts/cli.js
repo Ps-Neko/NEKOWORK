@@ -166,7 +166,7 @@ Review loop
   pr-prep ["task"] [--session <id>] [--project-root <dir>] [--json]
                                          generate PR_SUMMARY/RISK_NOTES/TEST_EVIDENCE/CHANGELOG_DRAFT without branch, commit, push, or PR creation
   review "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>] [--project-root <dir>]
-                                         legacy full claude-led-codex-review workflow
+                                         legacy full nekowork-full-cycle workflow
   review-cycle "<task>" [--secure] [--fast] [--no-ship] [--no-codex] [--live] [--session <id>] [--project-root <dir>]
                                          explicit compatibility alias for the legacy full workflow
   plan "<task>" [--project-root <dir>]   ideate + plan only
