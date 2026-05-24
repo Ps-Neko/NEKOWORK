@@ -209,4 +209,9 @@ test("M3a: full 30초 path runs end-to-end", async (t) => {
     .find((e) => e.type === "gate_verdict");
   assert.match(gv?.inputDiffHash ?? "", /^[0-9a-f]{64}$/, "gate_verdict.inputDiffHash 결박");
   assert.match(gv?.decisionHash ?? "", /^[0-9a-f]{64}$/, "gate_verdict.decisionHash 결박");
+  // 2 — 어느 엔진 버전이 판정했는지 audit 에 기록(추적성)
+  assert.ok(
+    (gv as { engineVersion?: string })?.engineVersion,
+    "gate_verdict.engineVersion 기록"
+  );
 });
