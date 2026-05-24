@@ -28,7 +28,7 @@ fact_forcing: true|false  # PreToolUse 사실 조사 강제 여부
 - `commands/` 는 legacy slash-entry 호환 표면이다. 신규 추가 금지, 점진 마이그레이션.
 - `agents/` 는 페르소나 카탈로그다. 워크플로우는 `skills/` 에서 정의하고 에이전트는 `skills/` 가 호출한다.
 
-## 7단계 풀사이클 (claude-led-codex-review)
+## 7단계 풀사이클 (nekowork-full-cycle)
 
 | 단계 | 담당 | 입력 | 출력 |
 |---|---|---|---|

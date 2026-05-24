@@ -3,7 +3,7 @@ name: ralph
 description: "PRD AC 가 모두 passes:true 될 때까지 반복 실행. 명시 옵트인만 (사용자 룰: 자동 활성 금지)."
 origin: harness-core
 level: 3
-prerequisites: [tdd-workflow, claude-led-codex-review]
+prerequisites: [tdd-workflow, nekowork-full-cycle]
 conflicts: [auto-merge]
 auto_inject_keywords: []
 tags: [persistent, loop]

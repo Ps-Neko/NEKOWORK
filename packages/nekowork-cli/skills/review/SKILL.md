@@ -1,6 +1,6 @@
 ---
 name: review
-description: "claude-led-codex-review 단계 4 (self-review) 실행. critical / high 만 잡는다."
+description: "nekowork-full-cycle 단계 4 (self-review) 실행. critical / high 만 잡는다."
 origin: harness-core
 level: 2
 prerequisites: [tdd-workflow]
@@ -16,7 +16,7 @@ Claude self-review 단계. code-reviewer 에이전트(opus, ro)를 호출해 git
 
 ```bash
 nekowork self-review                  # 단독
-# claude-led-codex-review 의 단계 4 로 자동 호출됨
+# nekowork-full-cycle 의 단계 4 로 자동 호출됨
 ```
 
 ## 입력

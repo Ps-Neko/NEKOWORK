@@ -76,12 +76,12 @@
       "required": false
     },
     "codex-loop": {
-      "description": "claude-led-codex-review 7단계 풀사이클 + Codex 검증 루프",
+      "description": "nekowork-full-cycle 7단계 풀사이클 + Codex 검증 루프",
       "components": [
-        "skill:claude-led-codex-review",
+        "skill:nekowork-full-cycle",
         "agent:codex-reviewer",
         "agent:codex-challenger",
-        "command:claude-led-codex-review"
+        "command:nekowork-full-cycle"
       ],
       "level": 3,
       "required": false,

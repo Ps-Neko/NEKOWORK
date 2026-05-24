@@ -111,7 +111,7 @@ test('install plan: --list exposes selectable catalog', () => {
   assert.ok(catalog.profiles.some(p => p.name === 'security'));
   assert.ok(catalog.profiles.some(p => p.name === 'productivity'));
   assert.ok(catalog.modules.some(m => m.name === 'codex-loop'));
-  assert.ok(catalog.components.some(c => c.name === 'skill:claude-led-codex-review'));
+  assert.ok(catalog.components.some(c => c.name === 'skill:nekowork-full-cycle'));
 });
 
 test('install plan: official pack aliases resolve to safe profiles', () => {

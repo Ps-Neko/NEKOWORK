@@ -18,7 +18,7 @@ planner / architect 가 산출한 PRD 와 단계 분해를 락인 직전에 한 
 nekowork plan-eng-review <prd-path>
 ```
 
-claude-led-codex-review 단계 2 의 일부로 자동 호출된다.
+nekowork-full-cycle 단계 2 의 일부로 자동 호출된다.
 
 ## 체크리스트
 
