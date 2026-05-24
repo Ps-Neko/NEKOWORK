@@ -43,6 +43,8 @@ export interface AuditEvent {
   /** 4,5 — gate_verdict 가 박는 입력 diff / codex 결과 content hash(증거 추적성). */
   inputDiffHash?: string;
   codexFindingsHash?: string;
+  /** 2 — 어느 엔진 버전이 verdict 를 냈는지(추적성). */
+  engineVersion?: string;
   at?: string;
 }
 

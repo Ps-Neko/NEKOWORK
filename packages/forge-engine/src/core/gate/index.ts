@@ -30,6 +30,7 @@ import {
 } from "../../utils/audit.js";
 import { makeFinding } from "../../rules/types.js";
 import { canonicalHash } from "../../utils/integrity.js";
+import { ENGINE_VERSION } from "../../version.js";
 
 /**
  * 3번 — review adapter 무시(--no-review-adapter) 시 reviewStatus 를 not_run 으로
@@ -782,6 +783,7 @@ export async function runGate(
       reason: triggered.length === 0 ? "no triggered rules" : triggered.join(", "),
       decisionHash: canonicalHash(decision),
       inputDiffHash: canonicalHash(rawDiff),
+      engineVersion: ENGINE_VERSION,
       ...(codexRaw ? { codexFindingsHash: canonicalHash(codexRaw) } : {})
     },
     deps.cwd
