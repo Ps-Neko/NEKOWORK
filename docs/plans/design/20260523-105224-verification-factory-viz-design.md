@@ -201,6 +201,15 @@ A 는 핵심 narrative 없이는 wedge 못 전달, C 는 6주 시계 + 5-user we
 
 **Ship 전 P4 미검증 정당화**: Approach B 는 P4 reject 시에도 후회 없는 결정인가? — YES. 이유: ① 1.5주 ship 비용은 next session 의 wedge 재좁히기 input 으로 재활용 가능 (visualization 자체가 wedge 가설의 visual test). ② P4 reject 시 pivot 방향 (e.g. Claude Code skill, Cursor extension, GitHub App) 어디로 가든 fixture · evidence schema · UI 컴포넌트 재사용. 별도 다른 형태 (도구 X 의 plugin) 로 transcribe 비용 작음.
 
+**(d) 신호 - moat 수요 게이트 [2026-05-24 추가]**
+
+(a)/(b)/(c) 는 *관심·배포* 신호다 (흥미로워서 묻거나 공유). moat 수요 자체는 측정하지 않는다. moat ("속일 수 없는 verdict") 의 직접 수요를 재는 4번째 신호를 분리한다:
+
+- **(d) ≥1명: "이거 내 레포에 붙여서 *내 LGTM/머지 전에* 돌리고 싶다"** - un-foolable verdict 수요 신호.
+- **근거**: The Assignment 5명 전원 *개인* → 승인자≠배포자 위협 구조적 부재 → "팀 거버넌스" 수요는 코호트에서 0. moat 를 "나(+내 에이전트)조차 못 속이는 게이트" 로 재프레임해야 (d) 가 도달권 (AGUMON·Hugh).
+- **트리거**: (d) 0건이면 (a)/(b)/(c) 가 ≥2건이어도 *moat 는 미검증* 으로 본다 (관심 ≠ 수요). (d) ≥1건 = 5/30 정체성 결정에 "solo un-foolable gate" 방향 데이터. 이 게이트는 아래 Stage 2·3·4 의 build-more 게이트((a)/(b)/(c) ≥2건)와 별개로, 빌드 지속이 아니라 포지셔닝/정체성 결정용이다.
+- **연결**: `sample-pr-002` (approval-hash-mismatch fixture, PR #71) 이 (d) 를 유발하는 적대적 데모. push 시 (a)/(b)/(c) 용 `sample-pr-001` 과 함께 (d) 용으로 제시.
+
 ## Future Expansion (north star — NOT in this scope)
 
 Codex 가 인용한 사용자의 진짜 흥분점 — "verification memory that compounds" — 의 자연 확장 경로:
