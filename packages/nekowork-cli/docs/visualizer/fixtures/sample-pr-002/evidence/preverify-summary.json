@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "preverify-v0",
+  "project": "sample-pr-002",
+  "taskId": "demo-approval-binding",
+  "generatedAt": "2026-05-24T05:58:50.000Z",
+  "checks": [
+    { "name": "structure", "status": "pass", "message": "1 file changed, valid Express middleware shape" },
+    { "name": "context", "status": "pass", "message": "auth 미들웨어 범위, repo 컨벤션 부합" },
+    { "name": "plan", "status": "pass", "message": "task plan: 'JWT 검증 미들웨어 추가'" },
+    { "name": "execution", "status": "warn", "message": "diff 가 승인 시점 이후 변경됨 (해시 드리프트 의심)" },
+    { "name": "verification", "status": "pending", "message": "verify stage 의 approval-hash 결박 검사로 이연" },
+    { "name": "improve", "status": "pending", "message": "deferred to verify stage" }
+  ],
+  "summary": { "pass": 3, "warn": 1, "fail": 0, "pending": 2 }
+}

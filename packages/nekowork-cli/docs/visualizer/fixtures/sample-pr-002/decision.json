@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "0.5",
+  "project": "sample-pr-002",
+  "taskId": "demo-approval-binding",
+  "workflowStage": "verify",
+  "verdict": "BLOCK",
+  "riskLevel": "critical",
+  "humanApprovalRequired": true,
+  "humanApproved": false,
+  "deterministicRules": {
+    "status": "failed",
+    "triggeredRules": ["approval-hash-mismatch"]
+  },
+  "deterministicRulesDetail": {
+    "ruleId": "approval-hash-mismatch",
+    "file": "src/auth.js",
+    "line": 3,
+    "pattern": "approved sha256:7c4a8d09… ≠ current sha256:9f2b1c7d…"
+  },
+  "reviewAdapters": [
+    {
+      "adapterId": "claude",
+      "status": "warnings",
+      "findingsCount": 0,
+      "criticalFindings": 0,
+      "summary": "advisor LGTM — 현재 코드 흐름은 정상으로 보지만, 승인이 다른 해시에 결박됐다는 사실은 advisor 시야 밖 (deterministic 책임)"
+    }
+  ],
+  "evidence": {
+    "report_path": "REPORT.md",
+    "preverify_summary": "evidence/preverify-summary.json",
+    "verify_summary": "evidence/verify-summary.json",
+    "stage_decision": "evidence/decision.json",
+    "approved_hash": "sha256:7c4a8d09ca3762af61e59520943dc26494f8941b3e6d8c1abc",
+    "current_hash": "sha256:9f2b1c7d3e0a5486bb12f4c8a01d9e77b3556ad2c4e8f019d",
+    "advisor_claude": "claude-review.json"
+  },
+  "apply": {
+    "allowed": false,
+    "reason": "인간 승인은 diff 해시 sha256:7c4a8d09… 에 결박됨. 현재 적용 대상 해시는 sha256:9f2b1c7d… — 승인 후 변조 감지. 승인 자동 무효화, 재검증 필요. NEKOWORK 는 승인을 코드 해시에 묶으므로 'A 승인 → B 머지' 가 불가능하다."
+  },
+  "generatedAt": "2026-05-24T06:00:00.000Z"
+}

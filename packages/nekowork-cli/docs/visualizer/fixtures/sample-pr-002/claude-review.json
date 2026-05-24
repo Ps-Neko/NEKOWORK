@@ -1,0 +1,11 @@
+{
+  "source": "manufactured",
+  "verdict": "LGTM",
+  "comments": [
+    {
+      "file": "src/auth.js",
+      "line": 3,
+      "body": "JWT 검증 흐름 정상. 로컬 dev fallback 키는 편의상 무방해 보임."
+    }
+  ]
+}

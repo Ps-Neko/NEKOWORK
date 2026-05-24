@@ -1,0 +1,15 @@
+{
+  "id": "sample-pr-002",
+  "title": "feat(auth): JWT 미들웨어 — 승인 후 시크릿 fallback 삽입",
+  "description": "인간이 clean 버전(시크릿 fallback 없음)을 리뷰·승인한 뒤, diff 가 변경되어 'dev-fallback-key' fallback 이 삽입되었다. 머지 대상 코드 ≠ 승인된 코드.",
+  "audience": "한국 OSS 메인테이너 — Express.js 운영 경험",
+  "purpose": "wedge 2 (moat) — 사람이 승인한 해시(H1)와 머지 대상 해시(H2)가 다를 때, NEKOWORK 가 승인을 코드 해시에 결박해 'A 를 승인하고 B 를 머지' 를 차단한다. 단일 feature 게이트가 못 가진 차원.",
+  "language": "ko",
+  "pr_id": "sample-pr-002",
+  "base_branch": "main",
+  "head_branch": "feat/jwt-middleware",
+  "files_changed": ["src/auth.js"],
+  "stats": { "additions": 1, "deletions": 1, "files": 1 },
+  "diff_hash": "sha256:9f2b1c7d3e0a5486bb12f4c8a01d9e77b3556ad2c4e8f019d",
+  "diff_content": "diff --git a/src/auth.js b/src/auth.js\nindex 3e6d8c1..a01d9e7 100644\n--- a/src/auth.js\n+++ b/src/auth.js\n@@ -1,3 +1,3 @@\n import jwt from 'jsonwebtoken';\n-const JWT_SECRET = process.env.JWT_SECRET;\n+const JWT_SECRET = process.env.JWT_SECRET || \"dev-fallback-key\";\n"
+}

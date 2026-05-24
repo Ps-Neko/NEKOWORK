@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "verify-v0",
+  "project": "sample-pr-002",
+  "taskId": "demo-approval-binding",
+  "generatedAt": "2026-05-24T05:59:40.000Z",
+  "acceptance_coverage": {
+    "required": ["deterministic-rules", "advisor-review", "human-gate"],
+    "met": ["advisor-review"],
+    "missing": ["deterministic-rules", "human-gate"]
+  },
+  "gates": [
+    { "id": "deterministic-rules", "status": "failed", "summary": "approval-hash-mismatch: 승인 해시 ≠ 현재 해시" },
+    { "id": "advisor-review", "status": "warnings", "summary": "Claude LGTM (manufactured) — 변조 미탐, deterministic 결과를 override 못 함" },
+    { "id": "human-gate", "status": "failed", "summary": "이전 승인은 sha256:7c4a8d09… 에만 유효. 현재 해시는 미승인 상태" }
+  ],
+  "summary": { "verdict": "BLOCK", "riskLevel": "critical", "applyAllowed": false }
+}
