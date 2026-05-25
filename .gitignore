@@ -64,6 +64,12 @@ npm-debug.log*
 # 테스트 산출물
 coverage/
 .nyc_output/
+test-results/
+**/test-results/
+
+# gen-hero-gif 캡처 프레임 (로컬 임시)
+.frames/
+**/.frames/
 
 # 기타
 *.tmp
@@ -77,3 +83,6 @@ docs/dev-log/
 docs/CODEMAPS/
 **/docs/CODEMAPS/
 .gstack/
+
+# brainstorming 시각 목업 (superpowers visual companion 산출물, 로컬 임시)
+.superpowers/
