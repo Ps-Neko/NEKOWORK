@@ -77,3 +77,6 @@ docs/dev-log/
 docs/CODEMAPS/
 **/docs/CODEMAPS/
 .gstack/
+
+# brainstorming 시각 목업 (superpowers visual companion 산출물, 로컬 임시)
+.superpowers/
