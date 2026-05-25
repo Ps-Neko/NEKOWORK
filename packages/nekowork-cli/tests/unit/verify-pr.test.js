@@ -211,3 +211,51 @@ index 0000000..1111111
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('parseVerifyPrArgs: --full-scan / --full → mode=full', () => {
+  assert.equal(parseVerifyPrArgs(['--full-scan']).mode, 'full');
+  assert.equal(parseVerifyPrArgs(['--full']).mode, 'full');
+});
+
+test('--full-scan: 변경 없어도 커밋된 파일 전체를 스캔해 시크릿 발견 → BLOCK', async () => {
+  const root = makeTempProject();
+  try {
+    // 시크릿이 든 파일을 커밋한다 (working tree 에는 변경 없음).
+    writeAndStage(root, 'src/config.ts', [
+      'export function getKey(): string {',
+      '  return process.env.API_KEY || "sk-committed-fallback-secret";',
+      '}',
+    ].join('\n'));
+    spawnSync('git', ['add', '-A'], { cwd: root });
+    spawnSync('git', ['commit', '-q', '-m', 'add config'], { cwd: root });
+
+    // 기본(working) 모드: 변경분 없음 → ALLOW (커밋된 시크릿은 안 보임)
+    const working = await verifyPrCycle({ projectRoot: root, write: false });
+    assert.equal(working.decision.verdict, VERDICT.ALLOW);
+
+    // full-scan: 추적 파일 전체를 스캔해 커밋된 시크릿을 잡는다 → BLOCK
+    const full = await verifyPrCycle({ projectRoot: root, mode: 'full', write: false });
+    assert.equal(full.decision.verdict, VERDICT.BLOCK);
+    assert.equal(full.decision.apply_allowed, false);
+    assert.ok(full.findings.some(f => f.file === 'src/config.ts'),
+      'full-scan 은 커밋된 src/config.ts 의 시크릿을 finding 으로 잡아야 함');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('INSUFFICIENT_EVIDENCE reason 은 "실패 아님" 안내를 포함', async () => {
+  const root = makeTempProject();
+  try {
+    fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ name: 'demo' }));
+    spawnSync('git', ['add', 'package.json'], { cwd: root });
+    spawnSync('git', ['commit', '-q', '-m', 'drop test script'], { cwd: root });
+    writeAndStage(root, 'src/util.ts', 'export const x = 1;\n');
+
+    const result = await verifyPrCycle({ projectRoot: root, write: false });
+    assert.equal(result.decision.verdict, VERDICT.INSUFFICIENT_EVIDENCE);
+    assert.match(result.decision.reason, /not a failure/i);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});

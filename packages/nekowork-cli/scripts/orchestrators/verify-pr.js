@@ -50,7 +50,7 @@ export const EXIT_CODE = Object.freeze({
 /**
  * @param {object} opts
  * @param {string} [opts.projectRoot]   default process.cwd()
- * @param {'working' | 'staged' | 'patch' | 'range'} [opts.mode='working']
+ * @param {'working' | 'staged' | 'patch' | 'range' | 'full'} [opts.mode='working']
  * @param {string} [opts.patchPath]     required when mode='patch'
  * @param {string} [opts.range]         required when mode='range'
  * @param {boolean} [opts.write=true]   write evidence + REPORT.md to disk
@@ -155,6 +155,9 @@ function loadDiff({ mode, projectRoot, opts }) {
   if (mode === 'staged') {
     return getGitDiff({ cwd: projectRoot, mode: 'staged' });
   }
+  if (mode === 'full') {
+    return getGitDiff({ cwd: projectRoot, mode: 'full' });
+  }
   return getGitDiff({ cwd: projectRoot, mode: 'working' });
 }
 
@@ -221,7 +224,7 @@ function deriveVerdict({ findings, parsedDiff, checksAvailable }) {
   if (sourceOnly && !checksAvailable.test) {
     return {
       verdict: VERDICT.INSUFFICIENT_EVIDENCE,
-      reason: 'source changed but project has no test command — cannot verify',
+      reason: 'risk scan passed (no blocking findings), but this project has no test command — full verification needs one. This is "not enough evidence", not a failure.',
       apply_allowed: false,
     };
   }
@@ -422,6 +425,7 @@ export function parseVerifyPrArgs(rest = []) {
     const a = rest[i];
     if (a === '--from-working-tree') opts.mode = 'working';
     else if (a === '--from-staged' || a === '--staged') opts.mode = 'staged';
+    else if (a === '--full-scan' || a === '--full') opts.mode = 'full';
     else if (a === '--from-patch') { opts.mode = 'patch'; opts.patchPath = rest[++i]; }
     else if (a === '--range') { opts.mode = 'range'; opts.range = rest[++i]; }
     else if (a === '--project-root') opts.projectRoot = rest[++i];
@@ -448,6 +452,12 @@ export function printVerifyPrSummary(result) {
     for (const f of findings.slice(0, 5)) {
       console.log(`    - [${f.severity.toUpperCase()}] ${f.title} (${f.file}:${f.line})`);
     }
+  }
+  if (decision.verdict === VERDICT.INSUFFICIENT_EVIDENCE) {
+    console.log('');
+    console.log('  i  not a failure — the risk scan passed with no blocking findings.');
+    console.log('     verify-pr just has no test command to fully verify this change.');
+    console.log('     -> add a test script for full verification, or pass --ci-exit-soft to avoid blocking CI.');
   }
   if (writtenPaths) {
     console.log(`  report         : ${path.relative(process.cwd(), writtenPaths.report).replace(/\\/g, '/')}`);
