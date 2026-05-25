@@ -73,6 +73,7 @@ AI 도구가 슬쩍 끼워 넣곤 하는 것들을 위한 결정적(deterministi
 - IDE도, 또 하나의 에이전트 묶음도 아닙니다.
 - 코드를 스스로 push하는 오토파일럿이 아닙니다.
 - Cursor·Claude Code·Codex의 경쟁자가 아닙니다 — 그들의 출력을 NEKOWORK로 **흘려보내세요**.
+- 테스트·계약 검증 도구(Hurl, `go test`)가 아닙니다 — 그건 동작이 올바른지 보고, NEKOWORK는 머지 전 diff 자체가 위험한지 봅니다.
 
 ## 상태 — 공개 알파
 

@@ -73,6 +73,7 @@ Full rule catalog and 1.0 scope: [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md).
 - Not an IDE, and not another agent pack.
 - Not an autopilot that pushes code on its own.
 - Not a competitor to Cursor, Claude Code, or Codex — pipe their output **through** NEKOWORK instead.
+- Not a test or contract-testing tool (Hurl, `go test`) — those check whether behavior is correct; NEKOWORK checks whether the diff itself is risky before merge.
 
 ## Status — public alpha
 
