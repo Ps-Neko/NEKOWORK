@@ -179,7 +179,7 @@ export function addedLines(parsed) {
  *
  * @param {object} opts
  * @param {string} [opts.cwd]            git working directory
- * @param {'working' | 'staged' | 'range'} [opts.mode='working']
+ * @param {'working' | 'staged' | 'range' | 'full'} [opts.mode='working']
  * @param {string} [opts.range]          required when mode='range', e.g. 'main...HEAD'
  * @param {string[]} [opts.extraArgs]    extra args appended after the mode args
  * @param {boolean} [opts.includeUntracked=true]  for mode='working', synthesize
@@ -189,6 +189,23 @@ export function getGitDiff(opts = {}) {
   const cwd = opts.cwd || process.cwd();
   const mode = opts.mode || 'working';
   const includeUntracked = opts.includeUntracked !== false;
+
+  // full-scan: treat the entire tracked file set (plus untracked, unless
+  // disabled) as an all-added diff, so risk rules see every line rather than
+  // only a git delta. This is the onboarding path — run verify-pr on a repo
+  // that has no PR/diff yet, without fabricating a fake change.
+  if (mode === 'full') {
+    const ls = spawnSync('git', ['ls-files'], { cwd, encoding: 'utf8', windowsHide: true });
+    if (ls.error) throw ls.error;
+    if (ls.status !== 0) {
+      throw new Error(`git ls-files exited ${ls.status}: ${ls.stderr || ''}`);
+    }
+    const tracked = (ls.stdout || '').split('\n').map(s => s.trim()).filter(Boolean);
+    let stdout = synthesizeFilesAsDiff(cwd, tracked);
+    if (includeUntracked) stdout += synthesizeUntrackedDiff(cwd);
+    return parseDiff(stdout);
+  }
+
   const args = ['diff', '--no-color', '--no-ext-diff'];
   if (mode === 'staged') args.push('--cached');
   else if (mode === 'range') {
@@ -227,8 +244,22 @@ function synthesizeUntrackedDiff(cwd) {
   const ls = spawnSync('git', ['ls-files', '--others', '--exclude-standard'], { cwd, encoding: 'utf8', windowsHide: true });
   if (ls.status !== 0 || !ls.stdout) return '';
   const files = ls.stdout.split('\n').map(s => s.trim()).filter(Boolean);
+  return synthesizeFilesAsDiff(cwd, files);
+}
+
+/**
+ * Render a list of repo-relative file paths as an all-added unified diff
+ * (every line prefixed `+`). Shared by untracked-file synthesis (working mode)
+ * and whole-tree synthesis (full-scan mode). Non-files and unreadable paths
+ * are skipped silently.
+ *
+ * @param {string} cwd
+ * @param {string[]} relPaths  repo-relative paths
+ * @returns {string} concatenated unified-diff chunks
+ */
+function synthesizeFilesAsDiff(cwd, relPaths) {
   let chunks = '';
-  for (const rel of files) {
+  for (const rel of relPaths) {
     const full = path.join(cwd, rel);
     let content;
     try {
