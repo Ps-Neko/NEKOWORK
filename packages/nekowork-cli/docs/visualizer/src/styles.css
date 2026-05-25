@@ -252,48 +252,24 @@ main.layout {
   font-weight: 600;
 }
 
-/* --- PR summary --- */
-
-.pr-summary {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px 22px;
-}
-
-.pr-summary__title {
-  margin: 0 0 8px;
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.pr-summary__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 0 0 12px;
-  font-family: ui-monospace, SFMono-Regular, 'JetBrains Mono', monospace;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.pr-summary__meta span {
-  background: var(--surface-2);
-  padding: 4px 8px;
-  border-radius: 6px;
-}
-
-.pr-summary__purpose {
-  margin: 0;
-  color: var(--text);
-}
-
 /* --- Conflict frame (Claude vs NEKOWORK) --- */
 
 .conflict {
   display: grid;
   grid-template-columns: 1fr 1.3fr;
   gap: var(--gap);
+}
+
+.conflict__pr {
+  grid-column: 1 / -1;
+  margin: 0 0 4px;
+  font-family: ui-monospace, SFMono-Regular, 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.conflict__pr code {
+  color: var(--text);
 }
 
 .conflict__title {
