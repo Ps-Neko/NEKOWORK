@@ -64,6 +64,12 @@ npm-debug.log*
 # 테스트 산출물
 coverage/
 .nyc_output/
+test-results/
+**/test-results/
+
+# gen-hero-gif 캡처 프레임 (로컬 임시)
+.frames/
+**/.frames/
 
 # 기타
 *.tmp
