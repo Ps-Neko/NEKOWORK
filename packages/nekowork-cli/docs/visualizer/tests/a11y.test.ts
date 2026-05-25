@@ -119,6 +119,13 @@ test.describe('Visualizer a11y (T11) + mobile (T14)', () => {
     await expect(btnOn).toHaveAttribute('aria-pressed', 'false');
   });
 
+  test('conflict section carries PR identity, no standalone pr-summary', async ({ page }) => {
+    await page.goto(FIXTURE_URL, { waitUntil: 'networkidle' });
+    await expect(page.locator('.pr-summary')).toHaveCount(0);
+    await expect(page.locator('.conflict__pr')).toHaveCount(1);
+    await expect(page.locator('.conflict__pr')).toContainText('sample-pr-001');
+  });
+
   test('prefers-reduced-motion respected (T14)', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
