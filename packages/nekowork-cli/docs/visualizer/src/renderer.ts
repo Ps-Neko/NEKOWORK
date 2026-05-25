@@ -1,18 +1,18 @@
 /**
  * Renderer — Phase 1.0 정적 SVG/HTML.
  * design doc Path 1 + Path 2:
- *   - first-frame wedge line above-the-fold
+ *   - first-frame hero workflow toggle (above the fold)
  *   - Claude advisor (LGTM) vs NEKOWORK rule (BLOCK) conflict frame
  *   - 12-station grid (aria-label, status badge)
  */
 
-import { renderWedge } from './wedge.js';
+import { renderHero } from './hero.js';
 import { STATIONS, type Station, type StationStatus } from './stations.js';
 import type { Fixture } from './fixtures.js';
 
 export function render(root: HTMLElement, fixture: Fixture): void {
   root.innerHTML = `
-    ${renderWedge()}
+    ${renderHero()}
     <main class="layout" data-fixture-id="${escapeAttr(fixture.id)}">
       ${renderPrSummary(fixture)}
       ${renderConflictFrame(fixture)}
