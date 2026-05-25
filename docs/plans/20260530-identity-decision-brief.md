@@ -1,5 +1,14 @@
 # Identity Decision Brief — NEKOWORK / NEKOFORGE
 
+> ✅ **2026-05-25 결정 완료 (plan-ceo-review 조기 결정) — 5/30 재실행 불필요, nudge 루틴 무효**
+> - **#1 본진/이름**: 해소 → **2제품 라인업**. NEKOWORK=라이트, NEKOFORGE=헤비, **둘 다 공개**(archive 없음).
+> - **#2 포지셔닝**: "un-foolable gate" = 작업가설(두 제품 공통). 공개 확정·과대주장은 (d) 신호 후.
+> - **#3 stage 서사**: 12-station = 공통 큰 그림. 제품별 실제 단계 수는 다름(라이트 짧게 / 헤비 14). 12↔9↔14 매핑은 헤비 공개 준비 때.
+> - **#4 forge rename**: 안 바꿈 (nekoforge = 헤비 제품명으로 승격).
+> - **#5 게이트통합 · #6 visualizer schema**: (d) 신호 후 defer.
+> - **다음 한 수**: 라이트(NEKOWORK)부터 저부담 익명 채널 push → (d) 측정. 그 전엔 두 제품 동결.
+> - **정리 과제(헤비 공개 때)**: monorepo `forge-engine` ↔ standalone `NEKOFORGE` 중복.
+>
 > Trigger: **2026-05-30** (defer 만료) · Authored: 2026-05-24 (Claude 종합)
 > **결정 = 사용자. 본 문서 = 자료(decision support), 결정 아님.**
 > 전체 안건 상세 = `nekoforge-defer-decision` 메모리. 본 브리프는 그 위에 2026-05-24 세션 데이터 + 한 가지 모순을 얹는다.
