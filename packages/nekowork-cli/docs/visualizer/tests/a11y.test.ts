@@ -126,6 +126,15 @@ test.describe('Visualizer a11y (T11) + mobile (T14)', () => {
     await expect(page.locator('.conflict__pr')).toContainText('sample-pr-001');
   });
 
+  test('hero toggle reachable by keyboard and operable with Enter', async ({ page }) => {
+    await page.goto(FIXTURE_URL, { waitUntil: 'networkidle' });
+    await page.locator('#hero-tg-on').focus();
+    await expect(page.locator('#hero-tg-on')).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#hero-state-on')).toBeVisible();
+    await expect(page.locator('#hero-tg-on')).toHaveAttribute('aria-pressed', 'true');
+  });
+
   test('prefers-reduced-motion respected (T14)', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
