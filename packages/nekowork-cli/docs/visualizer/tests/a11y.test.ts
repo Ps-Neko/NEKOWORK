@@ -5,7 +5,7 @@
  *   1. WCAG AA + aria-label (axe-core)
  *   2. 12-station 의 각 station 에 aria-label (T11)
  *   3. 모바일 320px 에서 horizontal scroll 0 (T14)
- *   4. first-frame wedge above-the-fold 1280x720 (Path 1)
+ *   4. first-frame hero above-the-fold 1280x720
  *   5. keyboard navigation — Tab 으로 station 도달 가능 (T11)
  *   6. prefers-reduced-motion 적용 (T14)
  */
@@ -55,14 +55,14 @@ test.describe('Visualizer a11y (T11) + mobile (T14)', () => {
     expect(scrollWidth, 'document scroll width vs viewport').toBeLessThanOrEqual(viewportWidth);
   });
 
-  test('first-frame wedge above-the-fold at 1280x720 (Path 1)', async ({ page }) => {
+  test('first-frame hero above-the-fold at 1280x720', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto(FIXTURE_URL, { waitUntil: 'networkidle' });
 
-    const rect = await page.locator('.wedge').boundingBox();
-    expect(rect, '.wedge bounding box').not.toBeNull();
-    if (!rect) throw new Error('wedge missing');
-    expect(rect.y + rect.height, 'wedge bottom edge within viewport').toBeLessThanOrEqual(720);
+    const title = await page.locator('.hero__title').boundingBox();
+    expect(title, '.hero__title bounding box').not.toBeNull();
+    if (!title) throw new Error('hero title missing');
+    expect(title.y + title.height, 'hero title within viewport').toBeLessThanOrEqual(720);
   });
 
   test('Tab navigation reaches stations (T11 keyboard)', async ({ page }) => {
@@ -90,6 +90,33 @@ test.describe('Visualizer a11y (T11) + mobile (T14)', () => {
     }
     // station 자체 focus 는 후속 Phase 1.1 의 timeline scrubber 도입 시점. 지금은 skip 처리.
     expect(true).toBe(true);
+  });
+
+  test('hero renders, toggles before/after, aria-pressed flips', async ({ page }) => {
+    await page.goto(FIXTURE_URL, { waitUntil: 'networkidle' });
+
+    await expect(page.locator('.hero__title')).toContainText('내 AI가 짠 코드를');
+
+    const btnOff = page.locator('#hero-tg-off');
+    const btnOn = page.locator('#hero-tg-on');
+    await expect(btnOff).toHaveAttribute('aria-pressed', 'true');
+    await expect(btnOn).toHaveAttribute('aria-pressed', 'false');
+
+    await expect(page.locator('#hero-state-on')).toBeHidden();
+    await expect(page.locator('#hero-state-off')).toBeVisible();
+
+    await btnOn.click();
+    await expect(page.locator('#hero-state-on')).toBeVisible();
+    await expect(page.locator('#hero-state-off')).toBeHidden();
+    await expect(btnOn).toHaveAttribute('aria-pressed', 'true');
+    await expect(btnOff).toHaveAttribute('aria-pressed', 'false');
+
+    // 역방향: 다시 off 로 복원되는지
+    await btnOff.click();
+    await expect(page.locator('#hero-state-off')).toBeVisible();
+    await expect(page.locator('#hero-state-on')).toBeHidden();
+    await expect(btnOff).toHaveAttribute('aria-pressed', 'true');
+    await expect(btnOn).toHaveAttribute('aria-pressed', 'false');
   });
 
   test('prefers-reduced-motion respected (T14)', async ({ browser }) => {
