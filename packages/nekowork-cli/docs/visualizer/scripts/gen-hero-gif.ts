@@ -109,23 +109,27 @@ async function captureFrames(): Promise<void> {
     // networkidle 은 CI 에서 hang 가능 (background analytics 등) → domcontentloaded + 명시 timeout.
     await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 15_000 });
     // styles 의 font/layout 안정화 대기.
-    await page.waitForSelector('.wedge', { state: 'visible', timeout: 10_000 });
+    await page.waitForSelector('.hero', { state: 'visible', timeout: 10_000 });
     await page.waitForTimeout(800);
 
-    const sections = ['.wedge', '.conflict', '.stations', '.evidence'];
+    // frame 1: hero (NEKOWORK 없이 / before)
+    await page.screenshot({ path: join(framesDir, 'frame-001.png'), fullPage: false });
+
+    // frame 2: hero (NEKOWORK 켜기 / after) — 토글 클릭 후
+    await page.click('#hero-tg-on');
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: join(framesDir, 'frame-002.png'), fullPage: false });
+
+    // frame 3~5: conflict → stations → evidence
+    const sections = ['.conflict', '.stations', '.evidence'];
     for (let i = 0; i < sections.length; i++) {
-      if (i > 0) {
-        const sel = sections[i]!;
-        await page.evaluate((s) => {
-          document.querySelector(s)?.scrollIntoView({ behavior: 'instant', block: 'start' });
-        }, sel);
-        await page.waitForTimeout(400);
-      }
-      const idx = String(i + 1).padStart(3, '0');
-      await page.screenshot({
-        path: join(framesDir, `frame-${idx}.png`),
-        fullPage: false
-      });
+      const sel = sections[i]!;
+      await page.evaluate((s) => {
+        document.querySelector(s)?.scrollIntoView({ behavior: 'instant', block: 'start' });
+      }, sel);
+      await page.waitForTimeout(400);
+      const idx = String(i + 3).padStart(3, '0');
+      await page.screenshot({ path: join(framesDir, `frame-${idx}.png`), fullPage: false });
     }
   } finally {
     await browser.close();

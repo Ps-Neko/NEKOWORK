@@ -73,73 +73,150 @@ main.layout {
   gap: 24px;
 }
 
-/* --- Wedge (above the fold, design doc Path 1) --- */
+/* --- Hero (workflow Before/After toggle, above the fold) --- */
 
-.wedge {
-  text-align: center;
-  padding: 40px 20px 28px;
+.hero {
+  background: radial-gradient(120% 100% at 50% 0%, #15171f 0%, var(--bg) 60%);
   border-bottom: 1px solid var(--border);
+  padding: 46px 20px 34px;
+  text-align: center;
 }
 
-.wedge__title {
-  font-size: clamp(28px, 4.5vw, 44px);
-  line-height: 1.2;
-  margin: 0 0 12px;
+.hero__eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #ff8a8d;
+  margin: 0;
+}
+
+.hero__title {
+  font-size: clamp(26px, 5vw, 46px);
   font-weight: 800;
+  line-height: 1.18;
+  color: #fff;
+  margin: 14px 0 0;
   letter-spacing: -0.01em;
+}
+
+.hero__sub {
+  font-size: clamp(15px, 2.2vw, 20px);
+  color: var(--text-muted);
+  margin: 14px auto 0;
+  font-weight: 600;
+  max-width: 520px;
+}
+
+.hero__toggle {
+  display: inline-flex;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 28px 0 22px;
+}
+
+.hero__tg {
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  padding: 11px 20px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.hero__tg--active {
+  background: var(--neko-accent);
+  color: #1a0708;
+}
+
+#hero-tg-off.hero__tg--active {
+  background: #3a3f4b;
   color: #fff;
 }
 
-.wedge__plain {
-  font-size: clamp(16px, 2.4vw, 22px);
-  margin: 14px auto 0;
-  max-width: 680px;
-  color: var(--text);
-  font-weight: 600;
-  line-height: 1.5;
+.hero__state--hidden {
+  display: none;
 }
 
-.wedge__sub {
-  font-size: clamp(14px, 1.6vw, 16px);
-  margin: 12px 0 0;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-/* --- PR summary --- */
-
-.pr-summary {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px 22px;
-}
-
-.pr-summary__title {
-  margin: 0 0 8px;
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.pr-summary__meta {
+.hero__flow {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   flex-wrap: wrap;
-  gap: 10px;
-  margin: 0 0 12px;
-  font-family: ui-monospace, SFMono-Regular, 'JetBrains Mono', monospace;
-  font-size: 13px;
-  color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 16px;
+  min-height: 84px;
+  max-width: 680px;
+  margin: 0 auto;
 }
 
-.pr-summary__meta span {
+.hero__bx {
   background: var(--surface-2);
-  padding: 4px 8px;
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--advisor-fg);
+  border-radius: 7px;
+  padding: 8px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
-.pr-summary__purpose {
-  margin: 0;
-  color: var(--text);
+.hero__bx--ai {
+  background: rgba(111, 161, 255, 0.16);
+  border-color: rgba(111, 161, 255, 0.55);
+  color: #cfe0ff;
+}
+
+.hero__bx--ship {
+  background: rgba(246, 183, 60, 0.16);
+  border-color: rgba(246, 183, 60, 0.5);
+  color: #ffe1a5;
+}
+
+.hero__bx--neko {
+  background: var(--neko-accent);
+  border-color: var(--neko-accent);
+  color: #1a0708;
+  font-weight: 800;
+}
+
+.hero__bx--human {
+  background: rgba(56, 193, 114, 0.16);
+  border-color: rgba(56, 193, 114, 0.5);
+  color: #bcefd0;
+}
+
+.hero__ar {
+  color: #7d8495;
+  font-size: 12px;
+}
+
+.hero__cap {
+  margin: 15px auto 0;
+  font-size: 15px;
+  font-weight: 700;
+  max-width: 560px;
+}
+
+.hero__cap--bad {
+  color: #ff8a8d;
+}
+
+.hero__cap--good {
+  color: #bcefd0;
+}
+
+.hero__scrollhint {
+  margin-top: 26px;
+  color: var(--skip);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 /* --- Conflict frame (Claude vs NEKOWORK) --- */
@@ -148,6 +225,18 @@ main.layout {
   display: grid;
   grid-template-columns: 1fr 1.3fr;
   gap: var(--gap);
+}
+
+.conflict__pr {
+  grid-column: 1 / -1;
+  margin: 0 0 4px;
+  font-family: ui-monospace, SFMono-Regular, 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.conflict__pr code {
+  color: var(--text);
 }
 
 .conflict__title {

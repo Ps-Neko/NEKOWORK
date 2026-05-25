@@ -1,39 +1,23 @@
 /**
  * Renderer — Phase 1.0 정적 SVG/HTML.
  * design doc Path 1 + Path 2:
- *   - first-frame wedge line above-the-fold
+ *   - first-frame hero workflow toggle (above the fold)
  *   - Claude advisor (LGTM) vs NEKOWORK rule (BLOCK) conflict frame
  *   - 12-station grid (aria-label, status badge)
  */
 
-import { renderWedge } from './wedge.js';
+import { renderHero } from './hero.js';
 import { STATIONS, type Station, type StationStatus } from './stations.js';
 import type { Fixture } from './fixtures.js';
 
 export function render(root: HTMLElement, fixture: Fixture): void {
   root.innerHTML = `
-    ${renderWedge()}
+    ${renderHero()}
     <main class="layout" data-fixture-id="${escapeAttr(fixture.id)}">
-      ${renderPrSummary(fixture)}
       ${renderConflictFrame(fixture)}
       ${renderStationGrid(fixture)}
       ${renderEvidenceTrail(fixture)}
     </main>
-  `;
-}
-
-function renderPrSummary(fixture: Fixture): string {
-  const pr = fixture.samplePr;
-  return `
-    <section class="pr-summary" aria-label="PR summary">
-      <h2 class="pr-summary__title">${escapeHtml(pr.title)}</h2>
-      <p class="pr-summary__meta">
-        <span class="pr-summary__id">${escapeHtml(pr.pr_id)}</span>
-        <span class="pr-summary__branch">${escapeHtml(pr.head_branch)} → ${escapeHtml(pr.base_branch)}</span>
-        <span class="pr-summary__stats">+${pr.stats.additions} / -${pr.stats.deletions} (${pr.stats.files} file${pr.stats.files === 1 ? '' : 's'})</span>
-      </p>
-      <p class="pr-summary__purpose">${escapeHtml(pr.purpose)}</p>
-    </section>
   `;
 }
 
@@ -52,6 +36,7 @@ function renderConflictFrame(fixture: Fixture): string {
 
   return `
     <section class="conflict" aria-label="Claude advisor vs NEKOWORK rule comparison">
+      <p class="conflict__pr"><code>${escapeHtml(fixture.samplePr.pr_id)}</code> ${escapeHtml(fixture.samplePr.title)}</p>
       <h2 class="conflict__title">같은 코드, 다른 결론</h2>
       <article class="conflict__column conflict__column--advisor" data-source="advisor" aria-label="Advisor opinion">
         <header class="conflict__header">
