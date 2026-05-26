@@ -210,5 +210,5 @@ Builders project the catalog into tool-specific files:
 The current repository release line is `0.1.0-alpha.12`:
 
 - Repository and GitHub tarball release are available.
-- Public npm alpha is published as `@ps-neko/nekowork@alpha` and currently points at `0.1.0-alpha.11` (published 2026-05-16).
+- Public npm alpha is published as `@ps-neko/nekowork@alpha` and currently points at `0.1.0-alpha.12` (published 2026-05-26).
 - Clone, submodule, and local checkout integration remain supported for repository-pinned workflows.

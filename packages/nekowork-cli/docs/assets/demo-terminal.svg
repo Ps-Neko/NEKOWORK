@@ -25,7 +25,7 @@
     <text x="72" y="147" fill="#d7e3ec">NEKOWORK doctor</text>
     <text x="72" y="179" fill="#8fb3c8">STATUS  CHECK              MESSAGE</text>
     <text x="72" y="211" fill="#9be9a8">PASS    node               Node 22+</text>
-    <text x="72" y="243" fill="#9be9a8">PASS    package metadata   @ps-neko/nekowork@0.1.0-alpha.11</text>
+    <text x="72" y="243" fill="#9be9a8">PASS    package metadata   @ps-neko/nekowork@0.1.0-alpha.12</text>
     <text x="72" y="275" fill="#9be9a8">PASS    api key env        no delegated-provider API key overrides</text>
     <text x="72" y="307" fill="#ffd166">WARN    gemini cli         auth status is not checked non-interactively</text>
     <text x="72" y="339" fill="#d7e3ec">summary: WARN (5 pass, 2 warn, 0 fail)</text>
