@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.1.0-alpha.12] - TBD
+
+### Changed
+- `verify-pr --full-scan` (alias `--full`): scans all tracked files as a synthetic added-diff via the shared `synthesizeFilesAsDiff` helper, so first-time onboarding no longer requires a throwaway repo with a fake diff. (First external-user feedback.)
+- `INSUFFICIENT_EVIDENCE` verdict now explains itself: its reason/summary clarify "not a failure — risk checks passed; add a test command to verify, or use `--ci-exit-soft`," instead of reading like a hard block. Verdict logic is unchanged — an unverified source change still does not auto-pass (SCOPE-1.0 §7).
+
 ## [0.1.0-alpha.11] - 2026-05-16
 
 ### Added

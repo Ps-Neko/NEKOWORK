@@ -1,6 +1,6 @@
 {
   "name": "@ps-neko/nekowork",
-  "version": "0.1.0-alpha.11",
+  "version": "0.1.0-alpha.12",
   "description": "Verifies AI-made code changes before apply with Codex verification, Human Gate, and explicit apply",
   "keywords": [
     "claude",

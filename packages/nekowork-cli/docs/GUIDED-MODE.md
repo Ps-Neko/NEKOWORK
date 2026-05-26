@@ -31,7 +31,7 @@ Example:
 
 ```text
 +-- NEKOWORK Cockpit -------------------------------------+
-| Version : 0.1.0-alpha.11                                |
+| Version : 0.1.0-alpha.12                                |
 | Project : /path/to/project                              |
 | Git     : dirty (2 changed paths)                       |
 | Provider: mock                                          |
