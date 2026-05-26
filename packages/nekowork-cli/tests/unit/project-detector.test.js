@@ -172,3 +172,50 @@ test('baselineAt 은 ISO 8601 형식', () => {
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('go.mod 가 하위 폴더에 있어도 Go 로 감지 (모노레포/서브디렉토리)', () => {
+  const root = makeTempDir();
+  try {
+    // 첫 외부 사용자(박준우) 케이스: go.mod 가 레포 루트가 아니라 하위 폴더
+    writeFile(root, 'backend/go.mod', 'module example.com/app\n\ngo 1.22\n');
+    writeFile(root, 'README.md', '# repo');
+
+    const r = detectProject(root);
+    assert.equal(r.projectType, 'go');
+    assert.ok(r.languages.includes('go'));
+    assert.equal(r.hasTests, true);
+    assert.equal(r.commands.test, 'go test ./...');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('root 에 마커가 있으면 하위는 탐색하지 않음 (기존 동작 보존)', () => {
+  const root = makeTempDir();
+  try {
+    writeFile(root, 'package.json', JSON.stringify({ name: 'demo', scripts: { test: 'node --test' } }));
+    writeFile(root, 'service/go.mod', 'module x\n');
+
+    const r = detectProject(root);
+    // root 의 node 가 primary, 하위 go 는 끌어오지 않음
+    assert.equal(r.projectType, 'node');
+    assert.deepEqual(r.languages, ['node']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('node_modules / vendor 등 제외 디렉토리의 마커는 무시', () => {
+  const root = makeTempDir();
+  try {
+    writeFile(root, 'node_modules/dep/package.json', '{}');
+    writeFile(root, 'vendor/lib/go.mod', 'module v\n');
+    writeFile(root, 'README.md', '# nothing real at root');
+
+    const r = detectProject(root);
+    assert.equal(r.projectType, 'unknown');
+    assert.deepEqual(r.languages, []);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
