@@ -259,3 +259,37 @@ test('INSUFFICIENT_EVIDENCE reason 은 "실패 아님" 안내를 포함', async 
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('parseVerifyPrArgs: --include <경로> 는 includePaths 에 누적', () => {
+  const opts = parseVerifyPrArgs(['--include', 'src/generated', '--include', 'build/out.js']);
+  assert.deepEqual(opts.includePaths, ['src/generated', 'build/out.js']);
+});
+
+test('--include: gitignore 된 경로의 시크릿도 강제 스캔 → BLOCK (박준우 케이스)', async () => {
+  const root = makeTempProject();
+  try {
+    // codegen 산출물 디렉토리를 gitignore 한다
+    fs.appendFileSync(path.join(root, '.gitignore'), 'generated/\n');
+    spawnSync('git', ['add', '.gitignore'], { cwd: root });
+    spawnSync('git', ['commit', '-q', '-m', 'ignore generated'], { cwd: root });
+    // gitignore 된 codegen 파일에 시크릿 fallback
+    fs.mkdirSync(path.join(root, 'generated'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'generated', 'client.ts'), [
+      'export function getKey(): string {',
+      '  return process.env.API_KEY || "sk-codegen-fallback-secret";',
+      '}',
+    ].join('\n'));
+
+    // 기본(working) 모드: generated/ 는 gitignore 라 diff 에 안 잡힘 → ALLOW
+    const working = await verifyPrCycle({ projectRoot: root, write: false });
+    assert.equal(working.decision.verdict, VERDICT.ALLOW);
+
+    // --include generated: gitignore 무관하게 강제 스캔 → BLOCK
+    const included = await verifyPrCycle({ projectRoot: root, includePaths: ['generated'], write: false });
+    assert.equal(included.decision.verdict, VERDICT.BLOCK);
+    assert.ok(included.findings.some(f => f.file === 'generated/client.ts'),
+      '--include 는 gitignore 된 generated/client.ts 의 시크릿을 잡아야 함');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});

@@ -190,6 +190,14 @@ export function getGitDiff(opts = {}) {
   const mode = opts.mode || 'working';
   const includeUntracked = opts.includeUntracked !== false;
 
+  // include: append explicitly named paths as an all-added diff, ignoring
+  // .gitignore. `git diff` / `ls-files --exclude-standard` skip gitignored
+  // build/codegen output; this force-scans the paths the caller names.
+  const appendIncluded = (stdout) => {
+    if (!Array.isArray(opts.includePaths) || opts.includePaths.length === 0) return stdout;
+    return stdout + synthesizeFilesAsDiff(cwd, collectIncludeFiles(cwd, opts.includePaths));
+  };
+
   // full-scan: treat the entire tracked file set (plus untracked, unless
   // disabled) as an all-added diff, so risk rules see every line rather than
   // only a git delta. This is the onboarding path — run verify-pr on a repo
@@ -203,7 +211,7 @@ export function getGitDiff(opts = {}) {
     const tracked = (ls.stdout || '').split('\n').map(s => s.trim()).filter(Boolean);
     let stdout = synthesizeFilesAsDiff(cwd, tracked);
     if (includeUntracked) stdout += synthesizeUntrackedDiff(cwd);
-    return parseDiff(stdout);
+    return parseDiff(appendIncluded(stdout));
   }
 
   const args = ['diff', '--no-color', '--no-ext-diff'];
@@ -237,7 +245,7 @@ export function getGitDiff(opts = {}) {
     stdout += synthesizeUntrackedDiff(cwd);
   }
 
-  return parseDiff(stdout);
+  return parseDiff(appendIncluded(stdout));
 }
 
 function synthesizeUntrackedDiff(cwd) {
@@ -279,6 +287,45 @@ function synthesizeFilesAsDiff(cwd, relPaths) {
     for (const line of lines) chunks += `+${line}\n`;
   }
   return chunks;
+}
+
+/**
+ * Resolve `--include` paths (files or directories) into repo-relative file
+ * paths, ignoring .gitignore. Directories are walked recursively; node_modules
+ * and .git are skipped. This is how gitignored build/codegen output gets
+ * force-scanned. Paths outside `cwd` are dropped.
+ *
+ * @param {string} cwd
+ * @param {string[]} includePaths
+ * @returns {string[]} repo-relative file paths (deduped)
+ */
+function collectIncludeFiles(cwd, includePaths) {
+  const out = [];
+  const seen = new Set();
+  const add = (full) => {
+    const rel = path.relative(cwd, full).split(path.sep).join('/');
+    if (rel && !rel.startsWith('..') && !seen.has(rel)) { seen.add(rel); out.push(rel); }
+  };
+  const walk = (dir) => {
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      if (e.isDirectory()) {
+        if (e.name === 'node_modules' || e.name === '.git') continue;
+        walk(path.join(dir, e.name));
+      } else if (e.isFile()) {
+        add(path.join(dir, e.name));
+      }
+    }
+  };
+  for (const inc of includePaths) {
+    const full = path.resolve(cwd, inc);
+    let stat;
+    try { stat = fs.statSync(full); } catch { continue; }
+    if (stat.isFile()) add(full);
+    else if (stat.isDirectory()) walk(full);
+  }
+  return out;
 }
 
 /**

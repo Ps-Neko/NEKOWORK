@@ -144,21 +144,22 @@ function renderPrComment(decision, findings) {
 }
 
 function loadDiff({ mode, projectRoot, opts }) {
+  const includePaths = opts.includePaths;
   if (mode === 'patch') {
     if (!opts.patchPath) throw new Error('mode=patch requires --from-patch <file>');
     return loadDiffFile(opts.patchPath);
   }
   if (mode === 'range') {
     if (!opts.range) throw new Error('mode=range requires --range <ref>');
-    return getGitDiff({ cwd: projectRoot, mode: 'range', range: opts.range });
+    return getGitDiff({ cwd: projectRoot, mode: 'range', range: opts.range, includePaths });
   }
   if (mode === 'staged') {
-    return getGitDiff({ cwd: projectRoot, mode: 'staged' });
+    return getGitDiff({ cwd: projectRoot, mode: 'staged', includePaths });
   }
   if (mode === 'full') {
-    return getGitDiff({ cwd: projectRoot, mode: 'full' });
+    return getGitDiff({ cwd: projectRoot, mode: 'full', includePaths });
   }
-  return getGitDiff({ cwd: projectRoot, mode: 'working' });
+  return getGitDiff({ cwd: projectRoot, mode: 'working', includePaths });
 }
 
 function runRules(parsedDiff) {
@@ -433,6 +434,7 @@ export function parseVerifyPrArgs(rest = []) {
     else if (a === '--no-write') opts.write = false;
     else if (a === '--comment-file') opts.commentFile = rest[++i];
     else if (a === '--ci-exit-soft') opts.ciExitSoft = true;
+    else if (a === '--include') { (opts.includePaths = opts.includePaths || []).push(rest[++i]); }
   }
   return opts;
 }
