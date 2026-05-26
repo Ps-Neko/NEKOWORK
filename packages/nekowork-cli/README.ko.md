@@ -62,7 +62,7 @@ cat .nekowork/decision.json
 
 `check` 가 환경을 진단합니다. `verify-pr` 가 현재 working tree diff 를 결정적 위험 룰로 스캔하고, `.nekowork/evidence/` 에 증거를 남기고, 머지/적용 가능 여부를 판정합니다. 프로젝트 루트에 `REPORT.md` 와 `.nekowork/decision.json` 을 작성합니다.
 
-> **재현성 메모:** `npx @ps-neko/nekowork@alpha` 는 가장 최근 publish 된 alpha 로 resolve 됩니다. publish 된 alpha 는 `main` 보다 뒤일 수 있습니다. 재현 가능한 동작을 원하면 정확한 버전 (예: `@ps-neko/nekowork@0.1.0-alpha.11`) 을 핀하세요.
+> **재현성 메모:** `npx @ps-neko/nekowork@alpha` 는 가장 최근 publish 된 alpha 로 resolve 됩니다. publish 된 alpha 는 `main` 보다 뒤일 수 있습니다. 재현 가능한 동작을 원하면 정확한 버전 (예: `@ps-neko/nekowork@0.1.0-alpha.12`) 을 핀하세요.
 
 Compatibility / legacy 명령 (`cockpit`, `start`, `ask`, `plan`, `team`, `work`, `verify`, `gate`, `ship`, `run`, `build`, `auto`, `pr-prep`, `report --session`, `apply --session`, `review`) 은 [docs/ADVANCED.md](docs/ADVANCED.md) 에 있습니다. 2.0 에서 제거 예정 ([docs/SCOPE-1.0.md](docs/SCOPE-1.0.md) Phased Cut).
 
@@ -189,7 +189,7 @@ NEKOWORK는 하나의 거대한 agent 묶음이 아니라, 일을 나누고 검�
 ## 현재 alpha 상태
 
 - Package: `@ps-neko/nekowork`
-- Current alpha: `0.1.0-alpha.11` (npm `@alpha` published 2026-05-16)
+- Current alpha: `0.1.0-alpha.12` (npm `@alpha` published 2026-05-26)
 - CLI: `nekowork`
 - Legacy/internal alias: `harness`
 - Tests: 501 pass
