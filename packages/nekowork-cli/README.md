@@ -159,6 +159,7 @@ See the full report contract and example artifact in [docs/DEMO-REPORT.md](docs/
 - `verify-pr` — verify a diff / PR against deterministic risk rules; writes `REPORT.md` and `.nekowork/decision.json`
 - `verify-pr --comment-file <path>` — emit GitHub PR comment markdown for CI integration
 - `verify-pr --ci-exit-soft` — treat `NEEDS_HUMAN_REVIEW` / `INSUFFICIENT_EVIDENCE` as exit 0 (label-driven CI)
+- `verify-pr --include <path>` — force-scan a gitignored path (codegen / build output) that `git diff` would otherwise skip (repeatable)
 
 The CI exit code matrix is fixed:
 

@@ -4,7 +4,10 @@
 
 ## [Unreleased]
 
-## [0.1.0-alpha.12] - TBD
+### Added
+- `verify-pr --include <path>` (repeatable): force-scan an explicit path even if it is gitignored. `git diff` / `ls-files --exclude-standard` skip gitignored build/codegen output; `--include` synthesizes those files as an all-added diff so risk rules see them. Directories are walked recursively (`node_modules`/`.git` skipped). (First external-user feedback — gitignored codegen output was invisible to the scan.)
+
+## [0.1.0-alpha.12] - 2026-05-26
 
 ### Changed
 - `verify-pr --full-scan` (alias `--full`): scans all tracked files as a synthetic added-diff via the shared `synthesizeFilesAsDiff` helper, so first-time onboarding no longer requires a throwaway repo with a fake diff. (First external-user feedback.)
