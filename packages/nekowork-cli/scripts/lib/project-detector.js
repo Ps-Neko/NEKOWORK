@@ -47,6 +47,16 @@ const LOCKFILE_TO_PM = {
   'bun.lockb': 'bun',
 };
 
+// 하위 탐색 시 들어가지 않을 디렉토리 (의존성 / 빌드 산출물 / 캐시).
+// 이 안의 언어 마커는 프로젝트 본체의 것이 아니므로 무시한다.
+const EXCLUDED_DIRS = new Set([
+  'node_modules', 'vendor', 'dist', 'build', 'out', 'target',
+  'coverage', 'venv', '.venv', '__pycache__', 'tmp',
+]);
+
+// 하위 탐색 최대 깊이 (root 의 직계 자식이 depth 1).
+const SUBTREE_MAX_DEPTH = 4;
+
 /**
  * Detect what verifications make sense for `root`.
  *
@@ -88,24 +98,34 @@ export function detectProject(root = process.cwd()) {
     baselineAt: new Date().toISOString(),
   };
 
-  const langs = new Set();
+  // 언어 마커는 root 를 우선 검사한다. root 에서 아무 언어도 못 찾았을 때만
+  // (모노레포 / backend 서브디렉토리 등) 제한된 깊이로 하위를 탐색한다.
+  // root 에 마커가 있으면 하위는 보지 않으므로 기존 동작이 그대로 보존된다.
+  const langDirs = new Map(); // type -> 마커가 발견된 디렉토리
   for (const marker of LANGUAGE_MARKERS) {
-    if (exists(path.join(root, marker.file))) langs.add(marker.type);
+    if (exists(path.join(root, marker.file)) && !langDirs.has(marker.type)) {
+      langDirs.set(marker.type, root);
+    }
   }
-  out.languages = [...langs];
+  if (langDirs.size === 0) {
+    for (const { type, dir } of findLanguageMarkersInSubtree(root)) {
+      if (!langDirs.has(type)) langDirs.set(type, dir);
+    }
+  }
+  out.languages = [...langDirs.keys()];
   out.projectType = pickPrimaryLanguage(out.languages);
 
-  if (out.languages.includes('node')) {
-    Object.assign(out, detectNode(root));
+  if (langDirs.has('node')) {
+    Object.assign(out, detectNode(langDirs.get('node')));
   }
-  if (out.languages.includes('rust')) {
-    mergeCommands(out, detectRust(root));
+  if (langDirs.has('rust')) {
+    mergeCommands(out, detectRust(langDirs.get('rust')));
   }
-  if (out.languages.includes('python')) {
-    mergeCommands(out, detectPython(root));
+  if (langDirs.has('python')) {
+    mergeCommands(out, detectPython(langDirs.get('python')));
   }
-  if (out.languages.includes('go')) {
-    mergeCommands(out, detectGo(root));
+  if (langDirs.has('go')) {
+    mergeCommands(out, detectGo(langDirs.get('go')));
   }
 
   for (const file of CI_FILES) {
@@ -129,6 +149,49 @@ function pickPrimaryLanguage(languages) {
   const priority = ['node', 'rust', 'python', 'go', 'java', 'ruby', 'php'];
   for (const lang of priority) if (languages.includes(lang)) return lang;
   return languages[0];
+}
+
+// root 에서 언어 마커를 못 찾았을 때, 제한된 깊이로 하위 디렉토리를 탐색한다.
+// node_modules / vendor / 빌드 산출물 / 숨김(.) 디렉토리는 건너뛴다.
+// 같은 언어가 여러 곳이면 가장 먼저 만난 디렉토리를 쓴다.
+function findLanguageMarkersInSubtree(root, maxDepth = SUBTREE_MAX_DEPTH) {
+  const found = [];
+  const markerByFile = new Map(LANGUAGE_MARKERS.map(m => [m.file, m.type]));
+
+  const skipDir = (name) => name.startsWith('.') || EXCLUDED_DIRS.has(name);
+
+  const walk = (dir, depth) => {
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (entry.isFile() && markerByFile.has(entry.name)) {
+        found.push({ type: markerByFile.get(entry.name), dir });
+      }
+    }
+    if (depth >= maxDepth) return;
+    for (const entry of entries) {
+      if (entry.isDirectory() && !skipDir(entry.name)) {
+        walk(path.join(dir, entry.name), depth + 1);
+      }
+    }
+  };
+
+  let rootEntries;
+  try {
+    rootEntries = fs.readdirSync(root, { withFileTypes: true });
+  } catch {
+    return found;
+  }
+  for (const entry of rootEntries) {
+    if (entry.isDirectory() && !skipDir(entry.name)) {
+      walk(path.join(root, entry.name), 1);
+    }
+  }
+  return found;
 }
 
 function detectNode(root) {
