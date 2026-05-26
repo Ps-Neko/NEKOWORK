@@ -14,9 +14,6 @@
     "test:a11y": "playwright test tests/a11y.test.ts",
     "gen-hero-gif": "tsx scripts/gen-hero-gif.ts"
   },
-  "dependencies": {
-    "nekoforge": "workspace:*"
-  },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
     "@playwright/test": "^1.49.1",
