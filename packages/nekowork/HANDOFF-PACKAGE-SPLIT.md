@@ -120,23 +120,82 @@ Decision deferred to the person executing.
 | Publish dry-run + actual publish | 2 |
 | **Total** | **16 hours (2 work days)** |
 
-## Open decisions
+## Open decisions — resolved 2026-05-27
 
-These need a human sign-off before execution:
+Decisions taken on this PR's merge (`feat/package-split` → `main`). Each is a
+default that can be overturned by a follow-up PR if Phase B execution finds a
+better trade-off — Phase A skeleton commits to none of them.
 
-1. **Move vs copy.** Move is cleaner (single source of truth) but risks
-   breakage during the move. Copy + delete later is safer but creates
-   short-term duplication. Recommend: copy, ship 0.2.0-alpha.0 with both, then
-   delete from nekowork-harness in 0.2.0-alpha.1.
-2. **Old npm name.** Does `@ps-neko/nekowork-cli` keep being published as a
-   redirect for ≥ 1 alpha cycle, or do we hard-cut?
-3. **Catalog ownership.** Should `agents/`, `skills/`, `hooks/`, `manifests/`,
-   `packs/` move to `@ps-neko/nekowork-harness` (per plan §3) or to a third
-   `@ps-neko/nekowork-catalog` package? The plan says harness; revisit only
-   if catalog grows to >50% of harness LOC.
-4. **CI matrix.** Two packages now. `pnpm -r test` covers both, but CI yaml
-   probably needs an explicit step per package. Update
-   `.github/workflows/harness-validate.yml` accordingly.
+### 1. Move vs Copy → **COPY** during transition
+
+`0.2.0-alpha.0` ships *both* packages with overlapping code (verify-pr +
+rules + fixtures + lib/decision in both `@ps-neko/nekowork-cli` and
+`@ps-neko/nekowork`). In `0.2.0-alpha.1` (or the first 1.0 candidate),
+delete the duplicated files from `@ps-neko/nekowork-harness` (the renamed
+`nekowork-cli`).
+
+Why: easier rollback if the slim package smoke-fails on a real PR diff. The
+window with duplication is one alpha cycle and we control the SHA of both
+packages on the same monorepo commit.
+
+### 2. Old npm name `@ps-neko/nekowork-cli` → **deprecate, keep publishing 1 alpha cycle**
+
+`@ps-neko/nekowork-cli@0.2.0-alpha.0` ships as a slim re-export package
+that prints a deprecation notice on every CLI invocation:
+
+```
+@ps-neko/nekowork-cli is deprecated. For the verification gate:
+  npm i -g @ps-neko/nekowork
+For the legacy / harness surface (install, ask, plan, team, work, ship, ...):
+  npm i -g @ps-neko/nekowork-harness
+```
+
+After one alpha cycle (≈ 2 weeks), `@ps-neko/nekowork-cli` is npm-deprecated
+(`npm deprecate`) so `npm install` shows a warning and future-installs are
+discouraged. The published versions remain on the registry.
+
+Why: existing alpha testers (npm install records) shouldn't break suddenly.
+Hard-cut is OK only if we can confirm install count is < ~5 — checking npm
+download stats before alpha.1 is a Phase B step.
+
+### 3. Catalog ownership (`agents/`, `skills/`, `hooks/`, `manifests/`, `packs/`) → **`@ps-neko/nekowork-harness`** (one package)
+
+Per [`docs/plans/2026-05-27-installer-package-split.md`](../../docs/plans/2026-05-27-installer-package-split.md)
+§3. The catalog stays with the harness package because it is consumed *only*
+by the `install --plan/--apply` command, which is itself in the harness
+package. Splitting into a third `@ps-neko/nekowork-catalog` package buys
+nothing today and adds a publish artifact.
+
+Revisit trigger: if `agents/` + `skills/` + `hooks/` LOC exceed 50 % of the
+harness package's total LOC, *or* if a downstream consumer wants the
+catalog without the harness CLI, split then.
+
+### 4. CI matrix → **`pnpm -r test` single job, with per-package gate**
+
+Both packages get their tests run by one job (`pnpm -r --filter "@ps-neko/*"
+test`). The job fails if any workspace test fails. Two consequences:
+
+- `.github/workflows/harness-validate.yml` gets the single `pnpm -r test`
+  step. No matrix needed.
+- Each package's `package.json` `test` script must work standalone
+  (`@ps-neko/nekowork` cannot rely on `@ps-neko/nekowork-cli`'s test files).
+  Phase B file moves must keep tests with the rule code.
+
+Why: monorepo-native, less yaml drift, matches the existing
+`harness-validate.yml` pattern (single workflow). Per-package CI jobs only
+make sense once the packages have *different* test surfaces (long-running
+integration, native-build matrix, etc.) — not the case here.
+
+### What is *not* decided yet (Phase B)
+
+These remain open and are NOT blockers for this skeleton merging:
+
+- Exact deprecation notice copy for `@ps-neko/nekowork-cli` (Phase B writes it).
+- Whether to keep `bin: harness` as well as `bin: nekowork` in the new slim
+  package, or drop the legacy `harness` bin entirely. Currently the slim
+  package exposes only `nekowork`; the old `nekowork-cli` keeps both for
+  back-compat.
+- Date of the deprecation cutover (depends on alpha tester confirmation).
 
 ## How to resume
 
