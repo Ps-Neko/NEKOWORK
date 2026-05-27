@@ -77,3 +77,14 @@ test('--run-checks: REPORT.md has a Checks Run section', async () => {
     assert.match(report, /test.*fail/i);
   } finally { try { fs.rmSync(root, { recursive: true, force: true }); } catch {} }
 });
+
+test('--run-checks + --comment-file: PR comment has Checks row', async () => {
+  const root = makeProject('node -e ""');
+  try {
+    write(root, 'src/util.ts', 'export const x = 1;\n');
+    const commentPath = path.join(root, 'pr-comment.md');
+    await verifyPrCycle({ projectRoot: root, runChecks: true, commentFile: commentPath, write: false });
+    const comment = fs.readFileSync(commentPath, 'utf8');
+    assert.match(comment, /\| Checks \|.*test=pass.*\|/);
+  } finally { try { fs.rmSync(root, { recursive: true, force: true }); } catch {} }
+});

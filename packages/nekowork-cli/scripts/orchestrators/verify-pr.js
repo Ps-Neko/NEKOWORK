@@ -477,9 +477,9 @@ function renderReport(decision, findings) {
       lines.push(`- ${c.name}: ${c.status}${c.exitCode != null ? ` (exit ${c.exitCode})` : ''}`);
       if ((c.status === 'fail' || c.status === 'timeout') && c.outputTail) {
         lines.push('');
-        lines.push('```text');
+        lines.push('````text');
         lines.push(c.outputTail);
-        lines.push('```');
+        lines.push('````');
       }
     }
     lines.push('');
