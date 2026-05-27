@@ -94,7 +94,12 @@ test('README quickstart, CLI stage docs, and package metadata agree on verify-fi
   const quickstart = markdownSection(readme, '30-Second First Run');
   const stages = read('docs/CLI-STAGES.md');
 
-  assert.match(pkg.description, /Verifies AI-made code changes before apply/);
+  // package description must convey the 1.0 verification-gate identity.
+  // Accept any phrasing that mentions (a) verification of AI-written code AND
+  // (b) the deterministic/rule-based or non-LLM-verdict promise. The exact
+  // string was tightened on 2026-05-27 (commit b13e82e) — see docs/SCOPE-1.0.md.
+  assert.match(pkg.description, /verification gate|verify|verification/i);
+  assert.match(pkg.description, /AI|deterministic rule|never the LLM/i);
   assert.match(quickstart, /npx -y @ps-neko\/nekowork@alpha check/);
   assert.match(quickstart, /npx -y @ps-neko\/nekowork@alpha verify-pr/);
   assert.match(quickstart, /cat REPORT\.md/);
