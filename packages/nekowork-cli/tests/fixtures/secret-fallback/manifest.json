@@ -530,6 +530,76 @@
       "fetched_at": "2026-05-27",
       "stars": 10,
       "notes": "Real OSS. 8 findings — Payload CMS config, STRIPE + 다중 fallback."
+    },
+    {
+      "id": "sf-pos-oss-021",
+      "label": "positive",
+      "source": "github:CaviraOSS/OpenMemory@de39bcd74c7d0a73982def1c052d0b69ecefd7f6:packages/openmemory-js/src/core/cfg.ts",
+      "file": "positive/candidates/CaviraOSS_OpenMemory__packages_openmemory-js_src_core_cfg.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 4157,
+      "notes": "Real OSS popular (4157⭐). AWS + 다수 provider key fallback (5 findings)."
+    },
+    {
+      "id": "sf-pos-oss-022",
+      "label": "positive",
+      "source": "github:mayneyao/eidos@7b6eb9f32a835cb672f036b2ad87e1ed53b5cccb:apps/headless/src/config/env.ts",
+      "file": "positive/candidates/mayneyao_eidos__apps_headless_src_config_env.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 3134,
+      "notes": "Real OSS popular (3134⭐). env 모듈, 8 findings."
+    },
+    {
+      "id": "sf-pos-oss-023",
+      "label": "positive",
+      "source": "github:langwatch/better-agents@00c44b92fafc245fa051a34910128e36e85aad07:src/config-collection/collect-config.ts",
+      "file": "positive/candidates/langwatch_better-agents__src_config-collection_collect-config.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1522,
+      "notes": "Real OSS popular (1522⭐). agent config collection, 9 findings — 가장 많은 fallback."
+    },
+    {
+      "id": "sf-pos-oss-024",
+      "label": "positive",
+      "source": "github:julianpoy/RecipeSage@8b18b270d2e712e478fcef0bff7dbbc775352220:packages/util/server/src/storage/s3.ts",
+      "file": "positive/candidates/julianpoy_RecipeSage__packages_util_server_src_storage_s3.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 883,
+      "notes": "Real OSS popular (883⭐). S3 storage 모듈, AWS key fallback."
+    },
+    {
+      "id": "sf-pos-oss-025",
+      "label": "positive",
+      "source": "github:coasty-ai/open-computer-use@be0888abb1d7072ac5a842b1d6140aa0bae89bb3:lib/services/workmail-service.ts",
+      "file": "positive/candidates/coasty-ai_open-computer-use__lib_services_workmail-service.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 659,
+      "notes": "Real OSS popular (659⭐). workmail-service, AWS key fallback."
     }
   ]
 }

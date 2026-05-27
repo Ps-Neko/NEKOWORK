@@ -108,6 +108,76 @@
       "expected_findings": [],
       "added_at": "2026-05-16",
       "notes": "markdown docs 의 'it.skip()' 언급 — 함수 호출 아님 (괄호 없음). regex 가 자연스럽게 무시"
+    },
+    {
+      "id": "td-pos-oss-001",
+      "label": "positive",
+      "source": "github:cypress-io/cypress@6e8bd6cd4044dec9619ef7d20c2946054df80e3c:npm/grep/cypress/e2e/skip.cy.ts",
+      "file": "positive/candidates/cypress-io_cypress__npm_grep_cypress_e2e_skip.cy.ts.ts",
+      "pattern": "js-test-skip",
+      "expected_findings": [
+        { "rule": "test-or-security-disable", "severity": "high" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 49650,
+      "notes": "Real OSS top-tier (49650⭐ Cypress). 2 findings — grep plugin 의 skip 케이스 테스트."
+    },
+    {
+      "id": "td-pos-oss-002",
+      "label": "positive",
+      "source": "github:ASDAlexander77/TypeScript2Cxx@ed183cace3a69d12ad859c127cd5b6fed33756d5:spec/lang.spec.ts",
+      "file": "positive/candidates/ASDAlexander77_TypeScript2Cxx__spec_lang.spec.ts.ts",
+      "pattern": "js-test-skip",
+      "expected_findings": [
+        { "rule": "test-or-security-disable", "severity": "high" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 706,
+      "notes": "Real OSS. 11 findings — lang spec 에 다수 it.skip — 미구현 기능 명시적 skip."
+    },
+    {
+      "id": "td-pos-oss-003",
+      "label": "positive",
+      "source": "github:deepstreamIO/deepstream.io@3abde8de3df91e1b6d18f719d9e38e94bfa314f6:src/deepstream.io.spec.ts",
+      "file": "positive/candidates/deepstreamIO_deepstream.io__src_deepstream.io.spec.ts.ts",
+      "pattern": "js-test-skip",
+      "expected_findings": [
+        { "rule": "test-or-security-disable", "severity": "high" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 7188,
+      "notes": "Real OSS popular (7188⭐). main spec 에 it.skip."
+    },
+    {
+      "id": "td-pos-oss-004",
+      "label": "positive",
+      "source": "github:unlight/tailwind-components@c9283b478187997adbb2adc82354a173be01a57b:src/experiments.spec.ts",
+      "file": "positive/candidates/unlight_tailwind-components__src_experiments.spec.ts.ts",
+      "pattern": "js-test-skip",
+      "expected_findings": [
+        { "rule": "test-or-security-disable", "severity": "high" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 2025,
+      "notes": "Real OSS popular (2025⭐). experiments spec 의 skip — 실험 게이팅 용도."
+    },
+    {
+      "id": "td-pos-oss-005",
+      "label": "positive",
+      "source": "github:flydelabs/flyde@913ff75c6781259da35c32fd001a90607756cb24:core/src/connect/spec.ts",
+      "file": "positive/candidates/flydelabs_flyde__core_src_connect_spec.ts.ts",
+      "pattern": "js-test-skip",
+      "expected_findings": [
+        { "rule": "test-or-security-disable", "severity": "high" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 3503,
+      "notes": "Real OSS popular (3503⭐). flow editor core spec 의 skip."
     }
   ]
 }

@@ -1,0 +1,249 @@
+{
+  "fixture_set": "test-or-security-disable-candidates",
+  "generated_at": "2026-05-27T05:21:20.670Z",
+  "query": "it.skip(",
+  "language": "typescript",
+  "min_stars": 0,
+  "candidates": [
+    {
+      "id": "candidate-1",
+      "label": "positive",
+      "source": "github:cypress-io/cypress@6e8bd6cd4044dec9619ef7d20c2946054df80e3c:npm/grep/cypress/e2e/skip.cy.ts",
+      "file": "positive/candidates/cypress-io_cypress__npm_grep_cypress_e2e_skip.cy.ts.ts",
+      "stars": 49650,
+      "snippet_preview": "  // NOTE: This test is pending for demonstration\n  it.skip('is pending', () => {})\n",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "high": 2
+        },
+        "patterns": [
+          "js-test-skip"
+        ],
+        "sample_lines": [
+          6,
+          9
+        ]
+      }
+    },
+    {
+      "id": "candidate-2",
+      "label": "positive",
+      "source": "github:deepstreamIO/deepstream.io@3abde8de3df91e1b6d18f719d9e38e94bfa314f6:src/deepstream.io.spec.ts",
+      "file": "positive/candidates/deepstreamIO_deepstream.io__src_deepstream.io.spec.ts.ts",
+      "stars": 7188,
+      "snippet_preview": "      }).not.to.throw()\n    })\n\n    it.skip('sets an unsupported option', async () => {\n      const server = new Deepstream()\n      await PromiseDelay(50)\n      expect(() => {",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "high": 1
+        },
+        "patterns": [
+          "js-test-skip"
+        ],
+        "sample_lines": [
+          17
+        ]
+      }
+    },
+    {
+      "id": "candidate-3",
+      "label": "positive",
+      "source": "github:mongodb/node-mongodb-native@90f6967eba8a02a729206d6b05419640bb2d350c:global.d.ts",
+      "file": "positive/candidates/mongodb_node-mongodb-native__global.d.ts.ts",
+      "stars": 10181,
+      "snippet_preview": "       *\n       * @example\n       * ```ts\n       * it.skip('my test', () => {\n       *   //...\n       * }).skipReason = 'TODO(NODE-XXXX): Feature implementation impending!';\n       * ```",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 0,
+        "severities": {},
+        "patterns": [],
+        "sample_lines": []
+      }
+    },
+    {
+      "id": "candidate-4",
+      "label": "positive",
+      "source": "github:unlight/tailwind-components@c9283b478187997adbb2adc82354a173be01a57b:src/experiments.spec.ts",
+      "file": "positive/candidates/unlight_tailwind-components__src_experiments.spec.ts.ts",
+      "stars": 2025,
+      "snippet_preview": "    await browser.close();\n});\n\nit.skip('experiments', async () => {\n    const scraper = await import('./scrapers/devdojo').then((m) => m.default);\n    const result = await scraper({ page });\n});",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "high": 1
+        },
+        "patterns": [
+          "js-test-skip"
+        ],
+        "sample_lines": [
+          21
+        ]
+      }
+    },
+    {
+      "id": "candidate-5",
+      "label": "positive",
+      "source": "github:flydelabs/flyde@913ff75c6781259da35c32fd001a90607756cb24:core/src/connect/spec.ts",
+      "file": "positive/candidates/flydelabs_flyde__core_src_connect_spec.ts.ts",
+      "stars": 3503,
+      "snippet_preview": "  });\n\n  describe(\"cyclic dependencies\", () => {\n    it.skip(\"allows closing cyclic dependencies with delayed nodes\", () => {\n      const delayedId: InternalCodeNode = {\n        id: \"d\",\n        input",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "high": 1
+        },
+        "patterns": [
+          "js-test-skip"
+        ],
+        "sample_lines": [
+          97
+        ]
+      }
+    },
+    {
+      "id": "candidate-6",
+      "label": "positive",
+      "source": "github:piotrostr/listen@76efbafc6712d54008460136b641adb5610b3089:listen-interface/src/lib/hype.spec.ts",
+      "file": "positive/candidates/piotrostr_listen__listen-interface_src_lib_hype.spec.ts.ts",
+      "stars": 1088,
+      "snippet_preview": "const USER_ADDRESS = \"0xCCC48877a33a2C14e40c82da843Cf4c607ABF770\";\n\ndescribe(\"hype\", () => {\n  it.skip(\"should fetch portfolio overview\", async () => {\n    const hype = new Hyperliquid();\n    const po",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "high": 1
+        },
+        "patterns": [
+          "js-test-skip"
+        ],
+        "sample_lines": [
+          7
+        ]
+      }
+    },
+    {
+      "id": "candidate-7",
+      "label": "positive",
+      "source": "github:cartant/rxjs-spy@f5f459170a977701d0cecb52ac2679853d6050df:source/util-spec.ts",
+      "file": "positive/candidates/cartant_rxjs-spy__source_util-spec.ts.ts",
+      "stars": 706,
+      "snippet_preview": "    describe(\"inferPath\", () => {\n        it.skip(\"should infer a composed observable's path\", () => {\n            const source = interval(1000).pipe(",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "high": 2
+        },
+        "patterns": [
+          "js-test-skip"
+        ],
+        "sample_lines": [
+          15,
+          31
+        ]
+      }
+    },
+    {
+      "id": "candidate-8",
+      "label": "positive",
+      "source": "github:dmtrKovalenko/cypress-real-events@91df5967160e80b3024a98a0691b4eb32f73746e:cypress/e2e/touch.cy.ts",
+      "file": "positive/candidates/dmtrKovalenko_cypress-real-events__cypress_e2e_touch.cy.ts.ts",
+      "stars": 838,
+      "snippet_preview": "\n  it.skip(\"touches with a custom radius\", { retries: 4 }, (done) => {\n    cy.get(\".action-btn\")",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "high": 2
+        },
+        "patterns": [
+          "js-test-skip"
+        ],
+        "sample_lines": [
+          51,
+          63
+        ]
+      }
+    },
+    {
+      "id": "candidate-9",
+      "label": "positive",
+      "source": "github:ASDAlexander77/TypeScript2Cxx@ed183cace3a69d12ad859c127cd5b6fed33756d5:spec/lang.spec.ts",
+      "file": "positive/candidates/ASDAlexander77_TypeScript2Cxx__spec_lang.spec.ts.ts",
+      "stars": 706,
+      "snippet_preview": "    it('28 boolcasts', () => expect(new Run().test(['lang-test0/28boolcasts.ts'], undefined, 'lang-test0/lang-test0.ts', 'lang-test0/99final.ts')).to.equals('start!\\r\\ntestBoolCast\\r\\ntest OK!\\r\\n'));",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 11,
+        "severities": {
+          "high": 11
+        },
+        "patterns": [
+          "js-test-skip"
+        ],
+        "sample_lines": [
+          33,
+          35,
+          36
+        ]
+      }
+    },
+    {
+      "id": "candidate-10",
+      "label": "positive",
+      "source": "github:steelsojka/lodash-decorators@a30cbd16ea42d8f48c4c4a28eb40ec5230ac65bb:src/throttle.spec.ts",
+      "file": "positive/candidates/steelsojka_lodash-decorators__src_throttle.spec.ts.ts",
+      "stars": 728,
+      "snippet_preview": "  });\n\n  // Skipping this test for now.\n  it.skip('should debounce the property getter', (done) => {\n    class MyClass {\n      private _value: number = 0;\n",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "high": 1
+        },
+        "patterns": [
+          "js-test-skip"
+        ],
+        "sample_lines": [
+          82
+        ]
+      }
+    }
+  ],
+  "skipped_summary": {
+    "total": 0,
+    "reasons": {}
+  },
+  "last_verified_at": "2026-05-27T05:21:29.289Z",
+  "verification_summary": {
+    "total": 10,
+    "rule_caught": 9,
+    "rule_missed": 1,
+    "recall_on_slice": 0.9
+  }
+}

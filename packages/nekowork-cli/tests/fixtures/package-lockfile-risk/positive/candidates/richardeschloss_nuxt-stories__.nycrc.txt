@@ -1,0 +1,27 @@
+{
+  "all": false,
+  "reporter": ["html", "text"],
+  "exclude": [
+    "node_modules", 
+    "lib/components"
+  ],
+  "include": [
+    "components",
+    "lib/components/Root.js",
+    "lib/components/Search.js",
+    "lib/components/ModeSelect.js",
+    "lib/store/db.server.js",
+    "lib/store/db.client.js",
+    "lib/io.js",
+    "lib/io/styles.js",
+    "lib/module.js",
+    "lib/plugin.js",
+    "lib/store/nuxtStories.js",
+    "lib/utils/fetch.js",
+    "lib/utils/markdown.js",
+    "lib/utils/storage.js",
+    "lib/utils/storyFactory.js",
+    "postinstall.js"
+  ],
+  "extension": [".js", ".mjs", ".vue"]
+}
