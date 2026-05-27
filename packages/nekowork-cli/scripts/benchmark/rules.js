@@ -102,26 +102,57 @@ async function benchmarkRule(rule) {
   const scan = mod.scanFileContent;
 
   let posCaught = 0, posTotal = 0, fpCount = 0, negTotal = 0;
+  let posSyn = 0, posOss = 0, posLive = 0;
+  let negSyn = 0, negOss = 0, negLive = 0;
   const missed = [];
   const falsePositives = [];
+
+  const isCriticalFp = (findings) => rule.fpMode === 'critical'
+    ? findings.filter(f => f.severity === 'critical')
+    : findings;
 
   for (const entry of manifest.entries) {
     const filePath = path.join(fixtureDir, entry.file);
     const content = fs.readFileSync(filePath, 'utf8');
     const findings = scan(entry.file, content);
+    const src = (entry.source || 'synthetic').startsWith('github:') ? 'oss'
+      : entry.source === 'live-ai' ? 'live'
+      : 'synthetic';
 
     if (entry.label === 'positive') {
       posTotal++;
+      if (src === 'oss') posOss++; else if (src === 'live') posLive++; else posSyn++;
       if (findings.length > 0) posCaught++;
       else missed.push(entry.id);
     } else {
       negTotal++;
-      const fps = rule.fpMode === 'critical'
-        ? findings.filter(f => f.severity === 'critical')
-        : findings;
+      if (src === 'oss') negOss++; else if (src === 'live') negLive++; else negSyn++;
+      const fps = isCriticalFp(findings);
       if (fps.length > 0) {
         fpCount++;
-        falsePositives.push({ id: entry.id, count: fps.length, pattern: fps[0]?.pattern });
+        falsePositives.push({ id: entry.id, count: fps.length, pattern: fps[0]?.pattern, source: src });
+      }
+    }
+  }
+
+  // Shared OSS negatives (real-world code that should not trigger CRITICAL findings).
+  const ossManifestPath = path.join(FIXTURE_ROOT, 'oss-negatives', 'manifest.json');
+  if (fs.existsSync(ossManifestPath)) {
+    const ossManifest = JSON.parse(fs.readFileSync(ossManifestPath, 'utf8'));
+    const applies = ossManifest.applies_to_rules || [];
+    if (applies.includes(rule.id)) {
+      for (const entry of ossManifest.entries) {
+        const filePath = path.join(FIXTURE_ROOT, 'oss-negatives', entry.file);
+        if (!fs.existsSync(filePath)) continue;
+        const content = fs.readFileSync(filePath, 'utf8');
+        const findings = scan(entry.file, content);
+        negTotal++;
+        negOss++;
+        const fps = isCriticalFp(findings);
+        if (fps.length > 0) {
+          fpCount++;
+          falsePositives.push({ id: entry.id, count: fps.length, pattern: fps[0]?.pattern, source: 'oss' });
+        }
       }
     }
   }
@@ -141,6 +172,10 @@ async function benchmarkRule(rule) {
     stats: {
       recall: { caught: posCaught, total: posTotal, ratio: recall },
       fp: { count: fpCount, total: negTotal, rate: fpRate },
+      sources: {
+        positive: { synthetic: posSyn, oss: posOss, live: posLive },
+        negative: { synthetic: negSyn, oss: negOss, live: negLive },
+      },
     },
     missed,
     falsePositives,
