@@ -28,6 +28,7 @@ import { scanDiff as scanAutoApply } from '../lib/rules/auto-apply-commit-push.j
 import { scanDiff as scanHardcodedCredential } from '../lib/rules/hardcoded-credential.js';
 import { scanDiff as scanTestDisable } from '../lib/rules/test-or-security-disable.js';
 import { scanDiff as scanPackageRisk } from '../lib/rules/package-lockfile-risk.js';
+import { runChecks } from '../lib/check-runner.js';
 
 const SCHEMA_VERSION = 'verify-pr-v0';
 
@@ -65,8 +66,21 @@ export async function verifyPrCycle(opts = {}) {
   const project = detectProject(projectRoot);
   const findings = runRules(parsedDiff);
   const checksAvailable = describeChecks(project);
-  const verdict = deriveVerdict({ findings, parsedDiff, checksAvailable });
-  const decision = buildDecision({ verdict, findings, parsedDiff, project, checksAvailable });
+
+  let checks = { requested: Boolean(opts.runChecks), skippedReason: null, results: [] };
+  if (opts.runChecks) {
+    if (checksBlockedByRisk(findings)) {
+      checks.skippedReason = 'diff modifies build/test scripts or has a critical finding — checks not run; run them manually in a trusted sandbox if you trust this change';
+    } else {
+      checks.results = await runChecks(project.commands, {
+        cwd: projectRoot,
+        timeoutMs: opts.checksTimeout,
+      });
+    }
+  }
+
+  const verdict = deriveVerdict({ findings, parsedDiff, checksAvailable, checks });
+  const decision = buildDecision({ verdict, findings, parsedDiff, project, checksAvailable, checks });
 
   let writtenPaths = null;
   if (write) {
@@ -218,7 +232,7 @@ export function checksBlockedByRisk(findings) {
   });
 }
 
-function deriveVerdict({ findings, parsedDiff, checksAvailable }) {
+function deriveVerdict({ findings, parsedDiff, checksAvailable, checks }) {
   const hasCritical = findings.some(f => f.severity === 'critical');
   const hasHigh = findings.some(f => f.severity === 'high');
   const hasMediumOrLow = findings.some(f => f.severity === 'medium' || f.severity === 'low');
@@ -241,6 +255,18 @@ function deriveVerdict({ findings, parsedDiff, checksAvailable }) {
       apply_allowed: false,
     };
   }
+  const ranChecks = checks && Array.isArray(checks.results) && checks.results.length > 0;
+  if (ranChecks) {
+    const failed = checks.results.filter(c => c.status === 'fail' || c.status === 'timeout');
+    if (failed.length) {
+      return {
+        verdict: VERDICT.NEEDS_HUMAN_REVIEW,
+        reason: `verification command failed: ${failed.map(c => c.name).join(', ')}`,
+        apply_allowed: false,
+      };
+    }
+  }
+
   if (sourceOnly && !checksAvailable.test) {
     return {
       verdict: VERDICT.INSUFFICIENT_EVIDENCE,
@@ -275,7 +301,7 @@ function firstCriticalReason(findings) {
   return `${critical.title} (${critical.file}:${critical.line})`;
 }
 
-function buildDecision({ verdict, findings, parsedDiff, project, checksAvailable }) {
+function buildDecision({ verdict, findings, parsedDiff, project, checksAvailable, checks }) {
   const classified = classifyChangedFiles(parsedDiff);
   return {
     schema_version: SCHEMA_VERSION,
@@ -298,6 +324,7 @@ function buildDecision({ verdict, findings, parsedDiff, project, checksAvailable
       checks_available: checksAvailable,
     },
     findings,
+    checks: checks || { requested: false, skippedReason: null, results: [] },
   };
 }
 
@@ -337,6 +364,9 @@ function writeEvidence({ projectRoot, parsedDiff, findings, decision }) {
   const findingsPath = path.join(evidenceDir, 'risk-findings.json');
   fs.writeFileSync(findingsPath, JSON.stringify(findings, null, 2));
 
+  const checksPath = path.join(evidenceDir, 'checks.json');
+  fs.writeFileSync(checksPath, JSON.stringify(decision.checks || { requested: false, results: [] }, null, 2));
+
   const manifestPath = path.join(evidenceDir, 'evidence-manifest.json');
   fs.writeFileSync(manifestPath, JSON.stringify({
     created_at: new Date().toISOString(),
@@ -357,6 +387,7 @@ function writeEvidence({ projectRoot, parsedDiff, findings, decision }) {
     evidenceDir,
     diffSummary: diffPath,
     riskFindings: findingsPath,
+    checks: checksPath,
     evidenceManifest: manifestPath,
     decision: decisionPath,
     report: reportPath,
