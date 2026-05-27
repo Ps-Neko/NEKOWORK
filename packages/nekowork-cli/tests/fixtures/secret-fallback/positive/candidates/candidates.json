@@ -1,65 +1,85 @@
 {
   "fixture_set": "secret-fallback-candidates",
-  "generated_at": "2026-05-27T04:46:38.365Z",
-  "query": "process.env.JWT_SECRET || \"",
+  "generated_at": "2026-05-27T05:04:43.848Z",
+  "query": "process.env.OPENAI_API_KEY || \"",
   "language": "typescript",
   "min_stars": 0,
   "candidates": [
     {
       "id": "candidate-1",
       "label": "positive",
-      "source": "github:DaffaAzka/EssencePM-API@d79c03eba5c015fb5b0daa8180af8d3b7405a443:main.ts",
-      "file": "positive/candidates/DaffaAzka_EssencePM-API__main.ts.ts",
-      "stars": 3,
-      "snippet_preview": "import { projectRoutes } from \"./src/routes/project\";\nimport { projectMemberRoutes } from \"./src/routes/projectMember\";\n\nconst JWT_SECRET = process.env.JWT_SECRET || \"\";\n\nif (!JWT_SECRET) {\n  console.",
+      "source": "github:leoning60/browsernode@ca0ba8879ebbe57667f65f48c7b34535244b4196:src/config.ts",
+      "file": "positive/candidates/leoning60_browsernode__src_config.ts.ts",
+      "stars": 1051,
+      "snippet_preview": "\n\t// LLM API key configuration\n\tget openaiApiKey(): string {\n\t\treturn process.env.OPENAI_API_KEY || \"\";\n\t}\n\n\tget anthropicApiKey(): string {",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
       "scan_findings": {
-        "count": 1,
+        "count": 15,
         "severities": {
-          "critical": 1
+          "critical": 9,
+          "high": 6
         },
         "patterns": [
-          "multi-line-or-literal"
+          "multi-line-or-literal",
+          "env-or-empty-string",
+          "env-or-literal"
         ],
         "sample_lines": [
-          11
+          88,
+          96,
+          107
         ]
       }
     },
     {
       "id": "candidate-2",
       "label": "positive",
-      "source": "github:DubAvenXP/typescript-backend-template-nosql-v2@b5f1c00106d251edce142560d0bae65c8e17c3be:config.ts",
-      "file": "positive/candidates/DubAvenXP_typescript-backend-template-nosql-v2__config.ts.ts",
-      "stars": 0,
-      "snippet_preview": "        password: process.env.EMAIL_PASS || \"\",\n    },\n    jwt: {\n        secret: process.env.JWT_SECRET || \"\",\n        expiresIn: process.env.JWT_EXPIRES_IN || \"8h\",\n    },\n};",
+      "source": "github:guaguaguaxia/weekly_report@5b95c75867f434bfbca683341f21f1ddfb21fa1f:utils/OpenAIStream.ts",
+      "file": "positive/candidates/guaguaguaxia_weekly_report__utils_OpenAIStream.ts.ts",
+      "stars": 3237,
+      "snippet_preview": "    // 👇️ 获取 min（含）和 max（含）之间的数字\n    return Math.floor(Math.random() * (max - min + 1)) + min;\n  }\n  var keys = process.env.OPENAI_API_KEY || \"\";\n  const apikeys = keys?.split(\",\");\n  const randomNum",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
       "scan_findings": {
-        "count": 3,
+        "count": 1,
         "severities": {
-          "critical": 3
+          "critical": 1
         },
         "patterns": [
           "env-or-empty-string"
         ],
         "sample_lines": [
-          14,
-          22,
-          25
+          34
         ]
       }
     },
     {
       "id": "candidate-3",
       "label": "positive",
-      "source": "github:frinica/Vargtimma@63b748a2c6e5e816748b6ca4d41c7bd6e48e7f2b:BE/utils.ts",
-      "file": "positive/candidates/frinica_Vargtimma__BE_utils.ts.ts",
-      "stars": 0,
-      "snippet_preview": "  email: string;\n}\n\nconst jwtSecret = process.env.JWT_SECRET || \"\";\nexport interface IJWT {\n  userID: ObjectId;\n  alias: string;",
+      "source": "github:idosal/AgentLLM@927c4ae7443a157f2bb744257ab22063c050e0af:src/utils/prompts.ts",
+      "file": "positive/candidates/idosal_AgentLLM__src_utils_prompts.ts.ts",
+      "stars": 468,
+      "snippet_preview": "import { WebLLMChat } from \"../agent/web-llm/llmChat\";\n\n// const getServerSideKey = (): string => {\n//   const keys: string[] = (process.env.OPENAI_API_KEY || \"\")\n//     .split(\",\")\n//     .map((key) ",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 0,
+        "severities": {},
+        "patterns": [],
+        "sample_lines": []
+      }
+    },
+    {
+      "id": "candidate-4",
+      "label": "positive",
+      "source": "github:PragmaticMachineLearning/probly@e5f0b98d0de54563e83e05e576c6f4b8745d796b:src/pages/api/llm.ts",
+      "file": "positive/candidates/PragmaticMachineLearning_probly__src_pages_api_llm.ts.ts",
+      "stars": 897,
+      "snippet_preview": "dotenv.config();\n\nconst openai = new OpenAI({\n  apiKey: process.env.OPENAI_API_KEY || \"\",\n});\nconst MODEL = \"gpt-4o\";\n",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
@@ -69,45 +89,20 @@
           "critical": 1
         },
         "patterns": [
-          "env-or-empty-string"
-        ],
-        "sample_lines": [
-          10
-        ]
-      }
-    },
-    {
-      "id": "candidate-4",
-      "label": "positive",
-      "source": "github:furkansimw/SOCIAL_MEDIA_APP@e43992052c85b643121a8ab2c3c17250019c486a:index.ts",
-      "file": "positive/candidates/furkansimw_SOCIAL_MEDIA_APP__index.ts.ts",
-      "stars": 1,
-      "snippet_preview": "  const token = cookies.token;\n\n  try {\n    const { id } = jwt.verify(token, process.env.JWT_SECRET || \"\") as {\n      id: string;\n    };\n    sessions.push({",
-      "fetched_at": "2026-05-27",
-      "review_status": "pending",
-      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
-      "scan_findings": {
-        "count": 2,
-        "severities": {
-          "high": 1,
-          "critical": 1
-        },
-        "patterns": [
           "multi-line-or-literal"
         ],
         "sample_lines": [
-          12,
-          30
+          19
         ]
       }
     },
     {
       "id": "candidate-5",
       "label": "positive",
-      "source": "github:kirtanchandak/jwt-toolkit-fast-demo@253860b9839b4ce18273c07685199fcaae484c3a:lib.ts",
-      "file": "positive/candidates/kirtanchandak_jwt-toolkit-fast-demo__lib.ts.ts",
-      "stars": 0,
-      "snippet_preview": "import { decode_jwt } from 'jwt-toolkit-fast';\nimport { cookies } from 'next/headers';\n\nconst secret = process.env.JWT_SECRET || \"\";\n\nexport function validateAndDecodeToken(token: string) {\n  const is",
+      "source": "github:pilotpirxie/ormGPT@61b8566ba9cb9db419062c692e47058e3edb320e:example/index.ts",
+      "file": "positive/candidates/pilotpirxie_ormGPT__example_index.ts.ts",
+      "stars": 58,
+      "snippet_preview": "\n(async () => {\n  const ormgpt = new ormGPT({\n    apiKey: process.env.OPENAI_API_KEY || \"\",\n    schemaFilePath: \"./example/schema.sql\",\n    dialect: \"postgres\",\n  });",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
@@ -120,17 +115,17 @@
           "multi-line-or-literal"
         ],
         "sample_lines": [
-          4
+          7
         ]
       }
     },
     {
       "id": "candidate-6",
       "label": "positive",
-      "source": "github:MajewskiAdrian/praktyki-projekt@1f559e23fa2f827eaa1e304bd2b063ec69bf0f71:proxy.ts",
-      "file": "positive/candidates/MajewskiAdrian_praktyki-projekt__proxy.ts.ts",
-      "stars": 0,
-      "snippet_preview": "\n  // Weryfikacja tokena\n  try {\n    jwt.verify(token, process.env.JWT_SECRET || \"\");\n  } catch (err) {\n    const response = NextResponse.redirect(new URL(\"/login\", req.url));\n    response.cookies.del",
+      "source": "github:eeue56/neuro-lingo@fce3412a8b2ffe1e9152f80bfaf87da83fffdd33:src/OpenAi.ts",
+      "file": "positive/candidates/eeue56_neuro-lingo__src_OpenAi.ts.ts",
+      "stars": 21,
+      "snippet_preview": "dotenv.config();\n\nconst configuration = new Configuration({\n  apiKey: process.env.OPENAI_API_KEY || \"\",\n});\n\nexport const openai = new OpenAIApi(configuration);",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
@@ -140,91 +135,94 @@
           "critical": 1
         },
         "patterns": [
-          "multi-line-or-literal"
+          "env-or-empty-string"
         ],
         "sample_lines": [
-          21
+          7
         ]
       }
     },
     {
       "id": "candidate-7",
       "label": "positive",
-      "source": "github:InstantCodee/LibrePay-Backend@9bd894dac9d753622e73283985cb8337b887eb5d:src/app.ts",
-      "file": "positive/candidates/InstantCodee_LibrePay-Backend__src_app.ts.ts",
-      "stars": 2,
-      "snippet_preview": "\nexport const IS_DEBUG = process.env.DEBUG == 'true';\nexport const MONGO_URI = process.env.MONGO_URI || \"\";\nexport const JWT_SECRET = process.env.JWT_SECRET || \"\";\nexport const INVOICE_SECRET = proces",
+      "source": "github:MoonWeSif/qadchat@0f0ccad0b20418a5d0dc9b1fd360e368f4218f45:app/api/config/route.ts",
+      "file": "positive/candidates/MoonWeSif_qadchat__app_api_config_route.ts.ts",
+      "stars": 82,
+      "snippet_preview": "  const accessCode = process.env.ACCESS_CODE || \"\";\n\n  // 各服务商环境变量配置\n  const openaiApiKey = process.env.OPENAI_API_KEY || \"\";\n  const openaiBaseUrl = process.env.OPENAI_BASE_URL || \"\";\n\n  const google",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
       "scan_findings": {
-        "count": 2,
+        "count": 9,
         "severities": {
-          "critical": 2
+          "critical": 9
         },
         "patterns": [
           "env-or-empty-string"
         ],
         "sample_lines": [
-          26,
-          27
+          8,
+          11,
+          14
         ]
       }
     },
     {
       "id": "candidate-8",
       "label": "positive",
-      "source": "github:Journeyfy/api@49dced748e2c5b8214538bbd1c18adb91abdb4e6:src/env.ts",
-      "file": "positive/candidates/Journeyfy_api__src_env.ts.ts",
-      "stars": 1,
-      "snippet_preview": "  public static readonly NODE_ENV = process.env.NODE_ENV;\n  public static readonly CONNECTION_STRING = process.env.CONNECTION_STRING;\n  public static readonly COOKIE_DOMAIN = process.env.COOKIE_DOMAIN",
+      "source": "github:eyalcohen4/GTD@51b80010cc53e0350ddbdd83e6b3d740beef6697:backend/task.ts",
+      "file": "positive/candidates/eyalcohen4_GTD__backend_task.ts.ts",
+      "stars": 99,
+      "snippet_preview": "import { getProjects } from \"./project\"\n\nconst openai = new OpenAI({\n  apiKey: (process.env.OPENAI_API_KEY || \"\") as string,\n})\n\nconst buildFeedbackPrompt = ({",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
       "scan_findings": {
-        "count": 2,
+        "count": 1,
         "severities": {
-          "critical": 2
+          "critical": 1
         },
         "patterns": [
           "env-or-empty-string"
         ],
         "sample_lines": [
-          7,
-          20
+          12
         ]
       }
     },
     {
       "id": "candidate-9",
       "label": "positive",
-      "source": "github:iamaheshlodha/rest-apis-with-typescript@5168cb2297e9dedb1d63005688d743321dba4311:src/jwt.ts",
-      "file": "positive/candidates/iamaheshlodha_rest-apis-with-typescript__src_jwt.ts.ts",
-      "stars": 0,
-      "snippet_preview": "import jwt from \"jsonwebtoken\";\n\nconst SECRET_KEY = process.env.JWT_SECRET || \";lkewrkwepr654erwer\"\nexport const COOKIE_NAME = 'auth_token'\n\nexport const generateToken = (payload: object, expriresIn: ",
+      "source": "github:mggrim/scholarly-ideas@abae1cd4de62623607260a27fdcdfa72b2dee421:src/lib/ai/client.ts",
+      "file": "positive/candidates/mggrim_scholarly-ideas__src_lib_ai_client.ts.ts",
+      "stars": 19,
+      "snippet_preview": "    case \"anthropic\":\n      return process.env.ANTHROPIC_API_KEY || \"\";\n    case \"openai\":\n      return process.env.OPENAI_API_KEY || \"\";\n    case \"google\":\n      return process.env.GOOGLE_API_KEY || ",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
       "scan_findings": {
-        "count": 1,
+        "count": 4,
         "severities": {
-          "critical": 1
+          "critical": 4
         },
         "patterns": [
-          "env-or-literal"
+          "multi-line-or-literal",
+          "env-or-empty-string"
         ],
         "sample_lines": [
-          3
+          41,
+          43,
+          45
         ]
       }
     },
     {
       "id": "candidate-10",
       "label": "positive",
-      "source": "github:rianwp/aplikasi-penyewaan-lapangan@a5ee68a813c59cc6d697fe0585ac77a521e3d08e:lib/auth.ts",
-      "file": "positive/candidates/rianwp_aplikasi-penyewaan-lapangan__lib_auth.ts.ts",
-      "stars": 1,
-      "snippet_preview": "import { COOKIE_AUTH } from \"@/constants\"\n\nconst auth = async (req: NextRequest, role?: Role) => {\n\tconst secret = process.env.JWT_SECRET || \"\"\n\tconst bearerToken = req.headers.get(\"Authorization\")?.s",
+      "source": "github:mopemope/pr-ai-review-bot@af0e0021c2fc52924d57366cee0b35034f7dcdac:src/chatbot/openai.ts",
+      "file": "positive/candidates/mopemope_pr-ai-review-bot__src_chatbot_openai.ts.ts",
+      "stars": 5,
+      "snippet_preview": "import type { Options } from \"../option.js\"\nimport { type ChatBot, type Message, getModelName } from \"./index.js\"\n\nconst apiKey = process.env.OPENAI_API_KEY || \"\"\n\nexport class OpenAIClient implements",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
@@ -234,10 +232,10 @@
           "critical": 1
         },
         "patterns": [
-          "multi-line-or-literal"
+          "env-or-empty-string"
         ],
         "sample_lines": [
-          8
+          7
         ]
       }
     }
@@ -246,11 +244,11 @@
     "total": 0,
     "reasons": {}
   },
-  "last_verified_at": "2026-05-27T04:55:52.522Z",
+  "last_verified_at": "2026-05-27T05:04:55.048Z",
   "verification_summary": {
     "total": 10,
-    "rule_caught": 10,
-    "rule_missed": 0,
-    "recall_on_slice": 1
+    "rule_caught": 9,
+    "rule_missed": 1,
+    "recall_on_slice": 0.9
   }
 }
