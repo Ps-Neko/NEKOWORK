@@ -47,6 +47,10 @@ NEKOWORK는 AI가 파일을 바꾼 뒤, 그 변경이 프로젝트에 들어가�
 | **검토 필요** | 사람이 한 번 더 봐야 합니다. |
 | **차단** | 심각한 위험을 찾았고, 위치와 이유를 알려줍니다. |
 
+> `verify-pr` 의 기계 판독용 출력은 다섯 가지 verdict — `ALLOW`, `ALLOW_WITH_WARNINGS`,
+> `NEEDS_HUMAN_REVIEW`, `INSUFFICIENT_EVIDENCE`, `BLOCK` — 이며 위 세 가지(통과 / 검토 필요 / 차단)에
+> 대응합니다. 매핑 표는 [빠른 시작](packages/nekowork-cli/docs/QUICKSTART.md#3-the-five-verdicts-and-the-simple-buckets) 참고.
+
 ## 빠른 시작
 
 요구사항: Node.js 22+, npm, 그리고 커밋이 하나 이상 있는 git 저장소.

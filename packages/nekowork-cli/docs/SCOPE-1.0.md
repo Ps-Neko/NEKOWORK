@@ -1,6 +1,8 @@
-# NEKOWORK 1.0 Scope (Draft)
+# NEKOWORK 1.0 Scope
 
-> Status: DRAFT — author 검토 후 commit. 결정사항은 2026-05-15 ~ 05-16 의 전략 논의 산물.
+> Status: Active alpha scope. 검증 게이트 정체성은 확정(locked)이며, 일부 동작(특히 §5–§7 의
+> 검증 명령 실행)은 **구현 목표이지 현재 출하분이 아님** — 1.0 전 변경될 수 있다. 결정사항은
+> 2026-05-15 ~ 05-16 의 전략 논의 산물.
 
 ## 1. 결정 요약
 
@@ -82,6 +84,13 @@ AI 가 만든 코드, 검증 없이는 통과시키지 마세요.
 - 해결: verify-pr 의 verdict 산출 경로는 **deterministic rule 우선**, Codex 결과는 `evidence/codex-advisor.md` 에만 기록. 기존 verify 명령의 동작은 건드리지 않음 (Phase 1 까지 호환).
 
 ## 5. verify-pr 의 동작
+
+> **구현 상태 (2026-05-27):** diff 수집 · project detector · 5개 risk rule 실행 · deterministic
+> decision · `REPORT.md` · `.nekowork/decision.json` · `--comment-file` · `--ci-exit-soft` 까지
+> 동작한다. 아래 파이프라인의 **"검증 명령 실행(npm test / lint / typecheck / audit)" 단계는 아직
+> 미구현(목표)** — 현재 verify-pr 는 명령의 *존재 여부* 만 감지하고, 없으면 `INSUFFICIENT_EVIDENCE`
+> 로 처리한다. Codex advisor 경로도 아직 미연결이다. §7 의 "검증 실패/성공" 분기는 이 실행 단계가
+> 구현된 뒤 활성화된다.
 
 ```text
 입력: working tree diff | patch file | --from-pr-url (Phase 1 이후)
