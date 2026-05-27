@@ -1,0 +1,252 @@
+{
+  "fixture_set": "test-or-security-disable-candidates",
+  "generated_at": "2026-05-27T05:56:05.981Z",
+  "query": "/ @ts-nocheck",
+  "language": "typescript",
+  "min_stars": 0,
+  "candidates": [
+    {
+      "id": "candidate-1",
+      "label": "positive",
+      "source": "github:segmentio/evergreen@9b774aee2d794f6cf2f73a054bd33066ca5898a9:index.d.ts",
+      "file": "positive/candidates/segmentio_evergreen__index.d.ts.ts",
+      "stars": 12426,
+      "snippet_preview": "// @ts-nocheck Disabling TS checking on this file while definitions are being ported over to src files\n\nimport * as React from 'react'\nimport { DownshiftProps } from 'downshift'\nimport { TransitionPro",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "critical": 1
+        },
+        "patterns": [
+          "ts-nocheck-file"
+        ],
+        "sample_lines": [
+          1
+        ]
+      }
+    },
+    {
+      "id": "candidate-2",
+      "label": "positive",
+      "source": "github:appium/appium-xcuitest-driver@0278419e4aee4ff600fc23c22ccc3b9b25330b80:lib/stubs.ts",
+      "file": "positive/candidates/appium_appium-xcuitest-driver__lib_stubs.ts.ts",
+      "stars": 860,
+      "snippet_preview": "/* eslint-disable @typescript-eslint/ban-ts-comment */\n// @ts-nocheck\ndeclare module 'appium-ios-device';",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "critical": 1
+        },
+        "patterns": [
+          "ts-nocheck-file"
+        ],
+        "sample_lines": [
+          2
+        ]
+      }
+    },
+    {
+      "id": "candidate-3",
+      "label": "positive",
+      "source": "github:ForumMagnum/ForumMagnum@3464398c018898fdcf24483746c96e4ab21aa7c4:codegen.ts",
+      "file": "positive/candidates/ForumMagnum_ForumMagnum__codegen.ts.ts",
+      "stars": 707,
+      "snippet_preview": "    // One object for client-side query return types\n    [`${outputPath}/`]: {\n      preset: \"client\",\n      plugins: [{ add: { content: '// @ts-nocheck' } }],\n      config: {\n        scalars: {\n     ",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "critical": 1
+        },
+        "patterns": [
+          "ts-nocheck-file"
+        ],
+        "sample_lines": [
+          13
+        ]
+      }
+    },
+    {
+      "id": "candidate-4",
+      "label": "positive",
+      "source": "github:CodingGarden/intro-to-typescript@a7f8fa3f116bb0de05a5958418995ec28557a7cd:example.ts",
+      "file": "positive/candidates/CodingGarden_intro-to-typescript__example.ts.ts",
+      "stars": 147,
+      "snippet_preview": "// Generics\n\n// any, unknown, never\n\n// Type Assertions\n\n// @ts-ignore / @ts-nocheck",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "medium": 1
+        },
+        "patterns": [
+          "ts-ignore-line"
+        ],
+        "sample_lines": [
+          19
+        ]
+      }
+    },
+    {
+      "id": "candidate-5",
+      "label": "positive",
+      "source": "github:Allen-1998/pinia-auto-refs@507ea914fcd23e19e46cc500efc38eb48d3e57cc:src/index.ts",
+      "file": "positive/candidates/Allen-1998_pinia-auto-refs__src_index.ts.ts",
+      "stars": 17,
+      "snippet_preview": "    const ctx = `// \"https://github.com/Allen-1998/pinia-auto-refs\"\r\n/* eslint-disable */\r\n/* prettier-ignore */\r\n// @ts-nocheck\r\nimport type { ToRef, UnwrapRef } from 'vue'\r\nimport { storeToRefs } fr",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "critical": 2
+        },
+        "patterns": [
+          "eslint-disable-file",
+          "ts-nocheck-file"
+        ],
+        "sample_lines": [
+          35,
+          37
+        ]
+      }
+    },
+    {
+      "id": "candidate-6",
+      "label": "positive",
+      "source": "github:joschan21/notion-on-next-bug@7644bb5c5f20a0b894589057b4810c23a3e19799:app/get.ts",
+      "file": "positive/candidates/joschan21_notion-on-next-bug__app_get.ts.ts",
+      "stars": 3,
+      "snippet_preview": "// @ts-nocheck\nimport {\n  BlockObjectResponse,\n  PartialBlockObjectResponse,\n} from \"@notionhq/client/build/src/api-endpoints\";\nimport { getBlocks, getParsedPages } from \"notion-on-next\";\nimport { cac",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "critical": 1
+        },
+        "patterns": [
+          "ts-nocheck-file"
+        ],
+        "sample_lines": [
+          1
+        ]
+      }
+    },
+    {
+      "id": "candidate-7",
+      "label": "positive",
+      "source": "github:abeauvois/creapods-sdk@195a5cdc486c3b28185478be7e4138321e05d2f2:src/utils.ts",
+      "file": "positive/candidates/abeauvois_creapods-sdk__src_utils.ts.ts",
+      "stars": 1,
+      "snippet_preview": "// @ts-nocheck\nexport function applyMixins(derivedCtor: any, baseCtors: any[]) {\n  baseCtors.forEach((baseCtor) => {\n    Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {\n      Object",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "critical": 1
+        },
+        "patterns": [
+          "ts-nocheck-file"
+        ],
+        "sample_lines": [
+          1
+        ]
+      }
+    },
+    {
+      "id": "candidate-8",
+      "label": "positive",
+      "source": "github:mingyyu/sg-library-site@8e883921f69da08dd1a39b4ec1a49b30678c0202:lib/auth.ts",
+      "file": "positive/candidates/mingyyu_sg-library-site__lib_auth.ts.ts",
+      "stars": 0,
+      "snippet_preview": "// @ts-nocheck\nimport NextAuth from 'next-auth';\nimport { NextAuthOptions, JWT, Session, User } from 'next-auth';\nimport CredentialsProvider from 'next-auth/providers/credentials';\nimport { getUserFro",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "critical": 1
+        },
+        "patterns": [
+          "ts-nocheck-file"
+        ],
+        "sample_lines": [
+          1
+        ]
+      }
+    },
+    {
+      "id": "candidate-9",
+      "label": "positive",
+      "source": "github:usrgnome/js-bytecode@779464a8cebca1892c933c6335353831913cfd87:src/Op.ts",
+      "file": "positive/candidates/usrgnome_js-bytecode__src_Op.ts.ts",
+      "stars": 1,
+      "snippet_preview": "// @ts-nocheck\nlet id = 0;\nexport const _Op: { [key: string]: number } = {\n    Jump : id++,\n    END : id++,\n    I8 : id++,\n    I32 : id++,",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "critical": 1
+        },
+        "patterns": [
+          "ts-nocheck-file"
+        ],
+        "sample_lines": [
+          1
+        ]
+      }
+    },
+    {
+      "id": "candidate-10",
+      "label": "positive",
+      "source": "github:rivenbryan/tiktok-hack@ad75fc35b4b6b7ed89e573f9e92ca8077c103e78:src/lib/db.ts",
+      "file": "positive/candidates/rivenbryan_tiktok-hack__src_lib_db.ts.ts",
+      "stars": 3,
+      "snippet_preview": "// @ts-nocheck\nimport { createClient, SupabaseClient } from \"@supabase/supabase-js\";\n\nexport const supabase: SupabaseClient = createClient(\n  process.env.NEXT_PUBLIC_SUPABASE_URL,\n  process.env.NEXT_P",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "critical": 1
+        },
+        "patterns": [
+          "ts-nocheck-file"
+        ],
+        "sample_lines": [
+          1
+        ]
+      }
+    }
+  ],
+  "skipped_summary": {
+    "total": 0,
+    "reasons": {}
+  },
+  "last_verified_at": "2026-05-27T05:56:06.127Z",
+  "verification_summary": {
+    "total": 10,
+    "rule_caught": 10,
+    "rule_missed": 0,
+    "recall_on_slice": 1
+  }
+}

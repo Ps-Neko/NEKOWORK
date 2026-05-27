@@ -1,27 +1,30 @@
 #!/usr/bin/env node
 // @ps-neko/nekowork — slim CLI surface.
 //
-// PHASE A SKELETON. Currently this is a guard layer that delegates the 4
-// allowed verbs to @ps-neko/nekowork-cli via a relative path. This works in
-// the monorepo for dev / smoke tests only.
+// Phase B (this version): verify-pr dispatches INTERNALLY using the
+// orchestrator copied into this package. No delegation to nekowork-cli.
+// check / report / apply are still TODO — they have wider dependencies
+// (session-resolver, gate state machine, execution-workspace) that are
+// pending Phase B follow-up. For now they redirect to nekowork-harness.
 //
-// To publish this package on npm independently, the verify-pr orchestrator,
-// its lib deps (decision.js, diff-parser.js, severity.js), the rule modules
-// (lib/rules/*), schemas, and rule fixtures must be moved into THIS package.
-// See HANDOFF-PACKAGE-SPLIT.md for the move list and hour estimate.
-//
-// Public verbs: check / verify-pr / report / apply.
-// Everything else exits 1 with a redirect to @ps-neko/nekowork-harness.
+// Public verbs: verify-pr (live), check/report/apply (redirect),
+// anything else → nekowork-harness redirect.
 
-import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import fs from 'node:fs';
+import {
+  verifyPrCycle,
+  parseVerifyPrArgs,
+  printVerifyPrSummary,
+  EXIT_CODE,
+  VERDICT,
+} from './orchestrators/verify-pr.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const HARNESS_CLI = path.resolve(__dirname, '..', '..', 'nekowork-cli', 'scripts', 'cli.js');
 
-const ALLOWED_VERBS = new Set(['check', 'verify-pr', 'report', 'apply']);
+const VERBS_INTERNAL = new Set(['verify-pr']);
+const VERBS_REDIRECT = new Set(['check', 'report', 'apply']); // Phase B follow-up
 const META_FLAGS = new Set(['--version', '-v', '--help', '-h']);
 
 const args = process.argv.slice(2);
@@ -37,10 +40,23 @@ if (args.length === 0 || META_FLAGS.has(verb)) {
   console.log(`@ps-neko/nekowork — local verification gate for AI-written code
 
 Usage:
-  nekowork check        Probe environment readiness (node version, git repo, etc.)
-  nekowork verify-pr    Scan working-tree diff, produce REPORT.md + decision.json
-  nekowork report       Render an existing decision.json to a readable REPORT.md
-  nekowork apply        Apply a stored .diff iff decision.json says apply_allowed=true
+  nekowork verify-pr [opts]  Scan working-tree diff. Produce REPORT.md + .nekowork/decision.json.
+
+Phase B follow-up (currently delegated to @ps-neko/nekowork-harness):
+  check     Probe environment readiness
+  report    Render an existing decision.json
+  apply     Apply a stored .diff iff apply_allowed=true
+
+verify-pr options:
+  --from-working-tree       (default) scan uncommitted changes
+  --from-staged             scan staged diff
+  --range <baseSha...head>  scan commit range
+  --from-patch <file>       scan a patch file
+  --include <path>          force-scan a path even if gitignored
+  --comment-file <path>     write a PR-comment markdown
+  --ci-exit-soft            NEEDS_HUMAN_REVIEW / INSUFFICIENT_EVIDENCE → exit 0
+  --json                    machine-readable output
+  --no-write                don't write REPORT.md / decision.json
 
 Need legacy / harness commands (ask / plan / team / work / ship / build / auto / ...)?
   npm i -g @ps-neko/nekowork-harness
@@ -53,11 +69,24 @@ Docs:
   process.exit(0);
 }
 
-if (!ALLOWED_VERBS.has(verb)) {
+if (VERBS_INTERNAL.has(verb)) {
+  await runInternal(verb, args.slice(1));
+} else if (VERBS_REDIRECT.has(verb)) {
+  console.error(`@ps-neko/nekowork: \`${verb}\` is not yet implemented in the slim package (Phase B follow-up).
+
+For now, use @ps-neko/nekowork-harness:
+  npm i -g @ps-neko/nekowork-harness
+  nekowork-harness ${verb} ${args.slice(1).join(' ')}
+
+Status: only \`verify-pr\` runs natively in @ps-neko/nekowork as of this version.
+This will close in the next alpha cycle.`);
+  process.exit(1);
+} else {
   console.error(`Unknown verb: \`${verb}\`.
 
-The slim @ps-neko/nekowork supports only the 4 verification verbs:
-  check | verify-pr | report | apply
+The slim @ps-neko/nekowork currently supports:
+  verify-pr (native)
+  check / report / apply (redirect to @ps-neko/nekowork-harness)
 
 For \`${verb}\` (a legacy / harness command), install @ps-neko/nekowork-harness:
   npm i -g @ps-neko/nekowork-harness
@@ -65,18 +94,24 @@ For \`${verb}\` (a legacy / harness command), install @ps-neko/nekowork-harness:
   process.exit(1);
 }
 
-if (!fs.existsSync(HARNESS_CLI)) {
-  console.error(`@ps-neko/nekowork (Phase A skeleton): cannot find the sibling nekowork-cli at:
-  ${HARNESS_CLI}
-
-This Phase A skeleton requires running inside the monorepo with both packages
-installed. To publish @ps-neko/nekowork as a standalone npm package, the
-verify-pr code path must be moved into this package — see HANDOFF-PACKAGE-SPLIT.md.`);
-  process.exit(1);
-}
-
-try {
-  execFileSync(process.execPath, [HARNESS_CLI, ...args], { stdio: 'inherit' });
-} catch (err) {
-  process.exit(err.status ?? 1);
+async function runInternal(verb, rest) {
+  if (verb === 'verify-pr') {
+    const opts = parseVerifyPrArgs(rest);
+    const result = await verifyPrCycle(opts);
+    if (opts.json) {
+      console.log(JSON.stringify({
+        decision: result.decision,
+        findings: result.findings,
+        evidence: result.evidence,
+        writtenPaths: result.writtenPaths,
+      }, null, 2));
+    } else {
+      printVerifyPrSummary(result);
+    }
+    let exitCode = EXIT_CODE[result.decision.verdict] ?? 1;
+    if (opts.ciExitSoft && (result.decision.verdict === VERDICT.NEEDS_HUMAN_REVIEW || result.decision.verdict === VERDICT.INSUFFICIENT_EVIDENCE)) {
+      exitCode = 0;
+    }
+    process.exit(exitCode);
+  }
 }

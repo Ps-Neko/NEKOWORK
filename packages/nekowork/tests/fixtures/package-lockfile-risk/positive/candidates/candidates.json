@@ -1,0 +1,211 @@
+{
+  "fixture_set": "package-lockfile-risk-candidates",
+  "generated_at": "2026-05-27T05:22:54.292Z",
+  "query": "\"postinstall\":",
+  "language": "json",
+  "min_stars": 0,
+  "candidates": [
+    {
+      "id": "candidate-1",
+      "label": "positive",
+      "source": "github:iyaja/llama-fs@0a693717ca1845b3ae8c208b2929d987fcdabb81:electron-react-app/package.json",
+      "file": "positive/candidates/iyaja_llama-fs__electron-react-app_package.json.json",
+      "stars": 5728,
+      "snippet_preview": "    \"build:dll\": \"cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts\",\n    \"build:main\": \"cross-env NODE_ENV=production TS_NO",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "high": 2
+        },
+        "patterns": [
+          "dependency-git-url",
+          "install-hook-postinstall"
+        ],
+        "sample_lines": [
+          20,
+          41
+        ]
+      }
+    },
+    {
+      "id": "candidate-2",
+      "label": "positive",
+      "source": "github:RaspberryPiFoundation/blockly-samples@2de14cf6f7f386ac37da346252e483dc01042218:nx.json",
+      "file": "positive/candidates/RaspberryPiFoundation_blockly-samples__nx.json.json",
+      "stars": 974,
+      "snippet_preview": "      \"cache\": true,\n      \"dependsOn\": []\n    },\n    \"postinstall\": {\n      \"dependsOn\": []\n    },\n    \"test\": {",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 0,
+        "severities": {},
+        "patterns": [],
+        "sample_lines": []
+      }
+    },
+    {
+      "id": "candidate-3",
+      "label": "positive",
+      "source": "github:qlint/L5-HRMS@c579085663a3711863e91d8edb4b9403cfe31844:composer.json",
+      "file": "positive/candidates/qlint_L5-HRMS__composer.json.json",
+      "stars": 52,
+      "snippet_preview": "            \"php artisan key:generate\"\n        ],\n        \"post-install-cmd\": [\n            \"Illuminate\\\\Foundation\\\\ComposerScripts::postInstall\",\n            \"php artisan optimize\"\n        ],\n      ",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 0,
+        "severities": {},
+        "patterns": [],
+        "sample_lines": []
+      }
+    },
+    {
+      "id": "candidate-4",
+      "label": "positive",
+      "source": "github:saisandeepvaddi/ten-hands@b7d5421a04497bbb85928e7c1d0dfc69293260a4:db.json",
+      "file": "positive/candidates/saisandeepvaddi_ten-hands__db.json.json",
+      "stars": 380,
+      "snippet_preview": "        },\n        {\n          \"_id\": \"d2677e9e-e260-4d19-bf46-8f2605799ec9\",\n          \"name\": \"postinstall\",\n          \"cmd\": \"electron-builder install-app-deps\",\n          \"execDir\": \"./\"\n        }",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 0,
+        "severities": {},
+        "patterns": [],
+        "sample_lines": []
+      }
+    },
+    {
+      "id": "candidate-5",
+      "label": "positive",
+      "source": "github:getgauge-contrib/gauge-go@6c4821c3329f8744fdb7c5d9126d58101944810e:go.json",
+      "file": "positive/candidates/getgauge-contrib_gauge-go__go.json.json",
+      "stars": 73,
+      "snippet_preview": "        \"minimum\": \"0.8.0\",\n        \"maximum\": \"\"\n    },\n    \"postInstall\": {\n        \"windows\": [\"go\", \"install\", \"github.com/getgauge-contrib/gauge-go@latest\"],\n        \"linux\": [\"go\", \"install\", \"g",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 0,
+        "severities": {},
+        "patterns": [],
+        "sample_lines": []
+      }
+    },
+    {
+      "id": "candidate-6",
+      "label": "positive",
+      "source": "github:anderlli0053/DEV-tools@54b330ceb06f677cc6451c2c21e94da90a0ea17a:bucket/tfctl.json",
+      "file": "positive/candidates/anderlli0053_DEV-tools__bucket_tfctl.json.json",
+      "stars": 174,
+      "snippet_preview": "  \"pre_install\": [\n    \"Write-Host 'Running preinstall command'\"\n  ],\n  \"post_install\": [\n    \"Write-Host 'Running postinstall command'\"\n  ]\n}",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "high": 2
+        },
+        "patterns": [
+          "dependency-tarball-url"
+        ],
+        "sample_lines": [
+          5,
+          12
+        ]
+      }
+    },
+    {
+      "id": "candidate-7",
+      "label": "positive",
+      "source": "github:richardeschloss/nuxt-stories@32eb69986bf54516d67992cf4fcceda5f2a235f4:.nycrc",
+      "file": "positive/candidates/richardeschloss_nuxt-stories__.nycrc.txt",
+      "stars": 90,
+      "snippet_preview": "    \"lib/utils/markdown.js\",\n    \"lib/utils/storage.js\",\n    \"lib/utils/storyFactory.js\",\n    \"postinstall.js\"\n  ],\n  \"extension\": [\".js\", \".mjs\", \".vue\"]\n}",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 0,
+        "severities": {},
+        "patterns": [],
+        "sample_lines": []
+      }
+    },
+    {
+      "id": "candidate-8",
+      "label": "positive",
+      "source": "github:tmcw/docbox@9506ecec6db92ba04824b280ffbb0968d367d18a:package.json",
+      "file": "positive/candidates/tmcw_docbox__package.json.json",
+      "stars": 1132,
+      "snippet_preview": "  \"main\": \"index.js\",\n  \"scripts\": {\n    \"gen-index\": \"cpy --no-overwrite index.html.sample --rename=index.html .\",\n    \"postinstall\": \"npm run gen-index\",\n    \"start\": \"budo src/index.js --serve=bund",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "high": 1
+        },
+        "patterns": [
+          "install-hook-postinstall"
+        ],
+        "sample_lines": [
+          8
+        ]
+      }
+    },
+    {
+      "id": "candidate-9",
+      "label": "positive",
+      "source": "github:nrwl/nx-incremental-large-repo@0cd9e82b7033d02622342b5957bdd05d6882f0bb:migrations.json",
+      "file": "positive/candidates/nrwl_nx-incremental-large-repo__migrations.json.json",
+      "stars": 70,
+      "snippet_preview": "      \"description\": \"adjusts the ngcc postinstall command to just leave 'ngcc' in there. This fixes Ivy in Jest tests and Storybooks\",\n      \"factory\": \"./src/migrations/update-12-0-0/update-ngcc-pos",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 0,
+        "severities": {},
+        "patterns": [],
+        "sample_lines": []
+      }
+    },
+    {
+      "id": "candidate-10",
+      "label": "positive",
+      "source": "github:nueko/scoop-php@8b0a06d71f0a9ad8ccaa9542c2325ad5cf8b5574:php5.3.json",
+      "file": "positive/candidates/nueko_scoop-php__php5.3.json.json",
+      "stars": 8,
+      "snippet_preview": "  \"env_set\": {\n    \"PHP_INI_SCAN_DIR\": \"$persist_dir;$dir\\\\conf.d;\"\n  },\n  \"post_install\": \"iex(gc $bucketsdir\\\\$bucket\\\\bin\\\\postinstall.ps1 -Raw)\",\n  \"url\": \"http://windows.php.net/downloads/release",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 0,
+        "severities": {},
+        "patterns": [],
+        "sample_lines": []
+      }
+    }
+  ],
+  "skipped_summary": {
+    "total": 0,
+    "reasons": {}
+  },
+  "last_verified_at": "2026-05-27T05:23:03.704Z",
+  "verification_summary": {
+    "total": 10,
+    "rule_caught": 3,
+    "rule_missed": 7,
+    "recall_on_slice": 0.3
+  }
+}

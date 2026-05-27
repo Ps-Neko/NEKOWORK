@@ -1,0 +1,92 @@
+{
+  "fixture_set": "hardcoded-credential",
+  "schema_version": "0.1",
+  "generated_at": "2026-05-16",
+  "notes": "synthetic seed. provider 시그니처 (AKIA / sk_live_ / ghp_ / xoxb- / AIza / PEM) 는 high-confidence + low-FP 패턴.",
+  "targets": {
+    "any_detection_recall": 0.90,
+    "critical_fp_rate": 0.10
+  },
+  "entries": [
+    {
+      "id": "hc-pos-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/001-aws-access-key.ts",
+      "pattern": "aws-access-key-id",
+      "expected_findings": [{ "rule": "hardcoded-credential", "line": 3, "severity": "critical" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "hc-pos-003",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/003-github-pat.ts",
+      "pattern": "github-personal-access-token",
+      "expected_findings": [{ "rule": "hardcoded-credential", "line": 3, "severity": "critical" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "hc-pos-004",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/004-private-key.pem",
+      "pattern": "private-key-pem",
+      "expected_findings": [{ "rule": "hardcoded-credential", "line": 1, "severity": "critical" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "hc-pos-006",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/006-google-api-key.ts",
+      "pattern": "google-api-key",
+      "expected_findings": [{ "rule": "hardcoded-credential", "line": 3, "severity": "critical" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "hc-neg-001",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/001-env-no-literal.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "hc-neg-002",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/002-comment-example.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "주석 안 AKIA 예시 — comment stripper 가 제거"
+    },
+    {
+      "id": "hc-neg-003",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/003-stripe-test-pubkey.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "pk_test_ (publishable test) — 우리 패턴은 pk_live_ 만 잡음"
+    },
+    {
+      "id": "hc-neg-004",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/004-placeholder-sk.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "sk- placeholder (leaked, dev, example 등) 은 filter 가 제거"
+    },
+    {
+      "id": "hc-neg-005",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/005-public-key.pem",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "PUBLIC KEY 는 secret 아님 — PRIVATE 만 잡음"
+    }
+  ]
+}
