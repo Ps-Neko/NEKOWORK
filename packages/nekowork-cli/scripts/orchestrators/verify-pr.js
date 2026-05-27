@@ -199,6 +199,24 @@ function classifyChangedFiles(parsedDiff) {
   return { source, tests, docs, config, ci };
 }
 
+/**
+ * Decide whether --run-checks must SKIP executing project commands because the
+ * diff itself tampered with the execution surface (install/test scripts) or has
+ * a critical finding. The finding's `pattern` field (set by makeRegexScanner)
+ * distinguishes install/script changes from plain dependency changes.
+ */
+export function checksBlockedByRisk(findings) {
+  return findings.some((f) => {
+    if (f.severity === 'critical') return true;
+    if (f.rule === 'test-or-security-disable') return true;
+    if (f.rule === 'package-lockfile-risk') {
+      const p = String(f.pattern || '');
+      return p.startsWith('install-hook-') || p.startsWith('script-');
+    }
+    return false;
+  });
+}
+
 function deriveVerdict({ findings, parsedDiff, checksAvailable }) {
   const hasCritical = findings.some(f => f.severity === 'critical');
   const hasHigh = findings.some(f => f.severity === 'high');
