@@ -47,6 +47,11 @@ NEKOWORK checks the warning signs, and a person approves the final change.**
 | **REVIEW** | Something needs a human look before moving on. |
 | **BLOCK** | NEKOWORK found a serious risk and tells you where it is. |
 
+> `verify-pr`'s machine-readable output uses five specific verdicts — `ALLOW`,
+> `ALLOW_WITH_WARNINGS`, `NEEDS_HUMAN_REVIEW`, `INSUFFICIENT_EVIDENCE`, and `BLOCK` —
+> that map onto these three buckets. See the
+> [verdict table](packages/nekowork-cli/docs/QUICKSTART.md#3-the-five-verdicts-and-the-simple-buckets).
+
 ## Quickstart
 
 Requirements: Node.js 22+, npm, and a git repository with at least one commit.

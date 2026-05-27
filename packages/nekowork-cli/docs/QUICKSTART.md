@@ -1,22 +1,106 @@
 # Quickstart
 
-This guide gets a new user from a clean checkout to the first NEKOWORK run.
+Get from a clean checkout to your first verdict in two commands.
 
-## 1. Public Alpha Smoke
+NEKOWORK's job is narrow on purpose: **check AI-written code before it enters your
+project.** It reads what changed, runs deterministic risk rules, and gives you a
+verdict. It does not write, commit, push, merge, or deploy.
 
-The public alpha is available on npm:
+## 1. The 30-Second Path (npm)
+
+Requirements: Node.js 22+, npm, and a git repository with at least one commit.
+
+After your AI tool (Cursor / Claude Code / Codex) changes some files:
 
 ```bash
-npx -y @ps-neko/nekowork@alpha cockpit --preview
-npx -y @ps-neko/nekowork@alpha check
-npx -y @ps-neko/nekowork@alpha start "implement this safely" --dry-run
-npx -y @ps-neko/nekowork@alpha start "implement this safely" --session first-start
-npx -y @ps-neko/nekowork@alpha report --session latest
+npx -y @ps-neko/nekowork@alpha check        # environment check (~30s)
+npx -y @ps-neko/nekowork@alpha verify-pr     # scan the diff, write a verdict
 ```
 
-In an interactive terminal, `npx -y @ps-neko/nekowork@alpha` opens Guided Mode: a choice-first cockpit with project state, latest session state, recommended next action, and safe actions for start/report/apply.
+`verify-pr` reads your changed lines, runs the deterministic risk rules, writes a
+plain-English `REPORT.md` and a machine-readable `.nekowork/decision.json`, and
+prints a verdict.
 
-## 2. Install From Source
+Read the result:
+
+```bash
+cat REPORT.md
+cat .nekowork/decision.json
+```
+
+Example when a change is blocked:
+
+```text
+=== verify-pr ===
+  verdict        : BLOCK
+  reason         : Hardcoded secret fallback detected (src/auth.ts:42)
+  risk_level     : CRITICAL
+  merge_allowed  : false
+  apply_allowed  : false
+```
+
+`check` is the beginner alias for `doctor --quick`. It checks Node.js, package
+metadata, git state, API key overrides, and provider CLI presence without the
+slower freshness checks.
+
+## 2. What verify-pr Looks At
+
+verify-pr defaults to your working-tree diff. You can point it elsewhere:
+
+```bash
+npx -y @ps-neko/nekowork@alpha verify-pr                       # working tree (default)
+npx -y @ps-neko/nekowork@alpha verify-pr --from-staged         # staged changes only
+npx -y @ps-neko/nekowork@alpha verify-pr --from-patch out.diff # a saved patch file
+npx -y @ps-neko/nekowork@alpha verify-pr --range origin/main...HEAD  # a commit range
+npx -y @ps-neko/nekowork@alpha verify-pr --full-scan           # the whole tree
+```
+
+It then runs five deterministic risk rules over the changed lines:
+
+- **Secret fallback** — `process.env.X || "literal"` and similar hardcoded fallbacks.
+- **Hardcoded credential** — API keys, tokens, passwords, private keys in code.
+- **Auto commit / push / apply** — code that tries to `git push`, auto-merge, `rm -rf`, etc.
+- **Test or security disable** — mass `*.skip`, `eslint-disable`, `ts-ignore`, or CI checks removed.
+- **Package / lockfile risk** — dependency, script, and `postinstall`/`preinstall` changes.
+
+### What "checks available" means today
+
+verify-pr also looks at whether your project *has* test / lint / typecheck / build /
+audit commands. Right now it **detects whether those commands exist** — it does not
+run them yet. If a source change has no test command, verify-pr returns
+`INSUFFICIENT_EVIDENCE` ("not enough evidence to PASS", not a failure) instead of a
+false PASS.
+
+Actually running those commands and folding their pass/fail into the verdict is a
+planned enhancement; see [SCOPE-1.0.md](SCOPE-1.0.md) §5–§7 for the target behavior.
+
+## 3. The Five Verdicts (and the simple buckets)
+
+The README shows three plain buckets — **PASS / REVIEW / BLOCK**. verify-pr emits
+five specific verdicts that map onto them, and onto CI exit codes:
+
+| verify-pr verdict | README bucket | CI exit | Meaning |
+|---|---|---|---|
+| `ALLOW` | PASS | 0 | No blocking risk found. |
+| `ALLOW_WITH_WARNINGS` | PASS | 0 | Lower-severity findings only. |
+| `NEEDS_HUMAN_REVIEW` | REVIEW | 1 | A high-severity finding needs a human look. |
+| `INSUFFICIENT_EVIDENCE` | REVIEW | 1 | Risk scan passed, but there's no test command to fully verify. |
+| `BLOCK` | BLOCK | 2 | A critical risk was found; merge and apply are refused. |
+
+## 4. CI Integration
+
+```bash
+npx -y @ps-neko/nekowork@alpha verify-pr --range origin/main...HEAD --comment-file pr-comment.md
+npx -y @ps-neko/nekowork@alpha verify-pr --range origin/main...HEAD --ci-exit-soft
+```
+
+- `--comment-file <path>` writes a Markdown summary you can post as a PR comment.
+- `--ci-exit-soft` turns `NEEDS_HUMAN_REVIEW` / `INSUFFICIENT_EVIDENCE` into exit 0
+  (warn, don't block) for teams that don't want those to fail the check.
+
+See [INTEGRATION.md](INTEGRATION.md) for a full GitHub Actions example.
+
+## 5. Install From Source (contributors)
 
 Use the repository path when you want examples, tests, or local development:
 
@@ -26,358 +110,45 @@ cd harness
 npm ci
 ```
 
-Verify the checkout:
+Verify the checkout, then run the hero command directly:
 
 ```bash
-node scripts/cli.js cockpit --preview
 node scripts/cli.js check
+node scripts/cli.js verify-pr
 ```
 
-`check` is the beginner alias for `doctor --quick`. It checks Node.js, package metadata, git state, API key overrides, and provider CLI presence without running the slower freshness checks.
+## 6. Use NEKOWORK In Another Project
 
-Initialize another local repository with the published alpha:
+Initialize a target project with the published alpha:
 
 ```bash
 cd /path/to/my-project
 npx -y @ps-neko/nekowork@alpha init --profile developer --project-root .
 ```
 
-`init` is the beginner alias for `install --apply`. It writes generated NEKOWORK tool surfaces and install state to the target project. It does not commit, push, publish, or deploy.
+`init` is the beginner alias for `install --apply`. It writes generated NEKOWORK
+tool surfaces and install state to the target project. It does not commit, push,
+publish, or deploy.
 
-## 3. One-Minute Demo
-
-Use this first when you want the shortest no-API experience:
+For a no-API tour without touching your own repo:
 
 ```bash
 npm run demo:quick -- --cleanup
 ```
 
-The quick demo creates a disposable target project, runs `doctor -> build -> report -> gate status`, and removes the target when `--cleanup` is set. It uses mock providers and does not call Claude, Codex, Gemini, or paid APIs.
-
-Expected shape:
-
-```text
-doctor ... OK
-build workflow ... OK
-report ... OK
-gate status ... OK
-Demo completed: mode=team, verdict=approve_with_fixes, ship_ready=false, applied=false
-```
-
-## 3. Beginner Path
-
-Use this path first. It is the recommended shortest safe loop:
-
-```bash
-node scripts/cli.js cockpit --preview
-node scripts/cli.js check
-node scripts/cli.js start "implement, verify, and prepare ship readiness" --session first-start
-node scripts/cli.js report --session latest
-node scripts/cli.js gate status --session latest
-```
-
-Use plain `node scripts/cli.js` in an interactive terminal when you want Guided Mode to ask for the next safe action instead of typing the direct commands.
-
-Use the decomposed `work -> verify -> ship` path only when you need phase-level control. See [BUILD.md](BUILD.md) for build modes and invariants.
-
-`start` is the beginner alias for `build`. It prints the session decision first: verdict, reason, Human Gate state, ship readiness, and apply permission. `build --dry-run` previews auto routing, mode, profile, workers, stages, and apply policy without creating a session. `build --explain` prints the same routing rationale and evidence list after a real build. Use `auto "task"` when NEKOWORK should repair fixable no-ship findings within a bounded budget and then stop before apply. `run` is the short safe wrapper. It runs `work -> verify -> ship`, does not apply by default, and stops on Human Gate. `report` writes a readable `REPORT.md` from the evidence already in the session. `apply` is always explicit and requires a verified `SHIP_READY` live-work diff.
-
-Every verified session writes `decision.json` as the machine-readable decision surface. It consolidates verdict, reason, risk tags, Human Gate state, ship readiness, apply permission, diff hash, and evidence paths. `verify` also writes `preverify-summary.json` before Codex review so deterministic checks can flag auth, secret, deploy, payment, env/config, permission, or destructive-data risk early.
-
-If a risky task is manually forced into a lower-safety mode than the risk-aware recommendation, NEKOWORK blocks it unless `--force-mode` is explicitly present.
-
-## 4. Run A Mock Review
-
-Mock mode is the default. It does not call Claude, Codex, Gemini, or any paid API.
-
-For ambiguous or risky work, start with the local question gate:
-
-```bash
-node scripts/cli.js ask "trading dashboard mockup" --session first-ask
-```
-
-`ask` creates a question-gate handoff only. It does not call providers and does not mutate project files.
-
-```bash
-node scripts/cli.js review "check the project setup" --no-ship --session first-smoke
-```
-
-Expected result:
-
-- session state under `.harness/state/sessions/first-smoke/`
-- handoff markdown files under `handoffs/`
-- `review-summary.json` with `mode: legacy-full-review-cycle`
-- no PR or publish action because `--no-ship` is set
-
-Example output:
-
-```text
-[review:first-smoke] 1 ideate
-[review:first-smoke] 2 plan
-[review:first-smoke] 3 implement
-[review:first-smoke] 4 self-review
-[review:first-smoke] 5 codex-review
-[review:first-smoke] 7 ship skipped (--no-ship)
-```
-
-`review-cycle` is an explicit alias for the same legacy full cycle:
-
-```bash
-node scripts/cli.js review-cycle "check the project setup" --no-ship --session first-review-cycle
-```
-
-For a planning-only first pass:
-
-```bash
-node scripts/cli.js plan "draft an implementation plan" --session first-plan
-```
-
-For multiple read-only perspectives before implementation:
-
-```bash
-node scripts/cli.js team "trading dashboard mockup" --workers planner,research,security,test --no-write --session first-team
-```
-
-`team` writes handoffs and a `team-summary.json` file. It does not run an implement stage and does not mutate project files.
-
-For a single-executor implementation handoff:
-
-```bash
-node scripts/cli.js work "implement the planned dashboard mockup" --single-executor --session first-work
-```
-
-In mock mode this writes an implement handoff only. In live mode the executor works in an isolated git worktree and NEKOWORK captures a diff under the session; the target project is not changed until a later verified apply path exists. `work` also writes `acceptance-criteria.json`, reusing `prd.json` when available or creating a deterministic minimum from the task.
-
-Then verify that work with Codex:
-
-```bash
-node scripts/cli.js verify "verify the planned dashboard mockup" --session first-work
-```
-
-`verify` reads the prior `work` handoff and optional diff. It does not implement or ship. Add `--secure` when you want Codex challenge even if the task is not auto-detected as sensitive.
-
-If verification creates a human gate, inspect it:
-
-```bash
-node scripts/cli.js gate status --session first-work
-```
-
-Then make an explicit human decision:
-
-```bash
-node scripts/cli.js gate approve --session first-work --reason "Reviewed and accepted this risk"
-node scripts/cli.js gate block --session first-work --reason "Release risk rejected"
-```
-
-`gate approve` requires an open `HUMAN_GATE`. It records approval for audit; it does not delete the original gate file.
-
-Then produce a ship/no-ship readiness handoff:
-
-```bash
-node scripts/cli.js ship "prepare dashboard ship readiness" --require-clean-gates --session first-work
-```
-
-`ship` requires the prior `work` and `verify` handoffs. It does not publish, deploy, create a PR, or mutate the target project. If Codex reported fixable findings, `ship` writes a no-ship handoff and `NO_SHIP`; if Codex fully approved, it writes `SHIP_READY`. Existing `HUMAN_GATE` always blocks it.
-
-Create a readable report from the session evidence:
-
-```bash
-node scripts/cli.js report --session first-work
-```
-
-`report` is inspect-only. It writes `REPORT.md` and `report-summary.json` under the session directory and does not mutate project files.
-
-For live work that produced a captured diff, apply it only after ship readiness:
-
-```bash
-node scripts/cli.js apply --session first-work
-```
-
-`apply` requires `SHIP_READY`, no newer `NO_SHIP`, no unresolved gate, a clean git worktree excluding `.harness/` state, and a captured diff from `work --live`. It applies the diff but does not commit, push, publish, or deploy.
-
-To run the decomposed wrapper in one command:
-
-```bash
-node scripts/cli.js run "implement and verify a change" --session first-run
-```
-
-`run` executes `work -> verify -> ship`. It does not apply by default. Add `--apply` only when live work produced a captured diff and you want the verified `SHIP_READY` diff applied.
-
-## 5. Inspect The Install Catalog
-
-```bash
-node scripts/install-plan.js --list
-node scripts/install-plan.js --pack productivity
-node scripts/install-plan.js --pack team
-node scripts/install-plan.js --pack quality
-node scripts/install-plan.js --profile developer
-node scripts/install-plan.js --profile developer --target claude --json
-```
-
-Profiles:
-
-- `core`: minimal rules, agents, hooks, and platform configs
-- `developer`: daily development, quality workflow, Codex loop, ops-readiness
-- `builder`: one-command build modes with verification, gates, and explicit apply
-- `productivity`: brainstorm, plan, TDD, debug, execute, verify, report, and finish routines over the safe build loop
-- `security`: secure review defaults
-- `product`: question gate, scope review, acceptance criteria
-- `quality`: disciplined workflow, test-first planning, evidence-based review
-- `frontend`: UI mockup, component review, accessibility-oriented flow
-- `testing`: test planning, regression, and coverage-oriented flow
-- `research`: research-oriented profile
-- `full`: every current module
-
-Starter packs:
-
-- `core`: minimal verification runtime
-- `builder`: Safe Build Modes entrypoint
-- `productivity`: daily development discipline routines over the safe build loop
-- `security`: sensitive work, Codex challenge, and Human Gate policy
-- `release`: release readiness over the developer profile
-
-The full advanced pack catalog remains available in [CATALOG-PACKS.md](CATALOG-PACKS.md).
-
-## Which Pack Should I Start With?
-
-- Use `productivity` for daily planning, debugging, TDD, and finish checks.
-- Use `security` for auth, secrets, deploy, data, or financial-risk changes.
-- Use `release` for ship/no-ship evidence before release work.
-- Use [CATALOG-PACKS.md](CATALOG-PACKS.md) when you need team, debugging, maintenance, PR, frontend, testing, or enterprise pack aliases.
-
-## 6. Use NEKOWORK In A Target Project
-
-For a disposable end-to-end target project demo:
-
-```bash
-npm run demo:external
-```
-
-Add `-- --cleanup` if you want the generated target removed after the run:
-
-```bash
-npm run demo:external -- --cleanup
-```
-
-See [EXAMPLE-PROJECT.md](EXAMPLE-PROJECT.md) for the full walkthrough and expected outputs.
-
-For small checked-in case-study targets, inspect:
-
-```text
-examples/trading-dashboard-mock/
-examples/github-actions-hardening/
-```
-
-Each example has its own `npm test` and NEKOWORK case-study artifacts under `case-study/`.
-
-Recommended repository integration:
-
-```bash
-cd <target-project>
-git submodule add https://github.com/Ps-Neko/NEKOWORK.git .harness-tool
-```
-
-Run a non-destructive preflight:
-
-```bash
-node .harness-tool/scripts/portability/simulate-port.js . --profile developer --verbose
-```
-
-Apply generated NEKOWORK tool surfaces:
-
-```bash
-node .harness-tool/scripts/install-apply.js --profile developer --project-root .
-```
-
-Smoke test in the target project:
-
-```bash
-node .harness-tool/scripts/cli.js doctor --project-root . --quick
-node .harness-tool/scripts/cli.js plan "target project smoke" --project-root . --session target-smoke
-```
-
-Expected outputs in the target project:
-
-- `.harness/install-state.json`
-- `.harness/state/sessions/target-smoke/`
-- `.claude/`
-- `.codex/config.toml`
-- `.cursor/hooks.json`
-- `.gemini/GEMINI.md`
-- `.opencode/config.json`
-
-## 7. Turn On Live Provider Calls
-
-Live mode uses local CLI sessions by default.
-
-Claude:
-
-```bash
-claude auth status
-npm run verify:claude
-```
-
-Codex:
-
-```bash
-npm install -g @openai/codex
-codex login
-npm run verify:codex
-```
-
-Gemini:
-
-```bash
-gemini
-npm run verify:gemini
-node scripts/cli.js doctor --quick --gemini-smoke
-```
-
-Plain `doctor` reports Gemini installation only. Add `--gemini-smoke` when you want the live Gemini auth check included in the health report.
-
-Then run:
-
-```bash
-node scripts/cli.js review "live provider smoke" --live --no-ship
-```
-
-If you have API key environment variables set, HARNESS blocks them by default before delegated CLI calls. Unset them for local CLI auth:
-
-```bash
-unset ANTHROPIC_API_KEY
-unset OPENAI_API_KEY
-unset GEMINI_API_KEY
-unset GOOGLE_API_KEY
-```
-
-On PowerShell:
-
-```powershell
-Remove-Item Env:ANTHROPIC_API_KEY -ErrorAction SilentlyContinue
-Remove-Item Env:OPENAI_API_KEY -ErrorAction SilentlyContinue
-Remove-Item Env:GEMINI_API_KEY -ErrorAction SilentlyContinue
-Remove-Item Env:GOOGLE_API_KEY -ErrorAction SilentlyContinue
-```
-
-## 8. npm Install Path
-
-The public alpha is published as `@ps-neko/nekowork@alpha`:
-
-```bash
-npm i --save-dev @ps-neko/nekowork@alpha
-```
-
-or:
-
-```bash
-npm i -g @ps-neko/nekowork@alpha
-```
-
-For alpha pinning, prefer:
-
-```bash
-npx -y @ps-neko/nekowork@alpha check
-```
+The quick demo creates a disposable target project, runs a mock workflow, and
+removes the target when `--cleanup` is set. It does not call Claude, Codex, Gemini,
+or any paid API.
+
+## 7. Advanced / Legacy Runtime
+
+NEKOWORK also ships a larger session-based runtime — `ask`, `plan`, `team`, `work`,
+`verify`, `gate`, `ship`, `run`, `build`, `review`, and more. These remain functional
+but are **being phased out of the first-run path** in favor of `verify-pr`. The
+recommended hero commands for 1.0 are `check / verify-pr / report / apply`.
+
+See [ADVANCED.md](ADVANCED.md) for the full runtime surface and the
+[Phased Cut plan](SCOPE-1.0.md#2-phased-cut-단계).
 
 ## Troubleshooting
 
@@ -386,26 +157,15 @@ npx -y @ps-neko/nekowork@alpha check
 - Confirm Node.js 22 or newer with `node -v`.
 - Check corporate proxy or registry settings in `.npmrc`.
 
-`--live` fails immediately:
+`verify-pr` reports `INSUFFICIENT_EVIDENCE`:
 
-- Confirm the provider CLI is installed and logged in.
-- Unset API key environment variables unless you intentionally opted into a metered path.
+- This is not a failure. The risk scan passed, but the project has no test command
+  to fully verify the change.
+- Add a test script for full verification, or pass `--ci-exit-soft` to avoid
+  blocking CI.
 
-`doctor` exits with `FAIL`:
+`check` / `doctor` exits with `FAIL`:
 
 - Read the failed row first.
-- Run without `--quick` if you need repair/sync/codemap freshness checks.
+- Run `doctor` without `--quick` if you need repair/sync/codemap freshness checks.
 - Use `--json` for CI or issue reports.
-
-`repair --check` reports stale output:
-
-- Run `node scripts/repair.js`.
-- Then rerun `node scripts/repair.js --check`.
-
-`sync-claude-md --check` reports a diff:
-
-- Run `node scripts/sync-claude-md.js`.
-
-`build-codemaps --check` reports stale codemaps:
-
-- Run `node scripts/build-codemaps.js`.
