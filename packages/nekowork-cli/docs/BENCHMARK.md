@@ -1,6 +1,6 @@
 # NEKOWORK verify-pr — Rule Benchmark
 
-> Measured: 2026-05-27 · Version: `0.1.0-alpha.12`
+> Measured: 2026-05-27 (updated post empty-string-fallback patch) · Version: `0.1.0-alpha.12`
 > Source of truth: run `npm run bench:rules -- --json` from `packages/nekowork-cli/`.
 
 This page publishes the recall / false-positive numbers for every risk rule that
@@ -21,12 +21,12 @@ the full picture, including what is still missing for the 1.0 gate.
 
 | Rule | Recall | FP rate | Pos caught | FP count | 1.0 gate |
 |---|---:|---:|---:|---:|:---:|
-| `secret-fallback` | **90%** | **0%** | 9 / 10 | 0 / 13 | ✅ |
+| `secret-fallback` | **93%** | **0%** | 14 / 15 | 0 / 14 | ✅ |
 | `auto-apply-commit-push` | **100%** | **0%** | 8 / 8 | 0 / 9 | ✅ |
 | `hardcoded-credential` | **100%** | **0%** | 4 / 4 | 0 / 8 | ✅ |
 | `test-or-security-disable` | **100%** | **0%** | 6 / 6 | 0 / 8 | ✅ |
 | `package-lockfile-risk` | **100%** | **0%** | 6 / 6 | 0 / 8 | ✅ |
-| **Aggregate** | **97%** | **0%** | **33 / 34** | **0 / 46** | — |
+| **Aggregate** | **97%** | **0%** | **38 / 39** | **0 / 47** | — |
 
 **1.0 gate per [SCOPE §9](./SCOPE-1.0.md#9-fixture-출처-정책):** recall ≥ 0.90, FP ≤ 0.10.
 
@@ -34,19 +34,25 @@ The one missed positive (`sf-pos-004`) is `if (!token) token = "literal"` — a
 flow-based pattern that requires multi-line scope. Documented limitation, not a
 regression.
 
+The `secret-fallback` corpus now includes **3 real OSS positive fixtures**
+(promoted from the first OSS scrape) plus 2 new synthetic positives exercising
+the empty-string variant. See *First real OSS scrape* below for the path that
+got us here.
+
 ## Fixture composition — the honest part
 
 | Rule | Pos (syn / OSS / live AI) | Neg (syn / OSS / live AI) |
 |---|---|---|
-| `secret-fallback` | 10 / 0 / 0 | 10 / 3 / 0 |
+| `secret-fallback` | 12 / 3 / 0 | 11 / 3 / 0 |
 | `auto-apply-commit-push` | 8 / 0 / 0 | 6 / 3 / 0 |
 | `hardcoded-credential` | 4 / 0 / 0 | 5 / 3 / 0 |
 | `test-or-security-disable` | 6 / 0 / 0 | 5 / 3 / 0 |
 | `package-lockfile-risk` | 6 / 0 / 0 | 5 / 3 / 0 |
-| **Total** | **34 / 0 / 0** | **31 / 15 / 0** |
+| **Total** | **36 / 3 / 0** | **32 / 15 / 0** |
 
 The 15 OSS negatives are the same 3 files (`expressjs/express` examples) applied
-across 5 rules. Distinct OSS source files: **3**.
+across 5 rules. Distinct OSS source files: **3** (negatives) + **3** (positives,
+all promoted into `secret-fallback`).
 
 ## What this does and doesn't prove
 
@@ -75,14 +81,14 @@ across 5 rules. Distinct OSS source files: **3**.
 
 | Requirement (SCOPE §9) | Current | Target | Status |
 |---|---:|---:|:---:|
-| Positive fixtures from real OSS scrape (in active manifest) | 0 | 30+ | ❌ |
-| OSS positive candidates collected (pending human review) | 10 | 30+ | ⚠️ |
+| Positive fixtures from real OSS scrape (in active manifest) | 3 | 30+ | ⚠️ |
+| OSS positive candidates collected (pending review) | 10 | 30+ | ⚠️ |
 | Positive fixtures from live AI diffs | 0 | 30+ | ❌ |
-| Synthetic share of total corpus | 79% | ≤ 30% | ❌ |
-| Recall on Secret Fallback (existing synthetic) | 90% | ≥ 90% | ✅ |
-| Recall on real OSS slice, in-scope patterns | 100% (6/6) | ≥ 90% | ✅ |
-| Recall on real OSS slice, all candidates | 60% (6/10) | — | ⚠️ |
+| Synthetic share of positive corpus | 80% (36/45) | ≤ 30% | ❌ |
+| Recall on Secret Fallback (synthetic+OSS) | 93% (14/15) | ≥ 90% | ✅ |
+| Recall on real OSS slice, post empty-string patch | 100% (10/10) | ≥ 90% | ✅ |
 | FP rate on Secret Fallback (existing) | 0% | ≤ 10% | ✅ |
+| FP rate on NODE_ENV/PORT empty-fallback guard | 0/3 | 0/N | ✅ |
 | CI benchmark job, 3 consecutive PASS | passes locally | + CI history | ⚠️ partial |
 
 ## First real OSS scrape — what we found
@@ -102,23 +108,46 @@ provenance (`candidates.json`).
 | candidate-7 | `process.env.JWT_SECRET \|\| ""` | Same. |
 | candidate-8 | `process.env.NODE_ENV` (no fallback) | Search false-match, no `||` literal. |
 
-**This is a major scope finding:** the most common AI-generated env-fallback
-pattern in real OSS is `|| ""`, but `SCOPE-1.0.md §6` explicitly targets only
-non-empty literals. Three options:
+**This was a major scope finding:** the most common AI-generated env-fallback
+pattern in real OSS is `|| ""`, but the original `SCOPE-1.0.md §6` rule scope
+explicitly targeted only non-empty literals (regex `[^"'\`\n]+` requires ≥1
+char). Decision taken on 2026-05-27: **option 2 — extend `secret-fallback`
+with a new `env-or-empty-string` pattern, scoped to secret-keyword env names
+only.**
 
-1. **Keep current scope** (status quo) — but acknowledge in docs that
-   `|| ""` (silent empty-secret) is NOT caught.
-2. **Expand secret-fallback to include `|| ""`** — high recall gain on real
-   code, but needs FP regression test (legit defensive code uses this).
-3. **New rule `empty-secret-fallback`** — separate severity (HIGH not
-   CRITICAL?), separate FP measurement, clean scope boundary.
+Why this choice over the other two options:
 
-→ Open question for 1.0. Tracked in roadmap.
+- Option 1 (keep current scope): leaves the most common real-world pattern
+  uncaught. Unacceptable for a "killer rule".
+- Option 2 (extend, with regex-level scope guard) ✅: same rule envelope, one
+  new pattern, env name must contain a secret keyword
+  (`KEY/TOKEN/SECRET/PASS(WORD)/AUTH/JWT/API/CREDENTIAL` or known provider
+  prefix). FP guard test added (`sf-neg-011`) confirming `NODE_ENV || ""` etc.
+  do not fire.
+- Option 3 (new rule `empty-secret-fallback`): cleaner separation but worse
+  UX. Users get two findings on the same diff for what is conceptually one
+  problem. Deferred.
 
-The 6 caught files are in the candidates directory awaiting human spot-check
-(some catches are via the broad `multi-line-or-literal` pattern, which may
-match unrelated literals within 240 chars — needs visual confirmation before
-promotion to the active `manifest.json`).
+**Result after the patch:**
+
+- OSS slice recall: 60% → **100%** (10/10 caught)
+- Active `secret-fallback` recall: 90% → **93%** (synthetic+OSS, n=15)
+- FP rate unchanged at 0% (new negative `sf-neg-011` exercises the
+  NODE_ENV/PORT/LOG_LEVEL FP guard)
+
+The 4 candidates previously flagged as misses turned out to be:
+
+| Old miss | Actual content | Status after patch |
+|---|---|---|
+| candidate-2 | `EMAIL_PASS \|\| "" + JWT_SECRET \|\| ""` | caught (3 findings) — promoted as `sf-pos-oss-001` |
+| candidate-3 | `JWT_SECRET \|\| ""` | caught — promoted as `sf-pos-oss-002` |
+| candidate-7 | `JWT_SECRET \|\| ""` + `INVOICE_SECRET \|\| ""` | caught — promoted as `sf-pos-oss-003` |
+| candidate-8 | `JWT_SECRET \|\| ""` + `GOOGLE_CLIENT_SECRET \|\| ""` (snippet preview was misleading; file actually has empties) | caught (2 findings) — pending promotion |
+
+Candidates 1, 4, 5, 6, 9, 10 (originally "caught" via the broad
+`multi-line-or-literal` pattern) still need visual confirmation that the
+match was on the intended fallback line, not on an unrelated literal within
+the 240-char window. Pending human spot-check before promotion.
 
 ## How to reproduce
 

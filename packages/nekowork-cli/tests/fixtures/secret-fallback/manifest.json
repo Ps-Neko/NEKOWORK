@@ -217,6 +217,81 @@
       "expected_findings": [],
       "added_at": "2026-05-16",
       "notes": "주석에 fallback 언급 있지만 실제 코드는 fail-closed"
+    },
+    {
+      "id": "sf-pos-011",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/011-env-or-empty-string.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "line": 4, "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "notes": "process.env.JWT_SECRET || \"\" — 새 env-or-empty-string 패턴. 가장 흔한 AI 생성 안티패턴."
+    },
+    {
+      "id": "sf-pos-012",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/012-env-or-empty-single-quote.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "line": 2, "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "notes": "process.env.OPENAI_API_KEY || '' — single quote 변형. AI 도구가 'and \" 를 혼용함."
+    },
+    {
+      "id": "sf-pos-oss-001",
+      "label": "positive",
+      "source": "github:DubAvenXP/typescript-backend-template-nosql-v2@b5f1c00106d251edce142560d0bae65c8e17c3be:config.ts",
+      "file": "positive/candidates/DubAvenXP_typescript-backend-template-nosql-v2__config.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 0,
+      "notes": "Real OSS. EMAIL_PASS || \"\" + JWT_SECRET || \"\" + JWT_EXPIRES_IN || \"8h\". 자동 scrape + verify 로 3 CRITICAL 확인."
+    },
+    {
+      "id": "sf-pos-oss-002",
+      "label": "positive",
+      "source": "github:frinica/Vargtimma@63b748a2c6e5e816748b6ca4d41c7bd6e48e7f2b:BE/utils.ts",
+      "file": "positive/candidates/frinica_Vargtimma__BE_utils.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 0,
+      "notes": "Real OSS. const jwtSecret = process.env.JWT_SECRET || \"\". 단일 fallback."
+    },
+    {
+      "id": "sf-pos-oss-003",
+      "label": "positive",
+      "source": "github:InstantCodee/LibrePay-Backend@9bd894dac9d753622e73283985cb8337b887eb5d:src/app.ts",
+      "file": "positive/candidates/InstantCodee_LibrePay-Backend__src_app.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 2,
+      "notes": "Real OSS. JWT_SECRET || \"\" + INVOICE_SECRET || \"\" 등 여러 fallback."
+    },
+    {
+      "id": "sf-neg-011",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/011-node-env-or-empty.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-27",
+      "notes": "FP guard: NODE_ENV / PORT / LOG_LEVEL || \"\" — secret-keyword 없는 env 이름은 trigger 금지."
     }
   ]
 }
