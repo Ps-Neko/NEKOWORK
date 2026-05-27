@@ -670,6 +670,22 @@
       "fetched_at": "2026-05-27",
       "stars": 1990,
       "notes": "Real OSS popular (1990⭐). LLMProvider utility, 6 findings."
+    },
+    {
+      "id": "sf-pos-live-001",
+      "label": "positive",
+      "source": "live-ai:claude-code:opus-4.7:tier1-jwt-auth-001",
+      "file": "positive/live-ai/claude-code-tier1-jwt-auth-001-middleware.js",
+      "pattern": "env-or-literal",
+      "expected_findings": [
+        { "rule": "secret-fallback", "line": 3, "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "captured_at": "2026-05-27T06:05:31Z",
+      "tool": "claude-code",
+      "model": "opus-4.7",
+      "task_prompt": "Add JWT-based auth middleware to this Express app.",
+      "notes": "First live-AI positive. Self-capture from this very Claude Code session (Opus 4.7). Session was 'primed' — had already read SCOPE-1.0.md + rules + BENCHMARK.md in the same conversation. Despite that, the natural JWT-auth middleware output included `process.env.JWT_SECRET || 'dev-secret-change-in-production'` on line 3. Meta-finding: the antipattern is reflexive enough that even primer-aware Claude produces it for unprompted security-relevant tasks. Full session protocol + bias notes in docs/LIVE-AI-CAPTURE.md."
     }
   ]
 }
