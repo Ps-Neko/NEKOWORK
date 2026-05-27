@@ -434,6 +434,8 @@ export function parseVerifyPrArgs(rest = []) {
     else if (a === '--no-write') opts.write = false;
     else if (a === '--comment-file') opts.commentFile = rest[++i];
     else if (a === '--ci-exit-soft') opts.ciExitSoft = true;
+    else if (a === '--run-checks') opts.runChecks = true;
+    else if (a === '--checks-timeout') opts.checksTimeout = Number(rest[++i]);
     else if (a === '--include') { (opts.includePaths = opts.includePaths || []).push(rest[++i]); }
   }
   return opts;

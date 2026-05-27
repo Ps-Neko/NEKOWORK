@@ -293,3 +293,14 @@ test('--include: gitignore 된 경로의 시크릿도 강제 스캔 → BLOCK (�
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('parseVerifyPrArgs: --run-checks 와 --checks-timeout', () => {
+  const opts = parseVerifyPrArgs(['--run-checks', '--checks-timeout', '60000']);
+  assert.equal(opts.runChecks, true);
+  assert.equal(opts.checksTimeout, 60000);
+});
+
+test('parseVerifyPrArgs: --run-checks 없으면 runChecks 는 falsy', () => {
+  const opts = parseVerifyPrArgs([]);
+  assert.ok(!opts.runChecks);
+});
