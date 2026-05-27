@@ -4,8 +4,8 @@
   "generated_at": "2026-05-16",
   "notes": "1차 synthetic seed (10 positive / 10 negative). recall/FP 측정의 sanity baseline. 실제 측정은 OSS curation + AI 생성 fixture 가 추가된 후. plan §9 의 synthetic 비율 30% cap 안에 들어감.",
   "targets": {
-    "secret_fallback_recall": 0.90,
-    "secret_fallback_fp_rate": 0.10
+    "secret_fallback_recall": 0.9,
+    "secret_fallback_fp_rate": 0.1
   },
   "entries": [
     {
@@ -15,7 +15,11 @@
       "file": "positive/001-env-or-literal.ts",
       "pattern": "env-or-literal",
       "expected_findings": [
-        { "rule": "secret-fallback", "line": 4, "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "line": 4,
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-16",
       "notes": "process.env.X || \"literal\" 의 가장 흔한 형태"
@@ -27,7 +31,11 @@
       "file": "positive/002-nullish-fallback.ts",
       "pattern": "nullish-fallback",
       "expected_findings": [
-        { "rule": "secret-fallback", "line": 4, "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "line": 4,
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-16",
       "notes": "process.env.X ?? \"literal\""
@@ -39,7 +47,11 @@
       "file": "positive/003-ternary.ts",
       "pattern": "ternary",
       "expected_findings": [
-        { "rule": "secret-fallback", "line": 4, "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "line": 4,
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-16",
       "notes": "process.env.X ? process.env.X : \"literal\""
@@ -51,7 +63,11 @@
       "file": "positive/004-if-not-fallback.ts",
       "pattern": "if-not-fallback",
       "expected_findings": [
-        { "rule": "secret-fallback", "line": 5, "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "line": 5,
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-16",
       "notes": "if (!token) token = \"literal\" — flow-based, regex 로는 multi-line scope 필요"
@@ -63,7 +79,11 @@
       "file": "positive/005-config-or-literal.ts",
       "pattern": "config-or-literal",
       "expected_findings": [
-        { "rule": "secret-fallback", "line": 6, "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "line": 6,
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-16",
       "notes": "config.apiKey || \"literal\" — env 가 아닌 config 객체 경유"
@@ -75,7 +95,11 @@
       "file": "positive/006-config-fallback-path.ts",
       "pattern": "config-fallback-property",
       "expected_findings": [
-        { "rule": "secret-fallback", "line": 6, "severity": "high" }
+        {
+          "rule": "secret-fallback",
+          "line": 6,
+          "severity": "high"
+        }
       ],
       "added_at": "2026-05-16",
       "notes": "config.fallback.key — 구조적 fallback (literal 아님). high 등급. stretch goal."
@@ -87,7 +111,11 @@
       "file": "positive/007-template-literal-fallback.ts",
       "pattern": "template-literal-fallback",
       "expected_findings": [
-        { "rule": "secret-fallback", "line": 5, "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "line": 5,
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-16",
       "notes": "process.env.X || `template literal`"
@@ -99,7 +127,11 @@
       "file": "positive/008-secret-with-different-name.ts",
       "pattern": "env-or-literal",
       "expected_findings": [
-        { "rule": "secret-fallback", "line": 7, "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "line": 7,
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-16",
       "notes": "JWT 시그닝 콘텍스트 — secret 이름이 일반적이지 않아도 잡혀야 함"
@@ -111,7 +143,11 @@
       "file": "positive/009-destructure-or-literal.ts",
       "pattern": "destructure-default",
       "expected_findings": [
-        { "rule": "secret-fallback", "line": 5, "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "line": 5,
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-16",
       "notes": "const { X = \"literal\" } = process.env — destructure default"
@@ -123,7 +159,11 @@
       "file": "positive/010-nested-or-fallback.ts",
       "pattern": "nested-or-fallback",
       "expected_findings": [
-        { "rule": "secret-fallback", "line": 8, "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "line": 8,
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-16",
       "notes": "env || env || \"literal\" — OR 체인의 마지막이 literal. 라인 위치는 literal 이 있는 줄."
@@ -225,7 +265,11 @@
       "file": "positive/011-env-or-empty-string.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "line": 4, "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "line": 4,
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "notes": "process.env.JWT_SECRET || \"\" — 새 env-or-empty-string 패턴. 가장 흔한 AI 생성 안티패턴."
@@ -237,7 +281,11 @@
       "file": "positive/012-env-or-empty-single-quote.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "line": 2, "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "line": 2,
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "notes": "process.env.OPENAI_API_KEY || '' — single quote 변형. AI 도구가 'and \" 를 혼용함."
@@ -249,7 +297,10 @@
       "file": "positive/candidates/DubAvenXP_typescript-backend-template-nosql-v2__config.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -263,7 +314,10 @@
       "file": "positive/candidates/frinica_Vargtimma__BE_utils.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -277,7 +331,10 @@
       "file": "positive/candidates/InstantCodee_LibrePay-Backend__src_app.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -300,7 +357,10 @@
       "file": "positive/candidates/DaffaAzka_EssencePM-API__main.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -314,7 +374,10 @@
       "file": "positive/candidates/furkansimw_SOCIAL_MEDIA_APP__index.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -328,7 +391,10 @@
       "file": "positive/candidates/kirtanchandak_jwt-toolkit-fast-demo__lib.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -342,7 +408,10 @@
       "file": "positive/candidates/MajewskiAdrian_praktyki-projekt__proxy.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -356,7 +425,10 @@
       "file": "positive/candidates/Journeyfy_api__src_env.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -370,7 +442,10 @@
       "file": "positive/candidates/iamaheshlodha_rest-apis-with-typescript__src_jwt.ts.ts",
       "pattern": "env-or-literal",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -384,7 +459,10 @@
       "file": "positive/candidates/rianwp_aplikasi-penyewaan-lapangan__lib_auth.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -398,7 +476,10 @@
       "file": "positive/candidates/leoning60_browsernode__src_config.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -412,7 +493,10 @@
       "file": "positive/candidates/guaguaguaxia_weekly_report__utils_OpenAIStream.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -426,7 +510,10 @@
       "file": "positive/candidates/PragmaticMachineLearning_probly__src_pages_api_llm.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -440,7 +527,10 @@
       "file": "positive/candidates/MoonWeSif_qadchat__app_api_config_route.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -454,7 +544,10 @@
       "file": "positive/candidates/eyalcohen4_GTD__backend_task.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -468,7 +561,10 @@
       "file": "positive/candidates/jferrettiboke_stripe-graphql__src_stripe.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -482,7 +578,10 @@
       "file": "positive/candidates/itsezlife_yandex-eats-clone__server_src_index.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -496,7 +595,10 @@
       "file": "positive/candidates/ankitkumarbarik_ByteCinema__src_config_env.config.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -510,7 +612,10 @@
       "file": "positive/candidates/Ocean82_BurntBeatzz__lib_config_env.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -524,7 +629,10 @@
       "file": "positive/candidates/wlumsa_wlumsa.org__src_payload.config.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -538,7 +646,10 @@
       "file": "positive/candidates/CaviraOSS_OpenMemory__packages_openmemory-js_src_core_cfg.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -552,7 +663,10 @@
       "file": "positive/candidates/mayneyao_eidos__apps_headless_src_config_env.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -566,7 +680,10 @@
       "file": "positive/candidates/langwatch_better-agents__src_config-collection_collect-config.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -580,7 +697,10 @@
       "file": "positive/candidates/julianpoy_RecipeSage__packages_util_server_src_storage_s3.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -594,7 +714,10 @@
       "file": "positive/candidates/coasty-ai_open-computer-use__lib_services_workmail-service.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -608,7 +731,10 @@
       "file": "positive/candidates/browserbase_stagehand__packages_core_lib_v3_agent_AnthropicCUAClient.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -622,7 +748,10 @@
       "file": "positive/candidates/elizaOS_eliza__packages_feed_scripts_scambench_eliza_bridge.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -636,7 +765,10 @@
       "file": "positive/candidates/growthbook_growthbook__packages_back-end_src_services_organizations.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -650,7 +782,10 @@
       "file": "positive/candidates/u14app_deep-research__src_middleware.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -664,7 +799,10 @@
       "file": "positive/candidates/Mentra-Community_MentraOS__cloud_packages_utils_src_LLMProvider.ts.ts",
       "pattern": "env-or-empty-string",
       "expected_findings": [
-        { "rule": "secret-fallback", "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "fetched_at": "2026-05-27",
@@ -678,7 +816,11 @@
       "file": "positive/live-ai/claude-code-tier1-jwt-auth-001-middleware.js",
       "pattern": "env-or-literal",
       "expected_findings": [
-        { "rule": "secret-fallback", "line": 3, "severity": "critical" }
+        {
+          "rule": "secret-fallback",
+          "line": 3,
+          "severity": "critical"
+        }
       ],
       "added_at": "2026-05-27",
       "captured_at": "2026-05-27T06:05:31Z",
@@ -686,6 +828,26 @@
       "model": "opus-4.7",
       "task_prompt": "Add JWT-based auth middleware to this Express app.",
       "notes": "First live-AI positive. Self-capture from this very Claude Code session (Opus 4.7). Session was 'primed' — had already read SCOPE-1.0.md + rules + BENCHMARK.md in the same conversation. Despite that, the natural JWT-auth middleware output included `process.env.JWT_SECRET || 'dev-secret-change-in-production'` on line 3. Meta-finding: the antipattern is reflexive enough that even primer-aware Claude produces it for unprompted security-relevant tasks. Full session protocol + bias notes in docs/LIVE-AI-CAPTURE.md."
+    },
+    {
+      "id": "sf-pos-live-002",
+      "label": "positive",
+      "source": "live-ai:claude-code:opus-4.7:tier1-openai-client-002",
+      "file": "positive/live-ai/claude-code-tier1-openai-client-002.js",
+      "pattern": "multi-line-or-literal",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 3,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "captured_at": "2026-05-27T06:32:49Z",
+      "tool": "claude-code",
+      "model": "opus-4.7",
+      "task_prompt": "Wire up an OpenAI client using OPENAI_API_KEY from the env.",
+      "notes": "Second live-AI positive (same primed session). Natural OpenAI-client output included process.env.OPENAI_API_KEY || '' on line 3 plus a console.warn as soft guard. Rule fired via multi-line-or-literal (caught the warning string as the literal target — true positive on the antipattern, imperfect pattern attribution). Same primer-bias caveat as sf-pos-live-001."
     }
   ]
 }
