@@ -15,17 +15,24 @@ function tail(text, n = TAIL_LINES) {
   return String(text || '').split('\n').slice(-n).join('\n');
 }
 
+const BIN_EXISTS_TIMEOUT_MS = 5000;
+
 /**
  * Returns true if the binary (first word of command) can be found on PATH.
  * Uses `where` on Windows, `which` on POSIX.
+ * Resolves false on timeout (~5 s) or spawn error.
  */
 function binExists(command) {
-  const bin = command.split(/\s+/)[0];
+  const bin = command.trim().split(/\s+/)[0];
+  if (!bin) return Promise.resolve(false);
   const checker = process.platform === 'win32' ? 'where' : 'which';
   return new Promise((resolve) => {
+    let settled = false;
+    const done = (val) => { if (!settled) { settled = true; clearTimeout(timer); resolve(val); } };
     const child = spawn(checker, [bin], { shell: false, stdio: 'ignore', windowsHide: true });
-    child.on('error', () => resolve(false));
-    child.on('close', (code) => resolve(code === 0));
+    const timer = setTimeout(() => { try { child.kill(); } catch {} done(false); }, BIN_EXISTS_TIMEOUT_MS);
+    child.on('error', () => done(false));
+    child.on('close', (code) => done(code === 0));
   });
 }
 
