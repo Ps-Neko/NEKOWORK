@@ -61,6 +61,20 @@ const PATTERNS = [
     pickEnv: m => m[1],
     pickLiteral: m => m[3],
   },
+  {
+    // `process.env.JWT_SECRET || ""` and friends. Empty-string fallback is the
+    // most common AI-generated anti-pattern in real OSS (see docs/BENCHMARK.md
+    // §First real OSS scrape) — it makes a missing secret silently become "",
+    // enabling auth bypass / empty-JWT-signing rather than a loud failure.
+    //
+    // Scope is constrained at the regex level: env name must contain a secret
+    // keyword (KEY/TOKEN/SECRET/PASS(WORD)/AUTH/JWT/API/CREDENTIAL or a known
+    // provider prefix). This avoids FP on benign `NODE_ENV || ""` / `PORT || ""`.
+    id: 'env-or-empty-string',
+    re: /process\.env\.([A-Z_][A-Z0-9_]*(?:KEY|TOKEN|SECRET|PASSWORD|PASS|AUTH|JWT|API|CREDENTIAL|STRIPE|OPENAI|ANTHROPIC|GEMINI|AWS|GCP|AZURE)[A-Z0-9_]*)\s*\|\|\s*(["'`])\2/g,
+    pickEnv: m => m[1],
+    pickLiteral: () => null,
+  },
 ];
 
 const SECRET_KEYWORDS_RE = /(KEY|TOKEN|SECRET|PASS(?:WORD|WD)?|AUTH|JWT|API|CREDENTIAL|STRIPE|OPENAI|ANTHROPIC|GEMINI|AWS|GCP|AZURE)/i;
