@@ -14,7 +14,7 @@ This file is the single source of truth for the alpha cohort. Update it as you p
 | Date | Channel | Post URL | Initial signals (24h) | Response count (cumulative) |
 |---|---|---|---|---:|
 | **2026-05-27** | **r/cursor** | ~~https://www.reddit.com/r/cursor/comments/1toymc8/how_does_cursor_handle_envvar_defaults_in/~~ **(mod-removed)** | mod 삭제 — 신호 0 | 0 |
-| _<YYYY-MM-DD>_ | r/ClaudeAI | _<thread URL>_ | _<upvotes / comments after 24h>_ | _<n>_ |
+| **2026-05-27** | **r/ClaudeAI** | ~~https://www.reddit.com/r/ClaudeAI/comments/1toyt1m/caught_claude_code_opus_47_writing_the/~~ **(Reddit anti-spam filter)** | filter hidden — 신호 0 (mod queue 검토 대기) | 0 |
 | _<YYYY-MM-DD>_ | GeekNews | _<thread URL>_ | _<upvotes / comments after 24h>_ | _<n>_ |
 | _<YYYY-MM-DD>_ | DM 1 | _<who>_ | _<reply yes/no>_ | _<n>_ |
 | _<YYYY-MM-DD>_ | DM 2 | _<who>_ | _<reply yes/no>_ | _<n>_ |
@@ -35,6 +35,17 @@ Hold posting Show HN until *after* 3/5 ship gate. Single shot, expensive.
 2. **계정 karma / 가입 시점** — 신규 계정 / 낮은 karma → 자동 mod 제거 트리거.
 3. **GitHub 링크 다수** — 3개 링크(repo/benchmark/issue template) → spam 신호.
 4. **본문 구조** — 질문 lead 였지만 후반의 도구 설명 + "Quickstart" + 결과 수치 + 알파 모집은 결국 promo 신호로 분류.
+
+### r/ClaudeAI Reddit 글로벌 필터 사후분석 (2026-05-27)
+
+링크 1개로 줄였는데도 **Reddit 전역 anti-spam 필터**가 즉시 삭제. r/cursor sub mod 와는 다른 메커니즘.
+
+가능 원인 (확률 높은 순):
+1. **계정 신뢰도 (account trust score)** — Reddit 신규/저-karma 계정 + 외부 링크는 거의 100% 자동 필터.
+2. **연속 게시** — r/cursor 게시 직후 (~30분) 다른 sub 에 유사 글 → cross-sub spam 패턴.
+3. **본문 + 링크 fingerprint** — "alpha", "testers", "feedback" + github.com 링크 = 클래식 spam 서명.
+
+→ **Reddit 채널 전체가 현 계정으로는 막힘.** karma 빌드업 (관련 thread 댓글 며칠) 없이 즉시 게시 재시도는 같은 결과.
 
 ### 후속 전략 — 3 옵션
 
