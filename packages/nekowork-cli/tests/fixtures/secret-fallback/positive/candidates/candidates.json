@@ -1,193 +1,158 @@
 {
   "fixture_set": "secret-fallback-candidates",
-  "generated_at": "2026-05-27T05:12:58.042Z",
-  "query": "process.env.STRIPE_SECRET_KEY || \"",
+  "generated_at": "2026-05-27T05:24:07.742Z",
+  "query": "process.env.AWS_ACCESS_KEY_ID || \"",
   "language": "typescript",
   "min_stars": 0,
   "candidates": [
     {
       "id": "candidate-1",
       "label": "positive",
-      "source": "github:jferrettiboke/stripe-graphql@1c88667ba5b90d7ebe66c54bb5edba7fc48b1241:src/stripe.ts",
-      "file": "positive/candidates/jferrettiboke_stripe-graphql__src_stripe.ts.ts",
-      "stars": 56,
-      "snippet_preview": "import Stripe from \"stripe\";\n\nconst stripe = new Stripe(process.env.STRIPE_SECRET_KEY || \"\", {\n  apiVersion: \"2020-03-02\",\n});\n\nexport default stripe;",
+      "source": "github:CaviraOSS/OpenMemory@de39bcd74c7d0a73982def1c052d0b69ecefd7f6:packages/openmemory-js/src/core/cfg.ts",
+      "file": "positive/candidates/CaviraOSS_OpenMemory__packages_openmemory-js_src_core_cfg.ts.ts",
+      "stars": 4157,
+      "snippet_preview": "    gemini_key:\n        process.env.GEMINI_API_KEY || process.env.OM_GEMINI_API_KEY || \"\",\n    AWS_REGION: process.env.AWS_REGION || \"\",\n    AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID || \"\",\n   ",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
       "scan_findings": {
-        "count": 1,
+        "count": 5,
         "severities": {
-          "critical": 1
+          "critical": 5
         },
         "patterns": [
-          "multi-line-or-literal"
+          "env-or-empty-string"
         ],
         "sample_lines": [
-          3
+          49,
+          56,
+          58
         ]
       }
     },
     {
       "id": "candidate-2",
       "label": "positive",
-      "source": "github:itsezlife/yandex-eats-clone@0929a230a545a0edb6d8bc418cf8648049b7f261:server/src/index.ts",
-      "file": "positive/candidates/itsezlife_yandex-eats-clone__server_src_index.ts.ts",
-      "stars": 80,
-      "snippet_preview": "import { generateResponse } from \"./utils\"\n\nconst stripePublishableKey = process.env.STRIPE_PUBLISHABLE_KEY || \"\"\nconst stripeSecretKey = process.env.STRIPE_SECRET_KEY || \"\"\nconst stripeWebhookSecret ",
+      "source": "github:mayneyao/eidos@7b6eb9f32a835cb672f036b2ad87e1ed53b5cccb:apps/headless/src/config/env.ts",
+      "file": "positive/candidates/mayneyao_eidos__apps_headless_src_config_env.ts.ts",
+      "stars": 3134,
+      "snippet_preview": "    })\n\n  const config: HeadlessConfig = {\n    awsAccessKeyId: (process.env.AWS_ACCESS_KEY_ID || \"\").trim(),\n    awsSecretAccessKey: (process.env.AWS_SECRET_ACCESS_KEY || \"\").trim(),\n    awsEndpoint: ",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
       "scan_findings": {
-        "count": 3,
+        "count": 8,
         "severities": {
-          "critical": 3
+          "critical": 4,
+          "high": 4
         },
         "patterns": [
+          "multi-line-or-literal",
           "env-or-empty-string",
-          "multi-line-or-literal"
+          "env-or-literal"
         ],
         "sample_lines": [
-          12,
-          13,
-          14
+          64,
+          65,
+          67
         ]
       }
     },
     {
       "id": "candidate-3",
       "label": "positive",
-      "source": "github:ankitkumarbarik/ByteCinema@9837ff75187c9ad2143477cf1bd160349b12b9ae:src/config/env.config.ts",
-      "file": "positive/candidates/ankitkumarbarik_ByteCinema__src_config_env.config.ts.ts",
-      "stars": 13,
-      "snippet_preview": "    SMTP_PASS: process.env.SMTP_PASS || \"\",\n    FRONTEND_BASE_URL: process.env.FRONTEND_BASE_URL || \"http://localhost:5173\",\n    CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || \"\",\n    CLO",
+      "source": "github:coasty-ai/open-computer-use@be0888abb1d7072ac5a842b1d6140aa0bae89bb3:lib/services/workmail-service.ts",
+      "file": "positive/candidates/coasty-ai_open-computer-use__lib_services_workmail-service.ts.ts",
+      "stars": 659,
+      "snippet_preview": "    _client = new WorkMailClient({\n      region: WORKMAIL_REGION,\n      credentials: {\n        accessKeyId: process.env.AWS_ACCESS_KEY_ID || \"\",\n        secretAccessKey: process.env.AWS_SECRET_ACCESS_",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
       "scan_findings": {
-        "count": 7,
+        "count": 5,
         "severities": {
-          "critical": 7
+          "critical": 5
         },
         "patterns": [
+          "multi-line-or-literal",
+          "env-or-literal",
           "env-or-empty-string"
         ],
         "sample_lines": [
-          8,
-          10,
-          13
+          26,
+          27,
+          28
         ]
       }
     },
     {
       "id": "candidate-4",
       "label": "positive",
-      "source": "github:alexanderson1993/reaction@86d883a0edad643ef3a9495947f396e545336563:functions/checkout.ts",
-      "file": "positive/candidates/alexanderson1993_reaction__functions_checkout.ts.ts",
-      "stars": 4,
-      "snippet_preview": "import stripeInit from \"stripe\";\n\n// @ts-expect-error\nconst stripe = stripeInit(process.env.STRIPE_SECRET_KEY || \"\");\n\nconst handler: Handler = async (event, context) => {\n  if (event.httpMethod === \"",
+      "source": "github:langwatch/better-agents@00c44b92fafc245fa051a34910128e36e85aad07:src/config-collection/collect-config.ts",
+      "file": "positive/candidates/langwatch_better-agents__src_config-collection_collect-config.ts.ts",
+      "stars": 1522,
+      "snippet_preview": "          );\n        }\n      } else if (cliOptions.llmProvider === \"bedrock\") {\n        llmApiKey = process.env.AWS_ACCESS_KEY_ID || \"\";\n        const awsSecretAccessKey = process.env.AWS_SECRET_ACCES",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
       "scan_findings": {
-        "count": 1,
+        "count": 9,
         "severities": {
-          "critical": 1
+          "critical": 9
         },
         "patterns": [
-          "multi-line-or-literal"
+          "multi-line-or-literal",
+          "env-or-empty-string"
         ],
         "sample_lines": [
-          5
+          106,
+          113,
+          120
         ]
       }
     },
     {
       "id": "candidate-5",
       "label": "positive",
-      "source": "github:habibjutt/nextjs_boilerplate@fea3745a2b1808e298947c0a0d6b2e6f8b44c761:lib/payments/stripe/config.ts",
-      "file": "positive/candidates/habibjutt_nextjs_boilerplate__lib_payments_stripe_config.ts.ts",
-      "stars": 6,
-      "snippet_preview": "\nexport const stripeConfig = {\n  publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || \"\",\n  secretKey: process.env.STRIPE_SECRET_KEY || \"\",\n  webhookSecret: process.env.STRIPE_WEBHOOK_SEC",
+      "source": "github:julianpoy/RecipeSage@8b18b270d2e712e478fcef0bff7dbbc775352220:packages/util/server/src/storage/s3.ts",
+      "file": "positive/candidates/julianpoy_RecipeSage__packages_util_server_src_storage_s3.ts.ts",
+      "stars": 883,
+      "snippet_preview": "const AWS_BUCKET_PROFILE_IMAGE = process.env.AWS_BUCKET_PROFILE_IMAGE || \"\";\nconst AWS_BUCKET_DATA_EXPORT = process.env.AWS_BUCKET_DATA_EXPORT || \"\";\nconst AWS_BUCKET_IMPORT_DATA = process.env.AWS_BUC",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
       "scan_findings": {
-        "count": 3,
+        "count": 4,
         "severities": {
-          "critical": 3
+          "critical": 4
         },
         "patterns": [
-          "env-or-empty-string"
+          "multi-line-or-literal",
+          "env-or-empty-string",
+          "env-or-literal"
         ],
         "sample_lines": [
-          13,
-          14,
-          15
+          19,
+          20,
+          21
         ]
       }
     },
     {
       "id": "candidate-6",
       "label": "positive",
-      "source": "github:nicholas-sc-08/FLY-Circular-API@2ca17bbe540909860772e9847e8c9c7c5c418906:src/utils/stripe.utils.ts",
-      "file": "positive/candidates/nicholas-sc-08_FLY-Circular-API__src_utils_stripe.utils.ts.ts",
-      "stars": 3,
-      "snippet_preview": "\nconfigDotenv();\n\nconst stripeSecretKey: string = process.env.STRIPE_SECRET_KEY || \"\";\n\nif (!stripeSecretKey) {\n    throw new Error(\"STRIPE_SECRET_KEY não está definido na env\");",
+      "source": "github:Emurgo/yoroi-graphql-migration-backend@da976e7587a4d863da9124da5d98262999eb9e4f:config/default.ts",
+      "file": "positive/candidates/Emurgo_yoroi-graphql-migration-backend__config_default.ts.ts",
+      "stars": 24,
+      "snippet_preview": "    lambda: {\n      nftValidator: \"{envName}NftValidatorLambda\"\n    },\n    accessKeyId: process.env.AWS_ACCESS_KEY_ID || \"\",\n    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || \"\",\n    region: p",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
       "scan_findings": {
-        "count": 1,
-        "severities": {
-          "critical": 1
-        },
-        "patterns": [
-          "multi-line-or-literal"
-        ],
-        "sample_lines": [
-          7
-        ]
-      }
-    },
-    {
-      "id": "candidate-7",
-      "label": "positive",
-      "source": "github:GoldRaziel/blockstamp@65c2f4be561a568eb37bcd29db60224e5c026acd:middleware.ts",
-      "file": "positive/candidates/GoldRaziel_blockstamp__middleware.ts.ts",
-      "stars": 0,
-      "snippet_preview": "import { jwtVerify } from \"jose\";\n\nfunction deriveSecret(): Uint8Array | null {\n  const sk = process.env.STRIPE_SECRET_KEY || \"\";\n  if (!sk) return null;\n  const data = new TextEncoder().encode(sk + \"",
-      "fetched_at": "2026-05-27",
-      "review_status": "pending",
-      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
-      "scan_findings": {
-        "count": 1,
-        "severities": {
-          "critical": 1
-        },
-        "patterns": [
-          "multi-line-or-literal"
-        ],
-        "sample_lines": [
-          5
-        ]
-      }
-    },
-    {
-      "id": "candidate-8",
-      "label": "positive",
-      "source": "github:Ocean82/BurntBeatzz@c0a3a3e43e916c934f33466408bfdadf7bde6d00:lib/config/env.ts",
-      "file": "positive/candidates/Ocean82_BurntBeatzz__lib_config_env.ts.ts",
-      "stars": 0,
-      "snippet_preview": "  // Stripe - Using correct Stripe variable names\n  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || \"\",\n  STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY || \"\",",
-      "fetched_at": "2026-05-27",
-      "review_status": "pending",
-      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
-      "scan_findings": {
-        "count": 14,
+        "count": 8,
         "severities": {
           "high": 4,
-          "critical": 10
+          "critical": 4
         },
         "patterns": [
           "env-or-literal",
@@ -195,26 +160,77 @@
           "multi-line-or-literal"
         ],
         "sample_lines": [
-          21,
-          29,
-          34
+          3,
+          4,
+          5
+        ]
+      }
+    },
+    {
+      "id": "candidate-7",
+      "label": "positive",
+      "source": "github:tago-io/tagocore@48f7e19227439ca52c12b33b39b239ce28d83f9b:plugins/aws-sqs/src/connection.ts",
+      "file": "positive/candidates/tago-io_tagocore__plugins_aws-sqs_src_connection.ts.ts",
+      "stars": 57,
+      "snippet_preview": "      config.type === \"config\"\n        ? {\n            accessKeyId:\n              config.aws_access_key_id || process.env.AWS_ACCESS_KEY_ID || \"\",\n            secretAccessKey:\n              config.aws",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "critical": 2
+        },
+        "patterns": [
+          "env-or-empty-string"
+        ],
+        "sample_lines": [
+          26,
+          29
+        ]
+      }
+    },
+    {
+      "id": "candidate-8",
+      "label": "positive",
+      "source": "github:hackforla/food-oasis@9306b81f293f7d136fc3aa675471eafaf33c33b1:server/app/services/ses-service.ts",
+      "file": "positive/candidates/hackforla_food-oasis__server_app_services_ses-service.ts.ts",
+      "stars": 81,
+      "snippet_preview": "const sesClient = new SESClient({\n  region: awsRegion,\n  credentials: {\n    accessKeyId: process.env.AWS_ACCESS_KEY_ID || \"\",\n    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || \"\",\n  },\n});",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 4,
+        "severities": {
+          "high": 1,
+          "critical": 3
+        },
+        "patterns": [
+          "multi-line-or-literal",
+          "env-or-literal",
+          "env-or-empty-string"
+        ],
+        "sample_lines": [
+          5,
+          6,
+          12
         ]
       }
     },
     {
       "id": "candidate-9",
       "label": "positive",
-      "source": "github:drivly/oauth.do@ac024cc885570d02d4f480e144a98ed390c6f20a:app/auth.ts",
-      "file": "positive/candidates/drivly_oauth.do__app_auth.ts.ts",
-      "stars": 0,
-      "snippet_preview": "const client = new MongoClient(mongoUrl);\nconst db = client.db();\n\nconst stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY || \"\", {\n  apiVersion: \"2025-02-24.acacia\",\n});\n",
+      "source": "github:ykundin/at-first-sight@a5c1689a90dcefcedf777da3eb3d422868a3a960:backend/infra/object-storage.ts",
+      "file": "positive/candidates/ykundin_at-first-sight__backend_infra_object-storage.ts.ts",
+      "stars": 11,
+      "snippet_preview": "  constructor() {\n    this.#client = new AWS.S3({\n      credentials: {\n        accessKeyId: process.env.AWS_ACCESS_KEY_ID || \"\",\n        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || \"\",\n     ",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
       "scan_findings": {
-        "count": 3,
+        "count": 2,
         "severities": {
-          "high": 1,
           "critical": 2
         },
         "patterns": [
@@ -222,37 +238,33 @@
           "env-or-empty-string"
         ],
         "sample_lines": [
-          9,
-          13,
-          34
+          11,
+          12
         ]
       }
     },
     {
       "id": "candidate-10",
       "label": "positive",
-      "source": "github:wlumsa/wlumsa.org@f933744ab156c277bc9a76d182ba1731a9929180:src/payload.config.ts",
-      "file": "positive/candidates/wlumsa_wlumsa.org__src_payload.config.ts.ts",
-      "stars": 10,
-      "snippet_preview": "    }),\n    stripePlugin({\n      isTestKey: process.env.STRIPE_SECRET_KEY?.includes(\"sk_test\") ?? true,\n      stripeSecretKey: process.env.STRIPE_SECRET_KEY || \"\",\n      stripeWebhooksEndpointSecret: ",
+      "source": "github:anisharaz/CaaS@c1f099d5e267cf13e66c0c2e3e15bccfda017621:app/lib/aws.ts",
+      "file": "positive/candidates/anisharaz_CaaS__app_lib_aws.ts.ts",
+      "stars": 3,
+      "snippet_preview": "import { LambdaClient } from \"@aws-sdk/client-lambda\"\nimport { SNSClient } from \"@aws-sdk/client-sns\"\n\nconst AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || \"\"\nconst AWS_SECRET_ACCESS_KEY = proce",
       "fetched_at": "2026-05-27",
       "review_status": "pending",
       "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
       "scan_findings": {
-        "count": 8,
+        "count": 2,
         "severities": {
-          "critical": 5,
-          "high": 3
+          "critical": 2
         },
         "patterns": [
-          "env-or-literal",
           "multi-line-or-literal",
           "env-or-empty-string"
         ],
         "sample_lines": [
-          76,
-          133,
-          153
+          4,
+          5
         ]
       }
     }
@@ -261,7 +273,7 @@
     "total": 0,
     "reasons": {}
   },
-  "last_verified_at": "2026-05-27T05:13:03.571Z",
+  "last_verified_at": "2026-05-27T05:24:13.802Z",
   "verification_summary": {
     "total": 10,
     "rule_caught": 10,

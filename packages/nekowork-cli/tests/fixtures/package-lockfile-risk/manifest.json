@@ -105,6 +105,48 @@
       "expected_findings": [],
       "added_at": "2026-05-16",
       "notes": "curl 가 download only, |bash 없음"
+    },
+    {
+      "id": "pl-pos-oss-001",
+      "label": "positive",
+      "source": "github:iyaja/llama-fs@0a693717ca1845b3ae8c208b2929d987fcdabb81:electron-react-app/package.json",
+      "file": "positive/candidates/iyaja_llama-fs__electron-react-app_package.json.json",
+      "pattern": "install-hook-postinstall",
+      "expected_findings": [
+        { "rule": "package-lockfile-risk", "severity": "high" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 5728,
+      "notes": "Real OSS popular (5728⭐). electron-react-app 의 package.json 에 postinstall script. 2 findings."
+    },
+    {
+      "id": "pl-pos-oss-002",
+      "label": "positive",
+      "source": "github:tmcw/docbox@9506ecec6db92ba04824b280ffbb0968d367d18a:package.json",
+      "file": "positive/candidates/tmcw_docbox__package.json.json",
+      "pattern": "install-hook-postinstall",
+      "expected_findings": [
+        { "rule": "package-lockfile-risk", "severity": "high" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1132,
+      "notes": "Real OSS popular (1132⭐ docbox). package.json postinstall script."
+    },
+    {
+      "id": "pl-pos-oss-003",
+      "label": "positive",
+      "source": "github:anderlli0053/DEV-tools@54b330ceb06f677cc6451c2c21e94da90a0ea17a:bucket/tfctl.json",
+      "file": "positive/candidates/anderlli0053_DEV-tools__bucket_tfctl.json.json",
+      "pattern": "install-hook-postinstall",
+      "expected_findings": [
+        { "rule": "package-lockfile-risk", "severity": "high" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 174,
+      "notes": "Real OSS. Scoop bucket manifest (tfctl.json) 의 postinstall script. 2 findings."
     }
   ]
 }

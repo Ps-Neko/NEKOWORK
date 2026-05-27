@@ -21,12 +21,12 @@ the full picture, including what is still missing for the 1.0 gate.
 
 | Rule | Recall | FP rate | Pos caught | FP count | 1.0 gate |
 |---|---:|---:|---:|---:|:---:|
-| `secret-fallback` | **97%** | **0%** | 31 / 32 | 0 / 14 | ✅ |
+| `secret-fallback` | **97%** | **0%** | 36 / 37 | 0 / 14 | ✅ |
 | `auto-apply-commit-push` | **100%** | **0%** | 13 / 13 | 0 / 9 | ✅ |
 | `hardcoded-credential` | **100%** | **0%** | 4 / 4 | 0 / 8 | ✅ |
-| `test-or-security-disable` | **100%** | **0%** | 6 / 6 | 0 / 8 | ✅ |
-| `package-lockfile-risk` | **100%** | **0%** | 6 / 6 | 0 / 8 | ✅ |
-| **Aggregate** | **98%** | **0%** | **60 / 61** | **0 / 47** | — |
+| `test-or-security-disable` | **100%** | **0%** | 11 / 11 | 0 / 8 | ✅ |
+| `package-lockfile-risk` | **100%** | **0%** | 9 / 9 | 0 / 8 | ✅ |
+| **Aggregate** | **99%** | **0%** | **73 / 74** | **0 / 47** | — |
 
 **1.0 gate per [SCOPE §9](./SCOPE-1.0.md#9-fixture-출처-정책):** recall ≥ 0.90, FP ≤ 0.10.
 
@@ -46,19 +46,25 @@ for the path that got us here.
 
 | Rule | Pos (syn / OSS / live AI) | Neg (syn / OSS / live AI) |
 |---|---|---|
-| `secret-fallback` | 12 / 20 / 0 | 11 / 3 / 0 |
+| `secret-fallback` | 12 / 25 / 0 | 11 / 3 / 0 |
 | `auto-apply-commit-push` | 8 / 5 / 0 | 6 / 3 / 0 |
 | `hardcoded-credential` | 4 / 0 / 0 ⚠️ | 5 / 3 / 0 |
-| `test-or-security-disable` | 6 / 0 / 0 | 5 / 3 / 0 |
-| `package-lockfile-risk` | 6 / 0 / 0 | 5 / 3 / 0 |
-| **Total** | **36 / 25 / 0** | **32 / 15 / 0** |
+| `test-or-security-disable` | 6 / 5 / 0 | 5 / 3 / 0 |
+| `package-lockfile-risk` | 6 / 3 / 0 | 5 / 3 / 0 |
+| **Total** | **36 / 38 / 0** | **32 / 15 / 0** |
 
 Distinct OSS source repos: **3** (negatives — `expressjs/express`) +
-**25** (positives — 20 for `secret-fallback`, 5 for `auto-apply-commit-push`).
-Star distribution of positive OSS repos: 0⭐(8), 1-99⭐(8), 100-999⭐(5),
-1000+⭐(4). The 1000+⭐ cluster includes `guaguaguaxia/weekly_report` (3237⭐),
-`flutterchina/flukit` (5940⭐ — note: this one was filtered as a TRUE NEGATIVE,
-commented-out command), `anvaka/pm` (1758⭐), and `wesbos/dotfiles` (1293⭐).
+**38** (positives, 4 rules covered). Synthetic share of total positives:
+**49%** (down from 100% at session start). Star distribution of positive
+OSS repos:
+
+| Stars | Count | Notables |
+|---|---:|---|
+| 10000+ | 2 | cypress-io/cypress (49650⭐), mongodb/node-mongodb-native (10181⭐) |
+| 1000-9999 | 9 | guaguaguaxia/weekly_report (3237⭐), deepstreamIO (7188⭐), iyaja/llama-fs (5728⭐), CaviraOSS/OpenMemory (4157⭐), flydelabs/flyde (3503⭐), mayneyao/eidos (3134⭐), unlight/tailwind-components (2025⭐), anvaka/pm (1758⭐), langwatch/better-agents (1522⭐), wesbos/dotfiles (1293⭐), tmcw/docbox (1132⭐), leoning60/browsernode (1051⭐) |
+| 100-999 | 11 | PragmaticMachineLearning/probly (897⭐), julianpoy/RecipeSage (883⭐), ASDAlexander77 (706⭐), Huxpro (675⭐), coasty-ai (659⭐), …|
+| 1-99 | 13 | … |
+| 0 | 3 | newer / unpublished repos |
 
 ### ⚠️ Ethical note on `hardcoded-credential` OSS scraping
 
@@ -104,16 +110,21 @@ shape so regex fires) — deferred.
 
 | Requirement (SCOPE §9) | Current | Target | Status |
 |---|---:|---:|:---:|
-| `secret-fallback` OSS positives (in active manifest) | 20 | 30+ | ⚠️ 67% |
-| `secret-fallback` synthetic share of positives | 38% (12/32) | ≤ 30% | ⚠️ |
-| Other rules — OSS positives | 0 | 30+ each | ❌ |
+| `secret-fallback` OSS positives | 25 | 30+ | ⚠️ 83% |
+| `secret-fallback` synthetic share of positives | 32% (12/37) | ≤ 30% | ⚠️ |
+| `auto-apply-commit-push` OSS positives | 5 | 30+ | ⚠️ 17% |
+| `test-or-security-disable` OSS positives | 5 | 30+ | ⚠️ 17% |
+| `package-lockfile-risk` OSS positives | 3 | 30+ | ⚠️ 10% |
+| `hardcoded-credential` OSS positives | 0 (by-design) | — | 🚫 ethical scope |
 | Positive fixtures from live AI diffs | 0 | 30+ | ❌ |
-| Recall on Secret Fallback (n=32) | 97% (31/32) | ≥ 90% | ✅ |
-| Recall across 3 OSS scrape rounds (n=30) | 93% (28/30) | ≥ 90% | ✅ |
-| FP rate on Secret Fallback (n=14) | 0% | ≤ 10% | ✅ |
-| FP rate on NODE_ENV/PORT empty-fallback guard | 0/3 | 0/N | ✅ |
+| Overall synthetic share of positives | 49% (36/74) | ≤ 30% | ⚠️ |
+| Recall — secret-fallback (n=37) | 97% | ≥ 90% | ✅ |
+| Recall — auto-apply-commit-push (n=13) | 100% | ≥ 90% | ✅ |
+| Recall — test-or-security-disable (n=11) | 100% | ≥ 90% | ✅ |
+| Recall — package-lockfile-risk (n=9) | 100% | ≥ 90% | ✅ |
+| Recall — across 4 OSS scrape rounds (n=40) | 95% (38/40) | ≥ 90% | ✅ |
+| FP rate — all rules | 0/47 (0%) | ≤ 10% | ✅ |
 | CI benchmark job, 3 consecutive PASS | passes locally | + CI history | ⚠️ partial |
-| hardcoded-credential OSS positives | 0 | — | 🚫 by-design (ethical) |
 
 ## First real OSS scrape — what we found
 
