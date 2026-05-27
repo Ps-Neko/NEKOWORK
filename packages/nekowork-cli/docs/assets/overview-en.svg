@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">NEKOWORK AI Code Safety Gate</title>
+  <desc id="desc">AI changes files, NEKOWORK checks for risk, a clear verdict is produced, and a human decides whether the change enters the project.</desc>
+  <defs>
+    <filter id="cardShadow" x="-12%" y="-20%" width="124%" height="150%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#14213d" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      .bg { fill: #f7f9fc; }
+      .ink { fill: #14213d; }
+      .muted { fill: #526174; }
+      .card { fill: #ffffff; stroke: #d9e0ea; stroke-width: 2; filter: url(#cardShadow); }
+      .label { font: 700 32px "Inter", "Segoe UI", Arial, sans-serif; letter-spacing: 0; }
+      .small { font: 500 22px "Inter", "Segoe UI", Arial, sans-serif; letter-spacing: 0; }
+      .title { font: 800 56px "Inter", "Segoe UI", Arial, sans-serif; letter-spacing: 0; }
+      .subtitle { font: 500 27px "Inter", "Segoe UI", Arial, sans-serif; letter-spacing: 0; }
+      .badge { font: 800 24px "Inter", "Segoe UI", Arial, sans-serif; letter-spacing: 0; }
+      .foot { font: 700 24px "Inter", "Segoe UI", Arial, sans-serif; letter-spacing: 0; }
+      .arrow { fill: none; stroke: #748197; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="630" rx="0"/>
+  <rect x="48" y="42" width="1104" height="546" rx="8" fill="#ffffff" stroke="#d9e0ea" stroke-width="2"/>
+
+  <text x="600" y="116" text-anchor="middle" class="title ink">AI Code Safety Gate</text>
+  <text x="600" y="158" text-anchor="middle" class="subtitle muted">AI writes the draft. NEKOWORK checks the risk. You choose what goes in.</text>
+
+  <g transform="translate(70 228)">
+    <rect class="card" x="0" y="0" width="220" height="188" rx="8"/>
+    <circle cx="110" cy="58" r="34" fill="#2f80ed"/>
+    <path d="M95 57h30M110 42v30" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+    <text x="110" y="118" text-anchor="middle" class="label ink">1. AI changes</text>
+    <text x="110" y="151" text-anchor="middle" class="small muted">Cursor, Claude Code,</text>
+    <text x="110" y="179" text-anchor="middle" class="small muted">or Codex edits files</text>
+  </g>
+
+  <path class="arrow" d="M306 322h34"/>
+  <path class="arrow" d="M320 302l22 20-22 20"/>
+
+  <g transform="translate(350 228)">
+    <rect class="card" x="0" y="0" width="220" height="188" rx="8"/>
+    <circle cx="110" cy="58" r="34" fill="#f2c94c"/>
+    <path d="M93 57l12 13 25-28" fill="none" stroke="#14213d" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="110" y="118" text-anchor="middle" class="label ink">2. NEKOWORK</text>
+    <text x="110" y="151" text-anchor="middle" class="small muted">checks changed lines</text>
+    <text x="110" y="179" text-anchor="middle" class="small muted">for risky patterns</text>
+  </g>
+
+  <path class="arrow" d="M586 322h34"/>
+  <path class="arrow" d="M600 302l22 20-22 20"/>
+
+  <g transform="translate(630 228)">
+    <rect class="card" x="0" y="0" width="220" height="188" rx="8"/>
+    <circle cx="110" cy="58" r="34" fill="#27ae60"/>
+    <text x="110" y="68" text-anchor="middle" class="badge" fill="#ffffff">PASS</text>
+    <text x="110" y="118" text-anchor="middle" class="label ink">3. Clear result</text>
+    <text x="110" y="151" text-anchor="middle" class="small muted">PASS, REVIEW,</text>
+    <text x="110" y="179" text-anchor="middle" class="small muted">or BLOCK</text>
+  </g>
+
+  <path class="arrow" d="M866 322h34"/>
+  <path class="arrow" d="M880 302l22 20-22 20"/>
+
+  <g transform="translate(910 228)">
+    <rect class="card" x="0" y="0" width="220" height="188" rx="8"/>
+    <circle cx="110" cy="58" r="34" fill="#eb5757"/>
+    <path d="M96 61l10 10 24-28" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="110" y="118" text-anchor="middle" class="label ink">4. Human</text>
+    <text x="110" y="151" text-anchor="middle" class="small muted">adds it to the project</text>
+    <text x="110" y="179" text-anchor="middle" class="small muted">only when safe</text>
+  </g>
+
+  <rect x="86" y="456" width="1028" height="74" rx="8" fill="#14213d"/>
+  <text x="600" y="502" text-anchor="middle" class="foot" fill="#ffffff">Local first • Evidence report • No auto-commit, auto-push, or surprise deploy</text>
+
+  <text x="600" y="570" text-anchor="middle" class="small muted">Use your AI tool first. Run NEKOWORK before accepting the change.</text>
+</svg>

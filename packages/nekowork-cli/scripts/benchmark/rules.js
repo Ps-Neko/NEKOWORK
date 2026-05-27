@@ -116,7 +116,7 @@ async function benchmarkRule(rule) {
     const content = fs.readFileSync(filePath, 'utf8');
     const findings = scan(entry.file, content);
     const src = (entry.source || 'synthetic').startsWith('github:') ? 'oss'
-      : entry.source === 'live-ai' ? 'live'
+      : (entry.source || '').startsWith('live-ai') ? 'live'
       : 'synthetic';
 
     if (entry.label === 'positive') {

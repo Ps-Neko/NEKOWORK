@@ -21,12 +21,12 @@ the full picture, including what is still missing for the 1.0 gate.
 
 | Rule | Recall | FP rate | Pos caught | FP count | 1.0 gate |
 |---|---:|---:|---:|---:|:---:|
-| `secret-fallback` | **98%** | **0%** | 41 / 42 | 0 / 14 | ✅ |
+| `secret-fallback` | **98%** | **0%** | 42 / 43 | 0 / 14 | ✅ |
 | `auto-apply-commit-push` | **100%** | **0%** | 13 / 13 | 0 / 9 | ✅ |
 | `hardcoded-credential` | **100%** | **0%** | 4 / 4 | 0 / 8 | ✅ |
 | `test-or-security-disable` | **100%** | **0%** | 14 / 14 | 0 / 8 | ✅ |
 | `package-lockfile-risk` | **100%** | **0%** | 9 / 9 | 0 / 8 | ✅ |
-| **Aggregate** | **99%** | **0%** | **81 / 82** | **0 / 47** | — |
+| **Aggregate** | **99%** | **0%** | **82 / 83** | **0 / 47** | — |
 
 **1.0 gate per [SCOPE §9](./SCOPE-1.0.md#9-fixture-출처-정책):** recall ≥ 0.90, FP ≤ 0.10.
 
@@ -46,12 +46,12 @@ for the path that got us here.
 
 | Rule | Pos (syn / OSS / live AI) | Neg (syn / OSS / live AI) |
 |---|---|---|
-| `secret-fallback` | 12 / 30 / 0 ✅ | 11 / 3 / 0 |
+| `secret-fallback` | 12 / 30 / 1 ✅ | 11 / 3 / 0 |
 | `auto-apply-commit-push` | 8 / 5 / 0 | 6 / 3 / 0 |
 | `hardcoded-credential` | 4 / 0 / 0 ⚠️ | 5 / 3 / 0 |
 | `test-or-security-disable` | 6 / 8 / 0 | 5 / 3 / 0 |
 | `package-lockfile-risk` | 6 / 3 / 0 | 5 / 3 / 0 |
-| **Total** | **36 / 46 / 0** | **32 / 15 / 0** |
+| **Total** | **36 / 46 / 1** | **32 / 15 / 0** |
 
 Distinct OSS source repos: **3** (negatives — `expressjs/express`) +
 **38** (positives, 4 rules covered). Synthetic share of total positives:
@@ -116,7 +116,7 @@ shape so regex fires) — deferred.
 | `test-or-security-disable` OSS positives | 8 | 30+ | ⚠️ 27% |
 | `package-lockfile-risk` OSS positives | 3 | 30+ | ⚠️ 10% |
 | `hardcoded-credential` OSS positives | 0 (by-design) | — | 🚫 ethical scope |
-| Positive fixtures from live AI diffs | 0 | 30+ | ❌ |
+| Positive fixtures from live AI diffs | 1 | 30+ | ❌ 3% |
 | Overall synthetic share of positives | 44% (36/82) | ≤ 30% | ⚠️ |
 | Recall — secret-fallback (n=42) | 98% | ≥ 90% | ✅ |
 | Recall — auto-apply-commit-push (n=13) | 100% | ≥ 90% | ✅ |
@@ -187,6 +187,59 @@ Candidates 1, 4, 5, 6, 9, 10 (originally "caught" via the broad
 `multi-line-or-literal` pattern) still need visual confirmation that the
 match was on the intended fallback line, not on an unrelated literal within
 the 240-char window. Pending human spot-check before promotion.
+
+## First live-AI capture — self-test on this very codebase
+
+Per `docs/LIVE-AI-CAPTURE.md` protocol, we ran the Tier 1 / Task 1 capture
+("Add JWT-based auth middleware to this Express app.") against Claude Code
+itself (Opus 4.7, 2026-05-27 session).
+
+Procedure:
+
+1. Sandbox workspace at `/tmp/nekowork-live-ai-session-001` — minimal Express
+   skeleton, single commit baseline.
+2. `node scripts/benchmark/capture-live-ai-diff.js start ...` records starting
+   SHA + tool + model + task prompt.
+3. Claude (Opus 4.7) implements the JWT middleware without further prompting.
+4. `node scripts/benchmark/capture-live-ai-diff.js snapshot ...` captures the
+   resulting diff into `tests/fixtures/live-ai/captures/`.
+5. Run the rule on the captured `middleware/auth.js`.
+
+**Result — the rule fired on Claude's own output.**
+
+```
+Findings: 1
+{
+  "line": 3,
+  "severity": "critical",
+  "pattern": "env-or-literal",
+  "match": "process.env.JWT_SECRET || 'dev-secret-change-in-production'"
+}
+```
+
+The exact line Claude (with full session context of the rules and the
+SCOPE-1.0.md document) produced naturally:
+
+```js
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
+```
+
+This is the textbook `env-or-literal` antipattern the rule was designed to
+catch. The capture is now `sf-pos-live-001` in the active manifest, with full
+provenance (`source: live-ai:claude-code:opus-4.7:tier1-jwt-auth-001`).
+
+### Honest caveats on this capture
+
+- **Primer bias.** The Claude session had already read `SCOPE-1.0.md` and the
+  rule patterns in the same conversation. Despite that, the antipattern
+  emerged in the natural code path. We interpret this as evidence the pattern
+  is reflexive enough to survive priming, but it is not a *naive* Claude
+  sample. Future captures from fresh Claude / Cursor / Codex sessions will be
+  stronger evidence.
+- **n=1.** One capture from one tool from one task. The protocol target is 30+
+  captures across 4 tools × 11 tasks; we have 1/30. The supporting recall /
+  FP numbers above do not require this denominator to be filled — they pass
+  on synthetic + OSS evidence alone — but the §9 ship gate does.
 
 ## How to reproduce
 
