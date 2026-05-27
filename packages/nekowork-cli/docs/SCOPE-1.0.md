@@ -85,12 +85,7 @@ AI 가 만든 코드, 검증 없이는 통과시키지 마세요.
 
 ## 5. verify-pr 의 동작
 
-> **구현 상태 (2026-05-27):** diff 수집 · project detector · 5개 risk rule 실행 · deterministic
-> decision · `REPORT.md` · `.nekowork/decision.json` · `--comment-file` · `--ci-exit-soft` 까지
-> 동작한다. 아래 파이프라인의 **"검증 명령 실행(npm test / lint / typecheck / audit)" 단계는 아직
-> 미구현(목표)** — 현재 verify-pr 는 명령의 *존재 여부* 만 감지하고, 없으면 `INSUFFICIENT_EVIDENCE`
-> 로 처리한다. Codex advisor 경로도 아직 미연결이다. §7 의 "검증 실패/성공" 분기는 이 실행 단계가
-> 구현된 뒤 활성화된다.
+> **구현 상태 (2026-05-28):** 검증 명령 실행은 옵트인 `--run-checks` 로 구현됨 (test/lint/typecheck; build/audit 는 v1 제외). 실행 결과는 격상-only — 검사 실패 시 ALLOW → NEEDS_HUMAN_REVIEW, 단독 BLOCK 없음. diff 가 빌드/테스트 스크립트를 변조했거나 CRITICAL finding 이 있으면 실행을 거부(skip)한다. Codex advisor 경로는 미연결.
 
 ```text
 입력: working tree diff | patch file | --from-pr-url (Phase 1 이후)
@@ -176,12 +171,11 @@ INSUFFICIENT_EVIDENCE
 CRITICAL finding (1개 이상)              → BLOCK
 Secret Fallback CRITICAL                 → BLOCK
 Auto Apply/Commit/Push CRITICAL          → BLOCK
-HIGH finding + 검증 실패                 → BLOCK
-HIGH finding + 검증 성공                 → NEEDS_HUMAN_REVIEW
+HIGH finding                             → NEEDS_HUMAN_REVIEW (검사 결과가 등급을 낮추지 않음)
 MEDIUM finding + 검증 성공               → ALLOW_WITH_WARNINGS
 LOW finding 또는 finding 없음 + 검증 성공 → ALLOW
 source 변경 + 테스트 명령 없음           → INSUFFICIENT_EVIDENCE
-source 변경 + 테스트 실패                → BLOCK
+검사(test/lint/typecheck) 실패 (--run-checks) → NEEDS_HUMAN_REVIEW (단독 BLOCK 없음)
 docs-only + finding 없음                  → ALLOW
 dependency / script 변경                  → NEEDS_HUMAN_REVIEW
 Codex advisor 출력                       → verdict 영향 없음
