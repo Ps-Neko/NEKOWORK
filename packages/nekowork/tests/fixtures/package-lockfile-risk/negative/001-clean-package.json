@@ -1,0 +1,13 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "node --test",
+    "build": "tsc",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "zod": "^3.22.0"
+  }
+}

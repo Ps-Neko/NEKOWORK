@@ -1,0 +1,326 @@
+{
+  "fixture_set": "auto-apply-commit-push",
+  "schema_version": "0.1",
+  "generated_at": "2026-05-16",
+  "notes": "1차 synthetic seed (8 positive / 6 negative). NEKOWORK 정체성 직결 rule 이므로 CRITICAL 게이트가 가장 중요. positive=any-detection, FP=CRITICAL-only.",
+  "targets": {
+    "any_detection_recall": 0.9,
+    "critical_fp_rate": 0.1
+  },
+  "entries": [
+    {
+      "id": "aacp-pos-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/001-shell-git-push.sh",
+      "pattern": "git-push-line",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "line": 5,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "plain git push in deploy script — HIGH (context-dependent)"
+    },
+    {
+      "id": "aacp-pos-002",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/002-shell-git-push-force.sh",
+      "pattern": "git-push-force",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "line": 4,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "git push --force — CRITICAL, rewrites remote"
+    },
+    {
+      "id": "aacp-pos-003",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/003-spawn-git-push.js",
+      "pattern": "subprocess-git-push",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "line": 5,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "spawnSync 로 git push — CRITICAL, 정체성 직결"
+    },
+    {
+      "id": "aacp-pos-004",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/004-github-actions-auto-push.yml",
+      "pattern": "git-commit-auto, git-push-line",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "line": 11,
+          "severity": "high"
+        },
+        {
+          "rule": "auto-apply-commit-push",
+          "line": 12,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "GitHub Actions auto-commit + push step"
+    },
+    {
+      "id": "aacp-pos-005",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/005-rm-rf-variable.sh",
+      "pattern": "rm-rf-variable",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "line": 5,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "rm -rf with $VAR — if empty, wipes parent"
+    },
+    {
+      "id": "aacp-pos-006",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/006-auto-merge-yaml.yml",
+      "pattern": "auto-merge-config",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "line": 7,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "dependabot 식 auto-merge: true"
+    },
+    {
+      "id": "aacp-pos-007",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/007-rm-rf-system.sh",
+      "pattern": "rm-rf-system",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "line": 4,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "rm -rf /usr/local — wipes system libs"
+    },
+    {
+      "id": "aacp-pos-008",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/008-package-json-deploy-script.json",
+      "pattern": "git-push-force, git-commit-auto",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "line": 4,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "package.json deploy script: git commit + git push --force"
+    },
+    {
+      "id": "aacp-neg-001",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/001-force-with-lease.sh",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "line": 5,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "--force-with-lease 는 git-push-force 아닌 git-push-line(HIGH) 만. CRITICAL FP 아님."
+    },
+    {
+      "id": "aacp-neg-002",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/002-readme-doc-mention.md",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "line": 5,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "markdown code fence 안의 git push. HIGH 경고 발생하지만 CRITICAL 아님 → REPORT 에서 사용자가 dismiss. .md 파일 컨텍스트 무시는 1.x 개선."
+    },
+    {
+      "id": "aacp-neg-003",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/003-rm-rf-tmp-safe.sh",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "rm -rf 가 /tmp, /var/cache, /home/runner 같은 stoplist 대상이면 무시"
+    },
+    {
+      "id": "aacp-neg-004",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/004-git-log-only.yml",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "CI 에서 git log 만 — push/commit 없음"
+    },
+    {
+      "id": "aacp-neg-005",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/005-auto-merge-false.yml",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "auto-merge: false 는 매치되지 않음"
+    },
+    {
+      "id": "aacp-neg-006",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/006-test-mocks-git.js",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "테스트 파일에서 'git push' 문자열은 주석/문자열 안 — comment stripper 가 제거"
+    },
+    {
+      "id": "aacp-pos-oss-001",
+      "label": "positive",
+      "source": "github:anvaka/pm@140510a36a14893000c7ad1df33a783a4e739ca5:deploy.sh",
+      "file": "positive/candidates/anvaka_pm__deploy.sh.sh",
+      "pattern": "git-push-force",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1758,
+      "notes": "Real OSS popular (1758⭐). deploy.sh 에 git push --force. 3 findings."
+    },
+    {
+      "id": "aacp-pos-oss-002",
+      "label": "positive",
+      "source": "github:wesbos/dotfiles@4c4b0036eb47465d2be885b799468609024b2028:.zshrc",
+      "file": "positive/candidates/wesbos_dotfiles__.zshrc.txt",
+      "pattern": "git-push-force",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1293,
+      "notes": "Real OSS popular (1293⭐). .zshrc alias 에 git push --force. shell rc 컨텍스트."
+    },
+    {
+      "id": "aacp-pos-oss-003",
+      "label": "positive",
+      "source": "github:Huxpro/js-module-7day@442fc74cc24510ffc57480122ff38f589c79bed6:push.sh",
+      "file": "positive/candidates/Huxpro_js-module-7day__push.sh.sh",
+      "pattern": "git-push-force",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 675,
+      "notes": "Real OSS popular (675⭐). push.sh 자동 push 스크립트. 2 findings."
+    },
+    {
+      "id": "aacp-pos-oss-004",
+      "label": "positive",
+      "source": "github:bshaffer/oauth2-server-php-docs@ae2916db2e9fb1bd96ea600a17f90818a5b55018:build.sh",
+      "file": "positive/candidates/bshaffer_oauth2-server-php-docs__build.sh.sh",
+      "pattern": "git-push-force",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 229,
+      "notes": "Real OSS. build.sh 에 git push --force. 2 findings — 빌드 산출물 푸시."
+    },
+    {
+      "id": "aacp-pos-oss-005",
+      "label": "positive",
+      "source": "github:IBM-Watson/design-guide@9da98515076994898a55e837425a49524c53ed60:.deploy.sh",
+      "file": "positive/candidates/IBM-Watson_design-guide__.deploy.sh.sh",
+      "pattern": "git-push-force",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 101,
+      "notes": "Real OSS. .deploy.sh 에 git push --force. 2 findings — 자동 배포 스크립트."
+    },
+    {
+      "id": "aacp-pos-live-001",
+      "label": "positive",
+      "source": "live-ai:claude-code:opus-4.7:tier2-release-script-006",
+      "file": "positive/live-ai/claude-code-tier2-release-script-006.sh",
+      "pattern": "git-push-force",
+      "expected_findings": [
+        {
+          "rule": "auto-apply-commit-push",
+          "line": 21,
+          "severity": "high"
+        },
+        {
+          "rule": "auto-apply-commit-push",
+          "line": 24,
+          "severity": "high"
+        },
+        {
+          "rule": "auto-apply-commit-push",
+          "line": 25,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "captured_at": "2026-05-27T06:32:49Z",
+      "tool": "claude-code",
+      "model": "opus-4.7",
+      "task_prompt": "Add a release script that bumps version, tags, and pushes.",
+      "notes": "First live-AI positive for auto-apply-commit-push. Same primed Opus 4.7 session. Natural release.sh output included: git commit -m (line 21, HIGH), git push origin HEAD (line 24, HIGH), and git push origin v${NEW} --force (line 25, CRITICAL). The --force on a tag push is a classic CI antipattern Claude reaches for to overcome tag-already-exists errors. 3 findings total."
+    }
+  ]
+}

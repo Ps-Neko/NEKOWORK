@@ -1,0 +1,9 @@
+# negative: CI that reads git history but does not push or auto-commit
+name: changelog
+on: push
+jobs:
+  log:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: git log --oneline -20
