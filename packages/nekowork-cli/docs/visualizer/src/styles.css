@@ -9,7 +9,7 @@
   --line-strong: #b9c3d1;
   --blue: #2563eb;
   --blue-soft: #eff6ff;
-  --red: #dc2626;
+  --red: #b91c1c; /* red-700: WCAG AA 대비 ≥4.5:1 on --red-soft (red-600 #dc2626 는 4.41 로 미달) */
   --red-soft: #fef2f2;
   --green: #15803d;
   --green-soft: #f0fdf4;
