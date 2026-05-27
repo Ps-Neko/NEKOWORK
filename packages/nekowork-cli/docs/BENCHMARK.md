@@ -21,12 +21,12 @@ the full picture, including what is still missing for the 1.0 gate.
 
 | Rule | Recall | FP rate | Pos caught | FP count | 1.0 gate |
 |---|---:|---:|---:|---:|:---:|
-| `secret-fallback` | **93%** | **0%** | 14 / 15 | 0 / 14 | ✅ |
+| `secret-fallback` | **96%** | **0%** | 26 / 27 | 0 / 14 | ✅ |
 | `auto-apply-commit-push` | **100%** | **0%** | 8 / 8 | 0 / 9 | ✅ |
 | `hardcoded-credential` | **100%** | **0%** | 4 / 4 | 0 / 8 | ✅ |
 | `test-or-security-disable` | **100%** | **0%** | 6 / 6 | 0 / 8 | ✅ |
 | `package-lockfile-risk` | **100%** | **0%** | 6 / 6 | 0 / 8 | ✅ |
-| **Aggregate** | **97%** | **0%** | **38 / 39** | **0 / 47** | — |
+| **Aggregate** | **98%** | **0%** | **50 / 51** | **0 / 47** | — |
 
 **1.0 gate per [SCOPE §9](./SCOPE-1.0.md#9-fixture-출처-정책):** recall ≥ 0.90, FP ≤ 0.10.
 
@@ -34,25 +34,28 @@ The one missed positive (`sf-pos-004`) is `if (!token) token = "literal"` — a
 flow-based pattern that requires multi-line scope. Documented limitation, not a
 regression.
 
-The `secret-fallback` corpus now includes **3 real OSS positive fixtures**
-(promoted from the first OSS scrape) plus 2 new synthetic positives exercising
-the empty-string variant. See *First real OSS scrape* below for the path that
-got us here.
+The `secret-fallback` corpus now includes **15 real OSS positive fixtures**
+(promoted from two scrape rounds — first on `JWT_SECRET`, then on
+`OPENAI_API_KEY`) plus 2 new synthetic positives exercising the empty-string
+variant. Three of the OSS positives come from popular repos (1051⭐, 3237⭐,
+897⭐). See *First real OSS scrape* below for the path that got us here.
 
 ## Fixture composition — the honest part
 
 | Rule | Pos (syn / OSS / live AI) | Neg (syn / OSS / live AI) |
 |---|---|---|
-| `secret-fallback` | 12 / 3 / 0 | 11 / 3 / 0 |
+| `secret-fallback` | 12 / 15 / 0 | 11 / 3 / 0 |
 | `auto-apply-commit-push` | 8 / 0 / 0 | 6 / 3 / 0 |
 | `hardcoded-credential` | 4 / 0 / 0 | 5 / 3 / 0 |
 | `test-or-security-disable` | 6 / 0 / 0 | 5 / 3 / 0 |
 | `package-lockfile-risk` | 6 / 0 / 0 | 5 / 3 / 0 |
-| **Total** | **36 / 3 / 0** | **32 / 15 / 0** |
+| **Total** | **36 / 15 / 0** | **32 / 15 / 0** |
 
-The 15 OSS negatives are the same 3 files (`expressjs/express` examples) applied
-across 5 rules. Distinct OSS source files: **3** (negatives) + **3** (positives,
-all promoted into `secret-fallback`).
+Distinct OSS source repos: **3** (negatives — `expressjs/express`) +
+**15** (positives — diverse, all promoted into `secret-fallback`).
+Star distribution of positive OSS repos: 0⭐(7), 1-99⭐(5), 100-999⭐(2),
+1000+⭐(2). Latest run brought in `guaguaguaxia/weekly_report` (3237⭐) and
+`leoning60/browsernode` (1051⭐).
 
 ## What this does and doesn't prove
 
@@ -81,13 +84,14 @@ all promoted into `secret-fallback`).
 
 | Requirement (SCOPE §9) | Current | Target | Status |
 |---|---:|---:|:---:|
-| Positive fixtures from real OSS scrape (in active manifest) | 3 | 30+ | ⚠️ |
-| OSS positive candidates collected (pending review) | 10 | 30+ | ⚠️ |
+| Positive fixtures from real OSS scrape (in active manifest) | 15 | 30+ | ⚠️ 50% |
+| OSS positive candidates collected (pending review) | 20+ | 30+ | ⚠️ |
 | Positive fixtures from live AI diffs | 0 | 30+ | ❌ |
-| Synthetic share of positive corpus | 80% (36/45) | ≤ 30% | ❌ |
-| Recall on Secret Fallback (synthetic+OSS) | 93% (14/15) | ≥ 90% | ✅ |
-| Recall on real OSS slice, post empty-string patch | 100% (10/10) | ≥ 90% | ✅ |
-| FP rate on Secret Fallback (existing) | 0% | ≤ 10% | ✅ |
+| Synthetic share of positive corpus | 71% (36/51) | ≤ 30% | ❌ |
+| Synthetic share of `secret-fallback` positives | 44% (12/27) | ≤ 30% | ⚠️ |
+| Recall on Secret Fallback (synthetic+OSS, n=27) | 96% (26/27) | ≥ 90% | ✅ |
+| Recall on second OSS scrape slice (OPENAI_API_KEY) | 90% (9/10) | ≥ 90% | ✅ |
+| FP rate on Secret Fallback (n=14) | 0% | ≤ 10% | ✅ |
 | FP rate on NODE_ENV/PORT empty-fallback guard | 0/3 | 0/N | ✅ |
 | CI benchmark job, 3 consecutive PASS | passes locally | + CI history | ⚠️ partial |
 

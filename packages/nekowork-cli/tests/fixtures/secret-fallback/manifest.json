@@ -292,6 +292,174 @@
       "expected_findings": [],
       "added_at": "2026-05-27",
       "notes": "FP guard: NODE_ENV / PORT / LOG_LEVEL || \"\" — secret-keyword 없는 env 이름은 trigger 금지."
+    },
+    {
+      "id": "sf-pos-oss-004",
+      "label": "positive",
+      "source": "github:DaffaAzka/EssencePM-API@d79c03eba5c015fb5b0daa8180af8d3b7405a443:main.ts",
+      "file": "positive/candidates/DaffaAzka_EssencePM-API__main.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 3,
+      "notes": "Real OSS. const JWT_SECRET = process.env.JWT_SECRET || \"\". 단순 모듈-수준 할당."
+    },
+    {
+      "id": "sf-pos-oss-005",
+      "label": "positive",
+      "source": "github:furkansimw/SOCIAL_MEDIA_APP@e43992052c85b643121a8ab2c3c17250019c486a:index.ts",
+      "file": "positive/candidates/furkansimw_SOCIAL_MEDIA_APP__index.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1,
+      "notes": "Real OSS. jwt.verify(token, process.env.JWT_SECRET || \"\") — function-call 인자 context."
+    },
+    {
+      "id": "sf-pos-oss-006",
+      "label": "positive",
+      "source": "github:kirtanchandak/jwt-toolkit-fast-demo@253860b9839b4ce18273c07685199fcaae484c3a:lib.ts",
+      "file": "positive/candidates/kirtanchandak_jwt-toolkit-fast-demo__lib.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 0,
+      "notes": "Real OSS. const secret = process.env.JWT_SECRET || \"\"."
+    },
+    {
+      "id": "sf-pos-oss-007",
+      "label": "positive",
+      "source": "github:MajewskiAdrian/praktyki-projekt@1f559e23fa2f827eaa1e304bd2b063ec69bf0f71:proxy.ts",
+      "file": "positive/candidates/MajewskiAdrian_praktyki-projekt__proxy.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 0,
+      "notes": "Real OSS. jwt.verify(token, process.env.JWT_SECRET || \"\") — proxy 미들웨어."
+    },
+    {
+      "id": "sf-pos-oss-008",
+      "label": "positive",
+      "source": "github:Journeyfy/api@49dced748e2c5b8214538bbd1c18adb91abdb4e6:src/env.ts",
+      "file": "positive/candidates/Journeyfy_api__src_env.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1,
+      "notes": "Real OSS. JWT_SECRET || \"\" + GOOGLE_CLIENT_SECRET || \"\" — provider-prefix (Google) 매칭 확인."
+    },
+    {
+      "id": "sf-pos-oss-009",
+      "label": "positive",
+      "source": "github:iamaheshlodha/rest-apis-with-typescript@5168cb2297e9dedb1d63005688d743321dba4311:src/jwt.ts",
+      "file": "positive/candidates/iamaheshlodha_rest-apis-with-typescript__src_jwt.ts.ts",
+      "pattern": "env-or-literal",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 0,
+      "notes": "Real OSS. process.env.JWT_SECRET || \";lkewrkwepr654erwer\" — 실제 hardcoded literal fallback (가장 위험 패턴)."
+    },
+    {
+      "id": "sf-pos-oss-010",
+      "label": "positive",
+      "source": "github:rianwp/aplikasi-penyewaan-lapangan@a5ee68a813c59cc6d697fe0585ac77a521e3d08e:lib/auth.ts",
+      "file": "positive/candidates/rianwp_aplikasi-penyewaan-lapangan__lib_auth.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1,
+      "notes": "Real OSS. const secret = process.env.JWT_SECRET || \"\" — auth lib 모듈."
+    },
+    {
+      "id": "sf-pos-oss-011",
+      "label": "positive",
+      "source": "github:leoning60/browsernode@ca0ba8879ebbe57667f65f48c7b34535244b4196:src/config.ts",
+      "file": "positive/candidates/leoning60_browsernode__src_config.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1051,
+      "notes": "Real OSS popular (1051⭐). 15 findings — OPENAI_API_KEY 외 다수 provider key fallback."
+    },
+    {
+      "id": "sf-pos-oss-012",
+      "label": "positive",
+      "source": "github:guaguaguaxia/weekly_report@5b95c75867f434bfbca683341f21f1ddfb21fa1f:utils/OpenAIStream.ts",
+      "file": "positive/candidates/guaguaguaxia_weekly_report__utils_OpenAIStream.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 3237,
+      "notes": "Real OSS popular (3237⭐). OPENAI_API_KEY || \"\" — stream util 모듈."
+    },
+    {
+      "id": "sf-pos-oss-013",
+      "label": "positive",
+      "source": "github:PragmaticMachineLearning/probly@e5f0b98d0de54563e83e05e576c6f4b8745d796b:src/pages/api/llm.ts",
+      "file": "positive/candidates/PragmaticMachineLearning_probly__src_pages_api_llm.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 897,
+      "notes": "Real OSS popular (897⭐). Next.js API route. OPENAI_API_KEY fallback."
+    },
+    {
+      "id": "sf-pos-oss-014",
+      "label": "positive",
+      "source": "github:MoonWeSif/qadchat@0f0ccad0b20418a5d0dc9b1fd360e368f4218f45:app/api/config/route.ts",
+      "file": "positive/candidates/MoonWeSif_qadchat__app_api_config_route.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 82,
+      "notes": "Real OSS. 9 findings — chat config route, 여러 provider key fallback 집중."
+    },
+    {
+      "id": "sf-pos-oss-015",
+      "label": "positive",
+      "source": "github:eyalcohen4/GTD@51b80010cc53e0350ddbdd83e6b3d740beef6697:backend/task.ts",
+      "file": "positive/candidates/eyalcohen4_GTD__backend_task.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 99,
+      "notes": "Real OSS. OPENAI_API_KEY fallback — GTD task backend."
     }
   ]
 }
