@@ -23,8 +23,8 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const VERBS_INTERNAL = new Set(['verify-pr']);
-const VERBS_REDIRECT = new Set(['check', 'report', 'apply']); // Phase B follow-up
+const VERBS_INTERNAL = new Set(['verify-pr', 'check']);
+const VERBS_REDIRECT = new Set(['report', 'apply']); // Phase B follow-up
 const META_FLAGS = new Set(['--version', '-v', '--help', '-h']);
 
 const args = process.argv.slice(2);
@@ -95,6 +95,12 @@ For \`${verb}\` (a legacy / harness command), install @ps-neko/nekowork-harness:
 }
 
 async function runInternal(verb, rest) {
+  if (verb === 'check') {
+    // Re-invoke check.js as a sub-script — it does its own arg parsing and exits.
+    const { spawnSync } = await import('node:child_process');
+    const r = spawnSync(process.execPath, [path.resolve(__dirname, 'check.js'), ...rest], { stdio: 'inherit' });
+    process.exit(r.status ?? 1);
+  }
   if (verb === 'verify-pr') {
     const opts = parseVerifyPrArgs(rest);
     const result = await verifyPrCycle(opts);
