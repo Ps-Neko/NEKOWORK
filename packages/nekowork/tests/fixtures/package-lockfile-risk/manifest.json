@@ -1,0 +1,152 @@
+{
+  "fixture_set": "package-lockfile-risk",
+  "schema_version": "0.1",
+  "generated_at": "2026-05-16",
+  "notes": "supply-chain 위험 패턴. dependency 추가 자체는 flag 아님 — install-time execution + git URL / tarball / curl|bash 만.",
+  "targets": {
+    "any_detection_recall": 0.90,
+    "critical_fp_rate": 0.10
+  },
+  "entries": [
+    {
+      "id": "pl-pos-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/001-postinstall.json",
+      "pattern": "install-hook-postinstall",
+      "expected_findings": [{ "rule": "package-lockfile-risk", "line": 4, "severity": "high" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "pl-pos-002",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/002-preinstall.json",
+      "pattern": "install-hook-preinstall",
+      "expected_findings": [{ "rule": "package-lockfile-risk", "line": 4, "severity": "high" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "pl-pos-003",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/003-curl-bash.sh",
+      "pattern": "script-curl-bash",
+      "expected_findings": [{ "rule": "package-lockfile-risk", "line": 4, "severity": "critical" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "pl-pos-004",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/004-sudo-script.json",
+      "pattern": "script-with-sudo",
+      "expected_findings": [{ "rule": "package-lockfile-risk", "line": 4, "severity": "high" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "pl-pos-005",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/005-git-url-dep.json",
+      "pattern": "dependency-git-url",
+      "expected_findings": [{ "rule": "package-lockfile-risk", "line": 4, "severity": "high" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "pl-pos-006",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/006-tarball-url-dep.json",
+      "pattern": "dependency-tarball-url",
+      "expected_findings": [{ "rule": "package-lockfile-risk", "line": 4, "severity": "high" }],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "pl-neg-001",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/001-clean-package.json",
+      "expected_findings": [],
+      "added_at": "2026-05-16"
+    },
+    {
+      "id": "pl-neg-002",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/002-comment-mentions-curl.sh",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "comment 의 curl|bash 언급 + 실제 코드는 안전한 download+verify+run 흐름"
+    },
+    {
+      "id": "pl-neg-003",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/003-registry-dep.json",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "registry 에서 가져온 일반 dependency 는 flag 아님"
+    },
+    {
+      "id": "pl-neg-004",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/004-prepare-no-shell.json",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "prepare 가 단일 명령 (husky install) 이고 shell chain / sudo / curl 없음 — 통과"
+    },
+    {
+      "id": "pl-neg-005",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/005-curl-no-pipe.sh",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "curl 가 download only, |bash 없음"
+    },
+    {
+      "id": "pl-pos-oss-001",
+      "label": "positive",
+      "source": "github:iyaja/llama-fs@0a693717ca1845b3ae8c208b2929d987fcdabb81:electron-react-app/package.json",
+      "file": "positive/candidates/iyaja_llama-fs__electron-react-app_package.json.json",
+      "pattern": "install-hook-postinstall",
+      "expected_findings": [
+        { "rule": "package-lockfile-risk", "severity": "high" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 5728,
+      "notes": "Real OSS popular (5728⭐). electron-react-app 의 package.json 에 postinstall script. 2 findings."
+    },
+    {
+      "id": "pl-pos-oss-002",
+      "label": "positive",
+      "source": "github:tmcw/docbox@9506ecec6db92ba04824b280ffbb0968d367d18a:package.json",
+      "file": "positive/candidates/tmcw_docbox__package.json.json",
+      "pattern": "install-hook-postinstall",
+      "expected_findings": [
+        { "rule": "package-lockfile-risk", "severity": "high" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1132,
+      "notes": "Real OSS popular (1132⭐ docbox). package.json postinstall script."
+    },
+    {
+      "id": "pl-pos-oss-003",
+      "label": "positive",
+      "source": "github:anderlli0053/DEV-tools@54b330ceb06f677cc6451c2c21e94da90a0ea17a:bucket/tfctl.json",
+      "file": "positive/candidates/anderlli0053_DEV-tools__bucket_tfctl.json.json",
+      "pattern": "install-hook-postinstall",
+      "expected_findings": [
+        { "rule": "package-lockfile-risk", "severity": "high" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 174,
+      "notes": "Real OSS. Scoop bucket manifest (tfctl.json) 의 postinstall script. 2 findings."
+    }
+  ]
+}

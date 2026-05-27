@@ -1,0 +1,13 @@
+# positive: github actions step that auto-commits and pushes
+name: bump
+on: schedule
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          git config user.email bot@example.com
+          git config user.name bot
+          git commit -am "auto: bump deps"
+          git push origin main

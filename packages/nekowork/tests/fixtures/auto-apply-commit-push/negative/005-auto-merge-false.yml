@@ -1,0 +1,5 @@
+# negative: auto-merge explicitly disabled
+version: 2
+updates:
+  - package-ecosystem: npm
+    auto-merge: false

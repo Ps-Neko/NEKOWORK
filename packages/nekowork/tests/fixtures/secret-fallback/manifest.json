@@ -1,0 +1,853 @@
+{
+  "fixture_set": "secret-fallback",
+  "schema_version": "0.1",
+  "generated_at": "2026-05-16",
+  "notes": "1차 synthetic seed (10 positive / 10 negative). recall/FP 측정의 sanity baseline. 실제 측정은 OSS curation + AI 생성 fixture 가 추가된 후. plan §9 의 synthetic 비율 30% cap 안에 들어감.",
+  "targets": {
+    "secret_fallback_recall": 0.9,
+    "secret_fallback_fp_rate": 0.1
+  },
+  "entries": [
+    {
+      "id": "sf-pos-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/001-env-or-literal.ts",
+      "pattern": "env-or-literal",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 4,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "process.env.X || \"literal\" 의 가장 흔한 형태"
+    },
+    {
+      "id": "sf-pos-002",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/002-nullish-fallback.ts",
+      "pattern": "nullish-fallback",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 4,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "process.env.X ?? \"literal\""
+    },
+    {
+      "id": "sf-pos-003",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/003-ternary.ts",
+      "pattern": "ternary",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 4,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "process.env.X ? process.env.X : \"literal\""
+    },
+    {
+      "id": "sf-pos-004",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/004-if-not-fallback.ts",
+      "pattern": "if-not-fallback",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 5,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "if (!token) token = \"literal\" — flow-based, regex 로는 multi-line scope 필요"
+    },
+    {
+      "id": "sf-pos-005",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/005-config-or-literal.ts",
+      "pattern": "config-or-literal",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 6,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "config.apiKey || \"literal\" — env 가 아닌 config 객체 경유"
+    },
+    {
+      "id": "sf-pos-006",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/006-config-fallback-path.ts",
+      "pattern": "config-fallback-property",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 6,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "config.fallback.key — 구조적 fallback (literal 아님). high 등급. stretch goal."
+    },
+    {
+      "id": "sf-pos-007",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/007-template-literal-fallback.ts",
+      "pattern": "template-literal-fallback",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 5,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "process.env.X || `template literal`"
+    },
+    {
+      "id": "sf-pos-008",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/008-secret-with-different-name.ts",
+      "pattern": "env-or-literal",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 7,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "JWT 시그닝 콘텍스트 — secret 이름이 일반적이지 않아도 잡혀야 함"
+    },
+    {
+      "id": "sf-pos-009",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/009-destructure-or-literal.ts",
+      "pattern": "destructure-default",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 5,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "const { X = \"literal\" } = process.env — destructure default"
+    },
+    {
+      "id": "sf-pos-010",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/010-nested-or-fallback.ts",
+      "pattern": "nested-or-fallback",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 8,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-16",
+      "notes": "env || env || \"literal\" — OR 체인의 마지막이 literal. 라인 위치는 literal 이 있는 줄."
+    },
+    {
+      "id": "sf-neg-001",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/001-env-no-fallback.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "fallback 없음, fail-closed"
+    },
+    {
+      "id": "sf-neg-002",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/002-fail-closed.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "missing 시 throw"
+    },
+    {
+      "id": "sf-neg-003",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/003-zod-validated.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "zod schema 검증, literal fallback 없음"
+    },
+    {
+      "id": "sf-neg-004",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/004-port-fallback.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "fallback 있지만 secret 이 아님 (port number)"
+    },
+    {
+      "id": "sf-neg-005",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/005-hostname-fallback.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "fallback 있지만 hostname (secret 아님)"
+    },
+    {
+      "id": "sf-neg-006",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/006-boolean-flag-fallback.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "boolean flag fallback"
+    },
+    {
+      "id": "sf-neg-007",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/007-test-fixture-using-env.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "test 콘텍스트에서 process.env mock — 1.0 에선 무시 가능 (or low)"
+    },
+    {
+      "id": "sf-neg-008",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/008-dotenv-load.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "dotenv 로 .env 로드, hardcoded literal 없음"
+    },
+    {
+      "id": "sf-neg-009",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/009-retry-timeout-fallback.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "retry / timeout 숫자 fallback (secret 아님)"
+    },
+    {
+      "id": "sf-neg-010",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/010-comment-mention-only.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-16",
+      "notes": "주석에 fallback 언급 있지만 실제 코드는 fail-closed"
+    },
+    {
+      "id": "sf-pos-011",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/011-env-or-empty-string.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 4,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "notes": "process.env.JWT_SECRET || \"\" — 새 env-or-empty-string 패턴. 가장 흔한 AI 생성 안티패턴."
+    },
+    {
+      "id": "sf-pos-012",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/012-env-or-empty-single-quote.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 2,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "notes": "process.env.OPENAI_API_KEY || '' — single quote 변형. AI 도구가 'and \" 를 혼용함."
+    },
+    {
+      "id": "sf-pos-oss-001",
+      "label": "positive",
+      "source": "github:DubAvenXP/typescript-backend-template-nosql-v2@b5f1c00106d251edce142560d0bae65c8e17c3be:config.ts",
+      "file": "positive/candidates/DubAvenXP_typescript-backend-template-nosql-v2__config.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 0,
+      "notes": "Real OSS. EMAIL_PASS || \"\" + JWT_SECRET || \"\" + JWT_EXPIRES_IN || \"8h\". 자동 scrape + verify 로 3 CRITICAL 확인."
+    },
+    {
+      "id": "sf-pos-oss-002",
+      "label": "positive",
+      "source": "github:frinica/Vargtimma@63b748a2c6e5e816748b6ca4d41c7bd6e48e7f2b:BE/utils.ts",
+      "file": "positive/candidates/frinica_Vargtimma__BE_utils.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 0,
+      "notes": "Real OSS. const jwtSecret = process.env.JWT_SECRET || \"\". 단일 fallback."
+    },
+    {
+      "id": "sf-pos-oss-003",
+      "label": "positive",
+      "source": "github:InstantCodee/LibrePay-Backend@9bd894dac9d753622e73283985cb8337b887eb5d:src/app.ts",
+      "file": "positive/candidates/InstantCodee_LibrePay-Backend__src_app.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 2,
+      "notes": "Real OSS. JWT_SECRET || \"\" + INVOICE_SECRET || \"\" 등 여러 fallback."
+    },
+    {
+      "id": "sf-neg-011",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/011-node-env-or-empty.ts",
+      "expected_findings": [],
+      "added_at": "2026-05-27",
+      "notes": "FP guard: NODE_ENV / PORT / LOG_LEVEL || \"\" — secret-keyword 없는 env 이름은 trigger 금지."
+    },
+    {
+      "id": "sf-pos-oss-004",
+      "label": "positive",
+      "source": "github:DaffaAzka/EssencePM-API@d79c03eba5c015fb5b0daa8180af8d3b7405a443:main.ts",
+      "file": "positive/candidates/DaffaAzka_EssencePM-API__main.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 3,
+      "notes": "Real OSS. const JWT_SECRET = process.env.JWT_SECRET || \"\". 단순 모듈-수준 할당."
+    },
+    {
+      "id": "sf-pos-oss-005",
+      "label": "positive",
+      "source": "github:furkansimw/SOCIAL_MEDIA_APP@e43992052c85b643121a8ab2c3c17250019c486a:index.ts",
+      "file": "positive/candidates/furkansimw_SOCIAL_MEDIA_APP__index.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1,
+      "notes": "Real OSS. jwt.verify(token, process.env.JWT_SECRET || \"\") — function-call 인자 context."
+    },
+    {
+      "id": "sf-pos-oss-006",
+      "label": "positive",
+      "source": "github:kirtanchandak/jwt-toolkit-fast-demo@253860b9839b4ce18273c07685199fcaae484c3a:lib.ts",
+      "file": "positive/candidates/kirtanchandak_jwt-toolkit-fast-demo__lib.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 0,
+      "notes": "Real OSS. const secret = process.env.JWT_SECRET || \"\"."
+    },
+    {
+      "id": "sf-pos-oss-007",
+      "label": "positive",
+      "source": "github:MajewskiAdrian/praktyki-projekt@1f559e23fa2f827eaa1e304bd2b063ec69bf0f71:proxy.ts",
+      "file": "positive/candidates/MajewskiAdrian_praktyki-projekt__proxy.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 0,
+      "notes": "Real OSS. jwt.verify(token, process.env.JWT_SECRET || \"\") — proxy 미들웨어."
+    },
+    {
+      "id": "sf-pos-oss-008",
+      "label": "positive",
+      "source": "github:Journeyfy/api@49dced748e2c5b8214538bbd1c18adb91abdb4e6:src/env.ts",
+      "file": "positive/candidates/Journeyfy_api__src_env.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1,
+      "notes": "Real OSS. JWT_SECRET || \"\" + GOOGLE_CLIENT_SECRET || \"\" — provider-prefix (Google) 매칭 확인."
+    },
+    {
+      "id": "sf-pos-oss-009",
+      "label": "positive",
+      "source": "github:iamaheshlodha/rest-apis-with-typescript@5168cb2297e9dedb1d63005688d743321dba4311:src/jwt.ts",
+      "file": "positive/candidates/iamaheshlodha_rest-apis-with-typescript__src_jwt.ts.ts",
+      "pattern": "env-or-literal",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 0,
+      "notes": "Real OSS. process.env.JWT_SECRET || \";lkewrkwepr654erwer\" — 실제 hardcoded literal fallback (가장 위험 패턴)."
+    },
+    {
+      "id": "sf-pos-oss-010",
+      "label": "positive",
+      "source": "github:rianwp/aplikasi-penyewaan-lapangan@a5ee68a813c59cc6d697fe0585ac77a521e3d08e:lib/auth.ts",
+      "file": "positive/candidates/rianwp_aplikasi-penyewaan-lapangan__lib_auth.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1,
+      "notes": "Real OSS. const secret = process.env.JWT_SECRET || \"\" — auth lib 모듈."
+    },
+    {
+      "id": "sf-pos-oss-011",
+      "label": "positive",
+      "source": "github:leoning60/browsernode@ca0ba8879ebbe57667f65f48c7b34535244b4196:src/config.ts",
+      "file": "positive/candidates/leoning60_browsernode__src_config.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1051,
+      "notes": "Real OSS popular (1051⭐). 15 findings — OPENAI_API_KEY 외 다수 provider key fallback."
+    },
+    {
+      "id": "sf-pos-oss-012",
+      "label": "positive",
+      "source": "github:guaguaguaxia/weekly_report@5b95c75867f434bfbca683341f21f1ddfb21fa1f:utils/OpenAIStream.ts",
+      "file": "positive/candidates/guaguaguaxia_weekly_report__utils_OpenAIStream.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 3237,
+      "notes": "Real OSS popular (3237⭐). OPENAI_API_KEY || \"\" — stream util 모듈."
+    },
+    {
+      "id": "sf-pos-oss-013",
+      "label": "positive",
+      "source": "github:PragmaticMachineLearning/probly@e5f0b98d0de54563e83e05e576c6f4b8745d796b:src/pages/api/llm.ts",
+      "file": "positive/candidates/PragmaticMachineLearning_probly__src_pages_api_llm.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 897,
+      "notes": "Real OSS popular (897⭐). Next.js API route. OPENAI_API_KEY fallback."
+    },
+    {
+      "id": "sf-pos-oss-014",
+      "label": "positive",
+      "source": "github:MoonWeSif/qadchat@0f0ccad0b20418a5d0dc9b1fd360e368f4218f45:app/api/config/route.ts",
+      "file": "positive/candidates/MoonWeSif_qadchat__app_api_config_route.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 82,
+      "notes": "Real OSS. 9 findings — chat config route, 여러 provider key fallback 집중."
+    },
+    {
+      "id": "sf-pos-oss-015",
+      "label": "positive",
+      "source": "github:eyalcohen4/GTD@51b80010cc53e0350ddbdd83e6b3d740beef6697:backend/task.ts",
+      "file": "positive/candidates/eyalcohen4_GTD__backend_task.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 99,
+      "notes": "Real OSS. OPENAI_API_KEY fallback — GTD task backend."
+    },
+    {
+      "id": "sf-pos-oss-016",
+      "label": "positive",
+      "source": "github:jferrettiboke/stripe-graphql@1c88667ba5b90d7ebe66c54bb5edba7fc48b1241:src/stripe.ts",
+      "file": "positive/candidates/jferrettiboke_stripe-graphql__src_stripe.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 56,
+      "notes": "Real OSS. STRIPE_SECRET_KEY fallback — GraphQL Stripe wrapper."
+    },
+    {
+      "id": "sf-pos-oss-017",
+      "label": "positive",
+      "source": "github:itsezlife/yandex-eats-clone@0929a230a545a0edb6d8bc418cf8648049b7f261:server/src/index.ts",
+      "file": "positive/candidates/itsezlife_yandex-eats-clone__server_src_index.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 80,
+      "notes": "Real OSS. 3 findings — server index, 다중 provider key fallback."
+    },
+    {
+      "id": "sf-pos-oss-018",
+      "label": "positive",
+      "source": "github:ankitkumarbarik/ByteCinema@9837ff75187c9ad2143477cf1bd160349b12b9ae:src/config/env.config.ts",
+      "file": "positive/candidates/ankitkumarbarik_ByteCinema__src_config_env.config.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 13,
+      "notes": "Real OSS. 7 findings — env config 모듈, 다수 STRIPE/JWT fallback."
+    },
+    {
+      "id": "sf-pos-oss-019",
+      "label": "positive",
+      "source": "github:Ocean82/BurntBeatzz@c0a3a3e43e916c934f33466408bfdadf7bde6d00:lib/config/env.ts",
+      "file": "positive/candidates/Ocean82_BurntBeatzz__lib_config_env.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 0,
+      "notes": "Real OSS. 14 findings — heavy env config 모듈, 광범위 provider key fallback."
+    },
+    {
+      "id": "sf-pos-oss-020",
+      "label": "positive",
+      "source": "github:wlumsa/wlumsa.org@f933744ab156c277bc9a76d182ba1731a9929180:src/payload.config.ts",
+      "file": "positive/candidates/wlumsa_wlumsa.org__src_payload.config.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 10,
+      "notes": "Real OSS. 8 findings — Payload CMS config, STRIPE + 다중 fallback."
+    },
+    {
+      "id": "sf-pos-oss-021",
+      "label": "positive",
+      "source": "github:CaviraOSS/OpenMemory@de39bcd74c7d0a73982def1c052d0b69ecefd7f6:packages/openmemory-js/src/core/cfg.ts",
+      "file": "positive/candidates/CaviraOSS_OpenMemory__packages_openmemory-js_src_core_cfg.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 4157,
+      "notes": "Real OSS popular (4157⭐). AWS + 다수 provider key fallback (5 findings)."
+    },
+    {
+      "id": "sf-pos-oss-022",
+      "label": "positive",
+      "source": "github:mayneyao/eidos@7b6eb9f32a835cb672f036b2ad87e1ed53b5cccb:apps/headless/src/config/env.ts",
+      "file": "positive/candidates/mayneyao_eidos__apps_headless_src_config_env.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 3134,
+      "notes": "Real OSS popular (3134⭐). env 모듈, 8 findings."
+    },
+    {
+      "id": "sf-pos-oss-023",
+      "label": "positive",
+      "source": "github:langwatch/better-agents@00c44b92fafc245fa051a34910128e36e85aad07:src/config-collection/collect-config.ts",
+      "file": "positive/candidates/langwatch_better-agents__src_config-collection_collect-config.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1522,
+      "notes": "Real OSS popular (1522⭐). agent config collection, 9 findings — 가장 많은 fallback."
+    },
+    {
+      "id": "sf-pos-oss-024",
+      "label": "positive",
+      "source": "github:julianpoy/RecipeSage@8b18b270d2e712e478fcef0bff7dbbc775352220:packages/util/server/src/storage/s3.ts",
+      "file": "positive/candidates/julianpoy_RecipeSage__packages_util_server_src_storage_s3.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 883,
+      "notes": "Real OSS popular (883⭐). S3 storage 모듈, AWS key fallback."
+    },
+    {
+      "id": "sf-pos-oss-025",
+      "label": "positive",
+      "source": "github:coasty-ai/open-computer-use@be0888abb1d7072ac5a842b1d6140aa0bae89bb3:lib/services/workmail-service.ts",
+      "file": "positive/candidates/coasty-ai_open-computer-use__lib_services_workmail-service.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 659,
+      "notes": "Real OSS popular (659⭐). workmail-service, AWS key fallback."
+    },
+    {
+      "id": "sf-pos-oss-026",
+      "label": "positive",
+      "source": "github:browserbase/stagehand@e102a89c903d2f5badb335dd7b7f52f16b275151:packages/core/lib/v3/agent/AnthropicCUAClient.ts",
+      "file": "positive/candidates/browserbase_stagehand__packages_core_lib_v3_agent_AnthropicCUAClient.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 22820,
+      "notes": "Real OSS top-tier (22820⭐ stagehand). Anthropic CUA client, ANTHROPIC_API_KEY fallback."
+    },
+    {
+      "id": "sf-pos-oss-027",
+      "label": "positive",
+      "source": "github:elizaOS/eliza@f4991bc6059514f10a0fc1a8ec3f199478c415ae:packages/feed/scripts/scambench/eliza_bridge.ts",
+      "file": "positive/candidates/elizaOS_eliza__packages_feed_scripts_scambench_eliza_bridge.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 18461,
+      "notes": "Real OSS top-tier (18461⭐ elizaOS). eliza bridge 스크립트, 5 findings 다중 provider fallback."
+    },
+    {
+      "id": "sf-pos-oss-028",
+      "label": "positive",
+      "source": "github:growthbook/growthbook@37e144cb08f68a7e2d4c1b703429f60aecddb438:packages/back-end/src/services/organizations.ts",
+      "file": "positive/candidates/growthbook_growthbook__packages_back-end_src_services_organizations.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 7819,
+      "notes": "Real OSS popular (7819⭐ growthbook). 5 findings — feature-flag platform 의 organizations service."
+    },
+    {
+      "id": "sf-pos-oss-029",
+      "label": "positive",
+      "source": "github:u14app/deep-research@9e40691620d9fd1e9de4363b8d642b1fef1cd927:src/middleware.ts",
+      "file": "positive/candidates/u14app_deep-research__src_middleware.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 4588,
+      "notes": "Real OSS popular (4588⭐). 17 findings — research middleware 의 multi-provider API key 광범위 fallback (가장 많은 findings)."
+    },
+    {
+      "id": "sf-pos-oss-030",
+      "label": "positive",
+      "source": "github:Mentra-Community/MentraOS@d45d65015211b8b31cba937ae5695d474390ab35:cloud/packages/utils/src/LLMProvider.ts",
+      "file": "positive/candidates/Mentra-Community_MentraOS__cloud_packages_utils_src_LLMProvider.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1990,
+      "notes": "Real OSS popular (1990⭐). LLMProvider utility, 6 findings."
+    },
+    {
+      "id": "sf-pos-live-001",
+      "label": "positive",
+      "source": "live-ai:claude-code:opus-4.7:tier1-jwt-auth-001",
+      "file": "positive/live-ai/claude-code-tier1-jwt-auth-001-middleware.js",
+      "pattern": "env-or-literal",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 3,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "captured_at": "2026-05-27T06:05:31Z",
+      "tool": "claude-code",
+      "model": "opus-4.7",
+      "task_prompt": "Add JWT-based auth middleware to this Express app.",
+      "notes": "First live-AI positive. Self-capture from this very Claude Code session (Opus 4.7). Session was 'primed' — had already read SCOPE-1.0.md + rules + BENCHMARK.md in the same conversation. Despite that, the natural JWT-auth middleware output included `process.env.JWT_SECRET || 'dev-secret-change-in-production'` on line 3. Meta-finding: the antipattern is reflexive enough that even primer-aware Claude produces it for unprompted security-relevant tasks. Full session protocol + bias notes in docs/LIVE-AI-CAPTURE.md."
+    },
+    {
+      "id": "sf-pos-live-002",
+      "label": "positive",
+      "source": "live-ai:claude-code:opus-4.7:tier1-openai-client-002",
+      "file": "positive/live-ai/claude-code-tier1-openai-client-002.js",
+      "pattern": "multi-line-or-literal",
+      "expected_findings": [
+        {
+          "rule": "secret-fallback",
+          "line": 3,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-05-27",
+      "captured_at": "2026-05-27T06:32:49Z",
+      "tool": "claude-code",
+      "model": "opus-4.7",
+      "task_prompt": "Wire up an OpenAI client using OPENAI_API_KEY from the env.",
+      "notes": "Second live-AI positive (same primed session). Natural OpenAI-client output included process.env.OPENAI_API_KEY || '' on line 3 plus a console.warn as soft guard. Rule fired via multi-line-or-literal (caught the warning string as the literal target — true positive on the antipattern, imperfect pattern attribution). Same primer-bias caveat as sf-pos-live-001."
+    }
+  ]
+}
