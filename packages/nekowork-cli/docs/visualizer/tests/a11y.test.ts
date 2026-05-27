@@ -95,7 +95,7 @@ test.describe('Visualizer a11y (T11) + mobile (T14)', () => {
   test('hero renders, toggles before/after, aria-pressed flips', async ({ page }) => {
     await page.goto(FIXTURE_URL, { waitUntil: 'networkidle' });
 
-    await expect(page.locator('.hero__title')).toContainText('내 AI가 짠 코드를');
+    await expect(page.locator('.hero__title')).toContainText('AI가 괜찮다던 코드');
 
     const btnOff = page.locator('#hero-tg-off');
     const btnOn = page.locator('#hero-tg-on');
@@ -122,8 +122,8 @@ test.describe('Visualizer a11y (T11) + mobile (T14)', () => {
   test('conflict section carries PR identity, no standalone pr-summary', async ({ page }) => {
     await page.goto(FIXTURE_URL, { waitUntil: 'networkidle' });
     await expect(page.locator('.pr-summary')).toHaveCount(0);
-    await expect(page.locator('.conflict__pr')).toHaveCount(1);
-    await expect(page.locator('.conflict__pr')).toContainText('sample-pr-001');
+    await expect(page.locator('.conflict__heading')).toHaveCount(1);
+    await expect(page.locator('.conflict__heading')).toContainText('sample-pr-001');
   });
 
   test('hero toggle reachable by keyboard and operable with Enter', async ({ page }) => {
@@ -139,7 +139,10 @@ test.describe('Visualizer a11y (T11) + mobile (T14)', () => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
     await page.goto(FIXTURE_URL, { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('.station', { state: 'visible' });
+    // stations 는 의도적으로 접힌 <details class="stations__details"> 안에 있다.
+    // getComputedStyle 은 접힌 상태에서도 transition-duration 을 반환하므로
+    // 'attached' 로 충분하다 (reduced-motion 미디어쿼리는 모든 요소에 적용).
+    await page.waitForSelector('.station', { state: 'attached' });
 
     // styles.css 의 @media (prefers-reduced-motion: reduce) 가
     // transition-duration 0.001ms 강제. 브라우저는 이를 "0s", "0.001ms",

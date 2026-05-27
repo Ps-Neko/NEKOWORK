@@ -1,6 +1,8 @@
-# NEKOWORK 1.0 Scope (Draft)
+# NEKOWORK 1.0 Scope
 
-> Status: DRAFT — author 검토 후 commit. 결정사항은 2026-05-15 ~ 05-16 의 전략 논의 산물.
+> Status: Active alpha scope. 검증 게이트 정체성은 확정(locked)이며, 일부 동작(특히 §5–§7 의
+> 검증 명령 실행)은 **구현 목표이지 현재 출하분이 아님** — 1.0 전 변경될 수 있다. 결정사항은
+> 2026-05-15 ~ 05-16 의 전략 논의 산물.
 
 ## 1. 결정 요약
 
