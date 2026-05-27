@@ -162,6 +162,76 @@
       "expected_findings": [],
       "added_at": "2026-05-16",
       "notes": "테스트 파일에서 'git push' 문자열은 주석/문자열 안 — comment stripper 가 제거"
+    },
+    {
+      "id": "aacp-pos-oss-001",
+      "label": "positive",
+      "source": "github:anvaka/pm@140510a36a14893000c7ad1df33a783a4e739ca5:deploy.sh",
+      "file": "positive/candidates/anvaka_pm__deploy.sh.sh",
+      "pattern": "git-push-force",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1758,
+      "notes": "Real OSS popular (1758⭐). deploy.sh 에 git push --force. 3 findings."
+    },
+    {
+      "id": "aacp-pos-oss-002",
+      "label": "positive",
+      "source": "github:wesbos/dotfiles@4c4b0036eb47465d2be885b799468609024b2028:.zshrc",
+      "file": "positive/candidates/wesbos_dotfiles__.zshrc.txt",
+      "pattern": "git-push-force",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1293,
+      "notes": "Real OSS popular (1293⭐). .zshrc alias 에 git push --force. shell rc 컨텍스트."
+    },
+    {
+      "id": "aacp-pos-oss-003",
+      "label": "positive",
+      "source": "github:Huxpro/js-module-7day@442fc74cc24510ffc57480122ff38f589c79bed6:push.sh",
+      "file": "positive/candidates/Huxpro_js-module-7day__push.sh.sh",
+      "pattern": "git-push-force",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 675,
+      "notes": "Real OSS popular (675⭐). push.sh 자동 push 스크립트. 2 findings."
+    },
+    {
+      "id": "aacp-pos-oss-004",
+      "label": "positive",
+      "source": "github:bshaffer/oauth2-server-php-docs@ae2916db2e9fb1bd96ea600a17f90818a5b55018:build.sh",
+      "file": "positive/candidates/bshaffer_oauth2-server-php-docs__build.sh.sh",
+      "pattern": "git-push-force",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 229,
+      "notes": "Real OSS. build.sh 에 git push --force. 2 findings — 빌드 산출물 푸시."
+    },
+    {
+      "id": "aacp-pos-oss-005",
+      "label": "positive",
+      "source": "github:IBM-Watson/design-guide@9da98515076994898a55e837425a49524c53ed60:.deploy.sh",
+      "file": "positive/candidates/IBM-Watson_design-guide__.deploy.sh.sh",
+      "pattern": "git-push-force",
+      "expected_findings": [
+        { "rule": "auto-apply-commit-push", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 101,
+      "notes": "Real OSS. .deploy.sh 에 git push --force. 2 findings — 자동 배포 스크립트."
     }
   ]
 }

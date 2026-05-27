@@ -22,11 +22,11 @@ the full picture, including what is still missing for the 1.0 gate.
 | Rule | Recall | FP rate | Pos caught | FP count | 1.0 gate |
 |---|---:|---:|---:|---:|:---:|
 | `secret-fallback` | **97%** | **0%** | 31 / 32 | 0 / 14 | ✅ |
-| `auto-apply-commit-push` | **100%** | **0%** | 8 / 8 | 0 / 9 | ✅ |
+| `auto-apply-commit-push` | **100%** | **0%** | 13 / 13 | 0 / 9 | ✅ |
 | `hardcoded-credential` | **100%** | **0%** | 4 / 4 | 0 / 8 | ✅ |
 | `test-or-security-disable` | **100%** | **0%** | 6 / 6 | 0 / 8 | ✅ |
 | `package-lockfile-risk` | **100%** | **0%** | 6 / 6 | 0 / 8 | ✅ |
-| **Aggregate** | **98%** | **0%** | **55 / 56** | **0 / 47** | — |
+| **Aggregate** | **98%** | **0%** | **60 / 61** | **0 / 47** | — |
 
 **1.0 gate per [SCOPE §9](./SCOPE-1.0.md#9-fixture-출처-정책):** recall ≥ 0.90, FP ≤ 0.10.
 
@@ -47,17 +47,18 @@ for the path that got us here.
 | Rule | Pos (syn / OSS / live AI) | Neg (syn / OSS / live AI) |
 |---|---|---|
 | `secret-fallback` | 12 / 20 / 0 | 11 / 3 / 0 |
-| `auto-apply-commit-push` | 8 / 0 / 0 | 6 / 3 / 0 |
+| `auto-apply-commit-push` | 8 / 5 / 0 | 6 / 3 / 0 |
 | `hardcoded-credential` | 4 / 0 / 0 ⚠️ | 5 / 3 / 0 |
 | `test-or-security-disable` | 6 / 0 / 0 | 5 / 3 / 0 |
 | `package-lockfile-risk` | 6 / 0 / 0 | 5 / 3 / 0 |
-| **Total** | **36 / 20 / 0** | **32 / 15 / 0** |
+| **Total** | **36 / 25 / 0** | **32 / 15 / 0** |
 
 Distinct OSS source repos: **3** (negatives — `expressjs/express`) +
-**20** (positives — diverse, all promoted into `secret-fallback`).
-Star distribution of positive OSS repos: 0⭐(8), 1-99⭐(8), 100-999⭐(2),
-1000+⭐(2). Heaviest finding counts come from `leoning60/browsernode`
-(15 findings) and `Ocean82/BurntBeatzz` (14 findings).
+**25** (positives — 20 for `secret-fallback`, 5 for `auto-apply-commit-push`).
+Star distribution of positive OSS repos: 0⭐(8), 1-99⭐(8), 100-999⭐(5),
+1000+⭐(4). The 1000+⭐ cluster includes `guaguaguaxia/weekly_report` (3237⭐),
+`flutterchina/flukit` (5940⭐ — note: this one was filtered as a TRUE NEGATIVE,
+commented-out command), `anvaka/pm` (1758⭐), and `wesbos/dotfiles` (1293⭐).
 
 ### ⚠️ Ethical note on `hardcoded-credential` OSS scraping
 
