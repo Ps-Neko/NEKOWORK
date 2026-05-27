@@ -530,6 +530,13 @@ export function printVerifyPrSummary(result) {
   console.log(`  apply_allowed  : ${decision.apply_allowed}`);
   console.log(`  changed_files  : ${decision.changed_files.total} (+${decision.changed_files.additions} -${decision.changed_files.deletions})`);
   console.log(`  findings       : critical=${decision.finding_counts.critical} high=${decision.finding_counts.high} medium=${decision.finding_counts.medium} low=${decision.finding_counts.low}`);
+  if (decision.checks?.requested) {
+    if (decision.checks.results.length) {
+      console.log(`  checks         : ${decision.checks.results.map(c => c.name + '=' + c.status).join(' ')}`);
+    } else if (decision.checks.skippedReason) {
+      console.log(`  checks         : skipped`);
+    }
+  }
   if (findings.length) {
     console.log('  top findings:');
     for (const f of findings.slice(0, 5)) {

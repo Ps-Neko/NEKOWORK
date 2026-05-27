@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 import {
   verifyPrCycle,
   parseVerifyPrArgs,
+  printVerifyPrSummary,
   VERDICT,
   EXIT_CODE,
 } from '../../scripts/orchestrators/verify-pr.js';
@@ -303,4 +304,33 @@ test('parseVerifyPrArgs: --run-checks 와 --checks-timeout', () => {
 test('parseVerifyPrArgs: --run-checks 없으면 runChecks 는 falsy', () => {
   const opts = parseVerifyPrArgs([]);
   assert.ok(!opts.runChecks);
+});
+
+test('printVerifyPrSummary: --run-checks 결과를 checks 줄로 출력', () => {
+  const orig = console.log;
+  const out = [];
+  console.log = (...a) => out.push(a.join(' '));
+  try {
+    printVerifyPrSummary({
+      decision: {
+        verdict: 'NEEDS_HUMAN_REVIEW',
+        reason: 'x',
+        risk_level: 'LOW',
+        merge_allowed: false,
+        apply_allowed: false,
+        changed_files: { total: 0, additions: 0, deletions: 0 },
+        finding_counts: { critical: 0, high: 0, medium: 0, low: 0 },
+        checks: {
+          requested: true,
+          skippedReason: null,
+          results: [{ name: 'test', status: 'fail' }, { name: 'lint', status: 'skipped' }],
+        },
+      },
+      findings: [],
+      writtenPaths: null,
+    });
+  } finally {
+    console.log = orig;
+  }
+  assert.ok(out.join('\n').match(/checks.*test=fail/), 'checks 줄에 test=fail 이 포함되어야 함');
 });
