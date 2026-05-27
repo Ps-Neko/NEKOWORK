@@ -66,3 +66,14 @@ test('--run-checks: critical finding skips execution (gate)', async () => {
     assert.equal(r.decision.checks.results.length, 0);
   } finally { try { fs.rmSync(root, { recursive: true, force: true }); } catch {} }
 });
+
+test('--run-checks: REPORT.md has a Checks Run section', async () => {
+  const root = makeProject('node -e "process.exit(1)"');
+  try {
+    write(root, 'src/util.ts', 'export const x = 1;\n');
+    await verifyPrCycle({ projectRoot: root, runChecks: true, write: true });
+    const report = fs.readFileSync(path.join(root, 'REPORT.md'), 'utf8');
+    assert.match(report, /## Checks Run/);
+    assert.match(report, /test.*fail/i);
+  } finally { try { fs.rmSync(root, { recursive: true, force: true }); } catch {} }
+});
