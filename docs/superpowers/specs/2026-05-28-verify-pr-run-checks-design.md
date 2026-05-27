@@ -115,8 +115,9 @@ INSUFFICIENT_EVIDENCE 대신 ALLOW 를 줄 수 있다.
 - CRITICAL finding 존재 (어차피 BLOCK).
 - `package-lockfile-risk` finding 중 **scripts / postinstall / preinstall 변경 종류** (단순
   dependency 추가는 제외 — 이건 실행 명령을 바꾸지 않으므로 검사 실행을 막을 이유 없음).
-  현재 룰이 finding 종류를 구분하지 않으면, 구현 시 finding 에 subtype 태그(예
-  `kind: 'install-hook' | 'script' | 'dependency'`)를 추가해 게이트가 구분하게 한다.
+  finding 은 이미 `pattern` 필드(`_helpers.js` makeRegexScanner 가 pat.id 를 넣음)를 가지므로
+  게이트는 `f.pattern` 이 `install-hook-` / `script-` 로 시작하는지로 구분한다 (별도 태그 불필요).
+  `dependency-*` pattern 은 검사 실행을 막지 않는다.
 - `test-or-security-disable` 가 test 스크립트 약화/삭제를 보고.
 
 이 판단은 `runRules` 결과(이미 실행을 위해 선행)에서 파생하므로 추가 비용 없음.
