@@ -72,3 +72,49 @@ function spawnProcess(bin, args, options = {}) {
 
   return spawn(bin, args, spawnOptions);
 }
+
+/**
+ * Run a shell command, capturing output. Unlike spawnAndCollect, this NEVER
+ * rejects on a non-zero exit — a failing check is a normal result, not a crash.
+ *
+ * @param {string} command  full command line (e.g. "npm test", "npx tsc --noEmit")
+ * @param {{ cwd?: string, env?: object, timeoutMs?: number }} [options]
+ * @returns {Promise<{ code: number|null, stdout: string, stderr: string,
+ *   timedOut: boolean, spawnError: boolean, durationMs: number }>}
+ */
+export function spawnCapture(command, options = {}) {
+  const timeoutMs = Number(options.timeoutMs || 300000);
+  const start = Date.now();
+
+  return new Promise((resolve) => {
+    let stdout = '';
+    let stderr = '';
+    let timedOut = false;
+    let settled = false;
+
+    const child = spawn(command, [], {
+      cwd: options.cwd,
+      env: options.env || process.env,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      shell: true,
+      windowsHide: true,
+    });
+
+    const finish = (partial) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve({ stdout, stderr, timedOut, durationMs: Date.now() - start, ...partial });
+    };
+
+    const timer = setTimeout(() => {
+      timedOut = true;
+      killProcessTree(child);
+    }, timeoutMs);
+
+    child.stdout.on('data', (d) => { stdout += d.toString(); });
+    child.stderr.on('data', (d) => { stderr += d.toString(); });
+    child.on('error', (e) => finish({ code: null, spawnError: true, stderr: stderr + String(e) }));
+    child.on('close', (code) => finish({ code, spawnError: false }));
+  });
+}
