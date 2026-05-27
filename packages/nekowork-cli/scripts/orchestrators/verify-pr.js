@@ -128,6 +128,13 @@ function renderPrComment(decision, findings) {
   lines.push(`| Risk level | ${decision.risk_level} |`);
   lines.push(`| Findings | critical=${decision.finding_counts.critical} high=${decision.finding_counts.high} medium=${decision.finding_counts.medium} low=${decision.finding_counts.low} |`);
   lines.push(`| Changed files | ${decision.changed_files.total} (+${decision.changed_files.additions} -${decision.changed_files.deletions}) |`);
+  const cks = decision.checks || { requested: false, results: [] };
+  if (cks.requested) {
+    const summary = cks.results.length
+      ? cks.results.map(c => `${c.name}=${c.status}`).join(' ')
+      : (cks.skippedReason ? 'skipped' : 'none');
+    lines.push(`| Checks | ${summary} |`);
+  }
   lines.push('');
   const blocking = findings.filter(f => f.blocks_apply);
   if (blocking.length) {
@@ -462,12 +469,33 @@ function renderReport(decision, findings) {
   lines.push('- `.nekowork/evidence/evidence-manifest.json`');
   lines.push('- `.nekowork/decision.json`');
   lines.push('');
-  lines.push('## Checks Available');
-  lines.push('');
-  for (const [name, ok] of Object.entries(decision.project.checks_available)) {
-    lines.push(`- ${name}: ${ok ? 'configured' : 'not configured'}`);
+  const checks = decision.checks || { requested: false, skippedReason: null, results: [] };
+  if (checks.requested && checks.results.length) {
+    lines.push('## Checks Run');
+    lines.push('');
+    for (const c of checks.results) {
+      lines.push(`- ${c.name}: ${c.status}${c.exitCode != null ? ` (exit ${c.exitCode})` : ''}`);
+      if ((c.status === 'fail' || c.status === 'timeout') && c.outputTail) {
+        lines.push('');
+        lines.push('```text');
+        lines.push(c.outputTail);
+        lines.push('```');
+      }
+    }
+    lines.push('');
+  } else if (checks.requested && checks.skippedReason) {
+    lines.push('## Checks Run');
+    lines.push('');
+    lines.push(`Skipped: ${checks.skippedReason}`);
+    lines.push('');
+  } else {
+    lines.push('## Checks Available');
+    lines.push('');
+    for (const [name, ok] of Object.entries(decision.project.checks_available)) {
+      lines.push(`- ${name}: ${ok ? 'configured' : 'not configured'}`);
+    }
+    lines.push('');
   }
-  lines.push('');
   return lines.join('\n');
 }
 
