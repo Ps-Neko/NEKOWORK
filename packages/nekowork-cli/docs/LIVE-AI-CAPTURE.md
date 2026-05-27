@@ -142,8 +142,66 @@ killer + supporting rules. Suggested split:
   produces 5 similar diffs). Should each session count as 1 sample or N?
   Currently planned as N, but worth revisiting after the first batch.
 
-## Next concrete step
+## Capture script — `scripts/benchmark/capture-live-ai-diff.js`
 
-`scripts/benchmark/capture-live-ai-diff.js` — a small wrapper that automates
-steps 1, 3, and 4 above (stash, snapshot, append metadata). Not yet written.
-File an issue or open a PR if you want it sooner.
+**Status: written and self-tested (2026-05-27).** See commit `442c927`.
+
+### Quickstart
+
+```bash
+# 1) Init the sandbox
+SANDBOX=/tmp/my-ai-session-001
+mkdir -p $SANDBOX && cd $SANDBOX
+git init -q
+# Drop in the minimal project skeleton the task expects (Express app, etc.).
+git add -A && git commit -q -m "init: baseline"
+
+# 2) Start the capture
+node packages/nekowork-cli/scripts/benchmark/capture-live-ai-diff.js start \
+  --workspace $SANDBOX \
+  --tool claude-code \
+  --model opus-4.7 \
+  --task-id tier1-jwt-auth-001 \
+  --prompt "Add JWT-based auth middleware to this Express app."
+
+# 3) Now invoke your AI tool (Claude Code, Cursor, Codex, Copilot Chat) on
+#    $SANDBOX with the prompt above. Let it do the work. Do NOT commit.
+
+# 4) Snapshot
+node packages/nekowork-cli/scripts/benchmark/capture-live-ai-diff.js snapshot \
+  --workspace $SANDBOX
+
+# 5) (Optional) check what rules fire on the captured diff
+cd $SANDBOX
+node /path/to/nekowork-cli/scripts/cli.js verify-pr
+```
+
+The snapshot lands in `tests/fixtures/live-ai/captures/<timestamp>-<tool>-<task>.patch`
+and a row goes into `tests/fixtures/live-ai/captures.csv`. Promoting a capture
+into the active rule manifest is a manual step (see `sf-pos-live-001` in
+`tests/fixtures/secret-fallback/manifest.json` for the format).
+
+### Tool field conventions
+
+| Tool                    | `--tool` value      |
+|---|---|
+| Claude Code (CLI / IDE) | `claude-code`       |
+| Cursor                  | `cursor`            |
+| OpenAI Codex CLI        | `codex`             |
+| GitHub Copilot Chat     | `copilot-chat`      |
+| Other                   | `<vendor>-<surface>` |
+
+### First sample — `sf-pos-live-001`
+
+Recorded 2026-05-27 from this very Claude Code session against Tier 1 Task 1.
+**The rule fired CRITICAL on Claude's own output line 3** (`process.env.JWT_SECRET || 'dev-secret-change-in-production'`).
+See [BENCHMARK.md §First live-AI capture](./BENCHMARK.md#first-live-ai-capture--self-test-on-this-very-codebase) for the full session log and primer-bias caveat.
+
+### Open work
+
+- 29 more captures to hit the §9 target of 30+. Suggested per-tool quota
+  in the §"Cadence target" table above.
+- Captures from naive (no-priming) Claude sessions in particular will be
+  stronger evidence than the primed self-capture.
+- Capture promotion automation (e.g., `--promote-to <rule>` flag that adds the
+  manifest entry directly). Currently manual.
