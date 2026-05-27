@@ -21,12 +21,12 @@ the full picture, including what is still missing for the 1.0 gate.
 
 | Rule | Recall | FP rate | Pos caught | FP count | 1.0 gate |
 |---|---:|---:|---:|---:|:---:|
-| `secret-fallback` | **97%** | **0%** | 36 / 37 | 0 / 14 | ✅ |
+| `secret-fallback` | **98%** | **0%** | 41 / 42 | 0 / 14 | ✅ |
 | `auto-apply-commit-push` | **100%** | **0%** | 13 / 13 | 0 / 9 | ✅ |
 | `hardcoded-credential` | **100%** | **0%** | 4 / 4 | 0 / 8 | ✅ |
-| `test-or-security-disable` | **100%** | **0%** | 11 / 11 | 0 / 8 | ✅ |
+| `test-or-security-disable` | **100%** | **0%** | 14 / 14 | 0 / 8 | ✅ |
 | `package-lockfile-risk` | **100%** | **0%** | 9 / 9 | 0 / 8 | ✅ |
-| **Aggregate** | **99%** | **0%** | **73 / 74** | **0 / 47** | — |
+| **Aggregate** | **99%** | **0%** | **81 / 82** | **0 / 47** | — |
 
 **1.0 gate per [SCOPE §9](./SCOPE-1.0.md#9-fixture-출처-정책):** recall ≥ 0.90, FP ≤ 0.10.
 
@@ -46,12 +46,12 @@ for the path that got us here.
 
 | Rule | Pos (syn / OSS / live AI) | Neg (syn / OSS / live AI) |
 |---|---|---|
-| `secret-fallback` | 12 / 25 / 0 | 11 / 3 / 0 |
+| `secret-fallback` | 12 / 30 / 0 ✅ | 11 / 3 / 0 |
 | `auto-apply-commit-push` | 8 / 5 / 0 | 6 / 3 / 0 |
 | `hardcoded-credential` | 4 / 0 / 0 ⚠️ | 5 / 3 / 0 |
-| `test-or-security-disable` | 6 / 5 / 0 | 5 / 3 / 0 |
+| `test-or-security-disable` | 6 / 8 / 0 | 5 / 3 / 0 |
 | `package-lockfile-risk` | 6 / 3 / 0 | 5 / 3 / 0 |
-| **Total** | **36 / 38 / 0** | **32 / 15 / 0** |
+| **Total** | **36 / 46 / 0** | **32 / 15 / 0** |
 
 Distinct OSS source repos: **3** (negatives — `expressjs/express`) +
 **38** (positives, 4 rules covered). Synthetic share of total positives:
@@ -110,21 +110,25 @@ shape so regex fires) — deferred.
 
 | Requirement (SCOPE §9) | Current | Target | Status |
 |---|---:|---:|:---:|
-| `secret-fallback` OSS positives | 25 | 30+ | ⚠️ 83% |
-| `secret-fallback` synthetic share of positives | 32% (12/37) | ≤ 30% | ⚠️ |
+| `secret-fallback` OSS positives | **30** | 30+ | ✅ **MET** |
+| `secret-fallback` synthetic share of positives | **29%** (12/42) | ≤ 30% | ✅ **MET** |
 | `auto-apply-commit-push` OSS positives | 5 | 30+ | ⚠️ 17% |
-| `test-or-security-disable` OSS positives | 5 | 30+ | ⚠️ 17% |
+| `test-or-security-disable` OSS positives | 8 | 30+ | ⚠️ 27% |
 | `package-lockfile-risk` OSS positives | 3 | 30+ | ⚠️ 10% |
 | `hardcoded-credential` OSS positives | 0 (by-design) | — | 🚫 ethical scope |
 | Positive fixtures from live AI diffs | 0 | 30+ | ❌ |
-| Overall synthetic share of positives | 49% (36/74) | ≤ 30% | ⚠️ |
-| Recall — secret-fallback (n=37) | 97% | ≥ 90% | ✅ |
+| Overall synthetic share of positives | 44% (36/82) | ≤ 30% | ⚠️ |
+| Recall — secret-fallback (n=42) | 98% | ≥ 90% | ✅ |
 | Recall — auto-apply-commit-push (n=13) | 100% | ≥ 90% | ✅ |
-| Recall — test-or-security-disable (n=11) | 100% | ≥ 90% | ✅ |
+| Recall — test-or-security-disable (n=14) | 100% | ≥ 90% | ✅ |
 | Recall — package-lockfile-risk (n=9) | 100% | ≥ 90% | ✅ |
-| Recall — across 4 OSS scrape rounds (n=40) | 95% (38/40) | ≥ 90% | ✅ |
+| Recall — across 6 OSS scrape rounds (n=60) | 95% (57/60) | ≥ 90% | ✅ |
 | FP rate — all rules | 0/47 (0%) | ≤ 10% | ✅ |
 | CI benchmark job, 3 consecutive PASS | passes locally | + CI history | ⚠️ partial |
+
+**🎯 1.0 §9 killer-rule (`secret-fallback`) 모든 게이트 충족.** Supporting rule
+3종은 OSS coverage 부족이지만 recall + FP 게이트는 통과 — 시간상 추가 scrape
+로 끌어올리는 작업은 marginal returns 영역.
 
 ## First real OSS scrape — what we found
 

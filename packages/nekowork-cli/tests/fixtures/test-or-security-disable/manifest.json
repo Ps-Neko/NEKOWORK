@@ -178,6 +178,48 @@
       "fetched_at": "2026-05-27",
       "stars": 3503,
       "notes": "Real OSS popular (3503⭐). flow editor core spec 의 skip."
+    },
+    {
+      "id": "td-pos-oss-006",
+      "label": "positive",
+      "source": "github:segmentio/evergreen@9b774aee2d794f6cf2f73a054bd33066ca5898a9:index.d.ts",
+      "file": "positive/candidates/segmentio_evergreen__index.d.ts.ts",
+      "pattern": "ts-nocheck-file",
+      "expected_findings": [
+        { "rule": "test-or-security-disable", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 12426,
+      "notes": "Real OSS top-tier (12426⭐ Segment evergreen). index.d.ts 파일에 @ts-nocheck — 타입 정의 전체 침묵."
+    },
+    {
+      "id": "td-pos-oss-007",
+      "label": "positive",
+      "source": "github:appium/appium-xcuitest-driver@0278419e4aee4ff600fc23c22ccc3b9b25330b80:lib/stubs.ts",
+      "file": "positive/candidates/appium_appium-xcuitest-driver__lib_stubs.ts.ts",
+      "pattern": "ts-nocheck-file",
+      "expected_findings": [
+        { "rule": "test-or-security-disable", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 860,
+      "notes": "Real OSS popular (860⭐ Appium). stubs.ts 파일 전체 @ts-nocheck."
+    },
+    {
+      "id": "td-pos-oss-008",
+      "label": "positive",
+      "source": "github:ForumMagnum/ForumMagnum@3464398c018898fdcf24483746c96e4ab21aa7c4:codegen.ts",
+      "file": "positive/candidates/ForumMagnum_ForumMagnum__codegen.ts.ts",
+      "pattern": "ts-nocheck-file",
+      "expected_findings": [
+        { "rule": "test-or-security-disable", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 707,
+      "notes": "Real OSS (707⭐ ForumMagnum). codegen 스크립트 전체 @ts-nocheck."
     }
   ]
 }

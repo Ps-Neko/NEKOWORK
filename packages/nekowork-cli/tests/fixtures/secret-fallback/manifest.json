@@ -600,6 +600,76 @@
       "fetched_at": "2026-05-27",
       "stars": 659,
       "notes": "Real OSS popular (659⭐). workmail-service, AWS key fallback."
+    },
+    {
+      "id": "sf-pos-oss-026",
+      "label": "positive",
+      "source": "github:browserbase/stagehand@e102a89c903d2f5badb335dd7b7f52f16b275151:packages/core/lib/v3/agent/AnthropicCUAClient.ts",
+      "file": "positive/candidates/browserbase_stagehand__packages_core_lib_v3_agent_AnthropicCUAClient.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 22820,
+      "notes": "Real OSS top-tier (22820⭐ stagehand). Anthropic CUA client, ANTHROPIC_API_KEY fallback."
+    },
+    {
+      "id": "sf-pos-oss-027",
+      "label": "positive",
+      "source": "github:elizaOS/eliza@f4991bc6059514f10a0fc1a8ec3f199478c415ae:packages/feed/scripts/scambench/eliza_bridge.ts",
+      "file": "positive/candidates/elizaOS_eliza__packages_feed_scripts_scambench_eliza_bridge.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 18461,
+      "notes": "Real OSS top-tier (18461⭐ elizaOS). eliza bridge 스크립트, 5 findings 다중 provider fallback."
+    },
+    {
+      "id": "sf-pos-oss-028",
+      "label": "positive",
+      "source": "github:growthbook/growthbook@37e144cb08f68a7e2d4c1b703429f60aecddb438:packages/back-end/src/services/organizations.ts",
+      "file": "positive/candidates/growthbook_growthbook__packages_back-end_src_services_organizations.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 7819,
+      "notes": "Real OSS popular (7819⭐ growthbook). 5 findings — feature-flag platform 의 organizations service."
+    },
+    {
+      "id": "sf-pos-oss-029",
+      "label": "positive",
+      "source": "github:u14app/deep-research@9e40691620d9fd1e9de4363b8d642b1fef1cd927:src/middleware.ts",
+      "file": "positive/candidates/u14app_deep-research__src_middleware.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 4588,
+      "notes": "Real OSS popular (4588⭐). 17 findings — research middleware 의 multi-provider API key 광범위 fallback (가장 많은 findings)."
+    },
+    {
+      "id": "sf-pos-oss-030",
+      "label": "positive",
+      "source": "github:Mentra-Community/MentraOS@d45d65015211b8b31cba937ae5695d474390ab35:cloud/packages/utils/src/LLMProvider.ts",
+      "file": "positive/candidates/Mentra-Community_MentraOS__cloud_packages_utils_src_LLMProvider.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 1990,
+      "notes": "Real OSS popular (1990⭐). LLMProvider utility, 6 findings."
     }
   ]
 }
