@@ -14,10 +14,66 @@ export function render(root: HTMLElement, fixture: Fixture): void {
   root.innerHTML = `
     ${renderHero()}
     <main class="layout" data-fixture-id="${escapeAttr(fixture.id)}">
+      ${renderDemoSummary(fixture)}
       ${renderConflictFrame(fixture)}
+      ${renderKeyEvidence(fixture)}
       ${renderStationGrid(fixture)}
       ${renderEvidenceTrail(fixture)}
     </main>
+  `;
+}
+
+function renderDemoSummary(fixture: Fixture): string {
+  const detail = fixture.decision.deterministicRulesDetail;
+  const ruleLabel = detail?.ruleId ?? 'deterministic rule';
+  const blocked = fixture.decision.apply.allowed ? '적용 가능' : '적용 차단';
+  const steps = [
+    {
+      label: '1. AI가 코드 작성',
+      value: fixture.samplePr.title,
+      tone: 'neutral'
+    },
+    {
+      label: '2. AI 리뷰 통과',
+      value: `Claude: ${fixture.claudeReview.verdict}`,
+      tone: 'info'
+    },
+    {
+      label: '3. 규칙이 위험 발견',
+      value: ruleLabel,
+      tone: 'danger'
+    },
+    {
+      label: '4. 증거로 설명',
+      value: detail ? `${detail.file}:${detail.line}` : 'evidence linked',
+      tone: 'warn'
+    },
+    {
+      label: '5. 병합 전 멈춤',
+      value: blocked,
+      tone: 'success'
+    }
+  ];
+
+  return `
+    <section class="summary" aria-label="NEKOWORK demo summary">
+      <div class="section-heading">
+        <p class="section-heading__eyebrow">한눈에 보는 흐름</p>
+        <h2>AI 도구 → NEKOWORK 검사 → 사람 승인</h2>
+        <p>이 데모는 AI가 좋다고 말한 PR을 NEKOWORK가 어떤 근거로 멈추는지 보여줍니다.</p>
+      </div>
+      <ol class="summary__steps" role="list">
+        ${steps
+          .map(
+            (step) => `
+          <li class="summary__step summary__step--${escapeAttr(step.tone)}">
+            <span>${escapeHtml(step.label)}</span>
+            <strong>${escapeHtml(step.value)}</strong>
+          </li>`
+          )
+          .join('')}
+      </ol>
+    </section>
   `;
 }
 
@@ -26,21 +82,24 @@ function renderConflictFrame(fixture: Fixture): string {
   const nekoBadge = badgeFor(decision.verdict, decision.riskLevel);
   const advisorBadge =
     claudeReview.verdict === 'LGTM'
-      ? '<span class="badge badge--advisor-info">괜찮음</span>'
-      : '<span class="badge badge--advisor-warn">변경 요청</span>';
+      ? '<span class="badge badge--advisor-info">AI 의견: 문제없음</span>'
+      : '<span class="badge badge--advisor-warn">AI 의견: 수정 필요</span>';
 
   const sourceLabel =
     claudeReview.source === 'manufactured'
-      ? '<span class="source-tag source-tag--manufactured">manufactured demo</span>'
-      : `<span class="source-tag source-tag--recorded">recorded${claudeReview.attribution ? ` · ${escapeHtml(claudeReview.attribution)}` : ''}</span>`;
+      ? '<span class="source-tag source-tag--manufactured">샘플 AI 리뷰</span>'
+      : `<span class="source-tag source-tag--recorded">기록된 리뷰${claudeReview.attribution ? ` · ${escapeHtml(claudeReview.attribution)}` : ''}</span>`;
 
   return `
     <section class="conflict" aria-label="Claude advisor vs NEKOWORK rule comparison">
-      <p class="conflict__pr"><code>${escapeHtml(fixture.samplePr.pr_id)}</code> ${escapeHtml(fixture.samplePr.title)}</p>
-      <h2 class="conflict__title">같은 코드, 다른 결론</h2>
+      <div class="section-heading conflict__heading">
+        <p class="section-heading__eyebrow"><code>${escapeHtml(fixture.samplePr.pr_id)}</code> ${escapeHtml(fixture.samplePr.head_branch)}</p>
+        <h2>같은 코드, 다른 결론</h2>
+        <p>${escapeHtml(fixture.samplePr.description)}</p>
+      </div>
       <article class="conflict__column conflict__column--advisor" data-source="advisor" aria-label="Advisor opinion">
         <header class="conflict__header">
-          <span class="badge badge--advisor">Advisor: Claude</span>
+          <span class="badge badge--advisor">AI 리뷰</span>
           ${sourceLabel}
         </header>
         <p class="conflict__verdict">${advisorBadge}</p>
@@ -57,7 +116,7 @@ function renderConflictFrame(fixture: Fixture): string {
       </article>
       <article class="conflict__column conflict__column--neko" data-source="rule" aria-label="NEKOWORK rule verdict">
         <header class="conflict__header">
-          <span class="badge badge--neko">NEKOWORK: Rule + Evidence</span>
+          <span class="badge badge--neko">NEKOWORK 규칙 검사</span>
         </header>
         <p class="conflict__verdict">${nekoBadge}</p>
         ${renderRuleDetail(fixture)}
@@ -66,6 +125,48 @@ function renderConflictFrame(fixture: Fixture): string {
           ${decision.apply.reason ? `<br/><small>${escapeHtml(decision.apply.reason)}</small>` : ''}
         </p>
       </article>
+    </section>
+  `;
+}
+
+function renderKeyEvidence(fixture: Fixture): string {
+  const detail = fixture.decision.deterministicRulesDetail;
+  const riskyLine = extractRiskyLine(fixture);
+  const ruleId = detail?.ruleId ?? 'deterministic rule';
+  const file = detail ? `${detail.file}:${detail.line}` : 'evidence file';
+  const pattern = detail?.pattern ?? 'rule pattern';
+  const applyText = fixture.decision.apply.allowed ? 'true' : 'false';
+
+  return `
+    <section class="key-evidence" id="evidence-focus" aria-label="BLOCK reason explained">
+      <div class="section-heading">
+        <p class="section-heading__eyebrow">왜 BLOCK인가</p>
+        <h2>환경변수가 없을 때, 숨겨진 기본 비밀키가 사용됩니다.</h2>
+        <p>이 패턴은 운영 환경에서 같은 JWT 서명 키가 고정될 수 있어 인증 보안을 망가뜨릴 수 있습니다.</p>
+      </div>
+
+      <div class="key-evidence__grid">
+        <article class="key-evidence__code" aria-label="위험 코드 줄">
+          <span class="key-evidence__label">문제 줄</span>
+          <code>${escapeHtml(file)}</code>
+          <pre><code>${escapeHtml(riskyLine)}</code></pre>
+        </article>
+
+        <div class="key-evidence__facts" aria-label="차단 근거 요약">
+          <article>
+            <span>감지 규칙</span>
+            <strong>${escapeHtml(ruleId)}</strong>
+          </article>
+          <article>
+            <span>감지 패턴</span>
+            <strong><code>${escapeHtml(pattern)}</code></strong>
+          </article>
+          <article>
+            <span>최종 적용</span>
+            <strong><code>apply.allowed = ${applyText}</code></strong>
+          </article>
+        </div>
+      </div>
     </section>
   `;
 }
@@ -91,11 +192,18 @@ function renderStationGrid(fixture: Fixture): string {
   }).join('');
 
   return `
-    <section class="stations" aria-label="12-station verification factory">
-      <h2 class="stations__title">12-station verification factory</h2>
-      <ol class="stations__grid" role="list">
-        ${cells}
-      </ol>
+    <section class="stations" id="stations" aria-label="12-station verification factory">
+      <details class="stations__details">
+        <summary>
+          <span>
+            <strong>12단계 검증 전체 보기</strong>
+            <small>처음에는 핵심 판정만 보고, 필요할 때 전체 파이프라인을 펼칩니다.</small>
+          </span>
+        </summary>
+        <ol class="stations__grid" role="list">
+          ${cells}
+        </ol>
+      </details>
     </section>
   `;
 }
@@ -118,11 +226,22 @@ function renderStationCell(station: Station, status: StationStatus, position: nu
 
 function renderEvidenceTrail(fixture: Fixture): string {
   const items = Object.entries(fixture.decision.evidence).map(
-    ([k, v]) => `<li><strong>${escapeHtml(k)}:</strong> <code>${escapeHtml(String(v))}</code></li>`
+    ([k, v]) => `
+      <li>
+        <span>
+          <strong>${escapeHtml(evidenceLabel(k))}</strong>
+          <small>${escapeHtml(evidenceHint(k))}</small>
+        </span>
+        <code>${escapeHtml(String(v))}</code>
+      </li>`
   );
   return `
     <section class="evidence" aria-label="evidence trail">
-      <h2 class="evidence__title">Evidence trail</h2>
+      <div class="section-heading">
+        <p class="section-heading__eyebrow">증거 파일</p>
+        <h2>판정은 파일로 남습니다.</h2>
+        <p>리뷰어는 아래 파일에서 어떤 검사와 어떤 결론이 나왔는지 다시 확인할 수 있습니다.</p>
+      </div>
       <ul class="evidence__list">${items.join('')}</ul>
     </section>
   `;
@@ -130,7 +249,46 @@ function renderEvidenceTrail(fixture: Fixture): string {
 
 function badgeFor(verdict: string, risk: string): string {
   const cls = verdict === 'BLOCK' ? 'badge--block' : verdict === 'PASS' ? 'badge--pass' : 'badge--warn';
-  return `<span class="badge ${cls}">${escapeHtml(verdict)} · ${escapeHtml(risk)}</span>`;
+  return `<span class="badge ${cls}">${escapeHtml(verdict)} · 위험도 ${escapeHtml(risk)}</span>`;
+}
+
+function evidenceLabel(key: string): string {
+  const labels: Record<string, string> = {
+    report_path: '사람이 읽는 리포트',
+    preverify_summary: '사전 점검 결과',
+    verify_summary: '검증 요약',
+    stage_decision: '최종 판정 JSON',
+    advisor_claude: 'AI 리뷰 원문'
+  };
+  return labels[key] ?? key;
+}
+
+function evidenceHint(key: string): string {
+  const hints: Record<string, string> = {
+    report_path: '무엇이 막혔는지 설명',
+    preverify_summary: '기본 체크 상태',
+    verify_summary: '게이트별 통과/실패',
+    stage_decision: 'apply.allowed=false 근거',
+    advisor_claude: 'AI가 남긴 의견'
+  };
+  return hints[key] ?? 'linked evidence';
+}
+
+function extractRiskyLine(fixture: Fixture): string {
+  const detail = fixture.decision.deterministicRulesDetail;
+  const processEnvFallback = fixture.samplePr.diff_content
+    .split('\n')
+    .find((line) => line.startsWith('+') && line.includes('process.env') && line.includes('||'));
+
+  if (processEnvFallback) {
+    return processEnvFallback.slice(1);
+  }
+
+  if (detail) {
+    return `${detail.file}:${detail.line} matched ${detail.pattern}`;
+  }
+
+  return 'Matched a deterministic security rule.';
 }
 
 function stationStatusFor(station: Station, fixture: Fixture): StationStatus {
