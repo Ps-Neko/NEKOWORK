@@ -365,7 +365,7 @@ function writeEvidence({ projectRoot, parsedDiff, findings, decision }) {
   fs.writeFileSync(findingsPath, JSON.stringify(findings, null, 2));
 
   const checksPath = path.join(evidenceDir, 'checks.json');
-  fs.writeFileSync(checksPath, JSON.stringify(decision.checks || { requested: false, results: [] }, null, 2));
+  fs.writeFileSync(checksPath, JSON.stringify(decision.checks || { requested: false, skippedReason: null, results: [] }, null, 2));
 
   const manifestPath = path.join(evidenceDir, 'evidence-manifest.json');
   fs.writeFileSync(manifestPath, JSON.stringify({
@@ -374,6 +374,7 @@ function writeEvidence({ projectRoot, parsedDiff, findings, decision }) {
     artifacts: [
       { name: 'diff.summary.json', path: 'evidence/diff.summary.json' },
       { name: 'risk-findings.json', path: 'evidence/risk-findings.json' },
+      { name: 'checks.json', path: 'evidence/checks.json' },
     ],
   }, null, 2));
 

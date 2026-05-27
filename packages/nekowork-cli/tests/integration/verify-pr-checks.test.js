@@ -31,7 +31,7 @@ test('--run-checks: passing test + benign source → ALLOW with checks evidence'
     assert.equal(r.decision.verdict, VERDICT.ALLOW);
     const testResult = r.decision.checks.results.find(c => c.name === 'test');
     assert.equal(testResult.status, 'pass');
-  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+  } finally { try { fs.rmSync(root, { recursive: true, force: true }); } catch {} }
 });
 
 test('--run-checks: failing test + benign source → NEEDS_HUMAN_REVIEW (not BLOCK)', async () => {
@@ -42,7 +42,7 @@ test('--run-checks: failing test + benign source → NEEDS_HUMAN_REVIEW (not BLO
     assert.equal(r.decision.verdict, VERDICT.NEEDS_HUMAN_REVIEW);
     assert.match(r.decision.reason, /test/);
     assert.equal(r.exitCode, 1);
-  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+  } finally { try { fs.rmSync(root, { recursive: true, force: true }); } catch {} }
 });
 
 test('without --run-checks: behavior unchanged (failing test not run)', async () => {
@@ -53,7 +53,7 @@ test('without --run-checks: behavior unchanged (failing test not run)', async ()
     // test command EXISTS, so source change is ALLOW; checks were never run.
     assert.equal(r.decision.verdict, VERDICT.ALLOW);
     assert.equal(r.decision.checks.requested, false);
-  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+  } finally { try { fs.rmSync(root, { recursive: true, force: true }); } catch {} }
 });
 
 test('--run-checks: critical finding skips execution (gate)', async () => {
@@ -64,5 +64,5 @@ test('--run-checks: critical finding skips execution (gate)', async () => {
     assert.equal(r.decision.verdict, VERDICT.BLOCK); // critical wins
     assert.equal(r.decision.checks.skippedReason != null, true);
     assert.equal(r.decision.checks.results.length, 0);
-  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+  } finally { try { fs.rmSync(root, { recursive: true, force: true }); } catch {} }
 });
