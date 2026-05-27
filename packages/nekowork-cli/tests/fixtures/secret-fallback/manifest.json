@@ -460,6 +460,76 @@
       "fetched_at": "2026-05-27",
       "stars": 99,
       "notes": "Real OSS. OPENAI_API_KEY fallback — GTD task backend."
+    },
+    {
+      "id": "sf-pos-oss-016",
+      "label": "positive",
+      "source": "github:jferrettiboke/stripe-graphql@1c88667ba5b90d7ebe66c54bb5edba7fc48b1241:src/stripe.ts",
+      "file": "positive/candidates/jferrettiboke_stripe-graphql__src_stripe.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 56,
+      "notes": "Real OSS. STRIPE_SECRET_KEY fallback — GraphQL Stripe wrapper."
+    },
+    {
+      "id": "sf-pos-oss-017",
+      "label": "positive",
+      "source": "github:itsezlife/yandex-eats-clone@0929a230a545a0edb6d8bc418cf8648049b7f261:server/src/index.ts",
+      "file": "positive/candidates/itsezlife_yandex-eats-clone__server_src_index.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 80,
+      "notes": "Real OSS. 3 findings — server index, 다중 provider key fallback."
+    },
+    {
+      "id": "sf-pos-oss-018",
+      "label": "positive",
+      "source": "github:ankitkumarbarik/ByteCinema@9837ff75187c9ad2143477cf1bd160349b12b9ae:src/config/env.config.ts",
+      "file": "positive/candidates/ankitkumarbarik_ByteCinema__src_config_env.config.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 13,
+      "notes": "Real OSS. 7 findings — env config 모듈, 다수 STRIPE/JWT fallback."
+    },
+    {
+      "id": "sf-pos-oss-019",
+      "label": "positive",
+      "source": "github:Ocean82/BurntBeatzz@c0a3a3e43e916c934f33466408bfdadf7bde6d00:lib/config/env.ts",
+      "file": "positive/candidates/Ocean82_BurntBeatzz__lib_config_env.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 0,
+      "notes": "Real OSS. 14 findings — heavy env config 모듈, 광범위 provider key fallback."
+    },
+    {
+      "id": "sf-pos-oss-020",
+      "label": "positive",
+      "source": "github:wlumsa/wlumsa.org@f933744ab156c277bc9a76d182ba1731a9929180:src/payload.config.ts",
+      "file": "positive/candidates/wlumsa_wlumsa.org__src_payload.config.ts.ts",
+      "pattern": "env-or-empty-string",
+      "expected_findings": [
+        { "rule": "secret-fallback", "severity": "critical" }
+      ],
+      "added_at": "2026-05-27",
+      "fetched_at": "2026-05-27",
+      "stars": 10,
+      "notes": "Real OSS. 8 findings — Payload CMS config, STRIPE + 다중 fallback."
     }
   ]
 }
