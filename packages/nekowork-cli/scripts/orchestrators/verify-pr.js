@@ -206,6 +206,7 @@ function classifyChangedFiles(parsedDiff) {
  * distinguishes install/script changes from plain dependency changes.
  */
 export function checksBlockedByRisk(findings) {
+  if (!Array.isArray(findings)) return false;
   return findings.some((f) => {
     if (f.severity === 'critical') return true;
     if (f.rule === 'test-or-security-disable') return true;
