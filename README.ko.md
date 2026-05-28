@@ -93,6 +93,19 @@ NEKOWORK가 바뀐 줄을 읽고, 사람이 읽기 쉬운 `REPORT.md`를 만들�
 - Cursor, Claude Code, Codex의 대체품이 아닙니다. 먼저 그 도구들을 사용하고,
   그 결과를 NEKOWORK로 검사하세요.
 
+## 검증만으로 부족할 때
+
+NEKOWORK는 일부러 좁게 만들어졌습니다 — AI가 만든 변경을 병합 전에 검사하는
+한 가지 일만 합니다. 같은 검증 철학을 더 큰 개발 흐름(문제 정리, 스펙, 계획,
+작업 패킷, 워커 프롬프트, 그리고 같은 게이트) 안에 두고 싶다면,
+[NEKOFORGE](https://github.com/Ps-Neko/NEKOFORGE)를 참고하세요 —
+NEKOWORK식 게이트를 마지막 안전 단계로 흡수하는 소스 기반 AI 개발 하네스입니다.
+
+```text
+NEKOWORK  = AI 변경에 대한 좁은 안전 검사
+NEKOFORGE = 전체 로컬 개발 하네스, 마지막에 같은 게이트로 끝남
+```
+
 ## 상태 -- 공개 알파
 
 NEKOWORK는 공개 알파 단계입니다. npm에 배포되어 있고, CI와
