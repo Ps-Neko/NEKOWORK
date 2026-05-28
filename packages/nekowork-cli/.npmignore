@@ -16,3 +16,14 @@ docs/visualizer/**
 /docs/visualizer
 /docs/visualizer/
 /docs/visualizer/**
+
+# Hero overview PNG — 루트 GitHub README 전용 자산
+# 루트 README.md / README.ko.md 만 참조하고, 패키지 내부 README 는
+# hero.gif / demo-terminal.svg 를 쓰므로 npm tarball 에 포함될 필요가 없다.
+# npmjs.com 의 README 이미지는 GitHub repo raw URL 로 가져오므로
+# tarball 제외해도 렌더링에 영향 없음.
+# Counterpart CI assertion: .github/workflows/harness-validate.yml
+# (tarball-size-guard, alpha.11 baseline + 1MB delta).
+docs/assets/overview-*.png
+/docs/assets/overview-*.png
+**/docs/assets/overview-*.png

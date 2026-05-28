@@ -46,7 +46,8 @@
     "bridge/",
     "examples/",
     "docs/*.md",
-    "docs/assets/**",
+    "docs/assets/*.svg",
+    "docs/assets/*.gif",
     "docs/case-studies/**",
     "docs/examples/**"
   ],
