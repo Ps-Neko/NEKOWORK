@@ -17,7 +17,7 @@ NEKOWORK가 대신 코드를 작성하지는 않습니다. 스스로 커밋하�
 [![status: public alpha](https://img.shields.io/badge/status-public%20alpha-orange)](#상태--공개-알파)
 
 <p align="center">
-  <img src="packages/nekowork-cli/docs/assets/overview-ko.png" alt="NEKOWORK가 AI 작성 코드를 병합 전에 검사하고 최종 결정은 사람이 하는 흐름" width="900" />
+  <img src="packages/nekowork-cli/docs/assets/overview-ko-minimal.png" alt="NEKOWORK가 AI 작성 코드를 병합 전에 검사하고 최종 결정은 사람이 하는 흐름" width="900" />
   <br/>
   <a href="https://ps-neko.github.io/NEKOWORK/?fixture=sample-pr-001"><strong>라이브 데모 열기</strong></a>
 </p>
