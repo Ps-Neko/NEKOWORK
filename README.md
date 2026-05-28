@@ -94,6 +94,21 @@ Full technical scope: [SCOPE-1.0.md](packages/nekowork-cli/docs/SCOPE-1.0.md).
 - Not a replacement for Cursor, Claude Code, or Codex. Use those tools first,
   then run their output through NEKOWORK.
 
+## Need More Than Verification?
+
+NEKOWORK is intentionally narrow: it only verifies AI-written changes before
+merge. If you want the same verification philosophy embedded in a fuller
+development workflow -- problem framing, spec, plan, work packets, worker
+prompts, and then the same gate -- see
+[NEKOFORGE](https://github.com/Ps-Neko/NEKOFORGE), the source-based AI
+development harness that wraps the NEKOWORK-style gate as its final safety
+step.
+
+```text
+NEKOWORK  = narrow safety checkpoint on AI-written changes
+NEKOFORGE = full local development harness; ends with the same gate
+```
+
 ## Status -- Public Alpha
 
 NEKOWORK is in public alpha. It is already published on npm, has CI coverage, a
