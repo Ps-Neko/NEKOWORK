@@ -17,7 +17,7 @@ itself. **A human still makes the final decision.**
 [![status: public alpha](https://img.shields.io/badge/status-public%20alpha-orange)](#status--public-alpha)
 
 <p align="center">
-  <img src="packages/nekowork-cli/docs/assets/overview-en-minimal.png" alt="NEKOWORK checks AI-written code before merge and leaves the final decision to a human" width="900" />
+  <img src="packages/nekowork-cli/docs/assets/overview-en-premium.png" alt="NEKOWORK checks AI-written code before merge and leaves the final decision to a human" width="900" />
   <br/>
   <a href="https://ps-neko.github.io/NEKOWORK/?fixture=sample-pr-001"><strong>Open live demo</strong></a>
 </p>
