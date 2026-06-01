@@ -2,128 +2,86 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
-**Check AI-written code before it enters your project.**
-
-NEKOWORK is a local safety checkpoint for code made by AI tools such as Cursor,
-Claude Code, and Codex. It looks at what changed, points out risky parts, and
-gives you a simple verdict: **PASS**, **REVIEW**, or **BLOCK**.
-
-It does not write code for you. It does not commit, push, merge, or deploy by
-itself. **A human still makes the final decision.**
+**AI가 만든 코드 변경을 CI 단계에서 deterministic하게 검증하는 local-first 게이트.**
 
 [![CI](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 [![npm](https://img.shields.io/npm/v/@ps-neko/nekowork/alpha?color=cb3837&logo=npm)](https://www.npmjs.com/package/@ps-neko/nekowork)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![status: public alpha](https://img.shields.io/badge/status-public%20alpha-orange)](#status--public-alpha)
 
-<p align="center">
-  <img src="packages/nekowork-cli/docs/assets/overview-en-premium.png" alt="NEKOWORK checks AI-written code before merge and leaves the final decision to a human" width="900" />
-  <br/>
-  <a href="https://ps-neko.github.io/NEKOWORK/?fixture=sample-pr-001"><strong>Open live demo</strong></a>
-</p>
+Cursor, Claude Code, Codex 같은 AI 도구가 만든 diff를 받아 — 하드코딩 시크릿, 비활성화된 테스트·보안 검사, 자동 commit/push, 위험한 install 스크립트를 잡고 한 줄 verdict + 사람이 읽는 `REPORT.md`로 답한다. **결정은 deterministic. LLM은 verdict에 투표하지 않는다.** auto-commit, auto-push, auto-deploy는 하지 않는다 — 사람이 결정한다.
 
-## In One Minute
-
-AI coding tools are fast, but they can also leave dangerous changes behind:
-secret keys in code, disabled tests, risky install scripts, or automation that
-pushes code without enough review.
-
-NEKOWORK is the extra checkpoint after the AI changes files and before the
-change is accepted into your project.
-
-1. Your AI tool changes the files.
-2. NEKOWORK checks the changed lines.
-3. NEKOWORK writes an evidence report.
-4. You decide whether the change is safe.
-
-If you are not a developer, the short version is: **AI makes the draft,
-NEKOWORK checks the warning signs, and a person approves the final change.**
-
-## What The Verdict Means
-
-| Verdict | Meaning |
-|---|---|
-| **PASS** | No blocking risk was found. |
-| **REVIEW** | Something needs a human look before moving on. |
-| **BLOCK** | NEKOWORK found a serious risk and tells you where it is. |
-
-> `verify-pr`'s machine-readable output uses five specific verdicts — `ALLOW`,
-> `ALLOW_WITH_WARNINGS`, `NEEDS_HUMAN_REVIEW`, `INSUFFICIENT_EVIDENCE`, and `BLOCK` —
-> that map onto these three buckets. See the
-> [verdict table](packages/nekowork-cli/docs/QUICKSTART.md#3-the-five-verdicts-and-the-simple-buckets).
-
-## Quickstart
-
-Requirements: Node.js 22+, npm, and a git repository with at least one commit.
+## 60초 try
 
 ```bash
-# after your AI tool changes some files:
-npx -y @ps-neko/nekowork@alpha check
-npx -y @ps-neko/nekowork@alpha verify-pr
+# git repo 안에서, AI 도구가 파일을 바꾼 직후:
+npx -y @ps-neko/nekowork verify-pr
 ```
 
-NEKOWORK reads the changed lines, writes a plain-English `REPORT.md`, and tells
-you whether the change should move forward.
+working-tree diff를 스캔하고 `REPORT.md` + `.nekowork/decision.json`을 만든다. `BLOCK`이면 종료 코드 비-0 — CI에 그대로 연결하면 fail로 잡힌다.
 
-Example when a change is blocked:
+## Example: 하드코딩 시크릿 fallback이 잡힐 때
+
+AI가 환경 변수 fallback을 남기면:
+
+```diff
+- const token = process.env.AUTH_TOKEN;
++ const token = process.env.AUTH_TOKEN || "dev-token-not-rotated";
+```
 
 ```text
 === verify-pr ===
   verdict        : BLOCK
-  reason         : Hardcoded secret fallback detected (src/auth.ts:42)
+  reason         : Hardcoded secret fallback at src/auth.ts:42 (env-or-literal)
   risk_level     : CRITICAL
-  merge_allowed  : false
   apply_allowed  : false
 ```
 
-## What It Catches
+## What it catches
 
-- Secret keys or fallback passwords accidentally placed in code.
-- Tests, lint checks, or security checks being switched off.
-- Code that tries to auto-commit, auto-push, auto-merge, or deploy.
-- Risky package or install-script changes.
-- Changes with too little evidence to trust safely.
+- 하드코딩 시크릿·API 키·PAT (AWS, Stripe, GitHub, Slack, Google, PEM 등)
+- 비활성화된 테스트 (`it.skip`, `xit`, `pytest.mark.skip`), `@ts-nocheck`, file-wide `eslint-disable`
+- 자동 commit/push/merge 시도 (`git push --force`, `auto-merge: true`, `spawnSync git push`)
+- 위험한 install script (`curl | bash`, `postinstall`, git/tarball URL 의존성)
+- 증거가 부족해 신뢰할 수 없는 변경
 
-Full technical scope: [SCOPE-1.0.md](packages/nekowork-cli/docs/SCOPE-1.0.md).
+## What it is not
 
-## What NEKOWORK Is Not
+- IDE 아니다.
+- AI 코딩 에이전트 아니다.
+- 사람 없이 코드를 push하는 자동화 아니다.
+- Cursor/Claude Code/Codex 대체 아니다. 그 도구로 작성한 뒤 산출물을 NEKOWORK에 통과시킨다.
 
-- Not an IDE.
-- Not another AI coding agent.
-- Not an autopilot that pushes code on its own.
-- Not a replacement for Cursor, Claude Code, or Codex. Use those tools first,
-  then run their output through NEKOWORK.
+## Two verbs
 
-## Need More Than Verification?
+| Verb | Purpose |
+|---|---|
+| `check` | 환경 점검 (Node 22+, git, repo 상태) |
+| `verify-pr` | working-tree diff 스캔 → verdict + REPORT.md + .nekowork/decision.json |
 
-NEKOWORK is intentionally narrow: it only verifies AI-written changes before
-merge. If you want the same verification philosophy embedded in a fuller
-development workflow -- problem framing, spec, plan, work packets, worker
-prompts, and then the same gate -- see
-[NEKOFORGE](https://github.com/Ps-Neko/NEKOFORGE), the source-based AI
-development harness that wraps the NEKOWORK-style gate as its final safety
-step.
+## Requirements
 
-```text
-NEKOWORK  = narrow safety checkpoint on AI-written changes
-NEKOFORGE = full local development harness; ends with the same gate
+Node.js 22+, npm/npx, 최소 한 개 커밋이 있는 git repo.
+
+## CI 통합 (5줄 복붙)
+
+GitHub Actions:
+
+```yaml
+- uses: actions/checkout@v4
+  with: { fetch-depth: 0 }
+- uses: Ps-Neko/NEKOWORK@main
 ```
 
-## Status -- Public Alpha
+pre-commit:
 
-NEKOWORK is in public alpha. It is already published on npm, has CI coverage, a
-[live demo](https://ps-neko.github.io/NEKOWORK/?fixture=sample-pr-001), and a
-test suite.
+```yaml
+repos:
+  - repo: https://github.com/Ps-Neko/NEKOWORK
+    rev: main
+    hooks:
+      - id: nekowork-verify-pr
+```
 
-One honest note: **"verified" means independently checked with recorded
-evidence. It does not mean mathematically proven correct.**
+## License
 
-Found a gap or a false block?
-[Open alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml)
-
-## Docs
-
-- **Start here:** [Quickstart](packages/nekowork-cli/docs/QUICKSTART.md) | [How verification works](packages/nekowork-cli/docs/SCOPE-1.0.md) | [Integration](packages/nekowork-cli/docs/INTEGRATION.md)
-- **Go deeper:** [Architecture](packages/nekowork-cli/docs/ARCHITECTURE.md) | [Advanced commands](packages/nekowork-cli/docs/ADVANCED.md) | [Vision](packages/nekowork-cli/docs/VISION.md)
-- **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md) -- English PRs welcome.
-- **License:** MIT
+MIT — see [LICENSE](LICENSE).
