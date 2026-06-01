@@ -86,3 +86,12 @@ docs/CODEMAPS/
 
 # brainstorming 시각 목업 (superpowers visual companion 산출물, 로컬 임시)
 .superpowers/
+
+# NEKOWORK local verification outputs
+.nekowork/
+**/.nekowork/
+REPORT.md
+**/REPORT.md
+
+# Local encrypted/private fixture sidecars
+*.pfile

@@ -69,6 +69,7 @@ jobs:
         with:
           filters: |
             cli:
+              - 'packages/nekowork/**'
               - 'packages/nekowork-cli/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
@@ -96,7 +97,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Security hardening gate
-        run: pnpm --filter @ps-neko/nekowork run security:hardening
+        run: pnpm --filter ./packages/nekowork-cli run security:hardening
 
       - name: Dependency audit
         run: pnpm audit --audit-level=moderate
@@ -140,7 +141,13 @@ jobs:
           node packages/nekowork-cli/scripts/ci/check-markers.js
 
       - name: nekowork-cli tests
-        run: pnpm --filter @ps-neko/nekowork run test
+        run: pnpm --filter ./packages/nekowork-cli run test
+
+      - name: slim nekowork tests
+        run: |
+          pnpm --filter ./packages/nekowork run test
+          pnpm --filter ./packages/nekowork run smoke
+          pnpm --filter ./packages/nekowork run smoke:reject
 
       - name: Build projections
         run: |
@@ -277,6 +284,27 @@ jobs:
             exit 1
           fi
           echo "OK docs/visualizer/ excluded from tarball"
+
+      - name: Slim package npm pack dry-run
+        working-directory: packages/nekowork
+        run: |
+          set -euo pipefail
+          npm pack --dry-run --json > /tmp/slim-pack.json
+          jq -r '.[0] | "size=\(.size) unpackedSize=\(.unpackedSize)"' /tmp/slim-pack.json
+
+      - name: Slim package contents assertion
+        run: |
+          set -euo pipefail
+          jq -e '.[0].files[] | select(.path == "scripts/cli.js")' /tmp/slim-pack.json >/dev/null
+          jq -e '.[0].files[] | select(.path == "scripts/orchestrators/verify-pr.js")' /tmp/slim-pack.json >/dev/null
+          jq -e '.[0].files[] | select(.path == "LICENSE")' /tmp/slim-pack.json >/dev/null
+          LEAKED_TESTS=$(jq -r '.[0].files[] | select(.path | startswith("tests/")) | .path' /tmp/slim-pack.json || true)
+          if [ -n "$LEAKED_TESTS" ]; then
+            echo "::error::tests/ leaked into slim npm tarball"
+            echo "$LEAKED_TESTS" | head -20
+            exit 1
+          fi
+          echo "OK slim package contains runtime files and excludes tests"
 
   validate-all:
     needs: [security, validate-cli, tarball-size-guard]
