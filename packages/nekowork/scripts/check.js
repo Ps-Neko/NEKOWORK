@@ -8,10 +8,6 @@
 //   4) repo has >= 1 commit
 //   5) (optional) recent working-tree diff present
 //
-// Distinct from @ps-neko/nekowork-cli's full doctor — that one probes AI
-// provider CLIs (claude/codex/gemini) and skill catalogs, which the slim
-// verification-gate package doesn't need.
-//
 // Exit code:
 //   0  every check PASS
 //   1  one or more WARN (non-blocking) — verify-pr will still work but degraded
