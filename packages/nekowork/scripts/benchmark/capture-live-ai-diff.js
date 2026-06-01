@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Live AI diff capture — protocol per docs/LIVE-AI-CAPTURE.md.
+// Live AI diff capture utility for the @ps-neko/nekowork benchmark suite.
 //
 // Wraps the per-task / per-session protocol so the user does not have to run
 // git stash + git diff + git rev-parse + CSV append by hand.
@@ -20,9 +20,9 @@
 // step knows the starting SHA, tool, task-id, and prompt without needing them
 // re-passed.
 //
-// Captures land in:
-//   <repo>/packages/nekowork-cli/tests/fixtures/live-ai/captures/<timestamp>-<tool>-<task-id>.patch
-//   <repo>/packages/nekowork-cli/tests/fixtures/live-ai/captures.csv
+// Captures land in (relative to this @ps-neko/nekowork package root):
+//   tests/fixtures/live-ai/captures/<timestamp>-<tool>-<task-id>.patch
+//   tests/fixtures/live-ai/captures.csv
 
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -53,7 +53,8 @@ Usage:
   capture-live-ai-diff.js list
 
 Tools (suggested): claude-code, cursor, codex, copilot-chat
-See packages/nekowork-cli/docs/LIVE-AI-CAPTURE.md for the protocol.`);
+Per-session state: <workspace>/.nekowork-capture/session.json
+Captures: tests/fixtures/live-ai/{captures/*.patch, captures.csv}`);
   process.exit(1);
 }
 

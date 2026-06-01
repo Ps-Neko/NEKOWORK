@@ -1,4 +1,0 @@
-capture_id,tool,model,task_id,workspace,starting_sha,patch_file,added_lines,captured_at,notes
-live-1779861989158,claude-code,opus-4.7,tier1-jwt-auth-001,C:/Users/ILJIN/AppData/Local/Temp/nekowork-live-ai-session-001,44e1c08d64d7a417997034a975ba9e855b627751,2026-05-27T06-05-31-851Z-claude-code-tier1-jwt-auth-001.patch,49,2026-05-27T06:06:29.159Z,
-live-1779863616544,claude-code,opus-4.7,tier1-openai-client-002,C:/Users/ILJIN/AppData/Local/Temp/nekowork-live-ai-002,fcb22f107c28f21b2f950e2961751f6ea392ca5e,2026-05-27T06-32-49-292Z-claude-code-tier1-openai-client-002.patch,31,2026-05-27T06:33:36.545Z,
-live-1779863617005,claude-code,opus-4.7,tier2-release-script-006,C:/Users/ILJIN/AppData/Local/Temp/nekowork-live-ai-003,5cc9f510778f71bc8b9fa27b331cd9c850e566a7,2026-05-27T06-32-49-598Z-claude-code-tier2-release-script-006.patch,36,2026-05-27T06:33:37.005Z,
