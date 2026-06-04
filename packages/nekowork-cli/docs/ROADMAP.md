@@ -4,6 +4,8 @@ Status date: 2026-05-14
 
 This roadmap is intentionally small. NEKOWORK should improve the apply-before-change safety gate and evidence surface before expanding the agent catalog.
 
+> **현재 시점 메모 (2026-06-04):** 현재 published 버전은 `0.1.0-alpha.12`입니다. 아래는 버전별 누적 로드맵 기록이며, 최신 변경은 [CHANGELOG](CHANGELOG.md)·[README](../README.md)를 참고하세요.
+
 ## 0.1.0-alpha.3
 
 Status: released.
