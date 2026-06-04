@@ -9,6 +9,7 @@ import path from 'node:path';
 import os from 'node:os';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const ZERO_SHA = '0'.repeat(64);
@@ -64,7 +65,7 @@ before(() => {
 
 after(() => {
   if (SANDBOX && fs.existsSync(SANDBOX)) {
-    fs.rmSync(SANDBOX, { recursive: true, force: true });
+    rmrf(SANDBOX);
   }
 });
 
@@ -186,7 +187,7 @@ test('install apply: --project-root 는 외부 대상에 출력과 state 를 기
     assert.equal(state.components.claude, undefined);
     assert.equal(state.components.codex.targets[0].path, '.codex');
   } finally {
-    fs.rmSync(targetRoot, { recursive: true, force: true });
+    rmrf(targetRoot);
   }
 });
 

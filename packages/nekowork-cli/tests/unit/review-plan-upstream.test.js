@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { reviewCycle } from '../../scripts/orchestrators/review.js';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
@@ -39,7 +40,7 @@ test('reviewCycle plan handoff JSON includes upstream_artifacts and is schema-va
     const validate = ajv.compile(schema);
     assert.equal(validate(handoffJson), true, JSON.stringify(validate.errors));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
+    rmrf(projectRoot);
   }
 });
 
@@ -68,7 +69,7 @@ test('reviewCycle stopAfter=plan records upstream domain and spec when auto-pick
     assert.equal(planInputs.upstream.spec.source, 'auto');
     assert.equal(planInputs.upstream.context, null);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
+    rmrf(projectRoot);
   }
 });
 
@@ -97,7 +98,7 @@ test('reviewCycle honors explicit --domain-file / --spec-file paths', async () =
     assert.equal(planInputs.upstream.spec.path, 'custom-spec.md');
     assert.equal(planInputs.upstream.spec.source, 'explicit');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
+    rmrf(projectRoot);
   }
 });
 
@@ -116,7 +117,7 @@ test('reviewCycle leaves plan-inputs.upstream.domain null when no DOMAIN.md pres
     assert.equal(planInputs.upstream.spec, null);
     assert.equal(planInputs.upstream.context, null);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
+    rmrf(projectRoot);
   }
 });
 
@@ -135,6 +136,6 @@ test('reviewCycle throws when explicit --domain-file points to missing path', as
       /domain file not found/i,
     );
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
+    rmrf(projectRoot);
   }
 });

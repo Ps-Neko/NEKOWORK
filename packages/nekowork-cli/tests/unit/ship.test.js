@@ -5,6 +5,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { shipCycle, _finalVerificationVerdict } from '../../scripts/orchestrators/ship.js';
 import { approveGate } from '../../scripts/orchestrators/gate.js';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
@@ -118,7 +119,7 @@ test('ship writes readiness handoff after Codex approval', async () => {
     assert.equal(decision.verdict, 'ship_ready');
     assert.equal(decision.apply_allowed, true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -163,7 +164,7 @@ test('ship creates a no-ship handoff when Codex found fixable issues', async () 
     assert.equal(decision.verdict, 'blocked');
     assert.equal(decision.no_ship, true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -189,7 +190,7 @@ test('ship is blocked by an existing human gate', async () => {
     const summary = JSON.parse(fs.readFileSync(path.join(sessionDir, 'ship-summary.json'), 'utf8'));
     assert.equal(summary.human_gate, true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -245,7 +246,7 @@ test('ship can continue after explicit gate approval', async () => {
     assert.equal(summary.verification_verdict, 'block');
     assert.equal(summary.verdict, 'approve');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -273,6 +274,6 @@ test('ship requires Codex verification first', async () => {
       /requires Codex verification/
     );
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });

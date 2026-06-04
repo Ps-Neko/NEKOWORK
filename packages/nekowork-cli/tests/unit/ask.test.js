@@ -6,6 +6,7 @@ import os from 'node:os';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { askGate, buildQuestionGate, classifyAskTask } from '../../scripts/orchestrators/ask.js';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const ajv = new Ajv2020({ allErrors: true, strict: false });
@@ -66,7 +67,7 @@ test('ask writes question-gate artifacts into the target project session', async
     assert.equal(r.handoff.success_criteria.length, 3);
     assert.equal(validateHandoff(r.handoff), true, JSON.stringify(validateHandoff.errors));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -86,7 +87,7 @@ test('ask writes product profile checklist for product question gate', async () 
     assert.ok(ask.profile_checklist.includes('target user identified'));
     assert.ok(ask.profile_checklist.includes('QA acceptance criteria defined'));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -105,7 +106,7 @@ test('ask attaches upstream_artifacts onto the question-gate handoff itself', as
     assert.equal(handoffJson.upstream_artifacts.context.path, 'context.md');
     assert.equal(validateHandoff(handoffJson), true, JSON.stringify(validateHandoff.errors));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -134,7 +135,7 @@ test('ask records explicit --context-file artifact in ask.json', async () => {
     assert.ok(typeof ctx.excerpt === 'string' && ctx.excerpt.length > 0);
     assert.equal(ctx.truncated, false);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -155,7 +156,7 @@ test('ask auto-picks projectRoot/context.md without --context-file', async () =>
     assert.equal(ask.upstream_artifacts.context.path, 'context.md');
     assert.equal(ask.upstream_artifacts.context.source, 'auto');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -173,7 +174,7 @@ test('ask without context.md leaves upstream_artifacts empty', async () => {
     assert.ok(ask.upstream_artifacts, 'upstream_artifacts field must always exist');
     assert.equal(ask.upstream_artifacts.context, null);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -191,6 +192,6 @@ test('ask with missing explicit --context-file throws', async () => {
       /context file not found/i,
     );
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });

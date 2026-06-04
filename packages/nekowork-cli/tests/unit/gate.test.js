@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { approveGate, blockGate, gateStatus } from '../../scripts/orchestrators/gate.js';
+import { rmrf } from '../helpers/tmp.js';
 
 function seedSession(projectRoot, sessionId) {
   const sessionDir = path.join(projectRoot, '.harness', 'state', 'sessions', sessionId);
@@ -22,7 +23,7 @@ test('gate status reports missing and clear sessions', () => {
     assert.equal(clear.status, 'clear');
     assert.equal(clear.humanGate, false);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -39,7 +40,7 @@ test('gate status resolves latest to the newest session directory', () => {
     assert.equal(result.sessionId, 'newer');
     assert.equal(result.status, 'open');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -71,7 +72,7 @@ test('gate approve records approval for an open HUMAN_GATE', () => {
     assert.equal(decision.human_gate, 'approved');
     assert.equal(decision.approval.actor, 'unit-reviewer');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -91,7 +92,7 @@ test('gate approve requires an open gate and a reason', () => {
       /requires --reason/
     );
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -118,6 +119,6 @@ test('gate block creates an explicit block and keeps ship gated', () => {
       /cannot override/
     );
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });

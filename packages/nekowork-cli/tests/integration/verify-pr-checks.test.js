@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { verifyPrCycle, VERDICT } from '../../scripts/orchestrators/verify-pr.js';
+import { rmrf } from '../helpers/tmp.js';
 
 function makeProject(testScript) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'vp-checks-'));
@@ -31,7 +32,7 @@ test('--run-checks: passing test + benign source → ALLOW with checks evidence'
     assert.equal(r.decision.verdict, VERDICT.ALLOW);
     const testResult = r.decision.checks.results.find(c => c.name === 'test');
     assert.equal(testResult.status, 'pass');
-  } finally { try { fs.rmSync(root, { recursive: true, force: true }); } catch {} }
+  } finally { rmrf(root); }
 });
 
 test('--run-checks: failing test + benign source → NEEDS_HUMAN_REVIEW (not BLOCK)', async () => {
@@ -42,7 +43,7 @@ test('--run-checks: failing test + benign source → NEEDS_HUMAN_REVIEW (not BLO
     assert.equal(r.decision.verdict, VERDICT.NEEDS_HUMAN_REVIEW);
     assert.match(r.decision.reason, /test/);
     assert.equal(r.exitCode, 1);
-  } finally { try { fs.rmSync(root, { recursive: true, force: true }); } catch {} }
+  } finally { rmrf(root); }
 });
 
 test('without --run-checks: behavior unchanged (failing test not run)', async () => {
@@ -53,7 +54,7 @@ test('without --run-checks: behavior unchanged (failing test not run)', async ()
     // test command EXISTS, so source change is ALLOW; checks were never run.
     assert.equal(r.decision.verdict, VERDICT.ALLOW);
     assert.equal(r.decision.checks.requested, false);
-  } finally { try { fs.rmSync(root, { recursive: true, force: true }); } catch {} }
+  } finally { rmrf(root); }
 });
 
 test('--run-checks: critical finding skips execution (gate)', async () => {
@@ -64,7 +65,7 @@ test('--run-checks: critical finding skips execution (gate)', async () => {
     assert.equal(r.decision.verdict, VERDICT.BLOCK); // critical wins
     assert.equal(r.decision.checks.skippedReason != null, true);
     assert.equal(r.decision.checks.results.length, 0);
-  } finally { try { fs.rmSync(root, { recursive: true, force: true }); } catch {} }
+  } finally { rmrf(root); }
 });
 
 test('--run-checks: REPORT.md has a Checks Run section', async () => {
@@ -75,7 +76,7 @@ test('--run-checks: REPORT.md has a Checks Run section', async () => {
     const report = fs.readFileSync(path.join(root, 'REPORT.md'), 'utf8');
     assert.match(report, /## Checks Run/);
     assert.match(report, /test.*fail/i);
-  } finally { try { fs.rmSync(root, { recursive: true, force: true }); } catch {} }
+  } finally { rmrf(root); }
 });
 
 test('--run-checks + --comment-file: PR comment has Checks row', async () => {
@@ -86,5 +87,5 @@ test('--run-checks + --comment-file: PR comment has Checks row', async () => {
     await verifyPrCycle({ projectRoot: root, runChecks: true, commentFile: commentPath, write: false });
     const comment = fs.readFileSync(commentPath, 'utf8');
     assert.match(comment, /\| Checks \|.*test=pass.*\|/);
-  } finally { try { fs.rmSync(root, { recursive: true, force: true }); } catch {} }
+  } finally { rmrf(root); }
 });

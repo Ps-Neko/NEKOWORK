@@ -5,6 +5,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { applyCycle, _readApplyGitStatus } from '../../scripts/orchestrators/apply.js';
+import { rmrf } from '../helpers/tmp.js';
 
 function createGitProject() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-apply-project-'));
@@ -165,20 +166,6 @@ function writeJson(file, value) {
 function git(cwd, args) {
   const r = spawnSync('git', ['-C', cwd, ...args], { encoding: 'utf8', windowsHide: true });
   if (r.status !== 0) throw new Error(`git ${args.join(' ')} failed\n${r.stderr || r.stdout}`);
-}
-
-function rmrf(dir) {
-  // Best-effort temp cleanup. Each test spawns several `git status` subprocesses
-  // against a temp repo; on Windows, antivirus/handle release under concurrent
-  // full-suite load can keep a transient lock on the repo's `.git` files longer
-  // than the retry window. The assertions are already done by the time we get
-  // here, and a leaked dir under os.tmpdir() is harmless (the OS reaps it), so a
-  // residual EPERM must not fail an otherwise-passing test.
-  try {
-    fs.rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
-  } catch {
-    // ignore — temp-dir cleanup is non-critical and environment-dependent
-  }
 }
 
 function readLf(file) {
