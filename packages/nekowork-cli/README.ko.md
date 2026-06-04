@@ -87,6 +87,8 @@ npx -y @ps-neko/nekowork@alpha verify-pr
 
 NEKOWORK 의 핵심: AI 는 변경을 만들 수 있지만, 위험한 ship/apply 결정은 결정적 룰과 사람 승인 아래에 둡니다. LLM verdict 는 게이트를 통과할 수 없습니다.
 
+> 기록된 verdict 가 의심되나요? **위조는 무의미합니다** — 재실행하면 diff 에서 다시 계산됩니다. 직접 보기: [`npm run demo:tamper`](docs/DEMO.md#tampering-the-verdict-is-futile-determinism).
+
 ## 왜 필요한가
 
 AI coding 도구는 점점 더 빠르게 코드를 만듭니다. 하지만 마지막 질문은 그대로 남습니다.

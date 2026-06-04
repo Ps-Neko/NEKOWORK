@@ -82,6 +82,8 @@ Typical blocked-risk output:
 
 That is the thesis: AI can write the change, but `verify-pr` runs deterministic rules over the diff and refuses to let unverified changes merge or apply.
 
+> Don't trust the recorded verdict? **Tampering it is futile** — re-running re-derives it from the diff. See it: [`npm run demo:tamper`](docs/DEMO.md#tampering-the-verdict-is-futile-determinism).
+
 ## 30-Second First Run
 
 Requirements: Node.js 22+, npm, and git. A git repo with at least one commit.
