@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { workCycle, _nextRound, _readPriorHandoffs } from '../../scripts/orchestrators/work.js';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
@@ -49,7 +50,7 @@ test('work attaches upstream_artifacts onto implement handoff JSON', async () =>
     assert.ok(handoffJson.upstream_artifacts, 'implement handoff must include upstream_artifacts');
     assert.equal(handoffJson.upstream_artifacts.plan.path, 'PLAN.md');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -75,7 +76,7 @@ test('work auto-picks projectRoot/PLAN.md and passes it as context.upstream.plan
     assert.ok(summary.upstream, 'work-summary.json must record upstream');
     assert.equal(summary.upstream.plan.path, 'PLAN.md');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -99,7 +100,7 @@ test('work honors explicit --plan-file even when PLAN.md exists in projectRoot',
     assert.equal(upstream.plan.source, 'explicit');
     assert.equal(upstream.plan.excerpt, 'real plan body');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -117,7 +118,7 @@ test('work leaves context.upstream.plan null when no PLAN.md exists', async () =
     assert.ok(calls[0].context.upstream);
     assert.equal(calls[0].context.upstream.plan, null);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -136,7 +137,7 @@ test('work throws when explicit --plan-file is missing', async () => {
       /plan file not found/i,
     );
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -207,7 +208,7 @@ test('work runs one executor stage and writes implement handoff without Codex or
     assert.equal(summary.profile, 'quality');
     assert.ok(summary.quality_checklist.includes('evidence-based review findings'));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -251,6 +252,6 @@ test('work appends round suffix when an implement handoff already exists', async
     assert.equal(r.round, 2);
     assert.ok(fs.existsSync(path.join(handoffDir, '03-implement-r2.json')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });

@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { verifyCycle, _humanGateReason, _latestStageHandoff, _readDiffForHandoff } from '../../scripts/orchestrators/verify.js';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
@@ -47,7 +48,7 @@ test('latestStageHandoff and readDiffForHandoff find work output', () => {
     assert.equal(_latestStageHandoff(handoffs, 'implement').round, 2);
     assert.match(_readDiffForHandoff(sessionDir, handoffs[0]), /diff --git/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -108,7 +109,7 @@ test('verify runs Codex review only after work handoff', async () => {
     assert.equal(decision.status, 'verified');
     assert.equal(decision.apply_allowed, false);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -158,7 +159,7 @@ test('verify records deterministic preverify findings before Codex context', asy
     assert.equal(decision.verdict, 'blocked');
     assert.equal(decision.human_gate, 'required');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -205,7 +206,7 @@ test('verify records warning-level evidence and AC coverage checks for quality p
     assert.equal(summary.strict_quality, false);
     assert.ok(summary.acceptance_coverage.some(row => row.id === 'AC-001' && row.status === 'missing'));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -248,7 +249,7 @@ test('strict quality escalates quality warnings to a fix-required verdict', asyn
     assert.equal(summary.strict_quality, true);
     assert.equal(summary.strict_quality_blocked, true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -286,7 +287,7 @@ test('verify applies risk policy human gate for financial work even when Codex a
     assert.match(r.reason, /risk policy/);
     assert.ok(fs.existsSync(path.join(sessionDir, 'HUMAN_GATE')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -325,7 +326,7 @@ test('verify secure mode also runs Codex challenge', async () => {
     assert.ok(r.codexChallenge);
     assert.deepEqual(calls.map(c => c.stage), ['codex-review', 'codex-challenge']);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -361,7 +362,7 @@ test('verify writes HUMAN_GATE for critical or block findings', async () => {
     assert.ok(fs.existsSync(path.join(sessionDir, 'HUMAN_GATE')));
     assert.match(_humanGateReason([r.codexReview]), /block|critical/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -381,6 +382,6 @@ test('verify fails clearly without prior implement handoff', async () => {
     );
     assert.equal(fs.existsSync(missingSessionDir), false);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });

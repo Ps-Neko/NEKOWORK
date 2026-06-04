@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { prPrepSession } from '../../scripts/orchestrators/pr-prep.js';
+import { rmrf } from '../helpers/tmp.js';
 
 test('pr-prep turns ship-ready evidence into local review artifacts only', () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-pr-prep-'));
@@ -43,7 +44,7 @@ test('pr-prep turns ship-ready evidence into local review artifacts only', () =>
     assert.match(report, /Ready for PR: yes/);
     assert.match(report, /PR_SUMMARY\.md/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -66,7 +67,7 @@ test('pr-prep records no-ship evidence without making PR-ready claims', () => {
     assert.match(shipDecision, /Ready for PR: no/);
     assert.match(shipDecision, /Resolve blockers or gates/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 

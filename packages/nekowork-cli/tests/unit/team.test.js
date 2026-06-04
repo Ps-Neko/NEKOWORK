@@ -6,6 +6,7 @@ import os from 'node:os';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { teamCycle, parseWorkers } from '../../scripts/orchestrators/team.js';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const ajv = new Ajv2020({ allErrors: true, strict: false });
@@ -64,7 +65,7 @@ test('team auto-picks upstream artifacts and passes them to every worker', async
       assert.equal(validateHandoff(h), true, JSON.stringify(validateHandoff.errors));
     }
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -91,7 +92,7 @@ test('team --plan-file overrides PLAN.md auto-pick', async () => {
     assert.equal(calls[0].context.upstream.plan.path, 'team-plan.md');
     assert.equal(calls[0].context.upstream.plan.source, 'explicit');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -147,7 +148,7 @@ test('team writes read-only worker handoffs into target project session', async 
       assert.notEqual(handoff.stage, 'implement');
     }
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -184,6 +185,6 @@ test('team marks failed worker and leaves state for inspection', async () => {
     assert.equal(state.tasks.find(t => t.worker === 'research').status, 'failed');
     assert.equal(state.tasks.find(t => t.worker === 'planner').status, 'done');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });

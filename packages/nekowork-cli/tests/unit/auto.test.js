@@ -5,6 +5,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { autoCycle, autoPlan, normalizeAutoLevel } from '../../scripts/orchestrators/auto.js';
 import { normalizeParallelCandidateCount } from '../../scripts/lib/parallel-candidates.js';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
@@ -28,7 +29,7 @@ test('auto dry-run previews bounded autonomy without creating a session', () => 
     assert.ok(preview.safetyInvariants.some(line => /never automatic/.test(line)));
     assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-auto-dry-run')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -50,7 +51,7 @@ test('auto dry-run previews isolated parallel candidates without creating a sess
     assert.ok(preview.stages.some(stage => stage.stage === 'parallel-candidates' && stage.runs === true));
     assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-auto-candidates-dry-run')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -77,7 +78,7 @@ test('auto cautious runs one safe build and never applies', async () => {
     assert.equal(summary.applied, false);
     assert.equal(summary.policy.repair, false);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -131,7 +132,7 @@ test('auto promotes a clean parallel candidate into the canonical ship path', as
     assert.equal(calls.filter(call => call.context?.canonicalCandidateFinalVerification).length, 1);
     assert.equal(calls.filter(call => call.stage === 'ship').length, 1);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -159,7 +160,7 @@ test('auto rejects dirty parallel candidates from canonical promotion evidence',
     assert.match(report, /Selected candidate: none/);
     assert.match(report, /Canonical artifact: not_promoted/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -189,7 +190,7 @@ test('auto blocks selected parallel candidate when final verification fails', as
     assert.match(report, /Canonical artifact: final_verification_failed/);
     assert.match(report, /Final verification: approve_with_fixes/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -217,7 +218,7 @@ test('auto normal repairs fixable no-ship findings within budget', async () => {
     const report = fs.readFileSync(path.join(result.sessionDir, 'REPORT.md'), 'utf8');
     assert.match(report, /Bounded Autonomy/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -240,7 +241,7 @@ test('auto stops repair loop when Human Gate is required', async () => {
     assert.match(result.stopReason, /human gate/);
     assert.ok(fs.existsSync(path.join(result.sessionDir, 'HUMAN_GATE')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 

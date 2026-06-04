@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
@@ -31,7 +32,7 @@ test('quick demo runs the shortest no-api workflow against a disposable target',
     assert.ok(fs.existsSync(path.join(target, '.harness', 'state', 'sessions', 'e2e-quick-demo', 'run-summary.json')));
     assert.ok(fs.existsSync(path.join(target, '.harness', 'state', 'sessions', 'e2e-quick-demo', 'REPORT.md')));
   } finally {
-    fs.rmSync(target, { recursive: true, force: true });
+    rmrf(target);
   }
 });
 
@@ -60,6 +61,6 @@ test('quick demo lets safe mode keep its security profile preset', () => {
     assert.equal(summary.strict_quality, true);
     assert.equal(summary.secure, true);
   } finally {
-    fs.rmSync(target, { recursive: true, force: true });
+    rmrf(target);
   }
 });

@@ -6,6 +6,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 let SANDBOX;
@@ -34,7 +35,7 @@ before(() => {
 
 after(() => {
   if (SANDBOX && fs.existsSync(SANDBOX)) {
-    fs.rmSync(SANDBOX, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+    rmrf(SANDBOX);
   }
 });
 
@@ -230,7 +231,7 @@ test('CLI --project-root writes session state to external project root', () => {
     assert.ok(fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', sessionId, 'handoffs', '02-plan.json')));
     assert.equal(fs.existsSync(harnessSessionDir), false, 'session state should not be written to the harness root');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 

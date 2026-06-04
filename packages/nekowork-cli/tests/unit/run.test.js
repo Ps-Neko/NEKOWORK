@@ -5,6 +5,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { runCycle } from '../../scripts/orchestrators/run.js';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
@@ -30,7 +31,7 @@ test('run executes work, verify, and ship without apply by default', async () =>
     assert.equal(summary.acceptance_required, true);
     assert.equal(summary.acceptance_count, 3);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -51,7 +52,7 @@ test('run secure mode includes Codex challenge', async () => {
     assert.equal(r.shipReady, true);
     assert.equal(r.noShip, false);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -73,7 +74,7 @@ test('run stops before ship when verify creates a human gate', async () => {
     assert.equal(r.ship, null);
     assert.ok(fs.existsSync(path.join(r.sessionDir, 'HUMAN_GATE')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -95,7 +96,7 @@ test('run skips requested apply when ship is not ready', async () => {
     assert.equal(r.applySkippedReason, 'verification verdict is approve_with_fixes');
     assert.equal(r.noShip, true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -120,7 +121,7 @@ test('run forwards strict quality policy into verify', async () => {
     assert.equal(summary.strict_quality, true);
     assert.equal(summary.strict_quality_blocked, true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -143,7 +144,7 @@ test('run applies when requested and ship is ready', async () => {
     assert.equal(readLf(path.join(projectRoot, 'README.md')), 'after\n');
     assert.ok(fs.existsSync(path.join(r.sessionDir, 'APPLIED_DIFF')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 

@@ -9,6 +9,7 @@ import {
   loadUpstreamBundle,
   UPSTREAM_EXCERPT_LIMIT,
 } from '../../scripts/lib/upstream-artifacts.js';
+import { rmrf } from '../helpers/tmp.js';
 
 function mkProject(prefix) {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -22,7 +23,7 @@ test('loadUpstreamArtifact returns null when no auto file and no explicit', () =
     assert.equal(loadUpstreamArtifact('spec', projectRoot), null);
     assert.equal(loadUpstreamArtifact('plan', projectRoot), null);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -40,7 +41,7 @@ test('loadUpstreamArtifact auto-picks projectRoot file by canonical name', () =>
     assert.equal(a.truncated, false);
     assert.equal(a.excerpt, body);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -55,7 +56,7 @@ test('loadUpstreamArtifact honors explicit path even if auto file also exists', 
     assert.equal(a.source, 'explicit');
     assert.equal(a.excerpt, 'explicit body');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -67,7 +68,7 @@ test('loadUpstreamArtifact throws when explicit path missing', () => {
       /plan file not found/i,
     );
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -81,7 +82,7 @@ test('loadUpstreamArtifact truncates oversize files at the limit and flags trunc
     assert.equal(a.size, Buffer.byteLength(body, 'utf8'));
     assert.equal(a.excerpt.length, UPSTREAM_EXCERPT_LIMIT);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -101,6 +102,6 @@ test('loadUpstreamBundle returns all four slots with null defaults', () => {
     assert.ok(bundle.plan);
     assert.equal(bundle.plan.path, 'PLAN.md');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });

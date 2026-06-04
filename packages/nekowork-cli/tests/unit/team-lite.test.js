@@ -6,6 +6,7 @@ import os from 'node:os';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { teamLiteCycle, _createTasks, _assertTaskGraph } from '../../scripts/orchestrators/team-lite.js';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const ajv = new Ajv2020({ allErrors: true, strict: false });
@@ -14,7 +15,7 @@ const handoffSchema = JSON.parse(fs.readFileSync(path.join(ROOT, 'schemas', 'han
 const validateHandoff = ajv.compile(handoffSchema);
 
 function cleanSession(sessionId) {
-  fs.rmSync(path.join(ROOT, '.harness', 'state', 'sessions', sessionId), { recursive: true, force: true });
+  rmrf(path.join(ROOT, '.harness', 'state', 'sessions', sessionId));
 }
 
 test('team-lite writes staged task, heartbeat, monitor, and handoffs', async () => {
@@ -110,7 +111,7 @@ test('team-lite projectRoot 지정 시 state 는 대상 프로젝트에 쓰고 s
     assert.ok(fs.existsSync(path.join(r.sessionDir, 'handoffs', '01-team-plan.json')));
     assert.equal(fs.existsSync(path.join(ROOT, '.harness', 'state', 'sessions', sessionId)), false);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
