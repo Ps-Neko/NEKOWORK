@@ -4,7 +4,7 @@ Status date: 2026-05-13
 
 NEKOWORK is release-ready for local use, repository-based installation, and public npm alpha installation. The current repository alpha candidate is `0.1.0-alpha.10`; the current public npm alpha remains `0.1.0-alpha.9` until alpha.10 is published.
 
-> **현재 시점 메모 (2026-06-04):** 이 문서는 위 Status date 기준 `0.1.0-alpha.10` 후보의 릴리스 준비 스냅샷입니다. 현재 published 버전은 `0.1.0-alpha.12`이며, 최신 검증 수치는 532 테스트입니다 ([README](../README.md) 기준). 아래 버전별 스코프·수치 표기는 모두 당시 시점의 기록입니다.
+> **현재 시점 메모 (2026-06-04):** 이 문서는 위 Status date 기준 `0.1.0-alpha.10` 후보의 릴리스 준비 스냅샷입니다. 현재 published 버전은 `0.1.0-alpha.12`이며, 최신 검증 수치는 533 테스트입니다 ([README](../README.md) 기준). 아래 버전별 스코프·수치 표기는 모두 당시 시점의 기록입니다.
 
 ## Decision
 

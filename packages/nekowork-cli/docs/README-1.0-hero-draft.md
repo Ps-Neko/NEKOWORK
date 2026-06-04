@@ -79,7 +79,7 @@ No auto-commit. No auto-push. No surprise deploy. LLM verdicts do not pass this 
 
 `ask` / `plan` / `team` / `work` / `verify` / `gate status` / `ship` / `run` / `build` / `auto` / `pr-prep` and legacy `review` family are documented in [docs/ADVANCED.md](docs/ADVANCED.md). They are functional in alpha but will be deprecated in 1.0 → 2.0 in favor of the verification-first surface above.
 
-**Public alpha evidence:** 532 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs · [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) · [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) · [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) · [roadmap](docs/ROADMAP.md)
+**Public alpha evidence:** 533 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs · [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) · [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) · [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) · [roadmap](docs/ROADMAP.md)
 ```
 
 ---
@@ -150,7 +150,7 @@ auto-commit 없음. auto-push 없음. 갑작스러운 deploy 없음. LLM 판정�
 
 `ask` / `plan` / `team` / `work` / `verify` / `gate status` / `ship` / `run` / `build` / `auto` / `pr-prep` 및 legacy `review` 계열은 [docs/ADVANCED.md](docs/ADVANCED.md) 에 있습니다. 알파에서는 동작하지만 1.0 → 2.0 동안 deprecate 되고, 위 검증 우선 표면이 그 자리를 채웁니다.
 
-**Public alpha evidence:** 532 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs · [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) · [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) · [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) · [roadmap](docs/ROADMAP.md)
+**Public alpha evidence:** 533 tests / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs · [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) · [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) · [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) · [roadmap](docs/ROADMAP.md)
 ```
 
 ---
