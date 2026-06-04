@@ -8,6 +8,8 @@
 
 NEKOWORK 는 AI 가 생성한 코드를 위한 로컬 검증 게이트입니다. diff 를 분석하고, 결정적 위험 룰을 실행하고, 증거를 수집한 뒤, 머지 / 적용 가능 여부를 판정합니다 — auto-commit / auto-push 없이, LLM 판정에 의존하지 않고.
 
+NEKOWORK 는 Cursor / Claude Code / Codex 를 대체하지 않습니다 — 그 도구로 코드를 만들고, 그 diff 를 NEKOWORK 로 검증하세요.
+
 > 이 문서는 한국어 요약본입니다. 전체 상세 설명과 모든 고급 옵션은 [English README](README.md)를 참고하세요.
 
 여기서 "검증됨"은 정답을 수학적으로 보증한다는 뜻이 아닙니다. verdict 는 결정적 룰과 검증 결과만 결정합니다. 선택적 Codex 리뷰는 advisor 노트로만 기록되며 verdict 에 영향을 주지 않습니다.
@@ -99,7 +101,7 @@ NEKOWORK는 이 질문에 답하기 위한 로컬 우선 런타임입니다.
 
 - AI 작업을 session evidence로 남깁니다.
 - 한 executor만 실제 변경 후보를 만듭니다.
-- Codex가 별도 관점에서 검증합니다.
+- Codex가 별도 관점에서 advisor 의견을 남깁니다 (verdict 는 통제하지 않습니다).
 - 위험하면 Human Gate를 엽니다.
 - `apply`는 검증된 ship-ready diff에만 명시적으로 실행됩니다.
 
@@ -192,7 +194,7 @@ NEKOWORK는 하나의 거대한 agent 묶음이 아니라, 일을 나누고 검�
 - Current alpha: `0.1.0-alpha.12` (npm `@alpha` published 2026-05-26)
 - CLI: `nekowork`
 - Legacy/internal alias: `harness`
-- Tests: 501 pass
+- Tests: 532 pass
 - npm audit: 0 moderate+ issues
 - Fresh `npx @alpha` smoke: pass
 

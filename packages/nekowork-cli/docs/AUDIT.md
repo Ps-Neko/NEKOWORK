@@ -4,6 +4,8 @@ Status date: 2026-05-13
 
 This audit summarizes the current NEKOWORK state for the `0.1.0-alpha.10` alpha candidate. Public npm `@alpha` still points at `0.1.0-alpha.9` until alpha.10 is published.
 
+> **현재 시점 메모 (2026-06-04):** 이 문서는 위 Status date 기준 `0.1.0-alpha.10` 후보의 감사 스냅샷입니다. 현재 published 버전은 `0.1.0-alpha.12`이며, 최신 검증 수치는 532 테스트입니다 ([README](../README.md) 기준). 아래 버전·수치 표기는 모두 당시 시점의 기록입니다.
+
 ## Current Status
 
 | Area | Status | Notes |
