@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { detectProject } from '../../scripts/lib/project-detector.js';
+import { rmrf } from '../helpers/tmp.js';
 
 function makeTempDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'project-detect-'));
@@ -36,7 +37,7 @@ test('Node 프로젝트: package.json + scripts → 명령 추출', () => {
     assert.equal(r.hasAudit, true);
     assert.match(r.commands.audit, /audit-level=moderate/);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -50,7 +51,7 @@ test('tsconfig.json 만 있으면 typecheck fallback 으로 npx tsc', () => {
     assert.equal(r.hasTypecheck, true);
     assert.equal(r.commands.typecheck, 'npx tsc --noEmit');
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -66,7 +67,7 @@ test('typecheck script 가 있으면 그걸 우선', () => {
     const r = detectProject(root);
     assert.equal(r.commands.typecheck, 'npm run typecheck');
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -80,7 +81,7 @@ test('pnpm-lock.yaml → packageManager=pnpm', () => {
     assert.equal(r.packageManager, 'pnpm');
     assert.equal(r.commands.test, 'pnpm test');
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -94,7 +95,7 @@ test('Rust 프로젝트: Cargo.toml → cargo test / clippy', () => {
     assert.equal(r.commands.test, 'cargo test');
     assert.match(r.commands.lint, /clippy/);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -108,7 +109,7 @@ test('CI 파일 탐지: .github/workflows 있으면 hasCi=true', () => {
     assert.equal(r.hasCi, true);
     assert.ok(r.ciFiles.includes('.github/workflows'));
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -122,7 +123,7 @@ test('보안 파일 탐지: .env.example, SECURITY.md', () => {
     assert.ok(r.securityFiles.includes('.env.example'));
     assert.ok(r.securityFiles.includes('SECURITY.md'));
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -134,7 +135,7 @@ test('language marker 없음 → projectType=unknown', () => {
     assert.equal(r.projectType, 'unknown');
     assert.deepEqual(r.languages, []);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -145,7 +146,7 @@ test('hasGit: .git 디렉토리 존재 시 true', () => {
     const r = detectProject(root);
     assert.equal(r.hasGit, true);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -158,7 +159,7 @@ test('package.json 파싱 실패 시 안전하게 fallback', () => {
     assert.equal(r.hasTests, false);
     assert.equal(r.commands.test, null);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -169,7 +170,7 @@ test('baselineAt 은 ISO 8601 형식', () => {
     const r = detectProject(root);
     assert.match(r.baselineAt, /^\d{4}-\d{2}-\d{2}T/);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -186,7 +187,7 @@ test('go.mod 가 하위 폴더에 있어도 Go 로 감지 (모노레포/서브�
     assert.equal(r.hasTests, true);
     assert.equal(r.commands.test, 'go test ./...');
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -201,7 +202,7 @@ test('root 에 마커가 있으면 하위는 탐색하지 않음 (기존 동작 
     assert.equal(r.projectType, 'node');
     assert.deepEqual(r.languages, ['node']);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -216,6 +217,6 @@ test('node_modules / vendor 등 제외 디렉토리의 마커는 무시', () => 
     assert.equal(r.projectType, 'unknown');
     assert.deepEqual(r.languages, []);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });

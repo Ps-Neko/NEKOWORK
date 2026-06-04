@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { ralphLoop } from '../../scripts/orchestrators/ralph.js';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
@@ -24,7 +25,7 @@ test('ralph defaults to legacy review engine for compatibility', async () => {
     assert.ok(fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-ralph-review-i1', 'review-summary.json')));
     assert.equal(fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-ralph-review', 'active')), false);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -56,7 +57,7 @@ test('ralph can iterate through the decomposed run engine', async () => {
     const prd = JSON.parse(fs.readFileSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-ralph-run', 'prd.json'), 'utf8'));
     assert.equal(prd.acceptance.filter(a => a.passes).length, 3);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
