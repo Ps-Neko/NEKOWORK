@@ -67,7 +67,7 @@ test('apply ignores .harness state in clean-worktree checks', () => {
     assert.equal(dirty.dirty, true);
     assert.match(dirty.relevantText, /DIRTY\.md/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -86,7 +86,7 @@ test('apply applies a verified SHIP_READY diff and records summary', () => {
     assert.equal(summary.applied, true);
     assert.equal(summary.target_project_mutated, true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -100,7 +100,7 @@ test('apply is idempotent after APPLIED_DIFF unless forced', () => {
     assert.equal(second.applied, false);
     assert.equal(second.alreadyApplied, true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -114,7 +114,7 @@ test('apply blocks when NO_SHIP is newer than SHIP_READY', () => {
     assert.equal(r.noShip, true);
     assert.match(r.reason, /fix findings/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -128,7 +128,7 @@ test('apply blocks on open human gate', () => {
     assert.equal(r.humanGate, true);
     assert.match(r.reason, /needs review/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -142,7 +142,7 @@ test('apply rejects dirty project files unless allowDirty is set', () => {
       /clean git worktree/
     );
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -165,6 +165,20 @@ function writeJson(file, value) {
 function git(cwd, args) {
   const r = spawnSync('git', ['-C', cwd, ...args], { encoding: 'utf8', windowsHide: true });
   if (r.status !== 0) throw new Error(`git ${args.join(' ')} failed\n${r.stderr || r.stdout}`);
+}
+
+function rmrf(dir) {
+  // Best-effort temp cleanup. Each test spawns several `git status` subprocesses
+  // against a temp repo; on Windows, antivirus/handle release under concurrent
+  // full-suite load can keep a transient lock on the repo's `.git` files longer
+  // than the retry window. The assertions are already done by the time we get
+  // here, and a leaked dir under os.tmpdir() is harmless (the OS reaps it), so a
+  // residual EPERM must not fail an otherwise-passing test.
+  try {
+    fs.rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+  } catch {
+    // ignore — temp-dir cleanup is non-critical and environment-dependent
+  }
 }
 
 function readLf(file) {
