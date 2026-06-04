@@ -75,6 +75,7 @@
     "install:apply": "node scripts/install-apply.js",
     "demo:quick": "node scripts/demo-quick-run.js",
     "demo:external": "node scripts/demo-external-project.js",
+    "demo:tamper": "node scripts/demo-tamper.js",
     "verify:claude": "node scripts/verify/claude-live.js",
     "verify:codex": "node scripts/verify/codex-live.js",
     "verify:gemini": "node scripts/verify/gemini-live.js",
