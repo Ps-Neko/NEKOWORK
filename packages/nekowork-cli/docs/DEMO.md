@@ -149,3 +149,30 @@ WARN    gemini cli              installed, auth status is not checked non-intera
 
 summary: WARN
 ```
+
+## Tampering the verdict is futile (determinism)
+
+`verify-pr` decides the verdict by recomputing it from the diff on **every run**.
+The recorded `REPORT.md` / `.nekowork/decision.json` are records, not the gate —
+editing them changes nothing, because the next run re-derives the verdict from the
+actual change.
+
+Run it yourself (isolated sandbox — your project is never touched):
+
+```bash
+npm run demo:tamper
+```
+
+What it shows:
+
+1. An AI leaves a secret fallback in `src/auth.ts` → `verify-pr` returns **BLOCK**.
+2. Someone edits `.nekowork/decision.json` to say `ALLOW`.
+3. `verify-pr` runs again → **BLOCK** again. The forged record is ignored; the
+   verdict is recomputed from the diff.
+
+An optional LLM advisor saying "LGTM" does not change this — the deterministic
+rules decide the verdict; the advisor never controls it.
+
+> Honest scope: this demonstrates **determinism** (re-running re-derives the
+> verdict). It does **not** claim cryptographic tamper-detection of stored
+> artifacts — that is separate hardening tracked in the roadmap.
