@@ -33,6 +33,8 @@
 
 ## 2026-05-22 — NEKOFORGE-PR-INVENTORY
 
+> **[BLOCKED — 2026-05-28]** NEKOWORK·NEKOFORGE는 계열사(같은 그룹, 다른 분야, 별도 저장소)로 유지하기로 결정. archive 전제 자체가 무효화됨 → 본 인벤토리 작업 보류. 관련 정정: `Downloads/NEKOWORK_NEKOFORGE_계획_프롬프트.md`.
+
 - **What:** archive 전 기존 `Ps-Neko/NEKOFORGE` 레포의 미해결 PR 인벤토리 작성 + 각 PR transfer 결정 (close / cherry-pick to monorepo / 폐기).
 - **Why:** T11 (npm deprecate nekoforge + NEKOFORGE 레포 archive) 진입 전 PR drain 필요. archive 후에는 PR 작업 불가, contributor 작업 손실 위험.
 - **Context:** T11 (alpha.12 publish 후) 의존 작업. 직전 saved context (`20260522-105500-...md`) 의 Open Questions §2 forge-engine 이름 결정과 같이 처리 권장. 현재 NEKOFORGE 레포 open PR 개수는 archive 직전 재확인 필요.
