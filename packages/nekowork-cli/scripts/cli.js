@@ -37,8 +37,7 @@ function resolveProjectRoot(value) {
 
 function readPkgVersion() {
   try {
-    const here = path.dirname(fileURLToPath(import.meta.url));
-    const pkgPath = path.resolve(here, '..', 'package.json');
+    const pkgPath = path.resolve(__dirname, '..', 'package.json');
     return JSON.parse(fs.readFileSync(pkgPath, 'utf8')).version;
   } catch { return 'unknown'; }
 }
@@ -56,25 +55,6 @@ function shortHelp() {
   const installed = fs.existsSync(path.join(root, '.harness')) ? 'yes' : 'no';
   const sessions = countSessions(root);
   printShortGateHelp({ version, root, installed, sessions });
-  return;
-
-  console.log('');
-  console.log(`  ${paint('ok', '●')} NEKOWORK ${version}`);
-  console.log('  ' + paint('dim', `project: ${root}  ·  installed: ${installed}  ·  sessions: ${sessions}`));
-  console.log('');
-  console.log(paint('hint', '처음이라면 →'));
-  console.log(`  1.  ${paint('hint', 'nekowork check')}          환경 진단 (30초)`);
-  console.log(`  2.  ${paint('hint', 'nekowork init')}           프로필 설치 (1분)`);
-  console.log(`  3.  ${paint('hint', 'nekowork start "<task>"')}  첫 안전 빌드 실행`);
-  console.log('');
-  console.log(paint('hint', '자주 쓰는 흐름 →'));
-  console.log(`  ${paint('hint', 'work')} → ${paint('hint', 'verify')} → ${paint('hint', 'ship')} → ${paint('hint', 'apply')}     사람·게이트 통과 풀 사이클`);
-  console.log(`  ${paint('hint', 'run')}                              위 4단계 자동 래퍼`);
-  console.log(`  ${paint('hint', 'sessions')}                         진행 중 / 완료 세션 목록`);
-  console.log('');
-  console.log('  ' + paint('dim', "전체 명령은  'nekowork help all'"));
-  console.log('  ' + paint('dim', "항목별은    'nekowork help <verb>'"));
-  console.log('');
 }
 
 function printShortGateHelp({ version, root, installed, sessions }) {
