@@ -4,6 +4,7 @@ import { applyExecutionDiff } from '../core/execution-workspace.js';
 import { readGitStatus } from '../core/git-mutation-guard.js';
 import { writeDecision } from '../lib/decision.js';
 import { gateStatus } from './gate.js';
+import { readPriorHandoffs, latestStageHandoff } from './_handoff-utils.js';
 
 export function applyCycle(opts) {
   const projectRoot = opts.projectRoot || process.cwd();
@@ -97,28 +98,6 @@ export function applyCycle(opts) {
   };
   writeSummary(sessionDir, result, latestImplement, gate);
   return result;
-}
-
-function readPriorHandoffs(handoffDir) {
-  if (!fs.existsSync(handoffDir)) return [];
-  return fs.readdirSync(handoffDir)
-    .filter(f => f.endsWith('.json'))
-    .sort()
-    .map(f => {
-      try {
-        return JSON.parse(fs.readFileSync(path.join(handoffDir, f), 'utf8'));
-      } catch {
-        return null;
-      }
-    })
-    .filter(Boolean);
-}
-
-function latestStageHandoff(handoffs, stage) {
-  return handoffs
-    .filter(h => h.stage === stage)
-    .sort((a, b) => Number(b.round || 1) - Number(a.round || 1))
-    .at(0) || null;
 }
 
 function readDiffForHandoff(sessionDir, handoff) {

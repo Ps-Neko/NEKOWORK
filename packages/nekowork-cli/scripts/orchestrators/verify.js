@@ -8,6 +8,7 @@ import { writeDecision } from '../lib/decision.js';
 import { runPreverify, writePreverifySummary } from '../lib/preverify.js';
 import { classifyRisk, gateReasonFromFindings } from '../lib/risk-classifier.js';
 import { acceptanceCoverage, acceptanceCoverageWarnings, evidenceFieldWarnings, profilePolicy } from '../lib/profile-policy.js';
+import { readPriorHandoffs, latestStageHandoff, nextRound, readJsonIfExists, readSessionProfile } from './_handoff-utils.js';
 
 const STAGE_INDEX = { 'codex-review': '05', 'codex-challenge': '06' };
 
@@ -144,37 +145,6 @@ export async function verifyCycle(opts) {
   return result;
 }
 
-function readPriorHandoffs(handoffDir) {
-  if (!fs.existsSync(handoffDir)) return [];
-  return fs.readdirSync(handoffDir)
-    .filter(f => f.endsWith('.json'))
-    .sort()
-    .map(f => {
-      try {
-        return JSON.parse(fs.readFileSync(path.join(handoffDir, f), 'utf8'));
-      } catch {
-        return null;
-      }
-    })
-    .filter(Boolean);
-}
-
-function latestStageHandoff(handoffs, stage) {
-  return handoffs
-    .filter(h => h.stage === stage)
-    .sort((a, b) => Number(b.round || 1) - Number(a.round || 1))
-    .at(0) || null;
-}
-
-function readJsonIfExists(file) {
-  if (!fs.existsSync(file)) return null;
-  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; }
-}
-
-function readSessionProfile(sessionDir) {
-  return readJsonIfExists(path.join(sessionDir, 'ask.json'))?.profile || null;
-}
-
 function readDiffForHandoff(sessionDir, handoff) {
   const candidates = [];
   if (handoff.diffPath) candidates.push(handoff.diffPath);
@@ -201,14 +171,6 @@ function strictQualityIssue(warnings) {
     confidence: 1,
     gate_required: false,
   };
-}
-
-function nextRound(handoffs, stage) {
-  const rounds = handoffs
-    .filter(h => h.stage === stage)
-    .map(h => Number(h.round || 1))
-    .filter(Number.isFinite);
-  return rounds.length ? Math.max(...rounds) + 1 : 1;
 }
 
 function writeHumanGate(sessionDir, reason) {

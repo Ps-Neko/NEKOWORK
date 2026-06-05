@@ -3,6 +3,7 @@ import path from 'node:path';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { dispatch } from '../agents/dispatch.js';
+import { handoffBase, handoffJsonPath, writeHandoff, removeUndefined } from './_team-handoff-utils.js';
 
 const TEAM_LITE_STAGES = [
   { id: 'team-plan', agent: 'planner', stage: 'plan', owner: 'planner' },
@@ -213,40 +214,6 @@ function writeMonitorSnapshot(sessionDir, sessionId, tasks, handoffs) {
     last_verdict: lastVerdict(handoffs),
     last_team_stage: handoffs.at(-1)?.team_stage || null,
   }, null, 2));
-}
-
-function writeHandoff(handoffDir, h, index) {
-  const base = handoffBase(h, index);
-  fs.writeFileSync(handoffJsonPath(handoffDir, h, index), JSON.stringify(h, null, 2));
-  fs.writeFileSync(path.join(handoffDir, `${base}.md`), renderFiveFieldHandoff(h));
-}
-
-function handoffJsonPath(handoffDir, h, index) {
-  return path.join(handoffDir, `${handoffBase(h, index)}.json`);
-}
-
-function handoffBase(h, index) {
-  return `${String(index).padStart(2, '0')}-${h.team_stage}`;
-}
-
-function renderFiveFieldHandoff(h) {
-  return [
-    `# Handoff: ${h.team_stage}`,
-    '',
-    `Decided: ${h.decided || ''}`,
-    `Rejected: ${h.rejected || ''}`,
-    `Risks: ${h.risks || ''}`,
-    `Files: ${(h.files || []).join(', ')}`,
-    `Remaining: ${h.remaining || ''}`,
-    h.verdict ? `Verdict: ${h.verdict}` : '',
-    '',
-  ].filter(Boolean).join('\n');
-}
-
-function removeUndefined(obj) {
-  for (const [k, v] of Object.entries(obj)) {
-    if (v === undefined) delete obj[k];
-  }
 }
 
 function assertValidHandoff(root, handoff) {

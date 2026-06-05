@@ -7,6 +7,7 @@ import { ensureAcceptanceCriteria } from '../lib/acceptance-criteria.js';
 import { writeDecision } from '../lib/decision.js';
 import { classifyRisk, gateReasonFromFindings } from '../lib/risk-classifier.js';
 import { gateStatus } from './gate.js';
+import { readPriorHandoffs, latestStageHandoff, nextRound, readJsonIfExists } from './_handoff-utils.js';
 
 const STAGE_INDEX = { ship: '07' };
 
@@ -169,41 +170,6 @@ export async function shipCycle(opts) {
   });
   writeDecision(sessionDir, { sessionId, stage: 'ship' });
   return result;
-}
-
-function readPriorHandoffs(handoffDir) {
-  if (!fs.existsSync(handoffDir)) return [];
-  return fs.readdirSync(handoffDir)
-    .filter(f => f.endsWith('.json'))
-    .sort()
-    .map(f => {
-      try {
-        return JSON.parse(fs.readFileSync(path.join(handoffDir, f), 'utf8'));
-      } catch {
-        return null;
-      }
-    })
-    .filter(Boolean);
-}
-
-function latestStageHandoff(handoffs, stage) {
-  return handoffs
-    .filter(h => h.stage === stage)
-    .sort((a, b) => Number(b.round || 1) - Number(a.round || 1))
-    .at(0) || null;
-}
-
-function nextRound(handoffs, stage) {
-  const rounds = handoffs
-    .filter(h => h.stage === stage)
-    .map(h => Number(h.round || 1))
-    .filter(Number.isFinite);
-  return rounds.length ? Math.max(...rounds) + 1 : 1;
-}
-
-function readJsonIfExists(file) {
-  if (!fs.existsSync(file)) return null;
-  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; }
 }
 
 const humanGateReason = gateReasonFromFindings;
