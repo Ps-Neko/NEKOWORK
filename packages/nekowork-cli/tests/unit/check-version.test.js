@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { rmrf } from '../helpers/tmp.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
@@ -40,7 +41,7 @@ test('check-version passes when VERSION, package.json, WORKING-CONTEXT, README a
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, /check-version: ok/);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -54,7 +55,7 @@ test('check-version fails when VERSION drifts from package.json', () => {
     assert.equal(result.status, 1);
     assert.match(result.stderr, /VERSION \(0\.1\.0-alpha\.1\) does not match package\.json \(0\.1\.0-alpha\.10\)/);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -69,7 +70,7 @@ test('check-version fails when WORKING-CONTEXT 버전 drifts from package.json',
     assert.equal(result.status, 1);
     assert.match(result.stderr, /WORKING-CONTEXT\.md '버전: `0\.0\.2`'/);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -83,6 +84,6 @@ test('check-version ignores WORKING-CONTEXT when 버전 line absent', () => {
     const result = run(root);
     assert.equal(result.status, 0, result.stderr);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });

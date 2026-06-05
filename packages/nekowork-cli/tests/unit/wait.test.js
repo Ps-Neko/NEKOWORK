@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { parseActiveFile, buildResumePlan, processWakeups } from '../../scripts/daemon/wait.js';
+import { rmrf } from '../helpers/tmp.js';
 
 test('wait parses active key-value files with JSON task values', () => {
   const active = parseActiveFile([
@@ -67,7 +68,7 @@ test('wait clears wakeup for inactive sessions', () => {
     assert.equal(fs.existsSync(path.join(sessionDir, 'wakeup.json')), false);
     assert.ok(fs.existsSync(path.join(sessionDir, 'wait-summary.json')));
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -89,7 +90,7 @@ test('wait blocks human-gated sessions without resuming', () => {
     const summary = JSON.parse(fs.readFileSync(path.join(sessionDir, 'wait-summary.json'), 'utf8'));
     assert.equal(summary.action, 'blocked-human-gate');
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -118,7 +119,7 @@ test('wait resumes supported sessions and clears wakeup', () => {
     ]);
     assert.equal(fs.existsSync(path.join(sessionDir, 'wakeup.json')), false);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -141,7 +142,7 @@ test('wait backs off failed resume attempts', () => {
     assert.equal(wakeup.last_error, 'temporary failure');
     assert.ok(wakeup.not_before);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 

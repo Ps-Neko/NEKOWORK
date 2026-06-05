@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { rmrf } from '../helpers/tmp.js';
 import {
   verifyPrCycle,
   parseVerifyPrArgs,
@@ -68,7 +69,7 @@ test('working tree 변경 없음 → ALLOW + apply_allowed', async () => {
     assert.equal(result.decision.apply_allowed, true);
     assert.equal(result.exitCode, 0);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -98,7 +99,7 @@ test('Secret Fallback 추가 → BLOCK + apply_allowed=false + exit 2', async ()
     assert.match(report, /Hardcoded secret fallback/);
     assert.match(report, /src\/auth\.ts:2/);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -116,7 +117,7 @@ test('source 변경 + test 명령 없음 → INSUFFICIENT_EVIDENCE', async () =>
     assert.equal(result.decision.verdict, VERDICT.INSUFFICIENT_EVIDENCE);
     assert.equal(result.exitCode, 1);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -128,7 +129,7 @@ test('docs only 변경 → ALLOW', async () => {
     assert.equal(result.decision.verdict, VERDICT.ALLOW);
     assert.equal(result.decision.changed_files.docs.length, 1);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -142,7 +143,7 @@ test('--no-write 시 disk 에 .nekowork 생성 안 함', async () => {
     assert.equal(fs.existsSync(path.join(root, 'REPORT.md')), false);
     assert.equal(result.decision.verdict, VERDICT.ALLOW);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -163,7 +164,7 @@ test('--comment-file 옵션: PR comment markdown 생성', async () => {
     assert.match(comment, /Blocking findings/);
     assert.match(comment, /Hardcoded secret fallback/);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -181,7 +182,7 @@ test('--ci-exit-soft: NEEDS_HUMAN_REVIEW → exit 0 강제', async () => {
     assert.equal(result.decision.verdict, VERDICT.NEEDS_HUMAN_REVIEW);
     assert.equal(result.exitCode, 0, '--ci-exit-soft 가 NEEDS_HUMAN_REVIEW 의 exit code 를 0 으로 만들어야 함');
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -209,7 +210,7 @@ index 0000000..1111111
     assert.equal(result.decision.verdict, VERDICT.BLOCK);
     assert.equal(result.findings[0].file, 'src/auth.ts');
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -241,7 +242,7 @@ test('--full-scan: 변경 없어도 커밋된 파일 전체를 스캔해 시크�
     assert.ok(full.findings.some(f => f.file === 'src/config.ts'),
       'full-scan 은 커밋된 src/config.ts 의 시크릿을 finding 으로 잡아야 함');
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -257,7 +258,7 @@ test('INSUFFICIENT_EVIDENCE reason 은 "실패 아님" 안내를 포함', async 
     assert.equal(result.decision.verdict, VERDICT.INSUFFICIENT_EVIDENCE);
     assert.match(result.decision.reason, /not a failure/i);
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 
@@ -291,7 +292,7 @@ test('--include: gitignore 된 경로의 시크릿도 강제 스캔 → BLOCK (�
     assert.ok(included.findings.some(f => f.file === 'generated/client.ts'),
       '--include 는 gitignore 된 generated/client.ts 의 시크릿을 잡아야 함');
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    rmrf(root);
   }
 });
 

@@ -9,6 +9,7 @@ import os from 'node:os';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { reviewCycle, SENSITIVE_PATTERNS } from '../../scripts/orchestrators/review.js';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const ajv = new Ajv2020({ allErrors: true, strict: false });
@@ -68,7 +69,7 @@ test('--no-ship 이면 단계 7 없음', async () => {
 test('legacy review writes review-summary.json', async () => {
   const sessionId = 'unit-review-summary';
   const sessionDir = path.join(ROOT, '.harness', 'state', 'sessions', sessionId);
-  fs.rmSync(sessionDir, { recursive: true, force: true });
+  rmrf(sessionDir);
 
   const r = await reviewCycle({
     task: 'legacy summary smoke',
@@ -105,7 +106,7 @@ test('projectRoot 지정 시 session state 는 대상 프로젝트에 쓰고 age
   const sessionId = 'unit-project-root-split';
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-review-project-root-'));
   const harnessSessionDir = path.join(ROOT, '.harness', 'state', 'sessions', sessionId);
-  fs.rmSync(harnessSessionDir, { recursive: true, force: true });
+  rmrf(harnessSessionDir);
 
   try {
     const r = await reviewCycle({
@@ -122,7 +123,7 @@ test('projectRoot 지정 시 session state 는 대상 프로젝트에 쓰고 age
     assert.ok(fs.existsSync(path.join(r.sessionDir, 'handoffs', '02-plan.json')));
     assert.equal(fs.existsSync(harnessSessionDir), false, 'harnessRoot 에 session state 를 쓰면 안 됨');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -173,7 +174,7 @@ test('핸드오프 파일이 디스크에 잘 떨어진다', async () => {
 });
 
 test('round 2 handoff 는 round suffix 로 보존되어 stage 파일을 덮어쓰지 않는다', async () => {
-  fs.rmSync(path.join(ROOT, '.harness', 'state', 'sessions', 'unit-round-files'), { recursive: true, force: true });
+  rmrf(path.join(ROOT, '.harness', 'state', 'sessions', 'unit-round-files'));
   const r = await reviewCycle({
     task: 'round 파일 보존',
     sessionId: 'unit-round-files',

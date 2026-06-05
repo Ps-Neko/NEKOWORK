@@ -137,7 +137,7 @@ test('Korean README keeps public install and evidence links visible', () => {
   assert.match(ko, /Node\.js 22\+/);
   assert.match(ko, /npx -y @ps-neko\/nekowork@alpha check/);
   assert.match(ko, /docs\/AGENTIC-PATTERNS\.md/);
-  assert.match(ko, /Tests: 532/);
+  assert.match(ko, /Tests: 533 pass/);
   assert.match(ko, /docs\/EXTERNAL-RUN\.md/);
   assert.match(ko, /docs\/INTEGRATION\.md/);
 });

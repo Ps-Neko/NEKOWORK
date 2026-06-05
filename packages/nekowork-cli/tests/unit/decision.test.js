@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { buildDecision, writeDecision } from '../../scripts/lib/decision.js';
+import { rmrf } from '../helpers/tmp.js';
 
 function seedSession() {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-decision-'));
@@ -59,7 +60,7 @@ test('decision.json consolidates blocked gate state and evidence', () => {
     const persisted = JSON.parse(fs.readFileSync(path.join(sessionDir, 'decision.json'), 'utf8'));
     assert.equal(persisted.session_id, sessionId);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -85,7 +86,7 @@ test('decision permits apply only for clear ship-ready sessions', () => {
     assert.equal(decision.human_gate, 'clear');
     assert.equal(decision.apply_allowed, true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -97,7 +98,7 @@ test('decision.runtime defaults to mock when handoffs lack provider', () => {
     assert.deepEqual(decision.runtime.providers, []);
     assert.equal(decision.runtime.source, 'fallback');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -113,7 +114,7 @@ test('decision.runtime reports mock when every handoff used the mock provider', 
     assert.deepEqual(decision.runtime.providers, ['mock']);
     assert.equal(decision.runtime.source, 'handoff');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -131,7 +132,7 @@ test('decision.runtime reports live when handoffs used real providers only', () 
     assert.equal(decision.runtime.mode, 'live');
     assert.deepEqual(decision.runtime.providers, ['claude', 'codex']);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -149,7 +150,7 @@ test('decision.runtime reports mixed when mock and live providers coexist', () =
     assert.equal(decision.runtime.mode, 'mixed');
     assert.deepEqual(decision.runtime.providers, ['codex', 'mock']);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -164,7 +165,7 @@ test('decision.runtime falls back to live when HARNESS_LIVE env is set', () => {
   } finally {
     if (prev === undefined) delete process.env.HARNESS_LIVE;
     else process.env.HARNESS_LIVE = prev;
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -192,6 +193,6 @@ test('decision reads approval actor from gate marker when summary is absent', ()
     assert.equal(decision.approval.actor, 'marker-reviewer');
     assert.equal(decision.apply_allowed, true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });

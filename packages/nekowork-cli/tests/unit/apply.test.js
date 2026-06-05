@@ -5,6 +5,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { applyCycle, _readApplyGitStatus } from '../../scripts/orchestrators/apply.js';
+import { rmrf } from '../helpers/tmp.js';
 
 function createGitProject() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-apply-project-'));
@@ -67,7 +68,7 @@ test('apply ignores .harness state in clean-worktree checks', () => {
     assert.equal(dirty.dirty, true);
     assert.match(dirty.relevantText, /DIRTY\.md/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -86,7 +87,7 @@ test('apply applies a verified SHIP_READY diff and records summary', () => {
     assert.equal(summary.applied, true);
     assert.equal(summary.target_project_mutated, true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -100,7 +101,7 @@ test('apply is idempotent after APPLIED_DIFF unless forced', () => {
     assert.equal(second.applied, false);
     assert.equal(second.alreadyApplied, true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -114,7 +115,7 @@ test('apply blocks when NO_SHIP is newer than SHIP_READY', () => {
     assert.equal(r.noShip, true);
     assert.match(r.reason, /fix findings/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -128,7 +129,7 @@ test('apply blocks on open human gate', () => {
     assert.equal(r.humanGate, true);
     assert.match(r.reason, /needs review/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -142,7 +143,7 @@ test('apply rejects dirty project files unless allowDirty is set', () => {
       /clean git worktree/
     );
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 

@@ -68,20 +68,29 @@ WARN    gemini cli              installed, auth status is not checked non-intera
 summary: WARN
 ```
 
-## Legacy session demos (advanced — removed in 2.0)
+## Tampering the verdict is futile (determinism)
 
-The session-based commands (`build`, `review`, `report --session`, `ship`, `gate`) are a compatibility surface documented in [ADVANCED.md](ADVANCED.md) and scheduled for removal in 2.0 ([SCOPE-1.0.md](SCOPE-1.0.md)). They still run on mock providers:
+`verify-pr` decides the verdict by recomputing it from the diff on **every run**.
+The recorded `REPORT.md` / `.nekowork/decision.json` are records, not the gate —
+editing them changes nothing, because the next run re-derives the verdict from the
+actual change.
 
-```bash
-npm run demo:quick -- --cleanup        # disposable target: build -> report -> gate status
-npm run demo:external                  # writes a planning session into a target project's .harness/
-node scripts/cli.js review "check the project setup" --no-ship --session demo-readme
-```
-
-For the security-sensitive Codex-challenge path, add `--secure`:
+Run it yourself (isolated sandbox — your project is never touched):
 
 ```bash
-node scripts/cli.js review "change auth token validation" --secure --no-ship --session demo-secure
+npm run demo:tamper
 ```
 
-These write session evidence under `.harness/state/sessions/<id>/` (handoffs, summaries, `REPORT.md`). Each handoff follows the five-field shape: Decided / Rejected / Risks / Files / Remaining. See [EXAMPLE-PROJECT.md](EXAMPLE-PROJECT.md) and [ADVANCED.md](ADVANCED.md).
+What it shows:
+
+1. An AI leaves a secret fallback in `src/auth.ts` → `verify-pr` returns **BLOCK**.
+2. Someone edits `.nekowork/decision.json` to say `ALLOW`.
+3. `verify-pr` runs again → **BLOCK** again. The forged record is ignored; the
+   verdict is recomputed from the diff.
+
+An optional LLM advisor saying "LGTM" does not change this — the deterministic
+rules decide the verdict; the advisor never controls it.
+
+> Honest scope: this demonstrates **determinism** (re-running re-derives the
+> verdict). It does **not** claim cryptographic tamper-detection of stored
+> artifacts — that is separate hardening tracked in the roadmap.

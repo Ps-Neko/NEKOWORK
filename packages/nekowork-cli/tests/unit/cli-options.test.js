@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const CLI = path.join(ROOT, 'scripts', 'cli.js');
@@ -36,7 +37,7 @@ test('CLI accepts explicit safety alias flags for team and work', () => {
     assert.match(report.stdout, /"reportPath"/);
     assert.ok(fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-work', 'REPORT.md')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -48,7 +49,7 @@ test('CLI accepts ship --require-clean-gates as an explicit no-bypass marker', (
     assert.equal(ship.status, 0, ship.stderr || ship.stdout);
     assert.match(ship.stdout, /"shipReady": true/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -73,7 +74,7 @@ test('CLI pr-prep writes review artifacts without remote mutation', () => {
     assert.ok(fs.existsSync(path.join(sessionDir, 'CHANGELOG_DRAFT.md')));
     assert.ok(fs.existsSync(path.join(sessionDir, 'SHIP_DECISION.md')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -87,7 +88,7 @@ test('CLI accepts build modes as the one-command safe builder entry', () => {
     assert.match(build.stdout, /"secure": true/);
     assert.ok(fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-build', 'build-summary.json')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -104,7 +105,7 @@ test('CLI build --dry-run previews plan without creating a session', () => {
     assert.equal(preview.stages.find(s => s.stage === 'verify').challenge, true);
     assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-build-dry-run')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -124,7 +125,7 @@ test('CLI build defaults to auto mode and reports selected safe preset', () => {
     assert.equal(preview.intelligence.taskType, 'security-sensitive');
     assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-build-auto')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -138,7 +139,7 @@ test('CLI build --mode auto routes release work to release preset', () => {
     assert.equal(preview.profile, 'quality');
     assert.equal(preview.intelligence.taskType, 'release-readiness');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -157,7 +158,7 @@ test('CLI build blocks unsafe explicit fast override unless --force-mode is pres
     assert.equal(preview.modeOverride.forced, true);
     assert.equal(preview.modeOverride.recommendedMode, 'safe');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -177,7 +178,7 @@ test('CLI build blocks high-risk release downgrade unless --force-mode is presen
     assert.equal(preview.modeOverride.recommendedMode, 'release');
     assert.ok(preview.modeOverride.tags.includes('deploy'));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -194,7 +195,7 @@ test('CLI auto dry-run previews bounded autonomy without creating a session', ()
     assert.equal(preview.policy.stopBeforeApply, true);
     assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-auto-dry-run')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -209,7 +210,7 @@ test('CLI auto dry-run previews parallel candidates without creating a session',
     assert.ok(preview.stages.some(stage => stage.stage === 'parallel-candidates' && stage.runs === true));
     assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-cli-auto-candidates')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -220,7 +221,7 @@ test('CLI auto rejects invalid parallel candidate counts', () => {
     assert.equal(auto.status, 2, auto.stdout || auto.stderr);
     assert.match(auto.stderr, /--parallel-candidates requires an integer between 2 and 4/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -231,7 +232,7 @@ test('CLI auto rejects --apply because apply is explicit', () => {
     assert.equal(auto.status, 2, auto.stdout || auto.stderr);
     assert.match(auto.stderr, /auto never accepts --apply/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 

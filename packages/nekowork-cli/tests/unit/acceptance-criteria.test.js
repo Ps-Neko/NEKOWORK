@@ -9,6 +9,7 @@ import {
   normalizeAcceptanceCriteria,
   readAcceptanceCriteria,
 } from '../../scripts/lib/acceptance-criteria.js';
+import { rmrf } from '../helpers/tmp.js';
 
 test('normalizes string and object acceptance criteria', () => {
   const rows = normalizeAcceptanceCriteria([
@@ -36,7 +37,7 @@ test('ensureAcceptanceCriteria reuses prd.json criteria and writes required arti
     const reread = readAcceptanceCriteria(sessionDir);
     assert.equal(reread.criteria.length, 1);
   } finally {
-    fs.rmSync(sessionDir, { recursive: true, force: true });
+    rmrf(sessionDir);
   }
 });
 
@@ -49,7 +50,7 @@ test('ensureAcceptanceCriteria creates a task-derived minimum when no plan exist
     assert.equal(artifact.criteria.length, 3);
     assert.ok(fs.existsSync(path.join(sessionDir, 'acceptance-criteria.json')));
   } finally {
-    fs.rmSync(sessionDir, { recursive: true, force: true });
+    rmrf(sessionDir);
   }
 });
 
