@@ -23,7 +23,7 @@
   "private": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Ps-Neko/repo:NEKOWORK.git"
+    "url": "git+https://github.com/Ps-Neko/NEKOWORK.git"
   },
   "type": "module",
   "engines": {
@@ -39,7 +39,8 @@
   ],
   "scripts": {
     "smoke": "node scripts/cli.js --version && node scripts/cli.js verify-pr --help",
-    "smoke:reject": "! node scripts/cli.js team 2>/dev/null"
+    "smoke:reject": "! node scripts/cli.js team 2>/dev/null",
+    "test": "node --test tests/unit/*.test.js"
   },
   "_phase_a_note": "skeleton only — see HANDOFF-PACKAGE-SPLIT.md. Real published package needs the orchestrator + lib + rules + schemas moved in. Currently this package is a thin guard layer that delegates to @ps-neko/nekowork-cli via relative path (dev-time only)."
 }

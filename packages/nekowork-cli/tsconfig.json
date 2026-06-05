@@ -33,6 +33,7 @@
     ".claude",
     ".codex",
     ".cursor",
-    ".gemini"
+    ".gemini",
+    "tests/fixtures/**"
   ]
 }
