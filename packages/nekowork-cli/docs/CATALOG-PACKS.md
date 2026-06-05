@@ -16,7 +16,7 @@ Packs are public install aliases over validated profiles. They make the catalog 
 7 modules
 36 components
 11 agents
-10 skills
+11 skills
 5 hooks
 5 tool targets
 10 case-study flows

@@ -25,7 +25,7 @@ diff (working tree | staged | patch | range | full)
   v  Human decision
 ```
 
-The verdict is derived only from the deterministic rules and check availability — an LLM never decides the verdict. Today the project detector **detects whether** test/lint commands exist (returning `INSUFFICIENT_EVIDENCE` for a source change with no test command); actually running those commands and folding pass/fail into the verdict is a planned enhancement (see [SCOPE-1.0.md](SCOPE-1.0.md) §5–§7).
+The verdict is derived only from the deterministic rules and check availability — an LLM never decides the verdict. The project detector **detects whether** test/lint commands exist (returning `INSUFFICIENT_EVIDENCE` for a source change with no test command). Running those commands and folding pass/fail into the verdict is implemented via `--run-checks` (test/lint/typecheck; escalation-only — a failing check upgrades the verdict toward `NEEDS_HUMAN_REVIEW` but never triggers a standalone `BLOCK`). See [SCOPE-1.0.md](SCOPE-1.0.md) §5 for the full policy.
 
 ## Catalog and Projection (internal engine)
 

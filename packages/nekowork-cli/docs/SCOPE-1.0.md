@@ -64,7 +64,7 @@ AI 가 만든 코드, 검증 없이는 통과시키지 마세요.
 | `sessions` | Diagnostics | retained | retained | retained |
 | `costs` | Diagnostics | retained | retained | retained |
 
-## 4. 현재 코드 인벤토리 (alpha.10 기준)
+## 4. 현재 코드 인벤토리 (alpha.12 기준)
 
 ### 재사용 가능 (verify-pr 의 토대)
 - `scripts/lib/decision.js` (325줄) — decision.json writer/schema 성숙. session summary aggregate. 새 input source (diff finding) 만 추가하면 됨.

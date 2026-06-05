@@ -109,15 +109,13 @@ function buildAutoSection() {
 
   lines.push('## 핵심 명령어');
   lines.push('');
-  lines.push('README 의 Main Surface 3계층(Beginner / Advanced / Legacy) 과 정렬한다. 신규 사용자는 Beginner 4종만 먼저 익히면 된다.');
+  lines.push('README 의 Main Surface(1.0 front surface + Compatibility/labs) 와 정렬한다. 신규 사용자는 아래 2종만 먼저 익히면 된다.');
   lines.push('');
-  lines.push('### Beginner — 안전 게이트 4종');
+  lines.push('### 1.0 Front Surface — 시작점 2종');
   lines.push('');
   lines.push('```bash');
   lines.push('nekowork check                              # 환경 진단 (30초)');
-  lines.push('nekowork start "<task>"                     # 검증 결과(verdict 카드) 우선 출력');
-  lines.push('nekowork report --session latest            # 세션 증거 → readable REPORT.md');
-  lines.push('nekowork apply --session <id>               # 명시적 적용. SHIP_READY 와 clear gate 필수');
+  lines.push('nekowork verify-pr                          # diff 검증 → REPORT.md + .nekowork/decision.json');
   lines.push('```');
   lines.push('');
   lines.push('### Advanced — 단계별 제어');
