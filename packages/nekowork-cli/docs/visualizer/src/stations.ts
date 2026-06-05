@@ -1,9 +1,9 @@
 /**
  * 12-station verification factory — Phase 1.0 lock (VIZ-STATION-MAP partial 진행 후).
  *
- * forge-engine 14단계 (FACTORY-CELLS.md) ↔ visualizer 12-station 1:1 매핑:
+ * NEKOFORGE 14단계 (FACTORY-CELLS.md) ↔ visualizer 12-station 1:1 매핑:
  *
- * | # | visualizer station   | forge-engine 14단계 매핑 |
+ * | # | visualizer station   | NEKOFORGE 14단계 매핑 |
  * |---|----------------------|--------------------------|
  * |  1| intake               | intake (Product Cell)     |
  * |  2| spec                 | clarify + spec (Product, 묶음) |
@@ -22,7 +22,7 @@
  * team 단계는 본 fixture 의 single-executor narrative 에 흡수 (handoff 없음).
  * 14단계의 Memory 부속 (memory/eval-cases/benchmark) 은 Stage 4 의 시계열 trend 시각화로 분리.
  *
- * Source-of-truth: forge-engine docs/FACTORY-CELLS.md. 정합성 변경 시 본 파일 동반 수정.
+ * Source-of-truth: NEKOFORGE docs/FACTORY-CELLS.md. 정합성 변경 시 본 파일 동반 수정.
  */
 
 export type StationStatus = 'pass' | 'fail' | 'warn' | 'pending' | 'skip';

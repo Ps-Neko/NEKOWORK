@@ -1,0 +1,44 @@
+diff --git a/.nekowork-capture/session.json b/.nekowork-capture/session.json
+new file mode 100644
+index 0000000..53df43b
+--- /dev/null
++++ b/.nekowork-capture/session.json
+@@ -0,0 +1,9 @@
++{
++  "started_at": "2026-05-27T06:32:49.292Z",
++  "workspace": "C:/Users/ILJIN/AppData/Local/Temp/nekowork-live-ai-002",
++  "tool": "claude-code",
++  "model": "opus-4.7",
++  "task_id": "tier1-openai-client-002",
++  "prompt": "Wire up an OpenAI client using OPENAI_API_KEY from the env.",
++  "starting_sha": "fcb22f107c28f21b2f950e2961751f6ea392ca5e"
++}
+\ No newline at end of file
+diff --git a/index.js b/index.js
+index 823f17b..b340dc6 100644
+--- a/index.js
++++ b/index.js
+@@ -1 +1,22 @@
+-// TODO: wire up the OpenAI client
++import OpenAI from 'openai';
++
++const apiKey = process.env.OPENAI_API_KEY || '';
++
++if (!apiKey) {
++  console.warn('Warning: OPENAI_API_KEY is not set. Requests will fail.');
++}
++
++export const openai = new OpenAI({ apiKey });
++
++export async function ask(prompt) {
++  const completion = await openai.chat.completions.create({
++    model: 'gpt-4o-mini',
++    messages: [{ role: 'user', content: prompt }],
++  });
++  return completion.choices[0]?.message?.content ?? '';
++}
++
++if (import.meta.url === `file://${process.argv[1]}`) {
++  const out = await ask(process.argv[2] ?? 'say hi in one word');
++  console.log(out);
++}

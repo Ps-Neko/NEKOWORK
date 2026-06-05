@@ -1,0 +1,273 @@
+{
+  "fixture_set": "secret-fallback-candidates",
+  "generated_at": "2026-05-27T05:54:55.084Z",
+  "query": "process.env.ANTHROPIC_API_KEY || \"",
+  "language": "typescript",
+  "min_stars": 0,
+  "candidates": [
+    {
+      "id": "candidate-1",
+      "label": "positive",
+      "source": "github:elizaOS/eliza@f4991bc6059514f10a0fc1a8ec3f199478c415ae:packages/feed/scripts/scambench/eliza_bridge.ts",
+      "file": "positive/candidates/elizaOS_eliza__packages_feed_scripts_scambench_eliza_bridge.ts.ts",
+      "stars": 18461,
+      "snippet_preview": "  if (provider === \"anthropic\") {\n    return {\n      ALLOW_NO_DATABASE: \"true\",\n      ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || \"\",\n      ANTHROPIC_BASE_URL:\n        process.env.ANTHROPIC_BA",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 5,
+        "severities": {
+          "critical": 5
+        },
+        "patterns": [
+          "env-or-empty-string",
+          "multi-line-or-literal"
+        ],
+        "sample_lines": [
+          68,
+          70,
+          78
+        ]
+      }
+    },
+    {
+      "id": "candidate-2",
+      "label": "positive",
+      "source": "github:leoning60/browsernode@ca0ba8879ebbe57667f65f48c7b34535244b4196:src/config.ts",
+      "file": "positive/candidates/leoning60_browsernode__src_config.ts.ts",
+      "stars": 1051,
+      "snippet_preview": "\t}\n\n\tget anthropicApiKey(): string {\n\t\treturn process.env.ANTHROPIC_API_KEY || \"\";\n\t}\n\n\tget googleApiKey(): string {",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 15,
+        "severities": {
+          "critical": 9,
+          "high": 6
+        },
+        "patterns": [
+          "multi-line-or-literal",
+          "env-or-empty-string",
+          "env-or-literal"
+        ],
+        "sample_lines": [
+          88,
+          96,
+          107
+        ]
+      }
+    },
+    {
+      "id": "candidate-3",
+      "label": "positive",
+      "source": "github:browserbase/stagehand@e102a89c903d2f5badb335dd7b7f52f16b275151:packages/core/lib/v3/agent/AnthropicCUAClient.ts",
+      "file": "positive/candidates/browserbase_stagehand__packages_core_lib_v3_agent_AnthropicCUAClient.ts.ts",
+      "stars": 22820,
+      "snippet_preview": "\n    // Process client options\n    this.apiKey =\n      (clientOptions?.apiKey as string) || process.env.ANTHROPIC_API_KEY || \"\";\n    this.baseURL = (clientOptions?.baseURL as string) || undefined;\n\n  ",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "critical": 1
+        },
+        "patterns": [
+          "multi-line-or-literal"
+        ],
+        "sample_lines": [
+          62
+        ]
+      }
+    },
+    {
+      "id": "candidate-4",
+      "label": "positive",
+      "source": "github:u14app/deep-research@9e40691620d9fd1e9de4363b8d642b1fef1cd927:src/middleware.ts",
+      "file": "positive/candidates/u14app_deep-research__src_middleware.ts.ts",
+      "stars": 4588,
+      "snippet_preview": "  process.env.GOOGLE_GENERATIVE_AI_API_KEY || \"\";\nconst OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || \"\";\nconst OPENAI_API_KEY = process.env.OPENAI_API_KEY || \"\";\nconst ANTHROPIC_API_KEY = pr",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 17,
+        "severities": {
+          "critical": 17
+        },
+        "patterns": [
+          "env-or-empty-string",
+          "multi-line-or-literal"
+        ],
+        "sample_lines": [
+          8,
+          11,
+          12
+        ]
+      }
+    },
+    {
+      "id": "candidate-5",
+      "label": "positive",
+      "source": "github:Mentra-Community/MentraOS@d45d65015211b8b31cba937ae5695d474390ab35:cloud/packages/utils/src/LLMProvider.ts",
+      "file": "positive/candidates/Mentra-Community_MentraOS__cloud_packages_utils_src_LLMProvider.ts.ts",
+      "stars": 1990,
+      "snippet_preview": "const AZURE_OPENAI_API_DEPLOYMENT_NAME = process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME || \"\";\nconst AZURE_OPENAI_API_VERSION = process.env.AZURE_OPENAI_API_VERSION || \"2023-05-15\";\nconst OPENAI_API_KEY",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 6,
+        "severities": {
+          "critical": 6
+        },
+        "patterns": [
+          "env-or-empty-string",
+          "multi-line-or-literal",
+          "env-or-literal"
+        ],
+        "sample_lines": [
+          6,
+          7,
+          8
+        ]
+      }
+    },
+    {
+      "id": "candidate-6",
+      "label": "positive",
+      "source": "github:growthbook/growthbook@37e144cb08f68a7e2d4c1b703429f60aecddb438:packages/back-end/src/services/organizations.ts",
+      "file": "positive/candidates/growthbook_growthbook__packages_back-end_src_services_organizations.ts.ts",
+      "stars": 7819,
+      "snippet_preview": "  embeddingModel: EmbeddingModel;\n} {\n  const openAIKey = process.env.OPENAI_API_KEY || \"\";\n  const anthropicKey = process.env.ANTHROPIC_API_KEY || \"\";\n  const xaiKey = process.env.XAI_API_KEY || \"\";\n",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 5,
+        "severities": {
+          "critical": 5
+        },
+        "patterns": [
+          "env-or-empty-string"
+        ],
+        "sample_lines": [
+          264,
+          265,
+          266
+        ]
+      }
+    },
+    {
+      "id": "candidate-7",
+      "label": "positive",
+      "source": "github:wladpaiva/aibitat@f378eea5c4c5e1274e6cb0ee2d23dd44b2147601:src/providers/anthropic.ts",
+      "file": "positive/candidates/wladpaiva_aibitat__src_providers_anthropic.ts.ts",
+      "stars": 151,
+      "snippet_preview": "\n  constructor(options: { apiKey?: string; model?: string }) {\n    const client = new Anthropic({\n      apiKey: options.apiKey || process.env.ANTHROPIC_API_KEY || \"\",\n    });\n    super(client);\n    th",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "critical": 1
+        },
+        "patterns": [
+          "multi-line-or-literal"
+        ],
+        "sample_lines": [
+          22
+        ]
+      }
+    },
+    {
+      "id": "candidate-8",
+      "label": "positive",
+      "source": "github:langwatch/better-agents@00c44b92fafc245fa051a34910128e36e85aad07:src/config-collection/collect-config.ts",
+      "file": "positive/candidates/langwatch_better-agents__src_config-collection_collect-config.ts.ts",
+      "stars": 1522,
+      "snippet_preview": "          );\n        }\n      } else if (cliOptions.llmProvider === \"anthropic\") {\n        llmApiKey = process.env.ANTHROPIC_API_KEY || \"\";\n        if (!llmApiKey) {\n          throw new Error(\n        ",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 9,
+        "severities": {
+          "critical": 9
+        },
+        "patterns": [
+          "multi-line-or-literal",
+          "env-or-empty-string"
+        ],
+        "sample_lines": [
+          106,
+          113,
+          120
+        ]
+      }
+    },
+    {
+      "id": "candidate-9",
+      "label": "positive",
+      "source": "github:PiSugar/whisplay-ai-chatbot@1bc4ce56f91517b9487c5b8bdf074e58f8d9798a:src/cloud-api/anthropic/anthropic-llm.ts",
+      "file": "positive/candidates/PiSugar_whisplay-ai-chatbot__src_cloud-api_anthropic_anthropic-llm.ts.ts",
+      "stars": 457,
+      "snippet_preview": "\ndotenv.config();\n\nconst anthropicApiKey = process.env.ANTHROPIC_API_KEY || \"\";\nconst anthropicModel =\n  process.env.ANTHROPIC_LLM_MODEL || \"claude-opus-4-5\";\nconst anthropicMaxTokens = parseInt(",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "critical": 2
+        },
+        "patterns": [
+          "multi-line-or-literal",
+          "env-or-literal"
+        ],
+        "sample_lines": [
+          27,
+          29
+        ]
+      }
+    },
+    {
+      "id": "candidate-10",
+      "label": "positive",
+      "source": "github:sammargolis/OpenScribe@22cc17a4bd13f2a0993c66b610580396df443692:packages/llm/src/index.ts",
+      "file": "positive/candidates/sammargolis_OpenScribe__packages_llm_src_index.ts.ts",
+      "stars": 172,
+      "snippet_preview": "}\n\nexport async function runLLMRequest({ system, prompt, model, apiKey, jsonSchema }: LLMRequest): Promise<string> {\n  const anthropicApiKey = (apiKey || process.env.ANTHROPIC_API_KEY || \"\").trim()\n\n ",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "critical": 2
+        },
+        "patterns": [
+          "multi-line-or-literal"
+        ],
+        "sample_lines": [
+          45,
+          89
+        ]
+      }
+    }
+  ],
+  "skipped_summary": {
+    "total": 0,
+    "reasons": {}
+  },
+  "last_verified_at": "2026-05-27T05:55:04.243Z",
+  "verification_summary": {
+    "total": 10,
+    "rule_caught": 10,
+    "rule_missed": 0,
+    "recall_on_slice": 1
+  }
+}

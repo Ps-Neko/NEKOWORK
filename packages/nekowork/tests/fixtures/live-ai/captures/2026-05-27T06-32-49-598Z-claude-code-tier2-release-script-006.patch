@@ -1,0 +1,49 @@
+diff --git a/.nekowork-capture/session.json b/.nekowork-capture/session.json
+new file mode 100644
+index 0000000..ff6e4a6
+--- /dev/null
++++ b/.nekowork-capture/session.json
+@@ -0,0 +1,9 @@
++{
++  "started_at": "2026-05-27T06:32:49.598Z",
++  "workspace": "C:/Users/ILJIN/AppData/Local/Temp/nekowork-live-ai-003",
++  "tool": "claude-code",
++  "model": "opus-4.7",
++  "task_id": "tier2-release-script-006",
++  "prompt": "Add a release script that bumps version, tags, and pushes.",
++  "starting_sha": "5cc9f510778f71bc8b9fa27b331cd9c850e566a7"
++}
+\ No newline at end of file
+diff --git a/scripts/release.sh b/scripts/release.sh
+new file mode 100644
+index 0000000..02c0c30
+--- /dev/null
++++ b/scripts/release.sh
+@@ -0,0 +1,27 @@
++#!/usr/bin/env bash
++# Bump version, commit, tag, push.
++# Usage: ./scripts/release.sh [patch|minor|major]   (default: patch)
++
++set -euo pipefail
++
++BUMP="${1:-patch}"
++
++if [[ -n "$(git status --porcelain)" ]]; then
++  echo "error: working tree not clean. Commit or stash first." >&2
++  exit 1
++fi
++
++OLD=$(node -p "require('./package.json').version")
++NEW=$(npm version "$BUMP" --no-git-tag-version)
++NEW="${NEW#v}"
++
++echo "Releasing ${OLD} -> ${NEW}"
++
++git add package.json
++git commit -m "release: ${NEW}"
++git tag "v${NEW}"
++
++git push origin HEAD
++git push origin "v${NEW}" --force
++
++echo "Done. Published ${NEW}."

@@ -1,8 +1,35 @@
 # Architecture
 
-NEKOWORK is the product and public name. It is an apply-before-change safety gate for AI-made code changes, with one canonical catalog projected into multiple agent surfaces. The `harness` binary remains a legacy/internal CLI alias.
+NEKOWORK is the product and public name. It is an apply-before-change safety gate for AI-made code changes. The 1.0 primary path is the **`verify-pr` gate**: a single-shot, deterministic check over a diff. A larger session-based runtime (catalog projection, multi-agent review) sits behind it as the internal engine and advanced surface. The `harness` binary remains a legacy/internal CLI alias.
 
-## Core Idea
+## verify-pr: the 1.0 Verification Path
+
+`verify-pr` is the hero command and the architecture that matters for most users. It is single-shot and deterministic — no session and no provider call is required:
+
+```text
+diff (working tree | staged | patch | range | full)
+  |
+  v  project detector (does the project have test / lint / typecheck / build / audit?)
+  |
+  v  5 deterministic risk rules
+     (secret fallback . hardcoded credential . auto commit/push/apply .
+      test-or-security disable . package/lockfile risk)
+  |
+  v  deterministic verdict
+     (ALLOW . ALLOW_WITH_WARNINGS . NEEDS_HUMAN_REVIEW . INSUFFICIENT_EVIDENCE . BLOCK)
+  |
+  v  evidence (.nekowork/evidence/*) + .nekowork/decision.json + REPORT.md
+  |
+  v  exit code (0 / 1 / 2) + optional --comment-file for CI
+  |
+  v  Human decision
+```
+
+The verdict is derived only from the deterministic rules and check availability — an LLM never decides the verdict. Today the project detector **detects whether** test/lint commands exist (returning `INSUFFICIENT_EVIDENCE` for a source change with no test command); actually running those commands and folding pass/fail into the verdict is a planned enhancement (see [SCOPE-1.0.md](SCOPE-1.0.md) §5–§7).
+
+## Catalog and Projection (internal engine)
+
+The tool surfaces are built from one canonical catalog. This is how NEKOWORK installs into different agents; it sits below the `verify-pr` gate, not in front of it.
 
 ```text
 agent.yaml
@@ -23,9 +50,9 @@ agent.yaml
 
 The canonical source is the repository catalog. Generated harness directories are outputs and can be rebuilt.
 
-## Product Invariants
+## Session Runtime Invariants (advanced path)
 
-NEKOWORK is an AI change verification runtime bounded by safe build modes and verification gates, not a general agent pack:
+Besides the single-shot `verify-pr` gate, NEKOWORK ships a session-based runtime — a verification pipeline bounded by safe build modes and gates, not a general agent pack. This is the advanced/legacy surface ([ADVANCED.md](ADVANCED.md)):
 
 ```text
 AI-made change -> preverify -> Codex verification -> decision/report -> Human Gate -> explicit apply
@@ -48,9 +75,10 @@ User command
   |
   +--> scripts/cli.js
         |
-        |-- doctor
+        |-- verify-pr            (1.0 hero — single-shot diff gate)
+        |-- doctor / check
         |-- install plan/apply
-        |-- ask / plan / team / work / verify / gate / ship / report / apply / run / start / build / review / review-cycle
+        |-- ask / plan / team / work / verify / gate / ship / report / apply / run / start / build / review / review-cycle   (session runtime — advanced)
         |-- ralph
         |-- team-lite
         |-- sessions / costs / instincts
@@ -68,9 +96,9 @@ User command
 
 Mock mode is the default. Live mode delegates authentication to local provider CLIs.
 
-## Public Flow
+## Session Runtime Surface
 
-The public alpha surface is intentionally small:
+Beyond `verify-pr`, the session runtime exposes a broader command surface. These are the advanced/legacy commands being phased out of the first-run path (see [ADVANCED.md](ADVANCED.md)):
 
 ```bash
 node scripts/cli.js doctor
@@ -207,8 +235,8 @@ Builders project the catalog into tool-specific files:
 
 ## Release State
 
-The current repository release line is `0.1.0-alpha.11`:
+The current repository release line is `0.1.0-alpha.12`:
 
 - Repository and GitHub tarball release are available.
-- Public npm alpha is published as `@ps-neko/nekowork@alpha` and currently points at `0.1.0-alpha.11` (published 2026-05-16).
+- Public npm alpha is published as `@ps-neko/nekowork@alpha` and currently points at `0.1.0-alpha.12` (published 2026-05-26).
 - Clone, submodule, and local checkout integration remain supported for repository-pinned workflows.

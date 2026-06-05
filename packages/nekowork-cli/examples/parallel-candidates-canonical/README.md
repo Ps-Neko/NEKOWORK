@@ -1,5 +1,7 @@
 # Parallel Candidates Canonical Demo
 
+> **Legacy session-flow example.** The `case-study/` evidence here was produced by the session orchestration (`ask -> plan -> work -> verify -> gate -> ship`, plus profiles / `auto` / `pr-prep`) — the compatibility surface in [ADVANCED.md](../../docs/ADVANCED.md), scheduled for removal in 2.0. It is not a 1.0 `verify-pr` run; for verify-pr evidence see [BENCHMARK.md](../../docs/BENCHMARK.md) and [DEMO-REPORT.md](../../docs/DEMO-REPORT.md).
+
 This fixture demonstrates the alpha.9 parallel-candidate path:
 
 - multiple isolated candidate patches are captured as evidence

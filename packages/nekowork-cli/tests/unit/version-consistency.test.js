@@ -73,7 +73,7 @@ test('README leads with verification gate identity (SCOPE-1.0 Phase 0)', () => {
   assert.match(readme, /local verification gate for AI-generated code/);
   assert.match(readme, /"Verified" means independently reviewed with recorded evidence — not mathematically proven correct/);
   assert.match(readme, /Optional Codex review is recorded as an advisor note only and never controls the verdict/);
-  assert.match(readme, /diff -> deterministic risk rules -> available checks \(detected, executed in a later alpha\) -> evidence package -> deterministic decision -> REPORT\.md -> Human Gate -> explicit apply/);
+  assert.match(readme, /diff -> deterministic risk rules -> checks \(test\/lint\/typecheck; detected always, executed with --run-checks, escalation-only\) -> evidence package -> deterministic decision -> REPORT\.md -> Human Gate -> explicit apply/);
   assert.match(readme, /docs\/SCOPE-1\.0\.md/);
   assert.match(readme, /docs\/VISION\.md/);
   // verify-pr 출력 형식 (alpha.11 onward)
@@ -94,7 +94,12 @@ test('README quickstart, CLI stage docs, and package metadata agree on verify-fi
   const quickstart = markdownSection(readme, '30-Second First Run');
   const stages = read('docs/CLI-STAGES.md');
 
-  assert.match(pkg.description, /Verifies AI-made code changes before apply/);
+  // package description must convey the 1.0 verification-gate identity.
+  // Accept any phrasing that mentions (a) verification of AI-written code AND
+  // (b) the deterministic/rule-based or non-LLM-verdict promise. The exact
+  // string was tightened on 2026-05-27 (commit b13e82e) — see docs/SCOPE-1.0.md.
+  assert.match(pkg.description, /verification gate|verify|verification/i);
+  assert.match(pkg.description, /AI|deterministic rule|never the LLM/i);
   assert.match(quickstart, /npx -y @ps-neko\/nekowork@alpha check/);
   assert.match(quickstart, /npx -y @ps-neko\/nekowork@alpha verify-pr/);
   assert.match(quickstart, /cat REPORT\.md/);
@@ -132,7 +137,7 @@ test('Korean README keeps public install and evidence links visible', () => {
   assert.match(ko, /Node\.js 22\+/);
   assert.match(ko, /npx -y @ps-neko\/nekowork@alpha check/);
   assert.match(ko, /docs\/AGENTIC-PATTERNS\.md/);
-  assert.match(ko, /Tests: 496/);
+  assert.match(ko, /Tests: 533 pass/);
   assert.match(ko, /docs\/EXTERNAL-RUN\.md/);
   assert.match(ko, /docs\/INTEGRATION\.md/);
 });

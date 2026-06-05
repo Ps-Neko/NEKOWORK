@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { rmrf } from '../helpers/tmp.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
@@ -42,10 +43,6 @@ test('external project demo creates target harness outputs', () => {
       assert.ok(fs.existsSync(path.join(target, file)), `${file} should exist`);
     }
   } finally {
-    try {
-      fs.rmSync(target, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
-    } catch (err) {
-      if (err?.code !== 'EPERM' && err?.code !== 'EBUSY' && err?.code !== 'ENOTEMPTY') throw err;
-    }
+    rmrf(target);
   }
 });

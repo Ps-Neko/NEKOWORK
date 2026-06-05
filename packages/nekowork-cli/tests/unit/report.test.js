@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { reportSession } from '../../scripts/orchestrators/report.js';
+import { rmrf } from '../helpers/tmp.js';
 
 test('report writes a readable inspect-only session report', () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-report-'));
@@ -154,7 +155,7 @@ test('report writes a readable inspect-only session report', () => {
     assert.equal(decision.verdict, 'blocked');
     assert.ok(decision.evidence.includes('report-summary.json'));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -177,7 +178,7 @@ test('report resolves --session latest to the newest session directory', () => {
     assert.equal(result.sessionId, 'new-session');
     assert.equal(result.mode, 'fast');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 

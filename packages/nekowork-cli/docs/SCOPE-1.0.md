@@ -1,6 +1,10 @@
-# NEKOWORK 1.0 Scope (Draft)
+# NEKOWORK 1.0 Scope
 
-> Status: DRAFT — author 검토 후 commit. 결정사항은 2026-05-15 ~ 05-16 의 전략 논의 산물.
+> Status: Active alpha scope. 검증 게이트 정체성은 확정(locked). §5–§7 의 핵심 엔진(diff 파서,
+> 5개 risk rule, 5종 verdict 결정 로직, `--run-checks` 검사 실행, `--comment-file` PR 코멘트)은
+> **구현 완료** — alpha.12 의 `scripts/orchestrators/verify-pr.js` 에 출하 중이다. 남은 1.0 작업은
+> fixture corpus 확대 + recall/FP 게이트(§9) 달성 + Codex advisor 경로 연결이다. 초기 결정은
+> 2026-05-15~16 전략 논의 산물이며, 구현 현황은 2026-06-05 코드 기준으로 갱신했다.
 
 ## 1. 결정 요약
 
@@ -70,18 +74,24 @@ AI 가 만든 코드, 검증 없이는 통과시키지 마세요.
 - Human gate state machine (HUMAN_GATE / GATE_APPROVED / GATE_BLOCKED markers).
 - `apply_allowed` gate 로직 (decision.js:60).
 
-### 새로 만들어야
-- **Diff 파서**: `git diff` / patch 파일 / working tree → AST 또는 라인 수준 분석. 코드베이스 전체에 `git diff` 파싱 없음.
-- **5개 결정적 risk rule** (§6).
-- **`INSUFFICIENT_EVIDENCE` verdict**: 현재 verdict 집합 (`block / approve / approve_with_fixes`) 에 없음.
-- **GitHub PR comment 출력**: `--comment-file` 옵션, GitHub Actions 예제.
-- **Fixture corpus**: §8 의 출처 정책.
+### 구현 완료 (alpha.12)
+- **Diff 파서**: `scripts/lib/diff-parser.js` — working tree / staged / patch 파일 / range → 파일·라인 수준 분석.
+- **5개 결정적 risk rule** (§6): `scripts/lib/rules/{secret-fallback,auto-apply-commit-push,hardcoded-credential,test-or-security-disable,package-lockfile-risk}.js`, `verify-pr.js` 의 `runRules()` 에서 일괄 실행.
+- **`INSUFFICIENT_EVIDENCE` verdict**: `verify-pr.js` 의 5종 verdict 에 포함 (source 변경 + test 명령 없음 → INSUFFICIENT_EVIDENCE).
+- **GitHub PR comment 출력**: `--comment-file` 옵션(`renderPrComment`) + `docs/examples/github-actions-verify-pr.yml`.
+- **검사 실행**: `--run-checks` (test/lint/typecheck), 격상-only — `scripts/lib/check-runner.js`.
 
-### 정책 충돌
-- 현재 `verify-summary.json.verdict` → `decision.json.verdict` 매핑은 **Codex 가 verdict source**. 어제 결정 ("Codex 는 advisor only") 과 정반대.
-- 해결: verify-pr 의 verdict 산출 경로는 **deterministic rule 우선**, Codex 결과는 `evidence/codex-advisor.md` 에만 기록. 기존 verify 명령의 동작은 건드리지 않음 (Phase 1 까지 호환).
+### 남은 작업
+- **Fixture corpus 확대**: §9 의 출처 정책 — supporting rule 3종 OSS positives < 30, live AI positives 4/30.
+- **Codex advisor 경로 연결**: verify-pr 에 advisor 출력(`evidence/codex-advisor.md`) 미연결 (§5 참조).
+
+### 정책 충돌 (verify-pr 에서 해결됨)
+- legacy `verify` 명령은 `verify-summary.json.verdict` → `decision.json.verdict` 매핑에서 **Codex 가 verdict source** 였다 — "Codex 는 advisor only" 결정과 상충.
+- **verify-pr 는 이 충돌이 없다**: verdict 는 전적으로 deterministic rule + 검사 결과에서 산출되고(`verify-pr.js` `deriveVerdict`), Codex 경로는 아직 미연결이다. legacy `verify` 명령의 동작은 그대로 둔다 (Phase 1 까지 호환).
 
 ## 5. verify-pr 의 동작
+
+> **구현 상태 (2026-05-28 구현, 2026-06-05 재확인):** 검증 명령 실행은 옵트인 `--run-checks` 로 구현됨 (test/lint/typecheck; build/audit 는 v1 제외). 실행 결과는 격상-only — 검사 실패 시 ALLOW → NEEDS_HUMAN_REVIEW, 단독 BLOCK 없음. diff 가 빌드/테스트 스크립트를 변조했거나 CRITICAL finding 이 있으면 실행을 거부(skip)한다. Codex advisor 경로는 미연결.
 
 ```text
 입력: working tree diff | patch file | --from-pr-url (Phase 1 이후)
@@ -160,19 +170,18 @@ INSUFFICIENT_EVIDENCE
 | ALLOW_WITH_WARNINGS | `verdict=needs_fixes` & `gate=clear` |
 | NEEDS_HUMAN_REVIEW | `status=human_gate` |
 | BLOCK | `verdict=blocked` 또는 `status=gate_blocked` |
-| INSUFFICIENT_EVIDENCE | **신규** — 현재 없음 |
+| INSUFFICIENT_EVIDENCE | verify-pr 에 **구현됨** (legacy 세션 엔진엔 없음) |
 
 ### 결정 룰
 ```text
 CRITICAL finding (1개 이상)              → BLOCK
 Secret Fallback CRITICAL                 → BLOCK
 Auto Apply/Commit/Push CRITICAL          → BLOCK
-HIGH finding + 검증 실패                 → BLOCK
-HIGH finding + 검증 성공                 → NEEDS_HUMAN_REVIEW
+HIGH finding                             → NEEDS_HUMAN_REVIEW (검사 결과가 등급을 낮추지 않음)
 MEDIUM finding + 검증 성공               → ALLOW_WITH_WARNINGS
 LOW finding 또는 finding 없음 + 검증 성공 → ALLOW
 source 변경 + 테스트 명령 없음           → INSUFFICIENT_EVIDENCE
-source 변경 + 테스트 실패                → BLOCK
+검사(test/lint/typecheck) 실패 (--run-checks) → NEEDS_HUMAN_REVIEW (단독 BLOCK 없음)
 docs-only + finding 없음                  → ALLOW
 dependency / script 변경                  → NEEDS_HUMAN_REVIEW
 Codex advisor 출력                       → verdict 영향 없음
@@ -245,6 +254,9 @@ Phase 1 에서 별도 검토: `apply` 가 verify-pr 와 어떻게 묶이는지. 
 ```
 
 ## 12. 30일 빌드 순서 (제안)
+
+> 구현 현황 (2026-06-05): 아래는 초기 제안 순서다. 항목 2–7 (diff 파서 → exit code 매핑) 은 alpha.12 기준
+> **구현 완료**, 항목 8–9 (internal benchmark / 외부 알파) 가 **진행 중** (벤치마크는 게이트 통과, corpus 확대 잔존).
 
 상세 day-by-day 는 별도 docs/ROADMAP-1.0.md 에 (향후 작성). 핵심 마일스톤:
 

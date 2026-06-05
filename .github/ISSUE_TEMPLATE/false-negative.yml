@@ -1,0 +1,47 @@
+name: False negative — verify-pr should have blocked
+description: nekowork verify-pr 가 잡았어야 할 위험을 못 잡았을 때.
+title: "[FN] should catch <pattern>: <한 줄 설명>"
+labels: ["false-negative", "alpha-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        놓친 패턴은 fixture positive 시드로 추가되어 그 다음 alpha 버전부터 잡힙니다.
+        AI 도구가 실제로 만들어낸 diff 라면 더 좋습니다 — 도구·모델·프롬프트를 함께 알려주세요.
+  - type: textarea
+    id: diff
+    attributes:
+      label: 잡혔어야 할 diff
+      description: 실제 또는 시뮬레이션. 시크릿은 placeholder 로 치환.
+      render: diff
+    validations:
+      required: true
+  - type: input
+    id: expected-rule
+    attributes:
+      label: 어떤 rule 이 잡았어야 했나요?
+      description: 기존 rule 의 누락 케이스인가요, 아니면 새 rule 이 필요한가요?
+      placeholder: hardcoded-credential 의 누락 케이스 / 새 rule 제안
+    validations:
+      required: true
+  - type: textarea
+    id: real-source
+    attributes:
+      label: 실제 발생 출처 (선택)
+      description: AI 도구가 만들었다면 어떤 도구 / 어떤 모델 / 어떤 프롬프트 였나요?
+      placeholder: |
+        도구: Claude Code / Cursor / Codex / ...
+        모델: ...
+        프롬프트 요약: ...
+  - type: input
+    id: version
+    attributes:
+      label: 버전
+      placeholder: 0.2.0-alpha.1
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: 환경
+      placeholder: macOS 14 / Node 22

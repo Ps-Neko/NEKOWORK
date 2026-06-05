@@ -90,6 +90,7 @@ function printShortGateHelp({ version, root, installed, sessions }) {
   console.log(paint('hint', 'CI ->'));
   console.log(`  ${paint('hint', 'nekowork verify-pr --comment-file .nekowork/pr-comment.md')}`);
   console.log(`  ${paint('hint', 'nekowork verify-pr --ci-exit-soft')}   exit 0 for NEEDS_REVIEW / INSUFFICIENT_EVIDENCE`);
+  console.log(`  ${paint('hint', 'nekowork verify-pr --run-checks')}     run test/lint/typecheck; failure -> NEEDS_REVIEW (opt-in)`);
   console.log('');
   console.log(paint('hint', 'Compat / labs ->'));
   console.log(`  ${paint('hint', 'nekowork help all')}      session-based start / report / apply and others (deprecation pending)`);
@@ -110,6 +111,7 @@ Recommended verification gate (1.0 front surface)
   verify-pr [--from-working-tree]       deterministic risk rules → REPORT.md + .nekowork/decision.json
   verify-pr --comment-file <path>       GitHub PR comment markdown for CI integration
   verify-pr --ci-exit-soft              treat NEEDS_HUMAN_REVIEW / INSUFFICIENT_EVIDENCE as exit 0
+  verify-pr --run-checks                run test/lint/typecheck; failure -> NEEDS_REVIEW (opt-in)
 
 Compatibility / labs (session-based; deprecation pending)
   cockpit                              guided choice-first launcher (legacy)

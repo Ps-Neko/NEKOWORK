@@ -8,6 +8,8 @@
 
 NEKOWORK 는 AI 가 생성한 코드를 위한 로컬 검증 게이트입니다. diff 를 분석하고, 결정적 위험 룰을 실행하고, 증거를 수집한 뒤, 머지 / 적용 가능 여부를 판정합니다 — auto-commit / auto-push 없이, LLM 판정에 의존하지 않고.
 
+NEKOWORK 는 Cursor / Claude Code / Codex 를 대체하지 않습니다 — 그 도구로 코드를 만들고, 그 diff 를 NEKOWORK 로 검증하세요.
+
 > 이 문서는 한국어 요약본입니다. 전체 상세 설명과 모든 고급 옵션은 [English README](README.md)를 참고하세요.
 
 여기서 "검증됨"은 정답을 수학적으로 보증한다는 뜻이 아닙니다. verdict 는 결정적 룰과 검증 결과만 결정합니다. 선택적 Codex 리뷰는 advisor 노트로만 기록되며 verdict 에 영향을 주지 않습니다.
@@ -25,7 +27,7 @@ NEKOWORK 는 AI 가 생성한 코드를 위한 로컬 검증 게이트입니다.
 ## 핵심 원칙
 
 ```text
-NEKOWORK = diff -> 결정적 위험 룰 -> 검증 명령 -> 증거 -> 결정적 verdict -> REPORT -> Human Gate -> 명시적 apply
+NEKOWORK = diff -> 결정적 위험 룰 -> 검사(test/lint/typecheck; 항상 감지, --run-checks 시 실행, 격상-only) -> 증거 -> 결정적 verdict -> REPORT.md -> Human Gate -> 명시적 apply
 ```
 
 ```text
@@ -62,7 +64,7 @@ cat .nekowork/decision.json
 
 `check` 가 환경을 진단합니다. `verify-pr` 가 현재 working tree diff 를 결정적 위험 룰로 스캔하고, `.nekowork/evidence/` 에 증거를 남기고, 머지/적용 가능 여부를 판정합니다. 프로젝트 루트에 `REPORT.md` 와 `.nekowork/decision.json` 을 작성합니다.
 
-> **재현성 메모:** `npx @ps-neko/nekowork@alpha` 는 가장 최근 publish 된 alpha 로 resolve 됩니다. publish 된 alpha 는 `main` 보다 뒤일 수 있습니다. 재현 가능한 동작을 원하면 정확한 버전 (예: `@ps-neko/nekowork@0.1.0-alpha.11`) 을 핀하세요.
+> **재현성 메모:** `npx @ps-neko/nekowork@alpha` 는 가장 최근 publish 된 alpha 로 resolve 됩니다. publish 된 alpha 는 `main` 보다 뒤일 수 있습니다. 재현 가능한 동작을 원하면 정확한 버전 (예: `@ps-neko/nekowork@0.1.0-alpha.12`) 을 핀하세요.
 
 Compatibility / legacy 명령 (`cockpit`, `start`, `ask`, `plan`, `team`, `work`, `verify`, `gate`, `ship`, `run`, `build`, `auto`, `pr-prep`, `report --session`, `apply --session`, `review`) 은 [docs/ADVANCED.md](docs/ADVANCED.md) 에 있습니다. 2.0 에서 제거 예정 ([docs/SCOPE-1.0.md](docs/SCOPE-1.0.md) Phased Cut).
 
@@ -79,13 +81,15 @@ npx -y @ps-neko/nekowork@alpha verify-pr
 ```text
 === verify-pr ===
   verdict        : BLOCK
-  reason         : Hardcoded secret fallback detected (src/auth.ts:42)
+  reason         : Hardcoded secret fallback detected (src/auth.ts:4)
+  risk_level     : CRITICAL
   merge_allowed  : false
   apply_allowed  : false
-  risk_level     : CRITICAL
 ```
 
 NEKOWORK 의 핵심: AI 는 변경을 만들 수 있지만, 위험한 ship/apply 결정은 결정적 룰과 사람 승인 아래에 둡니다. LLM verdict 는 게이트를 통과할 수 없습니다.
+
+> 기록된 verdict 가 의심되나요? **위조는 무의미합니다** — 재실행하면 diff 에서 다시 계산됩니다. 직접 보기: [`npm run demo:tamper`](docs/DEMO.md#tampering-the-verdict-is-futile-determinism).
 
 ## 왜 필요한가
 
@@ -97,27 +101,23 @@ AI coding 도구는 점점 더 빠르게 코드를 만듭니다. 하지만 마�
 
 NEKOWORK는 이 질문에 답하기 위한 로컬 우선 런타임입니다.
 
-- AI 작업을 session evidence로 남깁니다.
-- 한 executor만 실제 변경 후보를 만듭니다.
-- Codex가 별도 관점에서 검증합니다.
+- diff를 결정적 위험 룰로 스캔해 `.nekowork/evidence/`에 증거로 남깁니다.
+- verdict는 결정적 룰 + 검사 결과만 결정합니다 (LLM 의견 아님).
+- Codex 리뷰는 선택적 advisor 노트로만 기록되며 verdict에 영향을 주지 않습니다.
 - 위험하면 Human Gate를 엽니다.
-- `apply`는 검증된 ship-ready diff에만 명시적으로 실행됩니다.
+- `apply`는 `decision.apply_allowed = true`일 때만 명시적으로 실행됩니다.
 
 ## 실행 흐름
 
-대부분은 이 흐름으로 시작하면 됩니다.
+1.0 기본 흐름은 `verify-pr` 한 줄입니다. AI 도구(Claude Code / Cursor / Codex)가 diff를 만든 뒤:
 
 ```text
-check -> auto -> report -> gate
+check -> verify-pr -> REPORT.md / decision.json 확인 -> Human Gate -> apply
 ```
 
-단계별 제어가 필요하면:
+`verify-pr`가 현재 diff를 결정적 룰로 스캔해 verdict(`BLOCK` / `NEEDS_HUMAN_REVIEW` / `INSUFFICIENT_EVIDENCE` / `ALLOW_WITH_WARNINGS` / `ALLOW`)를 정하고, 프로젝트 루트에 `REPORT.md`, `.nekowork/decision.json`을 씁니다.
 
-```text
-ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
-```
-
-`team`은 read-only handoff를 만들고, 파일 수정은 single executor가 담당합니다.
+세션 기반 단계별 제어(`ask` / `plan` / `team` / `work` / `verify` / `gate` / `ship` / `auto` / `report --session` / `apply --session`)는 호환용 고급 명령으로 [docs/ADVANCED.md](docs/ADVANCED.md)에 있으며, 2.0에서 제거 예정입니다 ([docs/SCOPE-1.0.md](docs/SCOPE-1.0.md) Phased Cut).
 
 ## 테스트·계약 검증 도구와 무엇이 다른가
 
@@ -155,23 +155,40 @@ ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
 
 ## Report가 제품의 얼굴입니다
 
-`report`는 session evidence를 사람이 읽을 수 있는 `REPORT.md`로 정리합니다.
+`verify-pr`는 프로젝트 루트에 사람이 읽는 `REPORT.md`와 기계가 읽는 `.nekowork/decision.json`을 씁니다. 둘 다 같은 결정적 판정에서 나오며 LLM verdict는 끼지 않습니다.
+
+`REPORT.md` (secret fallback에 BLOCK):
 
 ```text
-Verdict: approve_with_fixes
-Ship ready: false
-Human gate: required
-Applied: false
-Profile: quality
-Strict quality: enabled
-Acceptance coverage: 4/5
-Quality warnings: 2
+# NEKOWORK Verification Report
 
-Evidence:
-- work-summary.json
-- verify-summary.json
-- ship-summary.json
-- gate-summary.json
+## Verdict
+
+**BLOCK**
+
+## Reason
+
+Hardcoded secret fallback detected (src/auth.ts:4)
+
+## Decision
+
+- merge_allowed: false
+- apply_allowed: false
+- risk_level: CRITICAL
+```
+
+기계가 읽는 짝은 `.nekowork/decision.json`입니다 (`schema_version: verify-pr-v0`, 핵심 필드):
+
+```json
+{
+  "schema_version": "verify-pr-v0",
+  "verdict": "BLOCK",
+  "reason": "Hardcoded secret fallback detected (src/auth.ts:4)",
+  "merge_allowed": false,
+  "apply_allowed": false,
+  "risk_level": "CRITICAL",
+  "finding_counts": { "critical": 1, "high": 0, "medium": 0, "low": 0 }
+}
 ```
 
 전체 예시는 [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md)를 보세요.
@@ -211,10 +228,10 @@ NEKOWORK는 하나의 거대한 agent 묶음이 아니라, 일을 나누고 검�
 ## 현재 alpha 상태
 
 - Package: `@ps-neko/nekowork`
-- Current alpha: `0.1.0-alpha.11` (npm `@alpha` published 2026-05-16)
+- Current alpha: `0.1.0-alpha.12` (npm `@alpha` published 2026-05-26)
 - CLI: `nekowork`
 - Legacy/internal alias: `harness`
-- Tests: 496 pass
+- Tests: 533 pass
 - npm audit: 0 moderate+ issues
 - Fresh `npx @alpha` smoke: pass
 

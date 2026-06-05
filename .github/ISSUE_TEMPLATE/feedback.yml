@@ -1,0 +1,33 @@
+name: Alpha feedback (general)
+description: false-positive / false-negative 외 모든 피드백 (60초 try 마찰 / 문서 / 통합 / 출력 형식 등).
+title: "[feedback] <카테고리>: <한 줄>"
+labels: ["alpha-feedback"]
+body:
+  - type: dropdown
+    id: category
+    attributes:
+      label: 카테고리
+      options:
+        - 60초 try 가 60초 안에 끝나지 않음
+        - README / docs 명확성
+        - CI 통합 (GitHub Action / pre-commit hook)
+        - 출력 형식 (REPORT.md / decision.json / 콘솔)
+        - 기타
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 무엇이 일어났나요?
+      description: 실제 행동 흐름. 어디서 막혔거나 어디서 한 번 더 봐야 했나요?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대했던 동작은?
+  - type: input
+    id: env
+    attributes:
+      label: 환경
+      placeholder: macOS 14 / Node 22 / pnpm 9

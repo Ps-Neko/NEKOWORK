@@ -1,0 +1,45 @@
+{
+  "name": "@ps-neko/nekowork",
+  "version": "0.2.0-alpha.0",
+  "description": "Local verification gate for AI-written code diffs. Deterministic rules decide the verdict, never the LLM. No auto-commit, push, or deploy — you decide at the Human Gate.",
+  "keywords": [
+    "ai-code-review",
+    "ai-diff-verification",
+    "verification-gate",
+    "human-gate",
+    "deterministic-rules",
+    "local-first",
+    "code-safety",
+    "pr-review",
+    "ai-safety",
+    "claude-code",
+    "cursor",
+    "codex",
+    "secret-scanner",
+    "second-opinion",
+    "mcp"
+  ],
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ps-Neko/repo:NEKOWORK.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "bin": {
+    "nekowork": "scripts/cli.js"
+  },
+  "files": [
+    "scripts/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "smoke": "node scripts/cli.js --version && node scripts/cli.js verify-pr --help",
+    "smoke:reject": "! node scripts/cli.js team 2>/dev/null"
+  },
+  "_phase_a_note": "skeleton only — see HANDOFF-PACKAGE-SPLIT.md. Real published package needs the orchestrator + lib + rules + schemas moved in. Currently this package is a thin guard layer that delegates to @ps-neko/nekowork-cli via relative path (dev-time only)."
+}

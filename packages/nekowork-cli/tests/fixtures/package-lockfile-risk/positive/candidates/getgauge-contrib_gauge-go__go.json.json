@@ -1,0 +1,30 @@
+{
+    "id": "go",
+    "version": "0.5.2",
+    "description": "Go support for gauge",
+    "preInstall": {
+        "windows": ["go", "install", "github.com/go-delve/delve/cmd/dlv@latest"],
+        "linux": ["go", "install", "github.com/go-delve/delve/cmd/dlv@latest"],
+        "darwin": ["go", "install", "github.com/go-delve/delve/cmd/dlv@latest"]
+    },
+    "run": {
+        "windows": ["bin/gauge-go", "--start"],
+        "linux": ["bin/gauge-go", "--start"],
+        "darwin": ["bin/gauge-go", "--start"]
+    },
+    "init": {
+        "windows": ["bin/gauge-go", "--init"],
+        "linux": ["bin/gauge-go", "--init"],
+        "darwin": ["bin/gauge-go", "--init"]
+    },
+    "lib": "libs",
+    "gaugeVersionSupport": {
+        "minimum": "0.8.0",
+        "maximum": ""
+    },
+    "postInstall": {
+        "windows": ["go", "install", "github.com/getgauge-contrib/gauge-go@latest"],
+        "linux": ["go", "install", "github.com/getgauge-contrib/gauge-go@latest"],
+        "darwin": ["go", "install", "github.com/getgauge-contrib/gauge-go@latest"]
+    }
+}

@@ -3,16 +3,18 @@
 // Pipeline:
 //   1. Collect diff (working tree | staged | --from-patch | --from-range)
 //   2. Detect project baseline (test/lint/typecheck availability)
-//   3. Run deterministic risk rules (currently: Secret Fallback)
-//   4. Derive verdict from rule findings + check availability
+//   3. Run deterministic risk rules: secret-fallback, auto-apply-commit-push,
+//      hardcoded-credential, test-or-security-disable, package-lockfile-risk
+//   4. Derive verdict from rule findings + (optional --run-checks) results
 //   5. Write evidence (.nekowork/evidence/*) + .nekowork/decision.json + REPORT.md
 //   6. Print summary, return decision
 //
 // Verdict matrix (Phase 0, per docs/SCOPE-1.0.md §7):
 //   CRITICAL finding                              → BLOCK
 //   HIGH finding                                  → NEEDS_HUMAN_REVIEW
-//   source-only change + no test command          → INSUFFICIENT_EVIDENCE
-//   any finding (medium/low) + no critical/high   → ALLOW_WITH_WARNINGS
+//   --run-checks failure (test/lint/typecheck)    → NEEDS_HUMAN_REVIEW (never standalone BLOCK)
+//   source change + no test command               → INSUFFICIENT_EVIDENCE
+//   medium/low finding, no critical/high          → ALLOW_WITH_WARNINGS
 //   otherwise                                     → ALLOW
 
 import fs from 'node:fs';
@@ -28,6 +30,7 @@ import { scanDiff as scanAutoApply } from '../lib/rules/auto-apply-commit-push.j
 import { scanDiff as scanHardcodedCredential } from '../lib/rules/hardcoded-credential.js';
 import { scanDiff as scanTestDisable } from '../lib/rules/test-or-security-disable.js';
 import { scanDiff as scanPackageRisk } from '../lib/rules/package-lockfile-risk.js';
+import { runChecks } from '../lib/check-runner.js';
 
 const SCHEMA_VERSION = 'verify-pr-v0';
 
@@ -50,7 +53,7 @@ export const EXIT_CODE = Object.freeze({
 /**
  * @param {object} opts
  * @param {string} [opts.projectRoot]   default process.cwd()
- * @param {'working' | 'staged' | 'patch' | 'range'} [opts.mode='working']
+ * @param {'working' | 'staged' | 'patch' | 'range' | 'full'} [opts.mode='working']
  * @param {string} [opts.patchPath]     required when mode='patch'
  * @param {string} [opts.range]         required when mode='range'
  * @param {boolean} [opts.write=true]   write evidence + REPORT.md to disk
@@ -65,8 +68,21 @@ export async function verifyPrCycle(opts = {}) {
   const project = detectProject(projectRoot);
   const findings = runRules(parsedDiff);
   const checksAvailable = describeChecks(project);
-  const verdict = deriveVerdict({ findings, parsedDiff, checksAvailable });
-  const decision = buildDecision({ verdict, findings, parsedDiff, project, checksAvailable });
+
+  let checks = { requested: Boolean(opts.runChecks), skippedReason: null, results: [] };
+  if (opts.runChecks) {
+    if (checksBlockedByRisk(findings)) {
+      checks.skippedReason = 'diff modifies build/test scripts or has a critical finding — checks not run; run them manually in a trusted sandbox if you trust this change';
+    } else {
+      checks.results = await runChecks(project.commands, {
+        cwd: projectRoot,
+        timeoutMs: opts.checksTimeout,
+      });
+    }
+  }
+
+  const verdict = deriveVerdict({ findings, parsedDiff, checksAvailable, checks });
+  const decision = buildDecision({ verdict, findings, parsedDiff, project, checksAvailable, checks });
 
   let writtenPaths = null;
   if (write) {
@@ -114,6 +130,13 @@ function renderPrComment(decision, findings) {
   lines.push(`| Risk level | ${decision.risk_level} |`);
   lines.push(`| Findings | critical=${decision.finding_counts.critical} high=${decision.finding_counts.high} medium=${decision.finding_counts.medium} low=${decision.finding_counts.low} |`);
   lines.push(`| Changed files | ${decision.changed_files.total} (+${decision.changed_files.additions} -${decision.changed_files.deletions}) |`);
+  const cks = decision.checks || { requested: false, results: [] };
+  if (cks.requested) {
+    const summary = cks.results.length
+      ? cks.results.map(c => `${c.name}=${c.status}`).join(' ')
+      : (cks.skippedReason ? 'skipped' : 'none');
+    lines.push(`| Checks | ${summary} |`);
+  }
   lines.push('');
   const blocking = findings.filter(f => f.blocks_apply);
   if (blocking.length) {
@@ -144,18 +167,22 @@ function renderPrComment(decision, findings) {
 }
 
 function loadDiff({ mode, projectRoot, opts }) {
+  const includePaths = opts.includePaths;
   if (mode === 'patch') {
     if (!opts.patchPath) throw new Error('mode=patch requires --from-patch <file>');
     return loadDiffFile(opts.patchPath);
   }
   if (mode === 'range') {
     if (!opts.range) throw new Error('mode=range requires --range <ref>');
-    return getGitDiff({ cwd: projectRoot, mode: 'range', range: opts.range });
+    return getGitDiff({ cwd: projectRoot, mode: 'range', range: opts.range, includePaths });
   }
   if (mode === 'staged') {
-    return getGitDiff({ cwd: projectRoot, mode: 'staged' });
+    return getGitDiff({ cwd: projectRoot, mode: 'staged', includePaths });
   }
-  return getGitDiff({ cwd: projectRoot, mode: 'working' });
+  if (mode === 'full') {
+    return getGitDiff({ cwd: projectRoot, mode: 'full', includePaths });
+  }
+  return getGitDiff({ cwd: projectRoot, mode: 'working', includePaths });
 }
 
 function runRules(parsedDiff) {
@@ -195,7 +222,26 @@ function classifyChangedFiles(parsedDiff) {
   return { source, tests, docs, config, ci };
 }
 
-function deriveVerdict({ findings, parsedDiff, checksAvailable }) {
+/**
+ * Decide whether --run-checks must SKIP executing project commands because the
+ * diff itself tampered with the execution surface (install/test scripts) or has
+ * a critical finding. The finding's `pattern` field (set by makeRegexScanner)
+ * distinguishes install/script changes from plain dependency changes.
+ */
+export function checksBlockedByRisk(findings) {
+  if (!Array.isArray(findings)) return false;
+  return findings.some((f) => {
+    if (f.severity === 'critical') return true;
+    if (f.rule === 'test-or-security-disable') return true;
+    if (f.rule === 'package-lockfile-risk') {
+      const p = String(f.pattern || '');
+      return p.startsWith('install-hook-') || p.startsWith('script-');
+    }
+    return false;
+  });
+}
+
+function deriveVerdict({ findings, parsedDiff, checksAvailable, checks }) {
   const hasCritical = findings.some(f => f.severity === 'critical');
   const hasHigh = findings.some(f => f.severity === 'high');
   const hasMediumOrLow = findings.some(f => f.severity === 'medium' || f.severity === 'low');
@@ -218,10 +264,22 @@ function deriveVerdict({ findings, parsedDiff, checksAvailable }) {
       apply_allowed: false,
     };
   }
+  const ranChecks = checks && Array.isArray(checks.results) && checks.results.length > 0;
+  if (ranChecks) {
+    const failed = checks.results.filter(c => c.status === 'fail' || c.status === 'timeout');
+    if (failed.length) {
+      return {
+        verdict: VERDICT.NEEDS_HUMAN_REVIEW,
+        reason: `verification command failed: ${failed.map(c => c.name).join(', ')}`,
+        apply_allowed: false,
+      };
+    }
+  }
+
   if (sourceOnly && !checksAvailable.test) {
     return {
       verdict: VERDICT.INSUFFICIENT_EVIDENCE,
-      reason: 'source changed but project has no test command — cannot verify',
+      reason: 'risk scan passed (no blocking findings), but this project has no test command — full verification needs one. This is "not enough evidence", not a failure.',
       apply_allowed: false,
     };
   }
@@ -252,7 +310,7 @@ function firstCriticalReason(findings) {
   return `${critical.title} (${critical.file}:${critical.line})`;
 }
 
-function buildDecision({ verdict, findings, parsedDiff, project, checksAvailable }) {
+function buildDecision({ verdict, findings, parsedDiff, project, checksAvailable, checks }) {
   const classified = classifyChangedFiles(parsedDiff);
   return {
     schema_version: SCHEMA_VERSION,
@@ -275,6 +333,7 @@ function buildDecision({ verdict, findings, parsedDiff, project, checksAvailable
       checks_available: checksAvailable,
     },
     findings,
+    checks: checks || { requested: false, skippedReason: null, results: [] },
   };
 }
 
@@ -314,6 +373,9 @@ function writeEvidence({ projectRoot, parsedDiff, findings, decision }) {
   const findingsPath = path.join(evidenceDir, 'risk-findings.json');
   fs.writeFileSync(findingsPath, JSON.stringify(findings, null, 2));
 
+  const checksPath = path.join(evidenceDir, 'checks.json');
+  fs.writeFileSync(checksPath, JSON.stringify(decision.checks || { requested: false, skippedReason: null, results: [] }, null, 2));
+
   const manifestPath = path.join(evidenceDir, 'evidence-manifest.json');
   fs.writeFileSync(manifestPath, JSON.stringify({
     created_at: new Date().toISOString(),
@@ -321,6 +383,7 @@ function writeEvidence({ projectRoot, parsedDiff, findings, decision }) {
     artifacts: [
       { name: 'diff.summary.json', path: 'evidence/diff.summary.json' },
       { name: 'risk-findings.json', path: 'evidence/risk-findings.json' },
+      { name: 'checks.json', path: 'evidence/checks.json' },
     ],
   }, null, 2));
 
@@ -334,6 +397,7 @@ function writeEvidence({ projectRoot, parsedDiff, findings, decision }) {
     evidenceDir,
     diffSummary: diffPath,
     riskFindings: findingsPath,
+    checks: checksPath,
     evidenceManifest: manifestPath,
     decision: decisionPath,
     report: reportPath,
@@ -407,12 +471,33 @@ function renderReport(decision, findings) {
   lines.push('- `.nekowork/evidence/evidence-manifest.json`');
   lines.push('- `.nekowork/decision.json`');
   lines.push('');
-  lines.push('## Checks Available');
-  lines.push('');
-  for (const [name, ok] of Object.entries(decision.project.checks_available)) {
-    lines.push(`- ${name}: ${ok ? 'configured' : 'not configured'}`);
+  const checks = decision.checks || { requested: false, skippedReason: null, results: [] };
+  if (checks.requested && checks.results.length) {
+    lines.push('## Checks Run');
+    lines.push('');
+    for (const c of checks.results) {
+      lines.push(`- ${c.name}: ${c.status}${c.exitCode != null ? ` (exit ${c.exitCode})` : ''}`);
+      if ((c.status === 'fail' || c.status === 'timeout') && c.outputTail) {
+        lines.push('');
+        lines.push('````text');
+        lines.push(c.outputTail);
+        lines.push('````');
+      }
+    }
+    lines.push('');
+  } else if (checks.requested && checks.skippedReason) {
+    lines.push('## Checks Run');
+    lines.push('');
+    lines.push(`Skipped: ${checks.skippedReason}`);
+    lines.push('');
+  } else {
+    lines.push('## Checks Available');
+    lines.push('');
+    for (const [name, ok] of Object.entries(decision.project.checks_available)) {
+      lines.push(`- ${name}: ${ok ? 'configured' : 'not configured'}`);
+    }
+    lines.push('');
   }
-  lines.push('');
   return lines.join('\n');
 }
 
@@ -422,6 +507,7 @@ export function parseVerifyPrArgs(rest = []) {
     const a = rest[i];
     if (a === '--from-working-tree') opts.mode = 'working';
     else if (a === '--from-staged' || a === '--staged') opts.mode = 'staged';
+    else if (a === '--full-scan' || a === '--full') opts.mode = 'full';
     else if (a === '--from-patch') { opts.mode = 'patch'; opts.patchPath = rest[++i]; }
     else if (a === '--range') { opts.mode = 'range'; opts.range = rest[++i]; }
     else if (a === '--project-root') opts.projectRoot = rest[++i];
@@ -429,6 +515,9 @@ export function parseVerifyPrArgs(rest = []) {
     else if (a === '--no-write') opts.write = false;
     else if (a === '--comment-file') opts.commentFile = rest[++i];
     else if (a === '--ci-exit-soft') opts.ciExitSoft = true;
+    else if (a === '--run-checks') opts.runChecks = true;
+    else if (a === '--checks-timeout') opts.checksTimeout = Number(rest[++i]);
+    else if (a === '--include') { (opts.includePaths = opts.includePaths || []).push(rest[++i]); }
   }
   return opts;
 }
@@ -443,11 +532,24 @@ export function printVerifyPrSummary(result) {
   console.log(`  apply_allowed  : ${decision.apply_allowed}`);
   console.log(`  changed_files  : ${decision.changed_files.total} (+${decision.changed_files.additions} -${decision.changed_files.deletions})`);
   console.log(`  findings       : critical=${decision.finding_counts.critical} high=${decision.finding_counts.high} medium=${decision.finding_counts.medium} low=${decision.finding_counts.low}`);
+  if (decision.checks?.requested) {
+    if (decision.checks.results.length) {
+      console.log(`  checks         : ${decision.checks.results.map(c => c.name + '=' + c.status).join(' ')}`);
+    } else if (decision.checks.skippedReason) {
+      console.log(`  checks         : skipped`);
+    }
+  }
   if (findings.length) {
     console.log('  top findings:');
     for (const f of findings.slice(0, 5)) {
       console.log(`    - [${f.severity.toUpperCase()}] ${f.title} (${f.file}:${f.line})`);
     }
+  }
+  if (decision.verdict === VERDICT.INSUFFICIENT_EVIDENCE) {
+    console.log('');
+    console.log('  i  not a failure — the risk scan passed with no blocking findings.');
+    console.log('     verify-pr just has no test command to fully verify this change.');
+    console.log('     -> add a test script for full verification, or pass --ci-exit-soft to avoid blocking CI.');
   }
   if (writtenPaths) {
     console.log(`  report         : ${path.relative(process.cwd(), writtenPaths.report).replace(/\\/g, '/')}`);

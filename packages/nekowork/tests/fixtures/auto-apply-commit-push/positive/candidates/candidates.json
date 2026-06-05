@@ -1,0 +1,267 @@
+{
+  "fixture_set": "auto-apply-commit-push-candidates",
+  "generated_at": "2026-05-27T05:16:35.603Z",
+  "query": "git push --force",
+  "language": "shell",
+  "min_stars": 0,
+  "candidates": [
+    {
+      "id": "candidate-1",
+      "label": "positive",
+      "source": "github:flutterchina/flukit@862e033c33f10bc5269a5319b3c8f7d486c78a14:c.sh",
+      "file": "positive/candidates/flutterchina_flukit__c.sh.sh",
+      "stars": 5940,
+      "snippet_preview": "then\n    export GIT_AUTHOR_NAME=\"$CORRECT_NAME\"\n    export GIT_AUTHOR_EMAIL=\"$CORRECT_EMAIL\"\nfi\n' --original -f --tag-name-filter  cat -- --branches --tags\n\n#git push --force --tags origin 'refs/heads",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 0,
+        "severities": {},
+        "patterns": [],
+        "sample_lines": []
+      }
+    },
+    {
+      "id": "candidate-2",
+      "label": "positive",
+      "source": "github:anvaka/pm@140510a36a14893000c7ad1df33a783a4e739ca5:deploy.sh",
+      "file": "positive/candidates/anvaka_pm__deploy.sh.sh",
+      "stars": 1758,
+      "snippet_preview": "git init\ngit add .\ngit commit -m 'push to gh-pages'\ngit push --force git@github.com:anvaka/pm.git main:gh-pages\ncd ../\ngit tag `date \"+release-%Y%m%d%H%M%S\"`\ngit push --tags",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 3,
+        "severities": {
+          "high": 2,
+          "critical": 1
+        },
+        "patterns": [
+          "git-commit-auto",
+          "git-push-force",
+          "git-push-line"
+        ],
+        "sample_lines": [
+          7,
+          8,
+          11
+        ]
+      }
+    },
+    {
+      "id": "candidate-3",
+      "label": "positive",
+      "source": "github:Huxpro/js-module-7day@442fc74cc24510ffc57480122ff38f589c79bed6:push.sh",
+      "file": "positive/candidates/Huxpro_js-module-7day__push.sh.sh",
+      "stars": 675,
+      "snippet_preview": "\ngit push origin master --tags; \ngit push --force origin master:gh-pages --tags;",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "high": 1,
+          "critical": 1
+        },
+        "patterns": [
+          "git-push-line",
+          "git-push-force"
+        ],
+        "sample_lines": [
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "candidate-4",
+      "label": "positive",
+      "source": "github:wesbos/dotfiles@4c4b0036eb47465d2be885b799468609024b2028:.zshrc",
+      "file": "positive/candidates/wesbos_dotfiles__.zshrc.txt",
+      "stars": 1293,
+      "snippet_preview": "  mkdir -p \"$(dirname \"$1\")\" && touch \"$1\" && take \"$(dirname \"$1\")\"\n}\n\n# alias 🖕😏🖕=\"git push --force\"\n\nalias \"git latest\"=\"git for-each-ref --sort=-committerdate refs/heads/\"\n",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "critical": 1
+        },
+        "patterns": [
+          "rm-rf-variable"
+        ],
+        "sample_lines": [
+          71
+        ]
+      }
+    },
+    {
+      "id": "candidate-5",
+      "label": "positive",
+      "source": "github:bshaffer/oauth2-server-php-docs@ae2916db2e9fb1bd96ea600a17f90818a5b55018:build.sh",
+      "file": "positive/candidates/bshaffer_oauth2-server-php-docs__build.sh.sh",
+      "stars": 229,
+      "snippet_preview": "        # repo's gh-pages branch. (All previous history on the gh-pages branch\n        # will be lost, since we are overwriting it.) We redirect any output to\n        # /dev/null to hide any sensitive",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "high": 1,
+          "critical": 1
+        },
+        "patterns": [
+          "git-commit-auto",
+          "git-push-force"
+        ],
+        "sample_lines": [
+          22,
+          28
+        ]
+      }
+    },
+    {
+      "id": "candidate-6",
+      "label": "positive",
+      "source": "github:Chiang97912/bet365.com@b32c35eee2ed8a5ab6882f9d74aabccf5c63a847:update.sh",
+      "file": "positive/candidates/Chiang97912_bet365.com__update.sh.sh",
+      "stars": 117,
+      "snippet_preview": "echo \"=====pushing, please wait=====\"\necho \"==============================\"\n\ngit push --force origin HEAD\ngit status\n\necho \"==============================\"",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 1,
+        "severities": {
+          "critical": 1
+        },
+        "patterns": [
+          "git-push-force"
+        ],
+        "sample_lines": [
+          36
+        ]
+      }
+    },
+    {
+      "id": "candidate-7",
+      "label": "positive",
+      "source": "github:milojs/milo@e0b36bbd61e86c142a08400f3bc6daddabae4471:pushdocs",
+      "file": "positive/candidates/milojs_milo__pushdocs.txt",
+      "stars": 78,
+      "snippet_preview": "mr-doc --source lib --output . --name 'milo'\ngit add .\ngit add -u .\ngit commit -m 'doxx generated'\ngit push --force origin gh-pages\ngit checkout master\ngit branch -D gh-pages",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "high": 1,
+          "critical": 1
+        },
+        "patterns": [
+          "git-commit-auto",
+          "git-push-force"
+        ],
+        "sample_lines": [
+          10,
+          11
+        ]
+      }
+    },
+    {
+      "id": "candidate-8",
+      "label": "positive",
+      "source": "github:IBM-Watson/design-guide@9da98515076994898a55e837425a49524c53ed60:.deploy.sh",
+      "file": "positive/candidates/IBM-Watson_design-guide__.deploy.sh.sh",
+      "stars": 101,
+      "snippet_preview": "\n# Commit all the things into the repo\ngit add .\ngit commit -m \":shipit: Deploy to GitHub Pages\"\n\n# Force push to gh-pages\ngit push --force \"https://${GH_TOKEN}@${GH_REF}\" master:gh-pages > /dev/null ",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "high": 1,
+          "critical": 1
+        },
+        "patterns": [
+          "git-commit-auto",
+          "git-push-force"
+        ],
+        "sample_lines": [
+          18,
+          21
+        ]
+      }
+    },
+    {
+      "id": "candidate-9",
+      "label": "positive",
+      "source": "github:BaiShuanghao/my_arXiv_daily@62ecf1d2b6dbbaffa28233c3a6b2e595a9cedc8c:git.sh",
+      "file": "positive/candidates/BaiShuanghao_my_arXiv_daily__git.sh.sh",
+      "stars": 179,
+      "snippet_preview": "git add .\ngit commit -m 'commit'\ngit push --force",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "high": 1,
+          "critical": 1
+        },
+        "patterns": [
+          "git-commit-auto",
+          "git-push-force"
+        ],
+        "sample_lines": [
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "candidate-10",
+      "label": "positive",
+      "source": "github:ohroy/blog@4f3c2b399ec2c0539f561575a148701a8ef40459:pub.sh",
+      "file": "positive/candidates/ohroy_blog__pub.sh.sh",
+      "stars": 147,
+      "snippet_preview": "git init\ngit add .\ngit commit -am \"publish\"\ngit push --force --quiet https://github.com/Rozbo/blog.git master:gh-pages\ncd ../\n# 清理资源\nrm -rf ./publish",
+      "fetched_at": "2026-05-27",
+      "review_status": "pending",
+      "notes": "Auto-fetched. Confirm pattern is a real positive before promoting to manifest.json.",
+      "scan_findings": {
+        "count": 2,
+        "severities": {
+          "high": 1,
+          "critical": 1
+        },
+        "patterns": [
+          "git-push-line",
+          "git-push-force"
+        ],
+        "sample_lines": [
+          5,
+          24
+        ]
+      }
+    }
+  ],
+  "skipped_summary": {
+    "total": 0,
+    "reasons": {}
+  },
+  "last_verified_at": "2026-05-27T05:16:43.363Z",
+  "verification_summary": {
+    "total": 10,
+    "rule_caught": 9,
+    "rule_missed": 1,
+    "recall_on_slice": 0.9
+  }
+}

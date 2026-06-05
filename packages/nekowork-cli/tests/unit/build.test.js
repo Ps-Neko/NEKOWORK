@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { buildCycle, buildModePreset, buildPlan, normalizeBuildMode } from '../../scripts/orchestrators/build.js';
+import { rmrf } from '../helpers/tmp.js';
 import { reportSession } from '../../scripts/orchestrators/report.js';
 import { buildModeIds, buildModePolicy, buildModeSafetyRank } from '../../scripts/lib/build-modes.js';
 import { validateProfileSafety } from '../../scripts/lib/profile-safety.js';
@@ -71,7 +72,7 @@ test('build auto dry-run routes auth-sensitive work to safe mode with workers', 
     assert.deepEqual(calls, []);
     assert.ok(!fs.existsSync(path.join(projectRoot, '.harness', 'state', 'sessions', 'unit-build-auto-auth-dry-run')));
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -128,7 +129,7 @@ test('build auto writes intelligence artifacts and preserves safe loop', async (
     assert.equal(acceptance.source, 'build-intelligence-v0');
     assert.ok(acceptance.criteria.length >= 4);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -155,7 +156,7 @@ test('build fast wraps run without implicit apply', async () => {
     assert.equal(summary.team_run, false);
     assert.equal(summary.profile, 'quality');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -180,7 +181,7 @@ test('build safe enables security profile, strict quality, and Codex challenge',
     assert.equal(summary.secure, true);
     assert.equal(summary.strict_quality, true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -204,7 +205,7 @@ test('build team runs read-only team handoffs before single executor work', asyn
     assert.equal(r.team.workers.join(','), 'planner,product,security,test');
     assert.equal(readSummary(r.sessionDir).team_run, true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -230,7 +231,7 @@ test('build tdd records strict quality and acceptance evidence', async () => {
     assert.ok(Array.isArray(verifySummary.acceptance_coverage));
     assert.ok(verifySummary.acceptance_coverage.length >= 3);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -255,7 +256,7 @@ test('build release produces ship and report evidence without auto-apply', async
     assert.match(report.markdown, /Build Mode: release/);
     assert.match(report.markdown, /build-summary\.json/);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
@@ -296,7 +297,7 @@ test('build dry-run previews stages without running providers or writing session
     assert.deepEqual(r.stages.map(s => s.stage), ['team', 'work', 'verify', 'ship', 'apply']);
     assert.equal(r.stages.find(s => s.stage === 'apply').runs, false);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
+    rmrf(projectRoot);
   }
 });
 
