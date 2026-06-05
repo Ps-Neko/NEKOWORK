@@ -6,6 +6,7 @@ import { profilePolicy } from '../lib/profile-policy.js';
 import { withExecutionWorkspace } from '../core/execution-workspace.js';
 import { generateSessionId } from '../lib/session-id.js';
 import { loadUpstreamArtifact, hasAnyUpstream } from '../lib/upstream-artifacts.js';
+import { readPriorHandoffs, nextRound, readJsonIfExists, readSessionProfile } from './_handoff-utils.js';
 
 const STAGE_INDEX = { implement: '03' };
 
@@ -120,38 +121,6 @@ async function runLiveExecutor({ harnessRoot, projectRoot, sessionDir, sessionId
     diffPath: execution.diffPath,
     executionWorkspace: execution.worktreeRoot,
   };
-}
-
-function readPriorHandoffs(handoffDir) {
-  if (!fs.existsSync(handoffDir)) return [];
-  return fs.readdirSync(handoffDir)
-    .filter(f => f.endsWith('.json'))
-    .sort()
-    .map(f => {
-      try {
-        return JSON.parse(fs.readFileSync(path.join(handoffDir, f), 'utf8'));
-      } catch {
-        return null;
-      }
-    })
-    .filter(Boolean);
-}
-
-function readJsonIfExists(file) {
-  if (!fs.existsSync(file)) return null;
-  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; }
-}
-
-function readSessionProfile(sessionDir) {
-  return readJsonIfExists(path.join(sessionDir, 'ask.json'))?.profile || null;
-}
-
-function nextRound(handoffs, stage) {
-  const rounds = handoffs
-    .filter(h => h.stage === stage)
-    .map(h => Number(h.round || 1))
-    .filter(Number.isFinite);
-  return rounds.length ? Math.max(...rounds) + 1 : 1;
 }
 
 function writeSummary(sessionDir, summary) {
