@@ -139,6 +139,9 @@ jobs:
           node packages/nekowork-cli/scripts/ci/catalog.js
           node packages/nekowork-cli/scripts/ci/check-markers.js
 
+      - name: nekowork-cli typecheck
+        run: pnpm --filter @ps-neko/nekowork run typecheck
+
       - name: nekowork-cli tests
         run: pnpm --filter @ps-neko/nekowork run test
 
