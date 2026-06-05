@@ -93,6 +93,7 @@ Full technical scope: [SCOPE-1.0.md](packages/nekowork-cli/docs/SCOPE-1.0.md).
 - Not an autopilot that pushes code on its own.
 - Not a replacement for Cursor, Claude Code, or Codex. Use those tools first,
   then run their output through NEKOWORK.
+- Not a test or contract-testing tool (Hurl, `go test`) — those check whether behavior is correct; NEKOWORK checks whether the diff itself is risky before merge.
 
 ## Need More Than Verification?
 
