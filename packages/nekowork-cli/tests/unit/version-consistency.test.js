@@ -73,7 +73,7 @@ test('README leads with verification gate identity (SCOPE-1.0 Phase 0)', () => {
   assert.match(readme, /local verification gate for AI-generated code/);
   assert.match(readme, /"Verified" means independently reviewed with recorded evidence — not mathematically proven correct/);
   assert.match(readme, /Optional Codex review is recorded as an advisor note only and never controls the verdict/);
-  assert.match(readme, /diff -> deterministic risk rules -> available checks \(detected, executed in a later alpha\) -> evidence package -> deterministic decision -> REPORT\.md -> Human Gate -> explicit apply/);
+  assert.match(readme, /diff -> deterministic risk rules -> checks \(test\/lint\/typecheck; detected always, executed with --run-checks, escalation-only\) -> evidence package -> deterministic decision -> REPORT\.md -> Human Gate -> explicit apply/);
   assert.match(readme, /docs\/SCOPE-1\.0\.md/);
   assert.match(readme, /docs\/VISION\.md/);
   // verify-pr 출력 형식 (alpha.11 onward)
@@ -137,7 +137,7 @@ test('Korean README keeps public install and evidence links visible', () => {
   assert.match(ko, /Node\.js 22\+/);
   assert.match(ko, /npx -y @ps-neko\/nekowork@alpha check/);
   assert.match(ko, /docs\/AGENTIC-PATTERNS\.md/);
-  assert.match(ko, /Tests: 501/);
+  assert.match(ko, /Tests: 532/);
   assert.match(ko, /docs\/EXTERNAL-RUN\.md/);
   assert.match(ko, /docs\/INTEGRATION\.md/);
 });

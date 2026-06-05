@@ -1,6 +1,6 @@
 # README hero — 1.0 draft
 
-> Status: DRAFT. 검토 후 README.md / README.ko.md hero 섹션을 이걸로 교체. 그 외 섹션은 별도 작업.
+> **Status: SUPERSEDED (2026-06-05).** 이 초안의 방향(verify-pr hero, "Don't merge AI code without verification", Codex = advisor, Beginner 4종)은 PR #95 에서 실제 `README.md` / `README.ko.md` 에 반영 완료. 말미의 후속 항목(demo-terminal.svg, "One Command" 섹션 등)도 처리됨. 이 문서는 **보관용 초안**이며, 안의 수치/예시(`401 tests`·`src/auth.ts:42` 등)는 초안 작성 시점 값이므로 최신은 라이브 README 를 따른다. 저장소 제거 또는 npm 출하 제외는 별도 확인 후 결정.
 
 ## Notes for reviewer
 

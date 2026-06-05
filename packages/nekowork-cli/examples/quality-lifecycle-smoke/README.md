@@ -1,5 +1,7 @@
 # Quality Lifecycle Smoke Project
 
+> **Legacy session-flow example.** The `case-study/` evidence here was produced by the session orchestration (`ask -> plan -> work -> verify -> gate -> ship`, plus profiles / `auto` / `pr-prep`) — the compatibility surface in [ADVANCED.md](../../docs/ADVANCED.md), scheduled for removal in 2.0. It is not a 1.0 `verify-pr` run; for verify-pr evidence see [BENCHMARK.md](../../docs/BENCHMARK.md) and [DEMO-REPORT.md](../../docs/DEMO-REPORT.md).
+
 This is a small standalone repository fixture used as a NEKOWORK quality-runtime case-study target.
 
 It demonstrates the quality profile path:
