@@ -1,5 +1,7 @@
 # Case Study: python-hyper/h11
 
+> **Legacy session-flow case study.** Documents the session orchestration (`ask` / `run --profile <p> --strict-quality --secure` / `gate status` / `report --session`) — the compatibility surface in [ADVANCED.md](../ADVANCED.md), scheduled for removal in 2.0 ([SCOPE-1.0.md](../SCOPE-1.0.md)). The `approve_with_fixes` / `ship_ready` / `no_ship` fields are legacy session verdicts, **not** `verify-pr` output. For verify-pr evidence: real OSS corpus in [BENCHMARK.md](../BENCHMARK.md), example report in [DEMO-REPORT.md](../DEMO-REPORT.md).
+
 Status date: 2026-05-07
 
 Target repository:

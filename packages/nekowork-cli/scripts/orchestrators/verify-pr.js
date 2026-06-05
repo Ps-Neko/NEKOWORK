@@ -3,16 +3,18 @@
 // Pipeline:
 //   1. Collect diff (working tree | staged | --from-patch | --from-range)
 //   2. Detect project baseline (test/lint/typecheck availability)
-//   3. Run deterministic risk rules (currently: Secret Fallback)
-//   4. Derive verdict from rule findings + check availability
+//   3. Run deterministic risk rules: secret-fallback, auto-apply-commit-push,
+//      hardcoded-credential, test-or-security-disable, package-lockfile-risk
+//   4. Derive verdict from rule findings + (optional --run-checks) results
 //   5. Write evidence (.nekowork/evidence/*) + .nekowork/decision.json + REPORT.md
 //   6. Print summary, return decision
 //
 // Verdict matrix (Phase 0, per docs/SCOPE-1.0.md §7):
 //   CRITICAL finding                              → BLOCK
 //   HIGH finding                                  → NEEDS_HUMAN_REVIEW
-//   source-only change + no test command          → INSUFFICIENT_EVIDENCE
-//   any finding (medium/low) + no critical/high   → ALLOW_WITH_WARNINGS
+//   --run-checks failure (test/lint/typecheck)    → NEEDS_HUMAN_REVIEW (never standalone BLOCK)
+//   source change + no test command               → INSUFFICIENT_EVIDENCE
+//   medium/low finding, no critical/high          → ALLOW_WITH_WARNINGS
 //   otherwise                                     → ALLOW
 
 import fs from 'node:fs';

@@ -35,6 +35,7 @@ Case-study flows:
 financial UI mock
 GitHub Actions hardening
 quality lifecycle smoke
+PR prep smoke
 parallel candidate canonical promotion
 npm package boundary
 auth parser boundary
