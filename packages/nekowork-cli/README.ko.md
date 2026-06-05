@@ -119,6 +119,28 @@ check -> verify-pr -> REPORT.md / decision.json 확인 -> Human Gate -> apply
 
 세션 기반 단계별 제어(`ask` / `plan` / `team` / `work` / `verify` / `gate` / `ship` / `auto` / `report --session` / `apply --session`)는 호환용 고급 명령으로 [docs/ADVANCED.md](docs/ADVANCED.md)에 있으며, 2.0에서 제거 예정입니다 ([docs/SCOPE-1.0.md](docs/SCOPE-1.0.md) Phased Cut).
 
+## 테스트·계약 검증 도구와 무엇이 다른가
+
+테스트와 계약 검증은 **동작이 올바른지**를 봅니다. NEKOWORK는 **변경 자체가 위험한지**를 봅니다 — 실행 중인 시스템이 아니라 git diff를 읽습니다. 테스트를 대체하지 않고, 머지 직전 마지막 게이트로 더해집니다.
+
+| 도구 | 입력 | 검사 대상 | 잡는 문제 |
+|------|------|-----------|-----------|
+| Hurl | HTTP 요청/응답 | 실행 중인 API 동작 | 응답 불일치, 상태코드 오류 |
+| go test / jest | 소스 + 런타임 | 함수/패키지 동작 | 로직 회귀, 실패 테스트 |
+| **NEKOWORK** | **git diff** | **머지 전 변경 자체** | secret fallback, 하드코딩 자격증명, 테스트·보안 비활성화, 위험한 자동 apply·commit·push, lockfile 위험 |
+
+그래서 경쟁이 아니라 직렬로 조합됩니다:
+
+```yaml
+# .github/workflows/verify.yml (일부)
+- run: hurl --test tests/api/*.hurl                     # 동작이 맞는가?
+- run: go test ./...                                    # 로직 회귀?
+- run: npx -y @ps-neko/nekowork@alpha verify-pr \
+         --range origin/main...HEAD                     # diff 자체가 위험한가?
+```
+
+전체 워크플로(PR 코멘트 + evidence 업로드 + 라벨): [docs/examples/github-actions-verify-pr.yml](docs/examples/github-actions-verify-pr.yml).
+
 ## Starter Packs
 
 처음에는 아래 5개만 보면 됩니다. 전체 catalog는 [docs/CATALOG-PACKS.md](docs/CATALOG-PACKS.md)에 있습니다.

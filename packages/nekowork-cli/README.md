@@ -113,6 +113,28 @@ Compatibility / legacy commands (`cockpit`, `start`, `ask`, `plan`, `team`, `wor
 
 Use any AI coding tool (Claude Code, Cursor, Codex, ...) to create the diff. NEKOWORK starts after: risk scan, an optional Codex advisor note (which never controls the verdict), `decision.json`, Human Gate, and explicit apply. Optional upstream files (`context.md` / `DOMAIN.md` / `SPEC.md` / `PLAN.md`) are auto-picked from the project root — full contract in [docs/INTEGRATION.md](docs/INTEGRATION.md). Tools that produce those files (brainstorming, office-hours, DDD passes, writing-plans, etc.) are cataloged in [docs/UPSTREAM-RECIPES.md](docs/UPSTREAM-RECIPES.md).
 
+## How NEKOWORK Differs from Test & Contract Tools
+
+Tests and contract checks verify that **behavior is correct**. NEKOWORK verifies that **the change itself isn't risky** — it reads the git diff, not the running system. It is the last gate before merge, not a replacement for your test suite.
+
+| Tool | Input | Checks | Catches |
+|------|-------|--------|---------|
+| Hurl | HTTP request/response | running API behavior | response mismatch, wrong status codes |
+| go test / jest | source + runtime | function/package behavior | logic regressions, failing tests |
+| **NEKOWORK** | **git diff** | **the change, before merge** | secret fallback, hardcoded credential, test/security disable, risky auto apply/commit/push, lockfile risk |
+
+So they compose — they don't compete:
+
+```yaml
+# .github/workflows/verify.yml (excerpt)
+- run: hurl --test tests/api/*.hurl                     # behavior correct?
+- run: go test ./...                                    # logic regressions?
+- run: npx -y @ps-neko/nekowork@alpha verify-pr \
+         --range origin/main...HEAD                     # is the diff itself risky?
+```
+
+Full workflow (PR comment + evidence upload + labels): [docs/examples/github-actions-verify-pr.yml](docs/examples/github-actions-verify-pr.yml).
+
 ## Example Report
 
 `verify-pr` writes a human-readable `REPORT.md` at the project root and a machine-readable `.nekowork/decision.json`. Both come from the same deterministic decision — there is no LLM verdict in the chain.

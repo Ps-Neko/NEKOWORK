@@ -92,6 +92,7 @@ NEKOWORK가 바뀐 줄을 읽고, 사람이 읽기 쉬운 `REPORT.md`를 만들�
 - 스스로 코드를 push하는 자동 조종 도구가 아닙니다.
 - Cursor, Claude Code, Codex의 대체품이 아닙니다. 먼저 그 도구들을 사용하고,
   그 결과를 NEKOWORK로 검사하세요.
+- 테스트·계약 검증 도구(Hurl, `go test`)가 아닙니다 — 그건 동작이 올바른지 보고, NEKOWORK는 머지 전 diff 자체가 위험한지 봅니다.
 
 ## 검증만으로 부족할 때
 
