@@ -5,34 +5,30 @@ NEKOWORK PR template. 한국어 또는 영어 모두 환영.
 
 ## Summary
 
-<!-- 무엇이 / 왜. 1~3 줄. -->
+(변경의 핵심 1-2줄)
 
 ## Type
 
-<!-- feat | fix | refactor | docs | test | chore | perf | ci -->
-
-## Handoff 5필드
-
-> 작은 docs/chore 변경이면 비워두거나 한 줄 요약만 적어도 됩니다.
-
-- **Decided**:
-- **Rejected**:
-- **Risks**:
-- **Files**:
-- **Remaining**:
+- [ ] Rule 추가 (`packages/nekowork/scripts/lib/rules/<name>.js`)
+- [ ] Rule 패턴 보강 (false positive / negative 시드 추가)
+- [ ] Bug fix
+- [ ] Docs / README
+- [ ] CI / 배포
+- [ ] 기타
 
 ## Test plan
 
-- [ ] `npm run lint` pass (catalog + 4 validator + check-version)
-- [ ] `npm test` pass (관련 영역 단위/통합/e2e)
-- [ ] manual smoke (해당 시): `node scripts/cli.js <command> ...`
+- [ ] `cd packages/nekowork && node --test tests/unit/*.test.js` PASS
+- [ ] (rule 변경 시) `tests/fixtures/<rule>/manifest.json` recall ≥ 0.90, CRITICAL FP rate ≤ 0.10
+- [ ] (CLI 변경 시) `node scripts/cli.js --version`, `verify-pr --help`, `smoke`, `smoke:reject` 확인
+- [ ] (CI 변경 시) GitHub Actions / pre-commit hook 동작 검증
 
-## Release / safety impact
+## brief 가드레일 self-check
 
-- [ ] 사용자 facing CLI 표면 변경 없음 (또는 README / docs 업데이트 포함)
-- [ ] 자동 commit / push / publish / deploy / apply 부재 보존
-- [ ] `decision.json` / `REPORT.md` 계약 보존 (해당 시)
-- [ ] `.harness/state/` 호환성 보존 (해당 시)
+- [ ] 새 기능 추가 0개 — 추가가 있다면 정확히 무엇이 추가됐는지 명시
+- [ ] 사용자 대면 문서에 내부 용어 미도입 (NEKO 세계관 / 14단계 / harness 등)
+- [ ] 60초 try 경로 영향 없음 (`npx -y @ps-neko/nekowork verify-pr`)
+- [ ] auto-commit / auto-push / auto-deploy 도입 없음
 
 ## Linked issues / context
 
