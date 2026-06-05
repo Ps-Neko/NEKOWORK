@@ -149,3 +149,26 @@ test('finding 출력 스키마: 필수 필드', () => {
   assert.equal(finding.rule, 'secret-fallback');
   assert.equal(finding.category, 'secrets');
 });
+
+// ---------- URL scheme // false-negative regression ----------
+
+test('URL scheme https:// 이 같은 라인의 secret fallback 을 가리지 않음 (false negative 방지)', () => {
+  // Bug: stripCommentsPreservingOffsets 가 "https://" 의 "//" 를 줄 댓글로 오인해
+  // 같은 줄 뒤쪽을 모두 지워 secret fallback 을 놓침.
+  const content = 'const apiUrl = process.env.API_URL || "https://default.api.example.com/v1"; const secret = process.env.API_KEY || "hardcoded_secret_key_value";';
+  const f = scanFileContent('config.ts', content);
+  assert.ok(f.length >= 1, `URL 포함 라인 뒤의 secret fallback 을 감지해야 함 (got ${f.length} findings)`);
+  const patterns = f.map(x => x.pattern);
+  assert.ok(patterns.includes('env-or-literal'), `env-or-literal 패턴이 감지되어야 함 (got: ${patterns.join(', ')})`);
+});
+
+test('URL scheme https:// 포함 줄 다음 줄의 secret fallback 도 감지', () => {
+  // 두 번째 케이스: URL 이 포함된 줄과 secret 이 포함된 줄이 별개여도 작동해야 함.
+  const content = [
+    'const baseUrl = "https://api.example.com/endpoint";',
+    'const jwtSecret = process.env.JWT_SECRET || "fallback-jwt-secret-value";',
+  ].join('\n');
+  const f = scanFileContent('config.ts', content);
+  assert.ok(f.length >= 1, `URL 다음 줄의 secret fallback 을 감지해야 함 (got ${f.length})`);
+  assert.equal(f[0].line, 2, `line 은 2여야 함 (got ${f[0].line})`);
+});
