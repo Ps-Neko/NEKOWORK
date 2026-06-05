@@ -1,0 +1,46 @@
+name: False positive — verify-pr blocked safe code
+description: nekowork verify-pr 가 안전한 코드를 BLOCK 으로 잘못 판정했다고 생각될 때.
+title: "[FP] <rule>: <한 줄 설명>"
+labels: ["false-positive", "alpha-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        false positive 리포트는 fixture negative 시드로 추가되어 그 다음 alpha 버전부터 차단되지 않습니다.
+        60초 try 가 60초 안에 안 끝났다면 별도 [feedback] template 을 사용해주세요.
+  - type: input
+    id: rule
+    attributes:
+      label: 어느 rule 이 발화했나요?
+      description: REPORT.md 의 `rule:` 필드 또는 verdict 메시지의 rule id.
+      placeholder: secret-fallback
+    validations:
+      required: true
+  - type: textarea
+    id: diff
+    attributes:
+      label: 차단된 diff (최소 재현)
+      description: BLOCK 을 트리거한 가장 작은 diff. 실제 시크릿·내부 코드 노출에 주의 — placeholder 로 치환해주세요.
+      render: diff
+    validations:
+      required: true
+  - type: textarea
+    id: why-safe
+    attributes:
+      label: 왜 이 변경이 안전하다고 보나요?
+      description: 환경 맥락 (예 — sandbox 환경, 의도된 placeholder, 통제된 fallback 등).
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 버전
+      description: "`npx -y @ps-neko/nekowork --version` 출력"
+      placeholder: 0.2.0-alpha.1
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: 환경
+      placeholder: macOS 14 / Node 22 / pnpm 9
