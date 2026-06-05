@@ -248,7 +248,7 @@ Live provider auth delegates to local CLI sessions (`claude auth status`, `codex
 ## Documentation
 
 - **Core:** [QUICKSTART](docs/QUICKSTART.md) · [CLI-STAGES](docs/CLI-STAGES.md) · [INTEGRATION](docs/INTEGRATION.md) · [UPSTREAM-RECIPES](docs/UPSTREAM-RECIPES.md) · [BUILD](docs/BUILD.md) · [AUTONOMY](docs/AUTONOMY.md) · [SAFETY-GUARANTEES](docs/SAFETY-GUARANTEES.md) · [FAILURE-MODES](docs/FAILURE-MODES.md)
-- **Demos & evidence:** [DEMO](docs/DEMO.md) · [DEMO-REPORT](docs/DEMO-REPORT.md) · [EXTERNAL-RUN](docs/EXTERNAL-RUN.md) · [case-studies](docs/case-studies)
+- **Demos & evidence:** [DEMO](docs/DEMO.md) · [DEMO-REPORT](docs/DEMO-REPORT.md) · [EXTERNAL-RUN](docs/EXTERNAL-RUN.md) · [legacy session case-studies](docs/case-studies)
 - **1.0 direction:** [SCOPE-1.0.md](docs/SCOPE-1.0.md) — scope, risk rules, decision policy, fixture sourcing · [VISION.md](docs/VISION.md) — long-term verification-first OS vision
 - **Reference:** [GUIDED-MODE](docs/GUIDED-MODE.md) · [ADVANCED](docs/ADVANCED.md) · [CATALOG-PACKS](docs/CATALOG-PACKS.md) · [PORTING](docs/PORTING.md) · [PR-PREP](docs/PR-PREP.md) · [RELEASE-READINESS](docs/RELEASE-READINESS.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [PRODUCT-PRINCIPLES](docs/PRODUCT-PRINCIPLES.md) · [ROADMAP](docs/ROADMAP.md)
 - **Project rules:** [SOUL.md](SOUL.md) · [RULES.md](RULES.md) · [AGENTS.md](AGENTS.md)

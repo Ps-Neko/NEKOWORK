@@ -1,5 +1,7 @@
 # Case Study: Diary Local App
 
+> **Generated-app validation** (legacy NEKOWORK skill/process). A `npm test` / `typecheck` / `lint` validation of a generated app — **not** a `verify-pr` run. For verify-pr evidence see [BENCHMARK.md](../BENCHMARK.md) and [DEMO-REPORT.md](../DEMO-REPORT.md).
+
 Status date: 2026-05-08
 
 Target repository:
