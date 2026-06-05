@@ -8,6 +8,8 @@ importers:
 
   .: {}
 
+  packages/nekowork: {}
+
   packages/nekowork-cli:
     dependencies:
       '@modelcontextprotocol/sdk':
