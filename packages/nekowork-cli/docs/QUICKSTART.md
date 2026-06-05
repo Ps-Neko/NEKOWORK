@@ -33,7 +33,7 @@ Example when a change is blocked:
 ```text
 === verify-pr ===
   verdict        : BLOCK
-  reason         : Hardcoded secret fallback detected (src/auth.ts:42)
+  reason         : Hardcoded secret fallback detected (src/auth.ts:4)
   risk_level     : CRITICAL
   merge_allowed  : false
   apply_allowed  : false
@@ -63,16 +63,18 @@ It then runs five deterministic risk rules over the changed lines:
 - **Test or security disable** — mass `*.skip`, `eslint-disable`, `ts-ignore`, or CI checks removed.
 - **Package / lockfile risk** — dependency, script, and `postinstall`/`preinstall` changes.
 
-### What "checks available" means today
+### Checks: detection and `--run-checks`
 
 verify-pr also looks at whether your project *has* test / lint / typecheck / build /
-audit commands. Right now it **detects whether those commands exist** — it does not
-run them yet. If a source change has no test command, verify-pr returns
-`INSUFFICIENT_EVIDENCE` ("not enough evidence to PASS", not a failure) instead of a
-false PASS.
+audit commands. By default it **detects** which exist and records them in the report.
+If a source change has no test command, verify-pr returns `INSUFFICIENT_EVIDENCE`
+("not enough evidence to PASS", not a failure) instead of a false PASS.
 
-Actually running those commands and folding their pass/fail into the verdict is a
-planned enhancement; see [SCOPE-1.0.md](SCOPE-1.0.md) §5–§7 for the target behavior.
+Pass `--run-checks` to actually execute test / lint / typecheck. Their results are
+**escalation-only**: a failing check turns `ALLOW` into `NEEDS_HUMAN_REVIEW`, never a
+standalone `BLOCK`. When the diff has a CRITICAL finding or tampers with build/test
+scripts, the checks are skipped and the report records the reason. See
+[SCOPE-1.0.md](SCOPE-1.0.md) §5–§7 for the decision policy.
 
 ## 3. The Five Verdicts (and the simple buckets)
 
