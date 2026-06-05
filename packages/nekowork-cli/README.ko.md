@@ -79,10 +79,10 @@ npx -y @ps-neko/nekowork@alpha verify-pr
 ```text
 === verify-pr ===
   verdict        : BLOCK
-  reason         : Hardcoded secret fallback detected (src/auth.ts:42)
+  reason         : Hardcoded secret fallback detected (src/auth.ts:4)
+  risk_level     : CRITICAL
   merge_allowed  : false
   apply_allowed  : false
-  risk_level     : CRITICAL
 ```
 
 NEKOWORK 의 핵심: AI 는 변경을 만들 수 있지만, 위험한 ship/apply 결정은 결정적 룰과 사람 승인 아래에 둡니다. LLM verdict 는 게이트를 통과할 수 없습니다.
@@ -142,7 +142,7 @@ check -> verify-pr -> REPORT.md / decision.json 확인 -> Human Gate -> apply
 
 ## Reason
 
-Hardcoded secret fallback detected (src/auth.ts:42)
+Hardcoded secret fallback detected (src/auth.ts:4)
 
 ## Decision
 
@@ -157,7 +157,7 @@ Hardcoded secret fallback detected (src/auth.ts:42)
 {
   "schema_version": "verify-pr-v0",
   "verdict": "BLOCK",
-  "reason": "Hardcoded secret fallback detected (src/auth.ts:42)",
+  "reason": "Hardcoded secret fallback detected (src/auth.ts:4)",
   "merge_allowed": false,
   "apply_allowed": false,
   "risk_level": "CRITICAL",

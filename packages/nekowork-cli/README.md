@@ -36,10 +36,10 @@ Every real `verify-pr` run puts the verdict first:
 ```text
 === verify-pr ===
   verdict        : BLOCK
-  reason         : Hardcoded secret fallback detected (src/auth.ts:42)
+  reason         : Hardcoded secret fallback detected (src/auth.ts:4)
+  risk_level     : CRITICAL
   merge_allowed  : false
   apply_allowed  : false
-  risk_level     : CRITICAL
 ```
 
 The machine-readable companion `decision.json` and the full report are in [Example Report](#example-report).
@@ -71,13 +71,14 @@ Typical blocked-risk output:
 ```text
 === verify-pr ===
   verdict        : BLOCK
-  reason         : Hardcoded secret fallback detected (src/auth.ts:42)
+  reason         : Hardcoded secret fallback detected (src/auth.ts:4)
   risk_level     : CRITICAL
   merge_allowed  : false
   apply_allowed  : false
+  changed_files  : 1 (+3 -1)
   findings       : critical=1 high=0 medium=0 low=0
   top findings:
-    - [CRITICAL] Hardcoded secret fallback detected (src/auth.ts:42)
+    - [CRITICAL] Hardcoded secret fallback detected (src/auth.ts:4)
 ```
 
 That is the thesis: AI can write the change, but `verify-pr` runs deterministic rules over the diff and refuses to let unverified changes merge or apply.
@@ -125,7 +126,7 @@ Use any AI coding tool (Claude Code, Cursor, Codex, ...) to create the diff. NEK
 
 ## Reason
 
-Hardcoded secret fallback detected (src/auth.ts:42)
+Hardcoded secret fallback detected (src/auth.ts:4)
 
 ## Decision
 
@@ -137,12 +138,12 @@ Hardcoded secret fallback detected (src/auth.ts:42)
 
 - total: 1
 - additions: 3
-- deletions: 0
+- deletions: 1
 - source: src/auth.ts
 
 ## Blocking Findings
 
-- **CRITICAL** [secret-fallback] Hardcoded secret fallback detected — `src/auth.ts:42`
+- **CRITICAL** [secret-fallback] Hardcoded secret fallback detected — `src/auth.ts:4`
   - Read the secret from the environment and fail closed when it is missing.
 
 ## Evidence
@@ -169,12 +170,12 @@ The machine-readable companion is `.nekowork/decision.json` (`schema_version: ve
 {
   "schema_version": "verify-pr-v0",
   "verdict": "BLOCK",
-  "reason": "Hardcoded secret fallback detected (src/auth.ts:42)",
+  "reason": "Hardcoded secret fallback detected (src/auth.ts:4)",
   "merge_allowed": false,
   "apply_allowed": false,
   "risk_level": "CRITICAL",
   "finding_counts": { "critical": 1, "high": 0, "medium": 0, "low": 0 },
-  "changed_files": { "total": 1, "additions": 3, "deletions": 0, "source": ["src/auth.ts"] },
+  "changed_files": { "total": 1, "additions": 3, "deletions": 1, "source": ["src/auth.ts"] },
   "checks": { "requested": false, "skippedReason": null, "results": [] }
 }
 ```
