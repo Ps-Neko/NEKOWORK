@@ -1,6 +1,6 @@
 # NEKOWORK verify-pr — Rule Benchmark
 
-> Measured: 2026-05-27 (updated post empty-string-fallback patch) · Version: `0.1.0-alpha.12`
+> Measured: 2026-06-05 (re-run of `npm run bench:rules`) · Version: `0.1.0-alpha.12`
 > Source of truth: run `npm run bench:rules -- --json` from `packages/nekowork-cli/`.
 
 This page publishes the recall / false-positive numbers for every risk rule that
@@ -21,12 +21,12 @@ the full picture, including what is still missing for the 1.0 gate.
 
 | Rule | Recall | FP rate | Pos caught | FP count | 1.0 gate |
 |---|---:|---:|---:|---:|:---:|
-| `secret-fallback` | **98%** | **0%** | 42 / 43 | 0 / 14 | ✅ |
-| `auto-apply-commit-push` | **100%** | **0%** | 13 / 13 | 0 / 9 | ✅ |
+| `secret-fallback` | **98%** | **0%** | 43 / 44 | 0 / 14 | ✅ |
+| `auto-apply-commit-push` | **100%** | **0%** | 14 / 14 | 0 / 9 | ✅ |
 | `hardcoded-credential` | **100%** | **0%** | 4 / 4 | 0 / 8 | ✅ |
-| `test-or-security-disable` | **100%** | **0%** | 14 / 14 | 0 / 8 | ✅ |
+| `test-or-security-disable` | **100%** | **0%** | 15 / 15 | 0 / 8 | ✅ |
 | `package-lockfile-risk` | **100%** | **0%** | 9 / 9 | 0 / 8 | ✅ |
-| **Aggregate** | **99%** | **0%** | **82 / 83** | **0 / 47** | — |
+| **Aggregate** | **99%** | **0%** | **85 / 86** | **0 / 47** | — |
 
 **1.0 gate per [SCOPE §9](./SCOPE-1.0.md#9-fixture-출처-정책):** recall ≥ 0.90, FP ≤ 0.10.
 
@@ -34,28 +34,28 @@ The one missed positive (`sf-pos-004`) is `if (!token) token = "literal"` — a
 flow-based pattern that requires multi-line scope. Documented limitation, not a
 regression.
 
-The `secret-fallback` corpus now includes **20 real OSS positive fixtures**
-(promoted from three scrape rounds — `JWT_SECRET`, `OPENAI_API_KEY`,
-`STRIPE_SECRET_KEY`) plus 2 new synthetic positives exercising the
-empty-string variant. **The 1.0 §9 target of 30+ OSS positives is met for
-this rule** (32 total positives; 20 OSS / 12 synthetic). Three OSS sources
-are popular repos (1051⭐, 3237⭐, 897⭐). See *OSS scrape rounds* below
-for the path that got us here.
+The `secret-fallback` corpus now includes **30 real OSS positive fixtures**
+(promoted across scrape rounds — `JWT_SECRET`, `OPENAI_API_KEY`,
+`STRIPE_SECRET_KEY`, plus the empty-string `|| ""` variant) alongside 12
+synthetic and 2 live-AI positives. **The 1.0 §9 target of 30+ OSS positives is
+met for this rule** (44 total positives: 30 OSS / 12 synthetic / 2 live AI).
+Several OSS sources are popular repos (1051⭐, 3237⭐, 897⭐ and up). See
+*OSS scrape rounds* below for the path that got us here.
 
 ## Fixture composition — the honest part
 
 | Rule | Pos (syn / OSS / live AI) | Neg (syn / OSS / live AI) |
 |---|---|---|
-| `secret-fallback` | 12 / 30 / 1 ✅ | 11 / 3 / 0 |
-| `auto-apply-commit-push` | 8 / 5 / 0 | 6 / 3 / 0 |
+| `secret-fallback` | 12 / 30 / 2 ✅ | 11 / 3 / 0 |
+| `auto-apply-commit-push` | 8 / 5 / 1 | 6 / 3 / 0 |
 | `hardcoded-credential` | 4 / 0 / 0 ⚠️ | 5 / 3 / 0 |
-| `test-or-security-disable` | 6 / 8 / 0 | 5 / 3 / 0 |
+| `test-or-security-disable` | 6 / 8 / 1 | 5 / 3 / 0 |
 | `package-lockfile-risk` | 6 / 3 / 0 | 5 / 3 / 0 |
-| **Total** | **36 / 46 / 1** | **32 / 15 / 0** |
+| **Total** | **36 / 46 / 4** | **32 / 15 / 0** |
 
 Distinct OSS source repos: **3** (negatives — `expressjs/express`) +
 **38** (positives, 4 rules covered). Synthetic share of total positives:
-**49%** (down from 100% at session start). Star distribution of positive
+**42%** (36 / 86, down from 100% at session start). Star distribution of positive
 OSS repos:
 
 | Stars | Count | Notables |
@@ -89,40 +89,41 @@ shape so regex fires) — deferred.
 
 - The deterministic rule engine is **stable**: same input, same verdict, every run.
 - Against the patterns the team thought to write fixtures for, the rules catch
-  them with **97% recall** and produce **0 false positives** on a small set of
-  real-world Express examples.
+  them with **99% aggregate recall** (85 / 86) and produce **0 false positives**
+  on the negative corpus (0 / 47).
 - The 1.0 gate threshold defined in SCOPE-1.0.md §9 is **mechanically passed**.
 
 ### What the numbers do NOT prove
 
-- **0 positive fixtures from real OSS or live AI tools.** All positive fixtures
-  are synthetic — written by the same author as the rules. Per SCOPE-1.0.md §9
-  this is explicitly insufficient as final 1.0 evidence.
-- **Negative OSS corpus is 3 files.** SCOPE-1.0.md §9 sets the target at "30+"
-  real OSS examples (popular repos, ≥100 stars). We are at **10% of the target**.
-- **0 live AI-generated diffs.** SCOPE-1.0.md §9 specifies that live diffs from
-  Claude Code / Cursor / Codex on real tasks must be part of the corpus. Not
-  collected yet.
-- **Cross-rule contamination.** The same 3 OSS files act as negatives for all 5
-  rules. A real OSS corpus should be sampled per-rule.
+- **Supporting rules are under the OSS-positive target.** Only `secret-fallback`
+  meets the §9 "30+ OSS positives" bar (30). `auto-apply-commit-push` (5),
+  `test-or-security-disable` (8), and `package-lockfile-risk` (3) are below it,
+  and `hardcoded-credential` is synthetic-only by design (see ethical note above).
+- **Live-AI corpus is thin.** 4 live-AI positives across 3 rules vs. the §9
+  target of 30+. Real coverage of how Claude Code / Cursor / Codex actually fail
+  is still minimal.
+- **Negative OSS corpus is shallow and shared.** The same 3 distinct OSS negative
+  files back all 5 rules (15 negative checks, 3 source files). §9 targets 30+
+  real OSS examples sampled per-rule; we are well under that.
+- **Synthetic share is still 42%** (36 / 86 positives), above the §9 ≤30% target
+  for the corpus as a whole — even though `secret-fallback` alone is at 27%.
 
 ## Gap to "claim 1.0-ready"
 
 | Requirement (SCOPE §9) | Current | Target | Status |
 |---|---:|---:|:---:|
 | `secret-fallback` OSS positives | **30** | 30+ | ✅ **MET** |
-| `secret-fallback` synthetic share of positives | **29%** (12/42) | ≤ 30% | ✅ **MET** |
+| `secret-fallback` synthetic share of positives | **27%** (12/44) | ≤ 30% | ✅ **MET** |
 | `auto-apply-commit-push` OSS positives | 5 | 30+ | ⚠️ 17% |
 | `test-or-security-disable` OSS positives | 8 | 30+ | ⚠️ 27% |
 | `package-lockfile-risk` OSS positives | 3 | 30+ | ⚠️ 10% |
 | `hardcoded-credential` OSS positives | 0 (by-design) | — | 🚫 ethical scope |
-| Positive fixtures from live AI diffs | 1 | 30+ | ❌ 3% |
-| Overall synthetic share of positives | 44% (36/82) | ≤ 30% | ⚠️ |
-| Recall — secret-fallback (n=42) | 98% | ≥ 90% | ✅ |
-| Recall — auto-apply-commit-push (n=13) | 100% | ≥ 90% | ✅ |
-| Recall — test-or-security-disable (n=14) | 100% | ≥ 90% | ✅ |
+| Positive fixtures from live AI diffs | 4 | 30+ | ❌ 13% |
+| Overall synthetic share of positives | 42% (36/86) | ≤ 30% | ⚠️ |
+| Recall — secret-fallback (n=44) | 98% | ≥ 90% | ✅ |
+| Recall — auto-apply-commit-push (n=14) | 100% | ≥ 90% | ✅ |
+| Recall — test-or-security-disable (n=15) | 100% | ≥ 90% | ✅ |
 | Recall — package-lockfile-risk (n=9) | 100% | ≥ 90% | ✅ |
-| Recall — across 6 OSS scrape rounds (n=60) | 95% (57/60) | ≥ 90% | ✅ |
 | FP rate — all rules | 0/47 (0%) | ≤ 10% | ✅ |
 | CI benchmark job, 3 consecutive PASS | passes locally | + CI history | ⚠️ partial |
 
@@ -236,10 +237,11 @@ provenance (`source: live-ai:claude-code:opus-4.7:tier1-jwt-auth-001`).
   is reflexive enough to survive priming, but it is not a *naive* Claude
   sample. Future captures from fresh Claude / Cursor / Codex sessions will be
   stronger evidence.
-- **n=1.** One capture from one tool from one task. The protocol target is 30+
-  captures across 4 tools × 11 tasks; we have 1/30. The supporting recall /
-  FP numbers above do not require this denominator to be filled — they pass
-  on synthetic + OSS evidence alone — but the §9 ship gate does.
+- **Small denominator.** This was the *first* capture (n=1 at the time). The
+  protocol target is 30+ captures across 4 tools × 11 tasks; the corpus now
+  holds **4 live-AI positives across 3 rules** — still well under the 30+ target.
+  The supporting recall / FP numbers above do not require this denominator to be
+  filled — they pass on synthetic + OSS evidence alone — but the §9 ship gate does.
 
 ## How to reproduce
 
@@ -270,13 +272,15 @@ Used in CI to catch detection-quality regressions.
 Per SCOPE-1.0.md §13.2 the ship gate combines internal benchmark + external
 alpha signal. The benchmark side needs:
 
-- [ ] Scrape 30+ real OSS positives per killer rule (`secret-fallback` first)
+- [x] Scrape 30+ real OSS positives for the killer rule (`secret-fallback` — 30 met);
+      supporting rules (`auto-apply-commit-push` 5, `test-or-security-disable` 8,
+      `package-lockfile-risk` 3) still pending
 - [ ] Generate live AI diffs by running Claude Code / Cursor / Codex on
-      realistic tasks and extracting the fallback-pattern diffs
-- [ ] Rebalance the corpus so synthetic ≤ 30% of total
+      realistic tasks and extracting the fallback-pattern diffs (4/30 captured so far)
+- [ ] Rebalance the corpus so synthetic ≤ 30% of total (currently 42%)
 - [ ] Add CI job that publishes the JSON to `docs/benchmark-history.jsonl` on
       every main push, so the page above stays current automatically
 
-Until the first three are done, treat the "1.0 gate ✅" markers above as
-**mechanical pass on an admittedly synthetic corpus** — not as a claim that the
-rules generalize to wild AI-written code.
+Until these are done, treat the "1.0 gate ✅" markers above as a **mechanical pass
+on an admittedly partial corpus** (synthetic + limited OSS + minimal live-AI) — not
+as a claim that the rules generalize to wild AI-written code.

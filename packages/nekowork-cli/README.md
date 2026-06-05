@@ -47,14 +47,14 @@ The machine-readable companion `decision.json` and the full report are in [Examp
 The evidence chain is intentionally narrow:
 
 ```text
-diff -> deterministic risk rules -> available checks (detected, executed in a later alpha) -> evidence package -> deterministic decision -> REPORT.md -> Human Gate -> explicit apply
+diff -> deterministic risk rules -> checks (test/lint/typecheck; detected always, executed with --run-checks, escalation-only) -> evidence package -> deterministic decision -> REPORT.md -> Human Gate -> explicit apply
 ```
 
 No auto-commit. No auto-push. No surprise deploy. `apply` is explicit; it requires a `decision.json` whose `apply_allowed` is `true`.
 
 Bring your AI tool (Cursor / Claude Code / Codex). NEKOWORK starts after the diff is on disk. Advanced and legacy commands are documented in [docs/ADVANCED.md](docs/ADVANCED.md) and gated under Phased Cut (see [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md)).
 
-**Public alpha evidence:** 401 tests / 5/5 rules pass 1.0 gate on a synthetic+OSS corpus ([benchmark](docs/BENCHMARK.md)) / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs · [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) · [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) · [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) · [full report example](docs/DEMO-REPORT.md) · [external run kit](docs/EXTERNAL-RUN.md) · [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) · [roadmap](docs/ROADMAP.md)
+**Public alpha evidence:** 532 tests / 5/5 rules pass 1.0 gate on a synthetic+OSS+live-AI corpus ([benchmark](docs/BENCHMARK.md)) / 0 moderate+ npm audit issues / fresh `npx @alpha` smoke / 10 case-study flows / 5 starter packs · [CI badge](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml) · [npm package](https://www.npmjs.com/package/@ps-neko/nekowork) · [terminal transcript](docs/DEMO.md#one-minute-terminal-transcript) · [full report example](docs/DEMO-REPORT.md) · [external run kit](docs/EXTERNAL-RUN.md) · [alpha feedback](https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml) · [roadmap](docs/ROADMAP.md)
 
 ![NEKOWORK one-minute terminal demo](docs/assets/demo-terminal.svg)
 
@@ -112,44 +112,74 @@ Use any AI coding tool (Claude Code, Cursor, Codex, ...) to create the diff. NEK
 
 ## Example Report
 
-`report` is the main trust surface. It turns session evidence into a readable `REPORT.md`:
+`verify-pr` writes a human-readable `REPORT.md` at the project root and a machine-readable `.nekowork/decision.json`. Both come from the same deterministic decision — there is no LLM verdict in the chain.
+
+`REPORT.md` (BLOCK on a secret fallback):
 
 ```text
-Verdict: approve_with_fixes
-Ship ready: false
-Human gate: required
-Applied: false
-Profile: quality
-Strict quality: enabled
-Acceptance coverage: 4/5
-Quality warnings: 2
+# NEKOWORK Verification Report
 
-Evidence:
-- work-summary.json
-- preverify-summary.json
-- verify-summary.json
-- ship-summary.json
-- decision.json
-- gate-summary.json
+## Verdict
+
+**BLOCK**
+
+## Reason
+
+Hardcoded secret fallback detected (src/auth.ts:42)
+
+## Decision
+
+- merge_allowed: false
+- apply_allowed: false
+- risk_level: CRITICAL
+
+## Changed Files
+
+- total: 1
+- additions: 3
+- deletions: 0
+- source: src/auth.ts
+
+## Blocking Findings
+
+- **CRITICAL** [secret-fallback] Hardcoded secret fallback detected — `src/auth.ts:42`
+  - Read the secret from the environment and fail closed when it is missing.
+
+## Evidence
+
+- `.nekowork/evidence/risk-findings.json`
+- `.nekowork/evidence/diff.summary.json`
+- `.nekowork/evidence/evidence-manifest.json`
+- `.nekowork/decision.json`
+
+## Checks Available
+
+- test: configured
+- lint: configured
+- typecheck: not configured
+- build: not configured
+- audit: configured
 ```
 
-The first screen of `REPORT.md` is the trust card: work produced, deterministic preverify findings, independent verification, Human Gate, ship readiness, apply state, and whether the target project was mutated.
+The verdict is the first line; everything under it is the evidence that produced it — the deterministic decision, the changed-file classification, the blocking findings, and the evidence paths. With `--run-checks`, a `## Checks Run` section replaces `## Checks Available` and lists each command's pass/fail.
 
-The machine-readable companion is `decision.json`, which consolidates verdict, reason, risk, ship readiness, Human Gate state, apply permission, diff hash, and evidence paths:
+The machine-readable companion is `.nekowork/decision.json` (`schema_version: verify-pr-v0`). Core fields below; `generated_at`, `project`, and the full `findings[]` array are elided for brevity:
 
 ```json
 {
-  "verdict": "blocked",
-  "reason": "preverify requires Human Gate for secret env fallback",
-  "ship_ready": false,
-  "human_gate": "required",
+  "schema_version": "verify-pr-v0",
+  "verdict": "BLOCK",
+  "reason": "Hardcoded secret fallback detected (src/auth.ts:42)",
+  "merge_allowed": false,
   "apply_allowed": false,
-  "diff_hash": null,
-  "evidence": ["preverify-summary.json", "decision.json"]
+  "risk_level": "CRITICAL",
+  "finding_counts": { "critical": 1, "high": 0, "medium": 0, "low": 0 },
+  "changed_files": { "total": 1, "additions": 3, "deletions": 0, "source": ["src/auth.ts"] },
+  "checks": { "requested": false, "skippedReason": null, "results": [] }
 }
 ```
 
-See the full report contract and example artifact in [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md), and the one-minute terminal transcript in [docs/DEMO.md](docs/DEMO.md).
+`apply` refuses to run unless `decision.json.apply_allowed` is `true`. See the full report contract and example artifact in [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md), and the one-minute terminal transcript in [docs/DEMO.md](docs/DEMO.md).
 
 ## Main Surface
 
@@ -210,7 +240,7 @@ For comparison and positioning: [docs/WHY-NEKOWORK.md](docs/WHY-NEKOWORK.md).
 
 Current repository version: `0.1.0-alpha.12` · Current npm alpha: `@ps-neko/nekowork@0.1.0-alpha.12` (published 2026-05-26, `@alpha` dist-tag). Package: `@ps-neko/nekowork`. CLI: `nekowork` (`harness` is a legacy alias). Default: mock providers, no API keys.
 
-Verification: `npm run lint` pass · `npm test` 501 tests pass · `npm audit --audit-level=moderate` 0 vulns · `npm pack --dry-run --json` pass · `npx -y @ps-neko/nekowork@alpha check` pass with warnings only.
+Verification: `npm run lint` pass · `npm test` 532 tests pass · `npm audit --audit-level=moderate` 0 vulns · `npm pack --dry-run --json` pass · `npx -y @ps-neko/nekowork@alpha check` pass with warnings only.
 
 Live provider auth delegates to local CLI sessions (`claude auth status`, `codex login`, `gemini`); long-lived API key env vars (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `GOOGLE_API_KEY`) are blocked unless `HARNESS_AUTH_ALLOW_ENV_OVERRIDE=1`. See [docs/SETUP.md](docs/SETUP.md).
 
