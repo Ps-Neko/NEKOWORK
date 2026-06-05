@@ -106,12 +106,20 @@ function envSuggestsSecret(name) {
 /**
  * Strip comments while preserving line count and char offsets, so line
  * indices computed against the stripped text still map to the original.
+ *
+ * The negative lookbehind (?<!:) prevents treating the "//" inside URL
+ * schemes like "https://" as a line-comment start.  Without it, any content
+ * after "https://..." on the same line (including a real secret fallback) is
+ * wiped, producing a false negative.
  */
 function stripCommentsPreservingOffsets(text) {
   let result = text.replace(/\/\*[\s\S]*?\*\//g, (m) =>
     m.replace(/[^\n]/g, ' '),
   );
-  result = result.replace(/\/\/[^\n]*/g, (m) => ' '.repeat(m.length));
+  // (?<!:) ensures we do NOT treat the "//" in "https://" / "ftp://" etc. as
+  // a comment start.  A colon immediately before "//" means it is part of a
+  // URL scheme, not a JS/TS line comment.
+  result = result.replace(/(?<!:)\/\/[^\n]*/g, (m) => ' '.repeat(m.length));
   return result;
 }
 
