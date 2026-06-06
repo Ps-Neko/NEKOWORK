@@ -96,7 +96,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Security hardening gate
-        run: pnpm --filter @ps-neko/nekowork run security:hardening
+        run: pnpm --filter @ps-neko/nekowork-harness run security:hardening
 
       - name: Dependency audit
         run: pnpm audit --audit-level=moderate
@@ -139,10 +139,13 @@ jobs:
           node packages/nekowork-cli/scripts/ci/catalog.js
           node packages/nekowork-cli/scripts/ci/check-markers.js
 
-      - name: nekowork-cli typecheck
-        run: pnpm --filter @ps-neko/nekowork run typecheck
+      - name: nekowork-harness typecheck
+        run: pnpm --filter @ps-neko/nekowork-harness run typecheck
 
-      - name: nekowork-cli tests
+      - name: nekowork-harness tests
+        run: pnpm --filter @ps-neko/nekowork-harness run test
+
+      - name: nekowork slim tests
         run: pnpm --filter @ps-neko/nekowork run test
 
       - name: Build projections
