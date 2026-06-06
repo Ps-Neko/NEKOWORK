@@ -114,8 +114,9 @@ test('README quickstart, CLI stage docs, and package metadata agree on verify-fi
   assert.doesNotMatch(quickstart, /nekowork@alpha report\b/);
   assert.doesNotMatch(quickstart, /nekowork@alpha apply\b/);
   assert.doesNotMatch(quickstart, /work -> verify -> ship/);
-  // CLI-STAGES.md 는 별도 PR 에서 verify-pr 흐름으로 갱신 — 1.0 정렬 전까지 legacy 표현 유지
-  assert.match(stages, /check -> start -> report -> gate status/);
+  // CLI-STAGES.md 는 1.0 front surface (check + verify-pr) 로 정렬됨 — start 는 compatibility 경로로 강등
+  assert.match(stages, /check -> verify-pr/);
+  assert.doesNotMatch(stages, /Most users should start with this Beginner path/);
 });
 
 test('integration docs keep upstream domain workflow outside the core runtime', () => {

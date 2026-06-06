@@ -273,7 +273,7 @@ nekowork apply --session <id>
 - records `APPLIED_DIFF`
 - leaves commit, push, PR, release, publish, and deploy to the human
 
-`apply` is never implicit in the default beginner path. It only runs when the user explicitly asks for it through `apply` or `run --apply`.
+`apply` is never implicit in the default path. It only runs when the user explicitly asks for it through `apply` or `run --apply`.
 
 ## Run Mode
 

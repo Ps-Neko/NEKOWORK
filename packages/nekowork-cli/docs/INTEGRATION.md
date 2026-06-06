@@ -64,7 +64,7 @@ Do not run the full hybrid workflow for every task.
 
 | Work type | Recommended path |
 |---|---|
-| Bug fix, refactor, or docs-only change | `start -> report -> gate status -> apply` (apply only when `SHIP_READY` and gate is clear) |
+| Bug fix, refactor, or docs-only change | `check` then `verify-pr` (read-only gate; ends at the human merge decision). Session-based `apply` is a separate compatibility step, allowed only after a completed work cycle with `SHIP_READY` and a cleared Human Gate. |
 | Small feature with clear domain | Upstream brainstorm or writing plan -> NEKOWORK safety gate |
 | Large feature with unclear domain | Domain interview + `context.md` + `DOMAIN.md` + `SPEC.md` + `PLAN.md` -> full NEKOWORK cycle |
 | Prototype or throwaway experiment | Use the upstream workflow only; skip NEKOWORK unless the result will be applied to a real repo |
