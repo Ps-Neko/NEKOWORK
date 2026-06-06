@@ -96,7 +96,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Security hardening gate
-        run: pnpm --filter @ps-neko/nekowork run security:hardening
+        run: pnpm --filter @ps-neko/nekowork-harness run security:hardening
 
       - name: Dependency audit
         run: pnpm audit --audit-level=moderate
