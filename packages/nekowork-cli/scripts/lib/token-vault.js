@@ -112,10 +112,20 @@ export async function list() {
 
 // ── redact / audit (sync 유지) ──
 // secret_redaction: agent.yaml security.secret_redaction 와 동기.
+// 알려진 공급자 패턴을 명시적으로 먼저 처리하고,
+// 잔여 긴 토큰(20+ char)을 catch-all 로 마스킹한다.
 export function redact(s) {
   if (typeof s !== 'string' || !s) return s;
+  // GitHub tokens
   let out = s.replace(/\bgh[opsur]_[A-Za-z0-9]{20,}\b/g, '***REDACTED-GH***');
-  out = out.replace(/\b[A-Za-z0-9_-]{40,}\b/g, '***REDACTED***');
+  // Anthropic API keys: sk-ant-...
+  out = out.replace(/\bsk-ant-[A-Za-z0-9_-]{20,}\b/g, '***REDACTED-ANT***');
+  // Stripe secret keys: sk_live_... / sk_test_...
+  out = out.replace(/\bsk_(live|test)_[A-Za-z0-9]{20,}\b/g, '***REDACTED-STRIPE***');
+  // OpenAI API keys: sk-... (Anthropic pattern above takes priority via ordering)
+  out = out.replace(/\bsk-[A-Za-z0-9]{20,}\b/g, '***REDACTED-OPENAI***');
+  // Generic catch-all: any 20+ char alphanumeric/underscore/hyphen token
+  out = out.replace(/\b[A-Za-z0-9_-]{20,}\b/g, '***REDACTED***');
   return out;
 }
 
