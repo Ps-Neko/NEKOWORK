@@ -3,9 +3,9 @@ import path from 'node:path';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { dispatch } from '../agents/dispatch.js';
-import { ensureAcceptanceCriteria } from '../lib/acceptance-criteria.js';
-import { writeDecision } from '../lib/decision.js';
-import { classifyRisk, gateReasonFromFindings } from '../lib/risk-classifier.js';
+import { ensureAcceptanceCriteria } from '@ps-neko/nekowork/scripts/lib/acceptance-criteria.js';
+import { writeDecision } from '@ps-neko/nekowork/scripts/lib/decision.js';
+import { classifyRisk, gateReasonFromFindings } from '@ps-neko/nekowork/scripts/lib/risk-classifier.js';
 import { gateStatus } from './gate.js';
 import { readPriorHandoffs, latestStageHandoff, nextRound, readJsonIfExists } from './_handoff-utils.js';
 

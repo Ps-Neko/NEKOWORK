@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { buildDecision, writeDecision } from '../../scripts/lib/decision.js';
+import { buildDecision, writeDecision } from '@ps-neko/nekowork/scripts/lib/decision.js';
 import { rmrf } from '../helpers/tmp.js';
 
 function seedSession() {

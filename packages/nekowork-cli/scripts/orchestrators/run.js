@@ -4,7 +4,7 @@ import { workCycle } from './work.js';
 import { verifyCycle } from './verify.js';
 import { shipCycle } from './ship.js';
 import { applyCycle } from './apply.js';
-import { writeDecision } from '../lib/decision.js';
+import { writeDecision } from '@ps-neko/nekowork/scripts/lib/decision.js';
 
 export async function runCycle(opts) {
   const harnessRoot = opts.harnessRoot || process.cwd();

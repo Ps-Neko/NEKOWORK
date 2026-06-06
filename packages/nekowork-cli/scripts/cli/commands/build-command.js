@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { buildCycle } from '../../orchestrators/build.js';
-import { buildDecision } from '../../lib/decision.js';
+import { buildDecision } from '@ps-neko/nekowork/scripts/lib/decision.js';
 
 export function parseBuildArgs(argv, usageError) {
   const opts = {

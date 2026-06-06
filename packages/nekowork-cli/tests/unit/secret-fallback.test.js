@@ -7,8 +7,8 @@ import {
   scanFileContent,
   scanAddedLines,
   scanDiff,
-} from '../../scripts/lib/rules/secret-fallback.js';
-import { parseDiff } from '../../scripts/lib/diff-parser.js';
+} from '@ps-neko/nekowork/scripts/lib/rules/secret-fallback.js';
+import { parseDiff } from '@ps-neko/nekowork/scripts/lib/diff-parser.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURE_ROOT = path.resolve(__dirname, '..', 'fixtures', 'secret-fallback');

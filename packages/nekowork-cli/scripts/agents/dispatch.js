@@ -12,7 +12,7 @@ import { runGemini } from './runners/gemini.js';
 import { runInternal } from './runners/internal.js';
 import { decide as routeDecide, trace as routeTrace } from '../lib/router.js';
 import { record as costRecord } from '../lib/costs.js';
-import { classifyRisk } from '../lib/risk-classifier.js';
+import { classifyRisk } from '@ps-neko/nekowork/scripts/lib/risk-classifier.js';
 
 const RUNNERS = {
   mock: runMock,

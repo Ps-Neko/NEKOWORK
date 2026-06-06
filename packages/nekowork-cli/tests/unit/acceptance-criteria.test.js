@@ -8,7 +8,7 @@ import {
   ensureAcceptanceCriteria,
   normalizeAcceptanceCriteria,
   readAcceptanceCriteria,
-} from '../../scripts/lib/acceptance-criteria.js';
+} from '@ps-neko/nekowork/scripts/lib/acceptance-criteria.js';
 import { rmrf } from '../helpers/tmp.js';
 
 test('normalizes string and object acceptance criteria', () => {

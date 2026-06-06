@@ -19,7 +19,7 @@ import { withGitMutationGuard } from '../../core/git-mutation-guard.js';
 import { extractJson } from '../../core/json-extractor.js';
 import { spawnAndCollect } from '../../core/subprocess.js';
 import { renderUpstreamPromptSection } from '../../lib/upstream-artifacts.js';
-import { classifyCategory, classifySeverity, deriveVerdict, severityCounts } from '../../lib/severity.js';
+import { classifyCategory, classifySeverity, deriveVerdict, severityCounts } from '@ps-neko/nekowork/scripts/lib/severity.js';
 
 export async function runCodex(args) {
   assertDelegatedCliAuth('codex');

@@ -23,13 +23,13 @@ import {
   parseDiff,
   getGitDiff,
   loadDiffFile,
-} from '../lib/diff-parser.js';
-import { detectProject } from '../lib/project-detector.js';
-import { scanDiff as scanSecretFallback } from '../lib/rules/secret-fallback.js';
-import { scanDiff as scanAutoApply } from '../lib/rules/auto-apply-commit-push.js';
-import { scanDiff as scanHardcodedCredential } from '../lib/rules/hardcoded-credential.js';
-import { scanDiff as scanTestDisable } from '../lib/rules/test-or-security-disable.js';
-import { scanDiff as scanPackageRisk } from '../lib/rules/package-lockfile-risk.js';
+} from '@ps-neko/nekowork/scripts/lib/diff-parser.js';
+import { detectProject } from '@ps-neko/nekowork/scripts/lib/project-detector.js';
+import { scanDiff as scanSecretFallback } from '@ps-neko/nekowork/scripts/lib/rules/secret-fallback.js';
+import { scanDiff as scanAutoApply } from '@ps-neko/nekowork/scripts/lib/rules/auto-apply-commit-push.js';
+import { scanDiff as scanHardcodedCredential } from '@ps-neko/nekowork/scripts/lib/rules/hardcoded-credential.js';
+import { scanDiff as scanTestDisable } from '@ps-neko/nekowork/scripts/lib/rules/test-or-security-disable.js';
+import { scanDiff as scanPackageRisk } from '@ps-neko/nekowork/scripts/lib/rules/package-lockfile-risk.js';
 import { runChecks } from '../lib/check-runner.js';
 
 const SCHEMA_VERSION = 'verify-pr-v0';

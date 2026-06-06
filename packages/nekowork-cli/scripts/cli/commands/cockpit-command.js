@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
-import { buildDecision } from '../../lib/decision.js';
+import { buildDecision } from '@ps-neko/nekowork/scripts/lib/decision.js';
 import { paint } from '../../lib/ui-format.js';
 
 export async function runCockpitCommand({

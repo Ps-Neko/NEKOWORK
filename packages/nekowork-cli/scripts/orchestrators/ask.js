@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildDefaultAcceptanceCriteria } from '../lib/acceptance-criteria.js';
-import { classifyRisk } from '../lib/risk-classifier.js';
+import { buildDefaultAcceptanceCriteria } from '@ps-neko/nekowork/scripts/lib/acceptance-criteria.js';
+import { classifyRisk } from '@ps-neko/nekowork/scripts/lib/risk-classifier.js';
 import { profilePolicy } from '../lib/profile-policy.js';
 import { loadUpstreamArtifact, hasAnyUpstream } from '../lib/upstream-artifacts.js';
 

@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { detectProject } from '../../scripts/lib/project-detector.js';
+import { detectProject } from '@ps-neko/nekowork/scripts/lib/project-detector.js';
 import { rmrf } from '../helpers/tmp.js';
 
 function makeTempDir() {
