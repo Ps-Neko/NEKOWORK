@@ -210,7 +210,7 @@ jobs:
 
       - name: Upload hero GIF artifact (PR review aid)
         if: always() && hashFiles('packages/nekowork-cli/docs/assets/hero.gif') != ''
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: hero-gif
           path: packages/nekowork-cli/docs/assets/hero.gif
