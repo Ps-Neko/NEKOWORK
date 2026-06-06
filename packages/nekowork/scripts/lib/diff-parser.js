@@ -208,7 +208,7 @@ export function getGitDiff(opts = {}) {
     if (ls.status !== 0) {
       throw new Error(`git ls-files exited ${ls.status}: ${ls.stderr || ''}`);
     }
-    const tracked = (ls.stdout || '').split('\n').map(s => s.trim()).filter(Boolean);
+    const tracked = (ls.stdout || '').split('\n').map(s => s.trim()).filter(Boolean).filter(p => !isSelfOutput(p));
     let stdout = synthesizeFilesAsDiff(cwd, tracked);
     if (includeUntracked) stdout += synthesizeUntrackedDiff(cwd);
     return parseDiff(appendIncluded(stdout));
@@ -248,10 +248,20 @@ export function getGitDiff(opts = {}) {
   return parseDiff(appendIncluded(stdout));
 }
 
+/**
+ * verify-pr writes its own output to `REPORT.md` and `.nekowork/**`. Those are
+ * the tool's product, not "changes to verify" — scanning them would re-flag the
+ * secret/risk text stored in its own evidence on the next run (self-
+ * contamination). Exclude them from every synthesized diff.
+ */
+function isSelfOutput(relPath) {
+  return relPath === 'REPORT.md' || relPath.startsWith('.nekowork/');
+}
+
 function synthesizeUntrackedDiff(cwd) {
   const ls = spawnSync('git', ['ls-files', '--others', '--exclude-standard'], { cwd, encoding: 'utf8', windowsHide: true });
   if (ls.status !== 0 || !ls.stdout) return '';
-  const files = ls.stdout.split('\n').map(s => s.trim()).filter(Boolean);
+  const files = ls.stdout.split('\n').map(s => s.trim()).filter(Boolean).filter(p => !isSelfOutput(p));
   return synthesizeFilesAsDiff(cwd, files);
 }
 
