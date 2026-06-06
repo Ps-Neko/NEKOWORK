@@ -24,7 +24,7 @@
 //   <repo>/packages/nekowork/tests/fixtures/live-ai/captures/<timestamp>-<tool>-<task-id>.patch
 //   <repo>/packages/nekowork/tests/fixtures/live-ai/captures.csv
 
-import { execSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -72,13 +72,25 @@ function doStart({ workspace, tool, model, 'task-id': taskId, prompt }) {
   }
   // Workspace must be clean — otherwise the snapshot diff will include
   // unrelated changes. We tolerate untracked files.
-  const statusBuf = execSync('git status --porcelain', { cwd: workspace, encoding: 'utf8' });
+  const statusResult = spawnSync('git', ['status', '--porcelain'], { cwd: workspace, encoding: 'utf8', windowsHide: true });
+  if (statusResult.error) throw statusResult.error;
+  if (statusResult.status !== 0) {
+    console.error(`git status failed: ${statusResult.stderr || ''}`);
+    process.exit(1);
+  }
+  const statusBuf = statusResult.stdout || '';
   const dirty = statusBuf.split('\n').filter(l => l && !l.startsWith('??')).length > 0;
   if (dirty) {
     console.error(`Workspace has uncommitted tracked changes:\n${statusBuf}\nCommit or stash before \`start\`.`);
     process.exit(1);
   }
-  const startSha = execSync('git rev-parse HEAD', { cwd: workspace, encoding: 'utf8' }).trim();
+  const revResult = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: workspace, encoding: 'utf8', windowsHide: true });
+  if (revResult.error) throw revResult.error;
+  if (revResult.status !== 0) {
+    console.error(`git rev-parse HEAD failed: ${revResult.stderr || ''}`);
+    process.exit(1);
+  }
+  const startSha = revResult.stdout.trim();
 
   const stateDir = path.join(workspace, '.nekowork-capture');
   fs.mkdirSync(stateDir, { recursive: true });
@@ -116,11 +128,29 @@ function doSnapshot({ workspace }) {
   }
   const session = JSON.parse(fs.readFileSync(sessionPath, 'utf8'));
 
+  // Validate starting_sha to prevent command injection.
+  if (!/^[0-9a-f]{7,40}$/.test(session.starting_sha)) {
+    console.error(`Invalid starting_sha in session state: ${session.starting_sha}`);
+    process.exit(1);
+  }
+
   // Snapshot the diff against the starting SHA. Includes untracked + tracked changes.
-  execSync('git add -A', { cwd: workspace });
-  const diff = execSync(`git diff --cached ${session.starting_sha}`, { cwd: workspace, encoding: 'utf8' });
+  const addResult = spawnSync('git', ['add', '-A'], { cwd: workspace, windowsHide: true });
+  if (addResult.error) throw addResult.error;
+  if (addResult.status !== 0) {
+    console.error(`git add -A failed: ${addResult.stderr || ''}`);
+    process.exit(1);
+  }
+  const diffResult = spawnSync('git', ['diff', '--cached', session.starting_sha], { cwd: workspace, encoding: 'utf8', windowsHide: true });
+  if (diffResult.error) throw diffResult.error;
+  if (diffResult.status !== 0) {
+    console.error(`git diff --cached failed: ${diffResult.stderr || ''}`);
+    process.exit(1);
+  }
+  const diff = diffResult.stdout || '';
   // Reset the staging area so the user is left with the same working tree state.
-  execSync('git reset', { cwd: workspace });
+  const resetResult = spawnSync('git', ['reset'], { cwd: workspace, windowsHide: true });
+  if (resetResult.error) throw resetResult.error;
 
   if (!diff.trim()) {
     console.log('No diff produced by this session (no-op). Recording as note: no-op.');

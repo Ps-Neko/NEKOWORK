@@ -254,7 +254,13 @@ function readJson(file) {
 
 function readMarker(file) {
   if (!fs.existsSync(file)) return null;
-  const raw = fs.readFileSync(file, 'utf8');
+  let raw;
+  try {
+    raw = fs.readFileSync(file, 'utf8');
+  } catch {
+    // File removed between existsSync and readFileSync (TOCTOU) — treat as absent.
+    return null;
+  }
   return {
     file,
     raw,
@@ -314,9 +320,15 @@ function maxRisk(levels) {
   const order = ['low', 'medium', 'high', 'critical'];
   let score = 0;
   for (const level of levels.filter(Boolean)) {
-    score = Math.max(score, order.indexOf(level));
+    const idx = order.indexOf(level);
+    if (idx === -1) {
+      // Unknown/unrecognized risk_level — fail closed: treat as critical.
+      score = order.length - 1;
+    } else {
+      score = Math.max(score, idx);
+    }
   }
-  return order[Math.max(0, score)] || 'low';
+  return order[score];
 }
 
 function basename(file) {
