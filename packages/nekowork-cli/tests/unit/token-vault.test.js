@@ -59,6 +59,43 @@ test('redact: 짧은 문자열은 그대로', () => {
   assert.equal(redact('hello'), 'hello');
 });
 
+// ── 신규 regression: 낮춰진 임계값 + 공급자 패턴 ──
+
+test('redact: 32자 순수 알파뉴메릭 키는 마스킹됨 (임계값 20으로 하향)', () => {
+  const key32 = 'a'.repeat(32);
+  assert.equal(redact(key32), '***REDACTED***');
+});
+
+test('redact: 19자 문자열은 catch-all 에 해당 안 됨 (over-redact 방지)', () => {
+  const s = 'a'.repeat(19);
+  assert.equal(redact(s), s);
+});
+
+test('redact: Anthropic sk-ant- 키 마스킹됨', () => {
+  const antKey = 'sk-ant-api03-' + 'A'.repeat(20);
+  assert.ok(redact(antKey).includes('***REDACTED-ANT***'), `expected ANT redaction but got: ${redact(antKey)}`);
+});
+
+test('redact: Stripe sk_live_ 키 마스킹됨', () => {
+  const stripeKey = 'sk_live_' + 'B'.repeat(24);
+  assert.ok(redact(stripeKey).includes('***REDACTED-STRIPE***'), `expected STRIPE redaction but got: ${redact(stripeKey)}`);
+});
+
+test('redact: Stripe sk_test_ 키 마스킹됨', () => {
+  const stripeTestKey = 'sk_test_' + 'C'.repeat(24);
+  assert.ok(redact(stripeTestKey).includes('***REDACTED-STRIPE***'), `expected STRIPE redaction but got: ${redact(stripeTestKey)}`);
+});
+
+test('redact: OpenAI sk- 키 마스킹됨', () => {
+  const openaiKey = 'sk-' + 'D'.repeat(48);
+  assert.ok(redact(openaiKey).includes('***REDACTED-OPENAI***') || redact(openaiKey).includes('***REDACTED***'), `expected OPENAI/generic redaction but got: ${redact(openaiKey)}`);
+});
+
+test('redact: 일반 짧은 단어는 마스킹 안 됨', () => {
+  assert.equal(redact('normalword'), 'normalword');
+  assert.equal(redact('short'), 'short');
+});
+
 test('audit: access_token / token 키 자동 redact, 다른 키는 보존', () => {
   process.env.HARNESS_TOKEN_STORE_KIND = 'encrypted-file';
   audit('test.event', { access_token: 'sec', token: 'tk', other: 'visible' });
