@@ -13,7 +13,7 @@ import { runCockpitCommand } from './cli/commands/cockpit-command.js';
 import { paint, kvBlock, nextBlock } from './lib/ui-format.js';
 import { normalizeFlags } from './lib/flag-normalize.js';
 import { renderError } from './lib/ui-errors.js';
-import { resolveSessionId } from './lib/session-resolver.js';
+import { resolveSessionId } from '@ps-neko/nekowork/scripts/lib/session-resolver.js';
 import { isNewId } from './lib/session-id.js';
 
 function displayShortId(sessionId) {

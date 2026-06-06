@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { resolveSessionId } from '../../scripts/lib/session-resolver.js';
+import { resolveSessionId } from '@ps-neko/nekowork/scripts/lib/session-resolver.js';
 
 function tmpProject(sessions) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'nw-sess-'));

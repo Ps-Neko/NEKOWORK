@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { applyExecutionDiff } from '../core/execution-workspace.js';
 import { readGitStatus } from '../core/git-mutation-guard.js';
-import { writeDecision } from '../lib/decision.js';
+import { writeDecision } from '@ps-neko/nekowork/scripts/lib/decision.js';
 import { gateStatus } from './gate.js';
 import { readPriorHandoffs, latestStageHandoff } from './_handoff-utils.js';
 

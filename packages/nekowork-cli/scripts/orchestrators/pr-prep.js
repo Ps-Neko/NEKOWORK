@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { resolveSessionId } from '../lib/session-resolver.js';
+import { resolveSessionId } from '@ps-neko/nekowork/scripts/lib/session-resolver.js';
 import {
   reportSession,
   _deriveStatus,

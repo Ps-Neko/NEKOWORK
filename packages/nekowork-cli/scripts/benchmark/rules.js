@@ -21,35 +21,35 @@ const FIXTURE_ROOT = path.join(ROOT, 'tests', 'fixtures');
 const RULES = [
   {
     id: 'secret-fallback',
-    module: '../lib/rules/secret-fallback.js',
+    module: '@ps-neko/nekowork/scripts/lib/rules/secret-fallback.js',
     fixtureDir: 'secret-fallback',
     fpMode: 'any', // negative = ANY finding counts as FP
     targets: { recall: 0.90, fp: 0.10 },
   },
   {
     id: 'auto-apply-commit-push',
-    module: '../lib/rules/auto-apply-commit-push.js',
+    module: '@ps-neko/nekowork/scripts/lib/rules/auto-apply-commit-push.js',
     fixtureDir: 'auto-apply-commit-push',
     fpMode: 'critical', // negative = CRITICAL findings only count as FP
     targets: { recall: 0.90, fp: 0.10 },
   },
   {
     id: 'hardcoded-credential',
-    module: '../lib/rules/hardcoded-credential.js',
+    module: '@ps-neko/nekowork/scripts/lib/rules/hardcoded-credential.js',
     fixtureDir: 'hardcoded-credential',
     fpMode: 'critical',
     targets: { recall: 0.90, fp: 0.10 },
   },
   {
     id: 'test-or-security-disable',
-    module: '../lib/rules/test-or-security-disable.js',
+    module: '@ps-neko/nekowork/scripts/lib/rules/test-or-security-disable.js',
     fixtureDir: 'test-or-security-disable',
     fpMode: 'critical',
     targets: { recall: 0.90, fp: 0.10 },
   },
   {
     id: 'package-lockfile-risk',
-    module: '../lib/rules/package-lockfile-risk.js',
+    module: '@ps-neko/nekowork/scripts/lib/rules/package-lockfile-risk.js',
     fixtureDir: 'package-lockfile-risk',
     fpMode: 'critical',
     targets: { recall: 0.90, fp: 0.10 },

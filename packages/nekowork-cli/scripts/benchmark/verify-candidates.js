@@ -22,11 +22,11 @@ const ROOT = path.resolve(__dirname, '..', '..');
 const FIXTURE_ROOT = path.join(ROOT, 'tests', 'fixtures');
 
 const RULE_MODULES = {
-  'secret-fallback': '../lib/rules/secret-fallback.js',
-  'auto-apply-commit-push': '../lib/rules/auto-apply-commit-push.js',
-  'hardcoded-credential': '../lib/rules/hardcoded-credential.js',
-  'test-or-security-disable': '../lib/rules/test-or-security-disable.js',
-  'package-lockfile-risk': '../lib/rules/package-lockfile-risk.js',
+  'secret-fallback': '@ps-neko/nekowork/scripts/lib/rules/secret-fallback.js',
+  'auto-apply-commit-push': '@ps-neko/nekowork/scripts/lib/rules/auto-apply-commit-push.js',
+  'hardcoded-credential': '@ps-neko/nekowork/scripts/lib/rules/hardcoded-credential.js',
+  'test-or-security-disable': '@ps-neko/nekowork/scripts/lib/rules/test-or-security-disable.js',
+  'package-lockfile-risk': '@ps-neko/nekowork/scripts/lib/rules/package-lockfile-risk.js',
 };
 
 const args = parseArgs(process.argv.slice(2));

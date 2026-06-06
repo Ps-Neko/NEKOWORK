@@ -2,10 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { runCycle } from './run.js';
 import { teamCycle } from './team.js';
-import { normalizeAcceptanceCriteria } from '../lib/acceptance-criteria.js';
+import { normalizeAcceptanceCriteria } from '@ps-neko/nekowork/scripts/lib/acceptance-criteria.js';
 import { analyzeBuildIntent } from '../lib/build-intelligence.js';
 import { assertBuildModeContract, buildModeIds, buildModeSafetyRank } from '../lib/build-modes.js';
-import { writeDecision } from '../lib/decision.js';
+import { writeDecision } from '@ps-neko/nekowork/scripts/lib/decision.js';
 
 const MODE_PRESETS = {
   fast: {

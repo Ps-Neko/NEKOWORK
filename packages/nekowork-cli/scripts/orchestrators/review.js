@@ -13,7 +13,7 @@ import path from 'node:path';
 import { dispatch } from '../agents/dispatch.js';
 import { applyExecutionDiff, withExecutionWorkspace } from '../core/execution-workspace.js';
 import { record as instinctRecord } from '../lib/instincts.js';
-import { isSensitiveWork } from '../lib/risk-classifier.js';
+import { isSensitiveWork } from '@ps-neko/nekowork/scripts/lib/risk-classifier.js';
 import { generateSessionId } from '../lib/session-id.js';
 import { loadUpstreamArtifact, hasAnyUpstream } from '../lib/upstream-artifacts.js';
 
@@ -25,7 +25,7 @@ const STAGE_INDEX = {
 const ROUND_LIMIT = Number(process.env.HARNESS_REVIEW_ROUND_LIMIT || 3);
 // 단어 경계(\b)는 [A-Za-z0-9_] 사이에 매칭하지 않으므로 'session_id' 의 'session' 처럼
 // _ 로 이어진 경우는 매칭 안 됨. 변형은 별도 패턴으로 명시한다.
-export { SENSITIVE_PATTERNS } from '../lib/risk-classifier.js';
+export { SENSITIVE_PATTERNS } from '@ps-neko/nekowork/scripts/lib/risk-classifier.js';
 const LEGACY_SENSITIVE_PATTERNS = [
   // 인증 / 세션 / 시크릿
   /\bauth\b/i, /\bcrypto\b/i, /\bpayment\b/i, /\bsession\b/i,

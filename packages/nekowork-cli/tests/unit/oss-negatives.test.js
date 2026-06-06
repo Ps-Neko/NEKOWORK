@@ -3,11 +3,11 @@ import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { scanFileContent as scanSecretFallback } from '../../scripts/lib/rules/secret-fallback.js';
-import { scanFileContent as scanAutoApply } from '../../scripts/lib/rules/auto-apply-commit-push.js';
-import { scanFileContent as scanHardcodedCredential } from '../../scripts/lib/rules/hardcoded-credential.js';
-import { scanFileContent as scanTestDisable } from '../../scripts/lib/rules/test-or-security-disable.js';
-import { scanFileContent as scanPackageRisk } from '../../scripts/lib/rules/package-lockfile-risk.js';
+import { scanFileContent as scanSecretFallback } from '@ps-neko/nekowork/scripts/lib/rules/secret-fallback.js';
+import { scanFileContent as scanAutoApply } from '@ps-neko/nekowork/scripts/lib/rules/auto-apply-commit-push.js';
+import { scanFileContent as scanHardcodedCredential } from '@ps-neko/nekowork/scripts/lib/rules/hardcoded-credential.js';
+import { scanFileContent as scanTestDisable } from '@ps-neko/nekowork/scripts/lib/rules/test-or-security-disable.js';
+import { scanFileContent as scanPackageRisk } from '@ps-neko/nekowork/scripts/lib/rules/package-lockfile-risk.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURE_ROOT = path.resolve(__dirname, '..', 'fixtures', 'oss-negatives');

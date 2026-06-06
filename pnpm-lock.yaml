@@ -18,6 +18,9 @@ importers:
       '@napi-rs/keyring':
         specifier: ^1.2.0
         version: 1.3.0
+      '@ps-neko/nekowork':
+        specifier: workspace:*
+        version: link:../nekowork
       ajv:
         specifier: ^8.17.1
         version: 8.20.0

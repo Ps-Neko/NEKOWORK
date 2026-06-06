@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
-import { classifyRisk, gateReasonFromFindings, isSensitiveWork, SENSITIVE_PATTERNS } from '../../scripts/lib/risk-classifier.js';
+import { classifyRisk, gateReasonFromFindings, isSensitiveWork, SENSITIVE_PATTERNS } from '@ps-neko/nekowork/scripts/lib/risk-classifier.js';
 
 test('risk classifier tags financial UI work and requires challenge plus human gate', () => {
   const result = classifyRisk({ task: 'stock trading dashboard mockup with mock-only broker orders' });

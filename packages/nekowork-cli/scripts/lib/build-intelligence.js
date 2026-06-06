@@ -1,4 +1,4 @@
-import { classifyRisk } from './risk-classifier.js';
+import { classifyRisk } from '@ps-neko/nekowork/scripts/lib/risk-classifier.js';
 
 const RELEASE_RE = /\b(release|changelog|version|npm|publish|package|dist[- ]tag|release notes|tag)\b/i;
 const TEST_RE = /\b(test|tests|testing|tdd|coverage|spec|regression|unit|e2e|integration)\b/i;

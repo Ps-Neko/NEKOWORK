@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { dispatch } from '../agents/dispatch.js';
-import { ensureAcceptanceCriteria } from '../lib/acceptance-criteria.js';
+import { ensureAcceptanceCriteria } from '@ps-neko/nekowork/scripts/lib/acceptance-criteria.js';
 import { profilePolicy } from '../lib/profile-policy.js';
 import { withExecutionWorkspace } from '../core/execution-workspace.js';
 import { generateSessionId } from '../lib/session-id.js';

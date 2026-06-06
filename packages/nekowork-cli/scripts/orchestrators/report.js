@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { writeDecision } from '../lib/decision.js';
-import { resolveSessionId } from '../lib/session-resolver.js';
+import { writeDecision } from '@ps-neko/nekowork/scripts/lib/decision.js';
+import { resolveSessionId } from '@ps-neko/nekowork/scripts/lib/session-resolver.js';
 
 const SUMMARY_FILES = [
   'ask.json',

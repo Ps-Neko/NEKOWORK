@@ -13,7 +13,7 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
-import { classifyCategory, classifySeverity, severityCounts, deriveVerdict, riskLevel } from '../scripts/lib/severity.js';
+import { classifyCategory, classifySeverity, severityCounts, deriveVerdict, riskLevel } from '@ps-neko/nekowork/scripts/lib/severity.js';
 import { decide as routeDecide } from '../scripts/lib/router.js';
 import { record as costRecord, list as costList, summarize as costSummarize } from '../scripts/lib/costs.js';
 
