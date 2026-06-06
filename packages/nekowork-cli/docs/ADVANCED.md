@@ -12,7 +12,8 @@
 > | Phase 1 | 0.3.x → 1.0 | `[deprecated]` 마크 + "removed in 2.0" 경고 |
 > | Phase 2 | 1.x → 2.0 | 제거 또는 `@ps-neko/nekowork-legacy` 분리 |
 >
-> 1.0 의 hero 명령 4종 — `check / verify-pr / report / apply` — 으로 이주를 권장합니다.
+> 1.0 의 front surface 2종 — `check` / `verify-pr` (read-only 검증 게이트) — 로 이주를 권장합니다.
+> `report` / `apply` 는 session 기반 compatibility 명령으로 강등됩니다 (`apply` 는 SHIP_READY + cleared gate 필요, `decision.json.apply_allowed` 가 트리거가 아님).
 > 명령별 운명은 [SCOPE-1.0.md §3](SCOPE-1.0.md#3-명령-운명-표) 참고.
 > 장기 비전은 [VISION.md](VISION.md) 참고.
 

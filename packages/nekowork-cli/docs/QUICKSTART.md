@@ -147,7 +147,10 @@ or any paid API.
 NEKOWORK also ships a larger session-based runtime — `ask`, `plan`, `team`, `work`,
 `verify`, `gate`, `ship`, `run`, `build`, `review`, and more. These remain functional
 but are **being phased out of the first-run path** in favor of `verify-pr`. The
-recommended hero commands for 1.0 are `check / verify-pr / report / apply`.
+recommended front-surface commands for 1.0 are `check` and `verify-pr` (the
+read-only verification gate). `report` and `apply` remain as session-based
+compatibility commands — `apply` requires a completed work cycle (SHIP_READY +
+cleared Human Gate), not `decision.json.apply_allowed`.
 
 See [ADVANCED.md](ADVANCED.md) for the full runtime surface and the
 [Phased Cut plan](SCOPE-1.0.md#2-phased-cut-단계).
