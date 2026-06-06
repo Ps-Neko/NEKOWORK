@@ -25,6 +25,15 @@ runs:
 
     - name: Run nekowork verify-pr
       shell: bash
+      env:
+        # Pass the caller's args through an intermediate env var, NOT a ${{ }}
+        # template inside `run:`. Templating untrusted input directly into the
+        # run script is the classic GitHub Actions script-injection vector;
+        # the env-var indirection prevents it. Unquoted below so multiple flags
+        # word-split as intended. Do not invoke this Action from untrusted PR
+        # contexts with attacker-controlled args.
+        NEKO_ARGS: ${{ inputs.args }}
       run: |
         set -euo pipefail
-        npx -y @ps-neko/nekowork verify-pr ${{ inputs.args }}
+        # shellcheck disable=SC2086
+        npx -y @ps-neko/nekowork verify-pr ${NEKO_ARGS}
