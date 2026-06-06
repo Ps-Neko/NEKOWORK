@@ -111,7 +111,7 @@ node scripts/cli.js check
 node scripts/cli.js verify-pr
 ```
 
-> **Reproducibility note:** `npx @ps-neko/nekowork@alpha` resolves to the most recently published alpha. The published alpha may lag behind `main`. Pin an exact version (e.g. `@ps-neko/nekowork@0.2.0-alpha.3`) for reproducible behavior.
+> **Reproducibility note:** `npx @ps-neko/nekowork@alpha` resolves to the most recently published alpha. The published alpha may lag behind `main`. Pin an exact version (e.g. `@ps-neko/nekowork@0.2.0-alpha.4`) for reproducible behavior.
 
 Compatibility / legacy commands (`cockpit`, `start`, `ask`, `plan`, `team`, `work`, `verify`, `gate`, `ship`, `run`, `build`, `auto`, `pr-prep`, `report --session`, `apply --session`, `review`) are documented in [docs/ADVANCED.md](docs/ADVANCED.md). They are scheduled for deprecation in 2.0 per [SCOPE-1.0.md](docs/SCOPE-1.0.md).
 
@@ -269,7 +269,7 @@ For comparison and positioning: [docs/WHY-NEKOWORK.md](docs/WHY-NEKOWORK.md).
 
 ## Status
 
-Current repository version: `0.1.0-alpha.12` (the internal harness runtime `@ps-neko/nekowork-harness` — `private`, source-checkout only, not published) · Current npm alpha: `@ps-neko/nekowork@0.2.0-alpha.3` (the public slim verification gate, `@alpha` dist-tag). CLI: `nekowork` (`harness` is a legacy alias). Default: mock providers, no API keys.
+Current repository version: `0.1.0-alpha.12` (the internal harness runtime `@ps-neko/nekowork-harness` — `private`, source-checkout only, not published) · Current npm alpha: `@ps-neko/nekowork@0.2.0-alpha.4` (the public slim verification gate, `@alpha` dist-tag). CLI: `nekowork` (`harness` is a legacy alias). Default: mock providers, no API keys.
 
 Verification: `npm run lint` pass · `npm test` 533 tests pass · `npm audit --audit-level=moderate` 0 vulns · `npm pack --dry-run --json` pass · `npx -y @ps-neko/nekowork@alpha check` pass with warnings only.
 
