@@ -70,6 +70,7 @@ jobs:
           filters: |
             cli:
               - 'packages/nekowork-cli/**'
+              - 'packages/nekowork/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
@@ -248,21 +249,23 @@ jobs:
           npm pack --dry-run --json > /tmp/pack.json
           jq -r '.[0] | "size=\(.size) unpackedSize=\(.unpackedSize)"' /tmp/pack.json
 
-      - name: Tarball size delta assertion (< 1MB vs alpha.11 baseline)
+      - name: Tarball size ceiling assertion (< 2MB unpacked)
         run: |
           set -euo pipefail
-          ALPHA11_SIZE=$(npm view @ps-neko/nekowork@0.1.0-alpha.11 dist.unpackedSize)
           CURRENT_SIZE=$(jq -r '.[0].unpackedSize' /tmp/pack.json)
-          DELTA=$((CURRENT_SIZE - ALPHA11_SIZE))
-          MAX_DELTA=1048576
-          echo "alpha.11 baseline:    ${ALPHA11_SIZE} bytes"
-          echo "current pack:         ${CURRENT_SIZE} bytes"
-          echo "delta:                ${DELTA} bytes (max ${MAX_DELTA})"
-          if [ "$DELTA" -gt "$MAX_DELTA" ]; then
-            echo "::error::npm pack delta ${DELTA} exceeds ${MAX_DELTA} (1MB)"
+          # Ceiling = 2 097 152 bytes (2 MiB) — ~25% headroom over the
+          # measured 1 504 539-byte harness tarball at the time of the
+          # package split. Baseline is in-repo; no external npm registry
+          # fetch required (packages are now separate: nekowork-harness vs
+          # nekowork slim, so comparing against the old published alpha is
+          # meaningless).
+          MAX_SIZE=2097152
+          echo "current pack: ${CURRENT_SIZE} bytes (ceiling ${MAX_SIZE} = 2MiB)"
+          if [ "$CURRENT_SIZE" -gt "$MAX_SIZE" ]; then
+            echo "::error::npm pack unpackedSize ${CURRENT_SIZE} exceeds ${MAX_SIZE} (2MiB ceiling)"
             exit 1
           fi
-          echo "OK npm pack delta within 1MB"
+          echo "OK harness tarball within 2MiB ceiling"
 
       - name: Visualizer absence check (.npmignore working)
         working-directory: packages/nekowork-cli
