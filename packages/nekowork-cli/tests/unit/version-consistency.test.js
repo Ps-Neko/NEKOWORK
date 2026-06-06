@@ -75,7 +75,10 @@ test('README leads with verification gate identity (SCOPE-1.0 Phase 0)', () => {
   assert.match(readme, /local verification gate for AI-generated code/);
   assert.match(readme, /"Verified" means independently reviewed with recorded evidence — not mathematically proven correct/);
   assert.match(readme, /Optional Codex review is recorded as an advisor note only and never controls the verdict/);
-  assert.match(readme, /diff -> deterministic risk rules -> checks \(test\/lint\/typecheck; detected always, executed with --run-checks, escalation-only\) -> evidence package -> deterministic decision -> REPORT\.md -> Human Gate -> explicit apply/);
+  assert.match(readme, /diff -> deterministic risk rules -> checks \(test\/lint\/typecheck; detected always, executed with --run-checks, escalation-only\) -> evidence package -> deterministic decision -> REPORT\.md -> Human Gate -> human merge decision/);
+  // verify-pr (read-only gate) 와 session-based apply (compatibility) 는 분리된 흐름으로 명시되어야 한다
+  assert.match(readme, /Session-based apply \(compatibility, separate\): work -> verify -> ship -> cleared Human Gate -> apply/);
+  assert.match(readme, /verify-pr itself does not apply changes/);
   assert.match(readme, /docs\/SCOPE-1\.0\.md/);
   assert.match(readme, /docs\/VISION\.md/);
   // verify-pr 출력 형식 (alpha.11 onward)
