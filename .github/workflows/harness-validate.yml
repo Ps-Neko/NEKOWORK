@@ -30,18 +30,22 @@ jobs:
           fi
           echo "version smoke: PASS"
 
-      - name: check --json is valid JSON (exit 0)
+      - name: check --json runs and emits valid JSON
         shell: bash
         run: |
           set -euo pipefail
           workdir="$RUNNER_TEMP/nekowork-alpha-smoke"
           mkdir -p "$workdir"
           cd "$workdir"
-          npx -y @ps-neko/nekowork@alpha check --json > check.json
+          # `check`'s exit code reflects ENVIRONMENT health (this throwaway dir is
+          # not a git repo, so the slim gate returns overall FAIL / non-zero), NOT
+          # package health. The smoke only verifies the published package installs,
+          # runs, and emits its structured report — so do not gate on the exit code.
+          npx -y @ps-neko/nekowork@alpha check --json > check.json || true
           node -e "
-            const raw = require('fs').readFileSync('check.json', 'utf8');
-            JSON.parse(raw);
-            console.log('check --json smoke: PASS (valid JSON, ' + raw.length + ' bytes)');
+            const j = JSON.parse(require('fs').readFileSync('check.json', 'utf8'));
+            if (!j.nekowork_version) throw new Error('check output missing nekowork_version');
+            console.log('check --json smoke: PASS (valid JSON, version ' + j.nekowork_version + ')');
           "
 
   changes:
