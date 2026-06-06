@@ -2,7 +2,7 @@ import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 import {
   classifyCategory, classifySeverity, severityCounts, deriveVerdict, riskLevel
-} from '../../scripts/lib/severity.js';
+} from '@ps-neko/nekowork/scripts/lib/severity.js';
 
 test('명시 category 가 있으면 그대로', () => {
   assert.equal(classifyCategory({ category: 'security', summary: 'foo' }), 'security');

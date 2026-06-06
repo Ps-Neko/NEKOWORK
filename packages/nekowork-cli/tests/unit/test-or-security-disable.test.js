@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { scanFileContent } from '../../scripts/lib/rules/test-or-security-disable.js';
+import { scanFileContent } from '@ps-neko/nekowork/scripts/lib/rules/test-or-security-disable.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURE_ROOT = path.resolve(__dirname, '..', 'fixtures', 'test-or-security-disable');

@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
-import { parseDiff, addedLines } from '../../scripts/lib/diff-parser.js';
+import { parseDiff, addedLines } from '@ps-neko/nekowork/scripts/lib/diff-parser.js';
 
 const SIMPLE_DIFF = `diff --git a/src/auth.ts b/src/auth.ts
 index 1111111..2222222 100644
