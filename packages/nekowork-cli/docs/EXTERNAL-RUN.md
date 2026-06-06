@@ -73,7 +73,7 @@ Prefer changes that produce a diff with a clear verdict:
 - check a CI or release workflow
 - verify a PR diff before merging (use `--comment-file` for the GitHub comment)
 - inspect a config/secrets boundary
-- verify a small refactor before apply
+- verify a small refactor (verify-pr is read-only; it writes REPORT.md and decision.json but does not apply)
 
 ## Public Quote Template
 

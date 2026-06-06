@@ -23,7 +23,7 @@ AI 가 만든 코드, 검증 없이는 통과시키지 마세요.
 ### Phase 0 (0.1.x → 0.2.x, 즉시)
 - `nekowork verify-pr` 신규 추가
 - 기존 19개 명령 functional 유지
-- README hero = verify-pr + Beginner 4종만
+- README hero = check + verify-pr (1.0 front surface)
 - Advanced/Legacy 는 `docs/ADVANCED.md` 로 강등 (functional)
 
 ### Phase 1 (0.3.x → 1.0)
@@ -234,7 +234,7 @@ Secret Fallback FP rate     ≤ 0.10
 현재: Beginner hero 명령. `applyCycle` 이 stored .diff 를 workspace 에 적용. auto-commit/push 없음.
 
 **Phase 0 결정: 유지 + 정책 명시.**
-- README hero 에 남기되, "apply 는 decision.apply_allowed=true 일 때만 동작" 명시.
+- README hero 에 남기되, apply 가 session 기반 compatibility 명령임을 명시 (SHIP_READY + gate clear 필요; decision.json.apply_allowed 가 트리거가 아님).
 - `--force` 플래그 동작 확인 후 1.0 에서 정책 명문화 (없으면 추가, 있으면 경고 강화).
 - auto-apply / auto-commit / auto-push 플래그 추가 금지.
 

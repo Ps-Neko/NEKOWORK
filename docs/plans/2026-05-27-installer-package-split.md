@@ -94,7 +94,7 @@ Recommend (a) for v1 — re-evaluate at 1.1.
 nekowork check               # 30-sec environment probe
 nekowork verify-pr           # diff → verdict + REPORT.md + decision.json
 nekowork report              # render an existing decision.json to REPORT.md
-nekowork apply               # apply a stored .diff iff apply_allowed=true
+nekowork apply               # session-based compatibility apply (requires SHIP_READY + cleared Human Gate)
 ```
 
 Everything else exits 1 with: `unknown verb; did you mean to install @ps-neko/nekowork-harness?`
