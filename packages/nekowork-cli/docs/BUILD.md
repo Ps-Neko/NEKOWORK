@@ -1,6 +1,6 @@
 # Build Command
 
-`start` is the beginner alias for `build`. Use it when you want one safe command with verdict-first output:
+`build` and its `start` alias are session-based compatibility commands (scheduled for deprecation in 2.0), not the 1.0 front surface. For the read-only 1.0 verification gate, use `check` and `verify-pr` (see [QUICKSTART.md](QUICKSTART.md)). Reach for `start`/`build` when you want one session-based command with verdict-first output:
 
 ```bash
 nekowork start "implement this safely"
@@ -8,7 +8,7 @@ nekowork report --session latest
 nekowork gate status --session latest
 ```
 
-`build` is NEKOWORK's productivity-first entrypoint. Use it directly when you want explicit mode flags:
+`build` is NEKOWORK's session-based builder wrapper. Use it directly when you want explicit mode flags:
 
 ```bash
 nekowork build "implement this safely"

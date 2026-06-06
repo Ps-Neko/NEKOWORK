@@ -115,7 +115,7 @@ node scripts/cli.js ship "ship readiness" --session work-smoke --project-root <t
 node scripts/cli.js report --session work-smoke --project-root <target>
 node scripts/cli.js apply --session work-smoke --project-root <target>
 node scripts/cli.js run "decomposed wrapper" --session run-smoke --project-root <target>
-node scripts/cli.js start "beginner safe entrypoint" --session start-smoke --project-root <target>
+node scripts/cli.js start "compatibility builder alias" --session start-smoke --project-root <target>
 node scripts/cli.js build "safe builder wrapper" --mode team --session build-smoke --project-root <target>
 node scripts/cli.js auto "bounded autonomy before apply" --level normal --session auto-smoke --project-root <target>
 node scripts/cli.js review "change request" --no-ship --project-root <target>
@@ -168,7 +168,7 @@ ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
 
 `run` is the compatibility-friendly wrapper around the decomposed path. It runs `work -> verify -> ship` and only runs `apply` when `--apply` is explicitly requested and `SHIP_READY` exists. New automation should prefer `run` or the explicit decomposed commands; old automation can continue to use `review` or `review-cycle`.
 
-`start` is the beginner alias for `build`. `build` is the safe one-command builder entrypoint. It defaults to `auto`, classifies task intent, selects a named mode preset (`fast`, `safe`, `team`, `tdd`, `release`) over the existing safe loop, records `build-summary.json`, writes `decision.json`, and keeps apply explicit.
+`build` is a session-based one-command builder wrapper on the advanced/compatibility surface (see [ADVANCED.md](ADVANCED.md)), not part of the 1.0 front surface. It defaults to `auto`, classifies task intent, selects a named mode preset (`fast`, `safe`, `team`, `tdd`, `release`) over the existing safe loop, records `build-summary.json`, writes `decision.json`, and keeps apply explicit. `start` is a compatibility alias for `build`. The 1.0 front surface is `check` + `verify-pr` (read-only verification gate); see [SCOPE-1.0.md](SCOPE-1.0.md).
 
 `ralph` is an advanced repeated-iteration loop. Its default engine remains legacy `review` for compatibility, but `ralph --engine run` repeats the decomposed wrapper and records child run sessions. Ralph does not apply diffs; verified mutation still flows through `apply`.
 

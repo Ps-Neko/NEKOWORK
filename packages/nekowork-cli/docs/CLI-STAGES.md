@@ -20,23 +20,27 @@ ask -> plan -> team -> work -> verify -> gate -> ship -> report -> apply
 | `report` | Summarize session evidence into a readable report. | No project mutation |
 | `apply` | Apply a verified `SHIP_READY` live-work diff. | Controlled project mutation |
 
-## Beginner And Advanced Paths
+## Front Surface, Compatibility, and Advanced Paths
 
-Most users should start with this Beginner path:
+The **1.0 front surface** is two read-only commands. Most users only need these:
 
 ```text
-cockpit -> check -> start -> report -> gate status
+check -> verify-pr
 ```
+
+`check` confirms the environment is ready. `verify-pr` scans the working-tree diff with deterministic risk rules, writes evidence plus `REPORT.md` and `.nekowork/decision.json`, and decides the merge verdict. It is read-only and never applies changes; the flow ends at the human merge decision.
+
+The stages below are **compatibility / labs** commands (session-based gate, decomposed authoring, wrappers, legacy aliases), scheduled for deprecation in 2.0. They remain functional in alpha but are not the front surface.
 
 `cockpit` is the choice-first launcher. In a TTY, `nekowork` opens a guided menu with project state, latest session state, recommended next action, and safe actions such as start, report, PR prep, and apply. In scripts or docs, use `nekowork cockpit --preview` for the same card-style overview without prompting.
 
-The direct Beginner path remains:
+The session-based compatibility path remains:
 
 ```text
-check -> start -> report -> gate status
+cockpit -> start -> report --session -> gate status
 ```
 
-`start` is the beginner alias for the safe `build` entrypoint. It prints the decision first and keeps apply explicit. `build` remains available when you need mode flags; it defaults to `auto`, which classifies task intent and chooses a mode preset over the same evidence loop. `fast`, `safe`, `team`, `tdd`, and `release` tune profile, strictness, Codex challenge, and read-only team thinking; none of them apply by default. Risky manual downgrades from the risk-aware recommendation require `--force-mode`.
+`start` is a compatibility alias for the safe `build` entrypoint (not the 1.0 first-run entrypoint). It prints the decision first and keeps apply explicit. `apply` is session-based: it requires a completed work cycle (a `SHIP_READY` marker and a cleared Human Gate), not `decision.json.apply_allowed`. `build` remains available when you need mode flags; it defaults to `auto`, which classifies task intent and chooses a mode preset over the same evidence loop. `fast`, `safe`, `team`, `tdd`, and `release` tune profile, strictness, Codex challenge, and read-only team thinking; none of them apply by default. Risky manual downgrades from the risk-aware recommendation require `--force-mode`.
 
 Use bounded autonomy when the tool should continue before the apply boundary:
 

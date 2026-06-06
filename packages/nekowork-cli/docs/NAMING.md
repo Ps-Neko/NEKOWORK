@@ -1,8 +1,8 @@
 # Naming
 
-Status date: 2026-05-08
+Status date: 2026-06-06
 
-NEKOWORK keeps one public product name and one main command surface.
+NEKOWORK keeps one public product name and a small, stable command surface.
 
 ## Public Names
 
@@ -12,8 +12,8 @@ NEKOWORK keeps one public product name and one main command surface.
 | npm package | `@ps-neko/nekowork` | Keep stable through alpha. |
 | Primary CLI | `nekowork` | Preferred command name in docs and examples. |
 | Legacy CLI alias | `harness` | Supported for compatibility and internal scripts, but not the main public name. |
-| Main command | `build` | Beginner entrypoint for Safe Build Modes. |
-| Main product surface | Safe Build Modes | Default `auto` routing plus `fast`, `safe`, `team`, `tdd`, and `release`. |
+| Main commands (1.0 front surface) | `check`, `verify-pr` | Read-only verification gate (deterministic rules + evidence + Human Gate). `build` and the other session/wrapper commands are compatibility/labs — see [ADVANCED.md](ADVANCED.md). |
+| Main product surface | Verification gate | `check` + `verify-pr` decide the verdict from the diff. Safe Build Modes (`build` family: `auto`, `fast`, `safe`, `team`, `tdd`, `release`) are compatibility/labs. |
 | Main pack/profile | `builder` | Kept as the install alias for build-centered setup. |
 
 ## Product Copy
@@ -21,19 +21,19 @@ NEKOWORK keeps one public product name and one main command surface.
 Preferred short description:
 
 ```text
-NEKOWORK is a local-first AI development runtime for fast, verified code changes.
+NEKOWORK is a local verification gate for AI-written code diffs — deterministic rules decide the verdict, never the LLM.
 ```
 
 Preferred supporting line:
 
 ```text
-Build quickly with AI agents, verify independently with Codex, and apply only with human control.
+Bring your AI tool to write the diff. NEKOWORK verifies it with deterministic rules; you decide at the Human Gate.
 ```
 
 Core promise:
 
 ```text
-fast AI build -> Codex verification -> Human Gate -> explicit apply
+AI writes the diff -> deterministic risk rules + checks -> evidence + verdict -> Human Gate -> human merge decision
 ```
 
 ## Naming Rules
