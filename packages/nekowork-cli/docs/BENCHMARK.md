@@ -131,7 +131,9 @@ shape so regex fires) — deferred.
 3종은 OSS coverage 부족이지만 recall + FP 게이트는 통과 — 시간상 추가 scrape
 로 끌어올리는 작업은 marginal returns 영역.
 
-## First real OSS scrape — what we found
+## Historical scrape note — First real OSS scrape (past record, superseded by current measurement above)
+
+> **Note:** The following section records intermediate results from the first OSS scrape round. These numbers (90% → 93%) are historical and do not represent the current recall figure. See the *Current measurement* table at the top of this document for the latest numbers.
 
 We ran `scripts/benchmark/scrape-oss-positives.js` with query
 `process.env.JWT_SECRET || "` (TypeScript, n=10). Each candidate was pinned to
