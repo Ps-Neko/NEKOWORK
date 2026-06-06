@@ -98,7 +98,7 @@
     "typescript": "^6.0.3"
   },
   "optionalDependencies": {
-    "@anthropic-ai/sdk": "^0.92.0",
+    "@anthropic-ai/sdk": "^0.101.0",
     "@napi-rs/keyring": "^1.2.0"
   }
 }
