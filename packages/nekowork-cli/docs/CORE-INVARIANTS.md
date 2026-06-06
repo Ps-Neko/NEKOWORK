@@ -3,14 +3,14 @@
 NEKOWORK is a verification runtime. These invariants are not feature toggles.
 
 ```text
-Claude work -> Codex verification -> Human Gate
+AI writes the diff -> deterministic risk rules + checks (Codex advisory) -> evidence + verdict -> Human Gate -> human merge decision
 ```
 
 ## Runtime Rules
 
 1. Multi-worker phases are read-only by default.
 2. Only one executor may mutate project files in a work cycle.
-3. Codex review is the default independent verification path.
+3. Codex review is the default independent review; it informs but never overrides the deterministic verdict.
 4. Secure or sensitive changes require Codex challenge or Human Gate.
 5. Human Gate cannot be bypassed by skill, hook, profile, module, or CLI expansion.
 6. Profiles may add capabilities, but they cannot weaken core safety gates.

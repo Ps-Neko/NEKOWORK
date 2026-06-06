@@ -1,6 +1,6 @@
 # AI Development Lifecycle
 
-NEKOWORK is a local-first AI development runtime for fast, verified code changes. Its job is not to collect every useful agent feature; its job is to make AI development fast, disciplined, high-quality, independently verified, and human-gated.
+NEKOWORK is a local verification gate for AI-written code diffs — deterministic rules decide the verdict, never the LLM. Its job is not to collect every useful agent feature; its job is to make AI development fast, disciplined, high-quality, independently verified, and human-gated.
 
 ## Position
 
@@ -10,7 +10,7 @@ Fast build loop
 + quality rules, hooks, and skills
 + product-aware scope control
 + read-only multi-agent thinking
-+ Codex verification
++ deterministic verification (Codex advisory)
 + Human Gate and explicit apply
 = NEKOWORK gated AI development runtime
 ```
@@ -18,7 +18,7 @@ Fast build loop
 The short slogan remains:
 
 ```text
-fast AI build -> Codex verification -> Human Gate -> explicit apply
+AI writes the diff -> deterministic risk rules + checks (Codex advisory) -> Human Gate -> human merge decision
 ```
 
 ## Product Rules

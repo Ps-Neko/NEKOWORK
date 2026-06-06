@@ -1,9 +1,9 @@
 # Catalog Packs
 
-NEKOWORK is not a large agent bundle. It is a verified productivity catalog: each pack exists to help users plan, build, debug, review, or release work while preserving Codex verification, Human Gate, and explicit apply.
+NEKOWORK is not a large agent bundle. It is a verified productivity catalog: each pack exists to help users plan, build, debug, review, or release work while preserving the deterministic verdict (Codex advisory), Human Gate, and explicit apply.
 
 ```text
-fast AI build -> Codex verification -> report -> Human Gate -> explicit apply
+AI writes the diff -> deterministic risk rules + checks (Codex advisory) -> report -> Human Gate -> human merge decision
 ```
 
 Packs are public install aliases over validated profiles. They make the catalog easier to choose without creating a second safety model. Productivity routines are packaged as verified workflows, not unchecked autonomy.
