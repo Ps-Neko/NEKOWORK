@@ -21,8 +21,8 @@
 // re-passed.
 //
 // Captures land in:
-//   <repo>/packages/nekowork-cli/tests/fixtures/live-ai/captures/<timestamp>-<tool>-<task-id>.patch
-//   <repo>/packages/nekowork-cli/tests/fixtures/live-ai/captures.csv
+//   <repo>/packages/nekowork/tests/fixtures/live-ai/captures/<timestamp>-<tool>-<task-id>.patch
+//   <repo>/packages/nekowork/tests/fixtures/live-ai/captures.csv
 
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -53,7 +53,7 @@ Usage:
   capture-live-ai-diff.js list
 
 Tools (suggested): claude-code, cursor, codex, copilot-chat
-See packages/nekowork-cli/docs/LIVE-AI-CAPTURE.md for the protocol.`);
+See packages/nekowork/docs/LIVE-AI-CAPTURE.md for the protocol.`);
   process.exit(1);
 }
 
