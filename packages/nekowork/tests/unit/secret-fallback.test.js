@@ -39,6 +39,24 @@ test('hostname fallback "localhost": not flagged', () => {
   assert.equal(f.length, 0);
 });
 
+test('env-or-literal bracket form process.env[\'X\']: critical', () => {
+  const f = scanFileContent('x.ts', 'const k = process.env[\'API_KEY\'] || "sk-hardcoded-value-xyz";');
+  assert.equal(f.length, 1);
+  assert.equal(f[0].severity, 'critical');
+  assert.equal(f[0].pattern, 'env-or-literal');
+});
+
+test('config-or-literal bracket form obj[\'SECRET_KEY\']: critical', () => {
+  const f = scanFileContent('x.ts', 'const k = config[\'SECRET_KEY\'] || "hardcoded-fallback-val";');
+  assert.equal(f.length, 1);
+  assert.equal(f[0].pattern, 'config-or-literal');
+});
+
+test('bracket non-secret key (config[\'timeout\']): not flagged', () => {
+  const f = scanFileContent('x.ts', 'const t = config[\'timeout\'] || "shouldnotmatch";');
+  assert.equal(f.length, 0);
+});
+
 test('comment-only mention: not flagged', () => {
   const content = `// const key = process.env.API_KEY || "literal";\nconst key = process.env.API_KEY;`;
   const f = scanFileContent('x.ts', content);

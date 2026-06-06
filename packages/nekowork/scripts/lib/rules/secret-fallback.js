@@ -18,9 +18,10 @@ import { addedLines as collectAddedLines } from '../diff-parser.js';
 const PATTERNS = [
   {
     id: 'env-or-literal',
-    re: /process\.env\.(\w+)\s*\|\|\s*(["'`])([^"'`\n]+)\2/g,
-    pickEnv: m => m[1],
-    pickLiteral: m => m[3],
+    // dot form  process.env.X || "lit"  and bracket form  process.env['X'] || "lit"
+    re: /process\.env(?:\.(\w+)|\[(["'`])(\w+)\2\])\s*\|\|\s*(["'`])([^"'`\n]+)\4/g,
+    pickEnv: m => m[1] || m[3],
+    pickLiteral: m => m[5],
   },
   {
     id: 'nullish-fallback',
@@ -42,9 +43,12 @@ const PATTERNS = [
   },
   {
     id: 'config-or-literal',
-    re: /\b([A-Za-z_]\w*\.(?:apiKey|secret|secretKey|token|password|key|jwt|auth))\s*\|\|\s*(["'`])([^"'`\n]+)\2/g,
+    // dot form  obj.secretProp || "lit"  and bracket form  obj['SECRET_KEY'] || "lit".
+    // The bracket key is gated to secret-keyword names so generic config defaults
+    // (e.g. config['timeout'] || 5000) do not match.
+    re: /\b([A-Za-z_]\w*\.(?:apiKey|secret|secretKey|token|password|key|jwt|auth)|[A-Za-z_]\w*\[(["'`])[\w-]*(?:KEY|TOKEN|SECRET|PASSWORD|PASS|AUTH|JWT|API|CREDENTIAL|apiKey|secretKey)[\w-]*\2\])\s*\|\|\s*(["'`])([^"'`\n]+)\3/g,
     pickEnv: m => m[1],
-    pickLiteral: m => m[3],
+    pickLiteral: m => m[4],
   },
   {
     id: 'config-fallback-property',

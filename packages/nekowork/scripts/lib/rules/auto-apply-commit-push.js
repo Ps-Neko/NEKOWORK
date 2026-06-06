@@ -28,8 +28,9 @@ const PATTERNS = [
   },
   {
     id: 'rm-rf-variable',
-    // rm -r -f or rm -rf with variable expansion in the path
-    re: /\brm\s+-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\b[^\n]*\$\{?\w/g,
+    // rm with recursive+force flags (combined `-rf`/`-fr` or separated `-r -f`/`-f -r`)
+    // and variable expansion in the path.
+    re: /\brm\s+(?=-[a-zA-Z]*(?:rf|fr)|-[a-zA-Z]*r[a-zA-Z]*\s+-[a-zA-Z]*f|-[a-zA-Z]*f[a-zA-Z]*\s+-[a-zA-Z]*r)-[a-zA-Z][^\n]*\$\{?\w/g,
     severity: 'critical',
     title: 'rm -rf with variable path',
     description: 'Removing with a variable path is dangerous — if the variable is empty, the parent directory is wiped.',
@@ -39,7 +40,7 @@ const PATTERNS = [
     id: 'rm-rf-system',
     // rm -rf on a root-like path (not allowed: /tmp, /var/{log,cache,tmp},
     // /home/<u>, /root/<x>, /node_modules — common safe targets)
-    re: /\brm\s+-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\s+\/(?!tmp(?:\/|$|\s)|var\/(?:log|cache|tmp)\/|home\/\w|root\/\w|node_modules\/|opt\/render\/)\S*/g,
+    re: /\brm\s+(?=-[a-zA-Z]*(?:rf|fr)|-[a-zA-Z]*r[a-zA-Z]*\s+-[a-zA-Z]*f|-[a-zA-Z]*f[a-zA-Z]*\s+-[a-zA-Z]*r)-[a-zA-Z][^\n]*?\s+\/(?!tmp(?:\/|$|\s)|var\/(?:log|cache|tmp)\/|home\/\w|root\/\w|node_modules\/|opt\/render\/)\S*/g,
     severity: 'critical',
     title: 'rm -rf on system path',
     description: 'Removing system paths is destructive and rarely intentional in a build/automation script.',
