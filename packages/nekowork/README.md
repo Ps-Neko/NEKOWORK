@@ -10,23 +10,24 @@ pushes, or deploys on its own.
 
 ## Status
 
-**Published alpha** (`@ps-neko/nekowork`, alpha dist-tag). This package is the
-published slim verification gate. Install with:
+**Published alpha** (`@ps-neko/nekowork`, `@alpha` dist-tag). This package is the
+published slim verification gate. Always install with the **`@alpha`** tag —
+`latest` is pinned to an old `0.2.0-alpha.0` and is not the alpha line:
 
 ```bash
-npm i -g @ps-neko/nekowork
+npm i -g @ps-neko/nekowork@alpha
 ```
 
 The fuller legacy and power-user surface lives in the internal
 `@ps-neko/nekowork-harness` package (not separately published). See
-[HANDOFF-PACKAGE-SPLIT.md](./HANDOFF-PACKAGE-SPLIT.md) for the split history.
+[HANDOFF-PACKAGE-SPLIT.md](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork/HANDOFF-PACKAGE-SPLIT.md) for the split history.
 
 ## Quickstart
 
 ```bash
 # right after your AI tool changes some files:
-npx -y @ps-neko/nekowork check        # 30-sec environment check
-npx -y @ps-neko/nekowork verify-pr    # scan the diff → get a verdict
+npx -y @ps-neko/nekowork@alpha check        # 30-sec environment check
+npx -y @ps-neko/nekowork@alpha verify-pr    # scan the diff → get a verdict
 ```
 
 `verify-pr` reads the diff, writes a plain-English `REPORT.md`, and tells you
@@ -39,7 +40,7 @@ whether the change is safe to merge.
 | `check` | Probe environment readiness (Node version, git repo, etc.) |
 | `verify-pr` | Scan working-tree diff. Produce REPORT.md + .nekowork/decision.json |
 | `report` | Render an existing decision.json to a human-readable REPORT.md |
-| `apply` | Session-based compatibility apply. Requires a completed work cycle (SHIP_READY marker + cleared Human Gate). NOT driven by verify-pr's decision.json. See [ADVANCED.md](../nekowork-cli/docs/ADVANCED.md). |
+| `apply` | Session-based compatibility apply. Requires a completed work cycle (SHIP_READY marker + cleared Human Gate). NOT driven by verify-pr's decision.json. See [ADVANCED.md](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/ADVANCED.md). |
 
 Anything else (`ask`, `plan`, `team`, `work`, `ship`, `build`, `auto`,
 `pr-prep`, `review`, ...) belongs to `@ps-neko/nekowork-harness` (legacy and
@@ -63,10 +64,10 @@ step — it is not triggered by `decision.json`.
 
 ## Docs
 
-- [Quickstart](../nekowork-cli/docs/QUICKSTART.md)
-- [How verification works](../nekowork-cli/docs/SCOPE-1.0.md)
-- [Benchmark](../nekowork-cli/docs/BENCHMARK.md) — 73/74 (99%) recall, 0/47 FP, 38 real OSS positives
-- [Integration](../nekowork-cli/docs/INTEGRATION.md)
+- [Quickstart](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/QUICKSTART.md)
+- [How verification works](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/SCOPE-1.0.md)
+- [Benchmark](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/BENCHMARK.md) — 85/86 (99%) recall, 0/47 FP, 30 real OSS positives (secret-fallback)
+- [Integration](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/INTEGRATION.md)
 
 ## License
 
