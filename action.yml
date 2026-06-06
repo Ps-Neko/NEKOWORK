@@ -14,6 +14,10 @@ inputs:
     description: 'Node.js major version to install. Must be 22+.'
     required: false
     default: '22'
+  version:
+    description: 'Pin the @ps-neko/nekowork package version (e.g. 0.1.0-alpha.11). Defaults to latest published alpha.'
+    required: false
+    default: 'latest'
 
 runs:
   using: 'composite'
@@ -26,14 +30,15 @@ runs:
     - name: Run nekowork verify-pr
       shell: bash
       env:
-        # Pass the caller's args through an intermediate env var, NOT a ${{ }}
-        # template inside `run:`. Templating untrusted input directly into the
-        # run script is the classic GitHub Actions script-injection vector;
-        # the env-var indirection prevents it. Unquoted below so multiple flags
-        # word-split as intended. Do not invoke this Action from untrusted PR
-        # contexts with attacker-controlled args.
+        # Pass caller inputs through env vars, NOT ${{ }} templates inside run:.
+        # Templating untrusted input directly into the run script is the classic
+        # GitHub Actions script-injection vector; env-var indirection prevents it.
+        # NEKO_ARGS is word-split intentionally so multiple flags work correctly.
+        # Do not invoke this Action from untrusted PR contexts with attacker-
+        # controlled args.
         NEKO_ARGS: ${{ inputs.args }}
+        NEKO_VERSION: ${{ inputs.version }}
       run: |
         set -euo pipefail
         # shellcheck disable=SC2086
-        npx -y @ps-neko/nekowork verify-pr ${NEKO_ARGS}
+        npx -y "@ps-neko/nekowork@${NEKO_VERSION}" verify-pr ${NEKO_ARGS}
