@@ -276,10 +276,15 @@ function synthesizeUntrackedDiff(cwd) {
  * @returns {string} concatenated unified-diff chunks
  */
 const SYNTH_FILE_SIZE_LIMIT = 2 * 1024 * 1024; // 2 MB per file
+const SYNTH_TOTAL_SIZE_LIMIT = 64 * 1024 * 1024; // 64 MB aggregate (guards full-scan OOM)
 
 function synthesizeFilesAsDiff(cwd, relPaths) {
   let chunks = '';
+  let truncated = false;
   for (const rel of relPaths) {
+    // Aggregate cap: stop accumulating once the synthesized diff is very large,
+    // so a huge full-scan / untracked tree cannot exhaust memory.
+    if (chunks.length >= SYNTH_TOTAL_SIZE_LIMIT) { truncated = true; break; }
     const full = path.join(cwd, rel);
     let content;
     try {
@@ -299,6 +304,11 @@ function synthesizeFilesAsDiff(cwd, relPaths) {
     chunks += `+++ b/${rel}\n`;
     chunks += `@@ -0,0 +1,${lines.length} @@\n`;
     for (const line of lines) chunks += `+${line}\n`;
+  }
+  if (truncated) {
+    process.stderr.write(
+      `warning: diff synthesis truncated at ${Math.round(SYNTH_TOTAL_SIZE_LIMIT / (1024 * 1024))}MB; some files were not scanned. Narrow the scope (avoid --full-scan on very large trees).\n`,
+    );
   }
   return chunks;
 }

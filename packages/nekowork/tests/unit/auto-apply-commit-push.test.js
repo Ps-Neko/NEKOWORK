@@ -65,6 +65,29 @@ test('rm -rf /usr/local: critical (rm-rf-system)', () => {
   assert.equal(f[0].severity, 'critical');
 });
 
+test('rm -r -f with $VAR (separated flags): critical', () => {
+  const f = scanFileContent('clean.sh', 'rm -r -f ${WORK}/cache\n');
+  assert.equal(f[0].pattern, 'rm-rf-variable');
+  assert.equal(f[0].severity, 'critical');
+});
+
+test('rm -fr with $VAR (reversed flags): critical', () => {
+  const f = scanFileContent('clean.sh', 'rm -fr ${WORK}/cache\n');
+  assert.equal(f[0].pattern, 'rm-rf-variable');
+  assert.equal(f[0].severity, 'critical');
+});
+
+test('rm -r -f /usr/local (separated flags, system path): critical', () => {
+  const f = scanFileContent('install.sh', 'rm -r -f /usr/local/lib/node_modules\n');
+  assert.equal(f[0].pattern, 'rm-rf-system');
+  assert.equal(f[0].severity, 'critical');
+});
+
+test('rm without -rf flags (rm foo $VAR): not flagged', () => {
+  const f = scanFileContent('clean.sh', 'rm foo ${WORK}\n');
+  assert.equal(f.length, 0);
+});
+
 test('auto-merge: true: critical', () => {
   const f = scanFileContent('dependabot.yml', 'auto-merge: true\n');
   assert.equal(f[0].pattern, 'auto-merge-config');
