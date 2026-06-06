@@ -3,7 +3,7 @@ name: visualizer-deploy
 # D10 + D11 lock (2026-05-23 plan):
 #   - main 푸시만 trigger (PR preview 안 함, GitHub Pages quota 보존).
 #   - concurrency: pages cancel-in-progress.
-#   - actions/deploy-pages@v4 표준.
+#   - actions/deploy-pages@v5 표준.
 
 on:
   push:
@@ -74,7 +74,7 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   lighthouse:
     # T9 — D9 lock: FCP < 1.5s hard block (3 run mean).
