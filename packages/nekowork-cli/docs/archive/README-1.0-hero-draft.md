@@ -1,3 +1,5 @@
+> ARCHIVED — superseded draft, kept for history. Not the current product description.
+
 # README hero — 1.0 draft
 
 > **Status: SUPERSEDED (2026-06-05).** 이 초안의 방향(verify-pr hero, "Don't merge AI code without verification", Codex = advisor, Beginner 4종)은 PR #95 에서 실제 `README.md` / `README.ko.md` 에 반영 완료. 말미의 후속 항목(demo-terminal.svg, "One Command" 섹션 등)도 처리됨. 이 문서는 **보관용 초안**이며, 안의 수치/예시(`401 tests`·`src/auth.ts:42` 등)는 초안 작성 시점 값이므로 최신은 라이브 README 를 따른다. 저장소 제거 또는 npm 출하 제외는 별도 확인 후 결정.
@@ -24,7 +26,7 @@
 
 [![validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
-NEKOWORK is a local verification gate for AI-generated code. It analyzes the diff, runs deterministic risk rules, collects evidence, and decides whether the change is safe to merge or apply — without auto-committing, auto-pushing, or trusting LLM verdicts.
+NEKOWORK is a local verification gate for AI-generated code. It analyzes the diff, runs deterministic risk rules, collects evidence, and decides whether the change is safe to merge — without auto-committing, auto-pushing, or trusting LLM verdicts.
 
 Note: "Verified" means independently reviewed with recorded evidence — not mathematically proven correct. The verdict is decided by deterministic rules and check results. Optional Codex review is recorded as an advisor note only and never controls the verdict.
 
@@ -95,7 +97,7 @@ No auto-commit. No auto-push. No surprise deploy. LLM verdicts do not pass this 
 
 [![validate](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml/badge.svg)](https://github.com/Ps-Neko/NEKOWORK/actions/workflows/harness-validate.yml)
 
-NEKOWORK 는 AI 가 생성한 코드를 위한 로컬 검증 게이트입니다. diff 를 분석하고, 결정적 위험 룰을 실행하고, 증거를 수집한 뒤, 머지/적용 가능 여부를 판정합니다 — auto-commit / auto-push 없이, LLM 판정에 의존하지 않고.
+NEKOWORK 는 AI 가 생성한 코드를 위한 로컬 검증 게이트입니다. diff 를 분석하고, 결정적 위험 룰을 실행하고, 증거를 수집한 뒤, 머지 가능 여부(verdict)를 판정합니다 — auto-commit / auto-push 없이, LLM 판정에 의존하지 않고.
 
 참고: "검증됨" 은 기록된 증거로 독립 검토했다는 뜻이지, 수학적으로 정확하다는 뜻이 아닙니다. verdict 는 결정적 룰과 검증 결과만 결정합니다. 선택적 Codex 리뷰는 advisor 노트로만 기록되며 verdict 에 영향을 주지 않습니다.
 

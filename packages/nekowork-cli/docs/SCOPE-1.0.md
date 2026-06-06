@@ -42,9 +42,9 @@ AI 가 만든 코드, 검증 없이는 통과시키지 마세요.
 |---|---|---|---|---|
 | `verify-pr` | 없음 | **신규** hero | hero | hero |
 | `check` | Beginner | hero | hero | hero |
-| `start` | Beginner | hero (verify alias 검토) | hero | hero |
-| `report` | Beginner | hero | hero | hero |
-| `apply` | Beginner | hero (단, 정책 명시) | hero | hero |
+| `start` | Beginner | docs/ADVANCED (legacy) | docs/ADVANCED (legacy) | removed |
+| `report` | Beginner | compatibility (session: `report --session`) | compatibility | removed |
+| `apply` | Beginner | compatibility (session, SHIP_READY + cleared gate) | compatibility | removed |
 | `ask` | Advanced | docs/ADVANCED | deprecated | removed |
 | `plan` | Advanced | docs/ADVANCED | deprecated | removed |
 | `team` | Advanced | docs/ADVANCED | deprecated | removed |
@@ -231,10 +231,11 @@ Secret Fallback FP rate     ≤ 0.10
 
 ## 10. `nekowork apply` 의 운명
 
-현재: Beginner hero 명령. `applyCycle` 이 stored .diff 를 workspace 에 적용. auto-commit/push 없음.
+현재: session 기반 compatibility 명령. `applyCycle` 이 stored .diff 를 workspace 에 적용. auto-commit/push 없음.
 
-**Phase 0 결정: 유지 + 정책 명시.**
-- README hero 에 남기되, apply 가 session 기반 compatibility 명령임을 명시 (SHIP_READY + gate clear 필요; decision.json.apply_allowed 가 트리거가 아님).
+**Phase 0 결정: compatibility 유지 + 정책 명시.**
+- **apply 는 1.0 front surface(hero) 가 아니다.** README hero 는 `check` 와 `verify-pr` 만이다.
+- apply 는 session 기반 compatibility 명령 — 완료된 작업 사이클(SHIP_READY 마커 + cleared Human Gate) 이 필요하다. `decision.json.apply_allowed` 는 apply 트리거가 아니라 verify-pr 가 산출하는 정보성 verdict 필드다.
 - `--force` 플래그 동작 확인 후 1.0 에서 정책 명문화 (없으면 추가, 있으면 경고 강화).
 - auto-apply / auto-commit / auto-push 플래그 추가 금지.
 
