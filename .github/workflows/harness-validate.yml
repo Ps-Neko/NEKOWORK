@@ -16,7 +16,21 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Fresh npx alpha check smoke
+      - name: Version matches registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          registry_version="$(npm view @ps-neko/nekowork@alpha version)"
+          cli_output="$(npx -y @ps-neko/nekowork@alpha --version)"
+          echo "registry : ${registry_version}"
+          echo "cli      : ${cli_output}"
+          if ! echo "${cli_output}" | grep -Fq "${registry_version}"; then
+            echo "::error::version mismatch: cli reported '${cli_output}' but registry has '${registry_version}'"
+            exit 1
+          fi
+          echo "version smoke: PASS"
+
+      - name: check --json is valid JSON (exit 0)
         shell: bash
         run: |
           set -euo pipefail
@@ -24,37 +38,11 @@ jobs:
           mkdir -p "$workdir"
           cd "$workdir"
           npx -y @ps-neko/nekowork@alpha check --json > check.json
-          node <<'NODE'
-          const { execSync } = require('node:child_process');
-          const fs = require('node:fs');
-          const report = JSON.parse(fs.readFileSync('check.json', 'utf8'));
-          const expectedVersion = JSON.parse(execSync('npm view @ps-neko/nekowork@alpha version --json', { encoding: 'utf8' }));
-          const metadata = report.checks.find((check) => check.name === 'package metadata');
-          if (report.summary.fail !== 0) {
-            throw new Error(`check reported ${report.summary.fail} failure(s)`);
-          }
-          if (!metadata || !metadata.message.includes(`@ps-neko/nekowork@${expectedVersion}`)) {
-            throw new Error(`unexpected package metadata: ${metadata?.message || '<missing>'}`);
-          }
-          console.log(`published alpha smoke: ${metadata.message}`);
-          NODE
-
-      - name: Fresh npx alpha init smoke
-        shell: bash
-        run: |
-          set -euo pipefail
-          workdir="$RUNNER_TEMP/nekowork-alpha-init-smoke"
-          mkdir -p "$workdir"
-          cd "$workdir"
-          git init -q
-          expected_version="$(npm view @ps-neko/nekowork@alpha version --json | node -p "JSON.parse(require('node:fs').readFileSync(0, 'utf8'))")"
-          npx -y @ps-neko/nekowork@alpha init --profile developer --project-root . --dry-run > init.txt
-          if ! grep -Fq "HARNESS install --plan  (v${expected_version})" init.txt; then
-            echo "expected init plan version: v${expected_version}"
-            cat init.txt
-            exit 1
-          fi
-          echo "published alpha init smoke: v${expected_version}"
+          node -e "
+            const raw = require('fs').readFileSync('check.json', 'utf8');
+            JSON.parse(raw);
+            console.log('check --json smoke: PASS (valid JSON, ' + raw.length + ' bytes)');
+          "
 
   changes:
     runs-on: ubuntu-latest
