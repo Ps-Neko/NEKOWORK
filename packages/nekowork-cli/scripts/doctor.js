@@ -119,10 +119,15 @@ function checkNodeVersion(version) {
   return fail('node', `Node ${version}; required >= 22`);
 }
 
+const ALLOWED_PACKAGE_NAMES = new Set([
+  '@ps-neko/nekowork',
+  '@ps-neko/nekowork-harness',
+]);
+
 function checkPackageMetadata(root) {
   try {
     const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-    if (pkg.name !== '@ps-neko/nekowork') {
+    if (!ALLOWED_PACKAGE_NAMES.has(pkg.name)) {
       return fail('package metadata', `unexpected package name: ${pkg.name}`);
     }
     if (!pkg.version) return fail('package metadata', 'missing package version');

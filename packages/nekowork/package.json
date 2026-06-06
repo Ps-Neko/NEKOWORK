@@ -20,7 +20,7 @@
     "mcp"
   ],
   "license": "MIT",
-  "private": true,
+  "private": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Ps-Neko/NEKOWORK.git"
@@ -30,7 +30,8 @@
     "node": ">=22.0.0"
   },
   "bin": {
-    "nekowork": "scripts/cli.js"
+    "nekowork": "scripts/cli.js",
+    "harness": "scripts/cli.js"
   },
   "files": [
     "scripts/",
@@ -40,7 +41,8 @@
   "scripts": {
     "smoke": "node scripts/cli.js --version && node scripts/cli.js verify-pr --help",
     "smoke:reject": "! node scripts/cli.js team 2>/dev/null",
-    "test": "node --test tests/unit/*.test.js"
+    "test": "node --test tests/unit/*.test.js",
+    "bench:rules": "node scripts/benchmark/rules.js"
   },
-  "_phase_a_note": "skeleton only — see HANDOFF-PACKAGE-SPLIT.md. Real published package needs the orchestrator + lib + rules + schemas moved in. Currently this package is a thin guard layer that delegates to @ps-neko/nekowork-cli via relative path (dev-time only)."
+  "dependencies": {}
 }

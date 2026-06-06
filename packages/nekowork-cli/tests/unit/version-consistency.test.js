@@ -40,8 +40,10 @@ test('release surfaces record repository version and published alpha', () => {
 
 test('package exposes product and runtime CLI names', () => {
   const pkg = JSON.parse(read('package.json'));
-  assert.equal(pkg.bin.nekowork, 'scripts/cli.js');
-  assert.equal(pkg.bin.harness, 'scripts/cli.js');
+  // nekowork-cli is now the internal harness (@ps-neko/nekowork-harness).
+  // It exposes only the nekowork-harness bin to avoid workspace bin-link
+  // collision with the slim @ps-neko/nekowork package.
+  assert.equal(pkg.bin['nekowork-harness'], 'scripts/cli.js');
 
   const monorepoRoot = path.resolve(ROOT, '..', '..');
   const lockYaml = fs.readFileSync(path.join(monorepoRoot, 'pnpm-lock.yaml'), 'utf8');
