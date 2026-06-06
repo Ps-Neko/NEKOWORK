@@ -14,7 +14,7 @@
   <em>Claude said LGTM. NEKOWORK blocked.</em> &nbsp;·&nbsp; <a href="https://ps-neko.github.io/NEKOWORK/?fixture=sample-pr-001"><strong>Live demo →</strong></a>
 </p>
 
-NEKOWORK is a local verification gate for AI-generated code. It analyzes the diff, runs deterministic risk rules, collects evidence, and decides whether the change is safe to merge or apply — without auto-committing, auto-pushing, or trusting LLM verdicts.
+NEKOWORK is a local verification gate for AI-generated code. It analyzes the diff, runs deterministic risk rules, collects evidence, and decides whether the change is safe to merge — without auto-committing, auto-pushing, or trusting LLM verdicts.
 
 Note: "Verified" means independently reviewed with recorded evidence — not mathematically proven correct. The verdict is decided by deterministic rules and check results. Optional Codex review is recorded as an advisor note only and never controls the verdict.
 
@@ -47,7 +47,11 @@ The machine-readable companion `decision.json` and the full report are in [Examp
 The evidence chain is intentionally narrow:
 
 ```text
-diff -> deterministic risk rules -> checks (test/lint/typecheck; detected always, executed with --run-checks, escalation-only) -> evidence package -> deterministic decision -> REPORT.md -> Human Gate -> explicit apply
+diff -> deterministic risk rules -> checks (test/lint/typecheck; detected always, executed with --run-checks, escalation-only) -> evidence package -> deterministic decision -> REPORT.md -> Human Gate -> human merge decision
+```
+
+```text
+Session-based apply (compatibility, separate): work -> verify -> ship -> cleared Human Gate -> apply
 ```
 
 No auto-commit. No auto-push. No surprise deploy. `apply` is explicit; it is session-based and requires a completed work cycle (SHIP_READY + cleared Human Gate) — not `decision.json.apply_allowed`.
@@ -83,7 +87,7 @@ Typical blocked-risk output:
     - [CRITICAL] Hardcoded secret fallback detected (src/auth.ts:4)
 ```
 
-That is the thesis: AI can write the change, but `verify-pr` runs deterministic rules over the diff and refuses to let unverified changes merge or apply.
+That is the thesis: AI can write the change, but `verify-pr` runs deterministic rules over the diff and refuses to let unverified changes merge.
 
 > Don't trust the recorded verdict? **Tampering it is futile** — re-running re-derives it from the diff. See it: [`npm run demo:tamper`](docs/DEMO.md#tampering-the-verdict-is-futile-determinism).
 
@@ -98,7 +102,7 @@ cat REPORT.md
 cat .nekowork/decision.json
 ```
 
-`check` confirms the environment is ready. `verify-pr` scans the current working tree diff with deterministic risk rules, writes evidence to `.nekowork/evidence/`, and decides whether the change is safe to merge or apply. It writes `REPORT.md` at the project root and `.nekowork/decision.json`.
+`check` confirms the environment is ready. `verify-pr` scans the current working tree diff with deterministic risk rules, writes evidence to `.nekowork/evidence/`, and decides whether the change is safe to merge. It writes `REPORT.md` at the project root and `.nekowork/decision.json`.
 
 Source checkout for local development:
 
