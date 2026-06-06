@@ -12,7 +12,7 @@ Use NEKOWORK when that work needs evidence, independent review, gate decisions, 
 NEKOWORK can absorb useful ideas from other systems, but only as capabilities. The architecture stays fixed around:
 
 ```text
-AI-made change -> preverify -> Codex verification -> decision/report -> Human Gate -> explicit apply
+AI-made change -> preverify -> deterministic risk rules + checks (Codex advisory) -> decision/report -> Human Gate -> human merge decision
 ```
 
 NEKOWORK intentionally keeps the catalog selective. Every agent, skill, hook, profile, build mode, module, and pack must preserve the verification loop.

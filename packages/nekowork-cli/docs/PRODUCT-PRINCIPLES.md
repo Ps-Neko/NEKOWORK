@@ -23,7 +23,7 @@ NEKOWORK also acts as a local-first AI development quality runtime:
 good development discipline
 + product-aware scope control
 + read-only multi-agent thinking
-+ evidence-based Codex verification
++ deterministic verification (Codex advisory)
 + Human Gate
 + explicit apply
 = gated AI development lifecycle
