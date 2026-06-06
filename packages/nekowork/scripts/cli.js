@@ -25,14 +25,7 @@ const META_FLAGS = new Set(['--version', '-v', '--help', '-h']);
 const args = process.argv.slice(2);
 const verb = args[0];
 
-if (args.length === 0 || META_FLAGS.has(verb)) {
-  if (verb === '--version' || verb === '-v') {
-    const pkgPath = path.resolve(__dirname, '..', 'package.json');
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-    console.log(pkg.version);
-    process.exit(0);
-  }
-  console.log(`@ps-neko/nekowork — local verification gate for AI-written code
+const USAGE = `@ps-neko/nekowork — local verification gate for AI-written code
 
 Usage:
   nekowork check                  Probe environment readiness
@@ -58,7 +51,16 @@ Need legacy / harness commands (ask / plan / team / work / ship / build / auto /
 Docs:
   https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/QUICKSTART.md
   https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/SCOPE-1.0.md
-  https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/BENCHMARK.md`);
+  https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/BENCHMARK.md`;
+
+if (args.length === 0 || META_FLAGS.has(verb)) {
+  if (verb === '--version' || verb === '-v') {
+    const pkgPath = path.resolve(__dirname, '..', 'package.json');
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    console.log(pkg.version);
+    process.exit(0);
+  }
+  console.log(USAGE);
   process.exit(0);
 }
 
@@ -77,6 +79,11 @@ For \`${verb}\` (a harness command), install @ps-neko/nekowork-harness:
 }
 
 async function runInternal(verb, rest) {
+  if (rest.includes('--help') || rest.includes('-h')) {
+    console.log(USAGE);
+    process.exit(0);
+  }
+
   if (verb === 'check') {
     const { spawnSync } = await import('node:child_process');
     const r = spawnSync(process.execPath, [path.resolve(__dirname, 'check.js'), ...rest], { stdio: 'inherit' });
