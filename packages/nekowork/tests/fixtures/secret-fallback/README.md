@@ -26,7 +26,7 @@ manifest.json              entry 메타데이터 + expected findings
   Cursor / Claude Code / Codex 에게 실제 task ("OpenAI client with env config" 등)
   시키고 생성된 diff 에서 fallback 패턴 추출. 1.0 의 진짜 신호.
 
-목표 비율 (per [SCOPE-1.0.md §9](../../../docs/SCOPE-1.0.md#9-fixture-출처-정책)):
+목표 비율 (per [SCOPE-1.0.md §9](../../../../nekowork-cli/docs/SCOPE-1.0.md#9-fixture-출처-정책)):
 - 전체 corpus 30+ positive / 50+ negative
 - synthetic 비율 ≤ 30%
 

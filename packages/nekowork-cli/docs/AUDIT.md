@@ -74,7 +74,7 @@ Current local result for this working tree:
 ## Completed Work
 
 - Local-first provider auth policy implemented and documented.
-- `build` is the beginner entrypoint with default `auto` routing plus `fast`, `safe`, `team`, `tdd`, and `release` modes over the safe run/report/gate loop.
+- `build` is a session-based builder wrapper with default `auto` routing plus `fast`, `safe`, `team`, `tdd`, and `release` modes over the safe run/report/gate loop.
 - Internal provider command adapter implemented and documented without bypassing verification, Human Gate, or apply controls.
 - `acceptance-coverage` skill added as a focused quality evidence helper.
 - API-key override warnings and guards are in place.

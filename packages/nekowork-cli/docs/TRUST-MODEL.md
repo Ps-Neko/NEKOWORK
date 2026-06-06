@@ -26,7 +26,7 @@ A normal session creates:
 
 The report is the primary human-readable trust surface.
 
-`decision.json` is the machine-readable trust surface. It consolidates the current verdict, reason, risk tags, Human Gate state, ship readiness, apply permission, diff hash, and evidence paths so CLI output, reports, CI, and future dashboards read the same decision.
+`decision.json` is the machine-readable trust surface. It consolidates the current verdict, reason, risk tags, Human Gate state, ship readiness, the `apply_allowed` verdict field, diff hash, and evidence paths so CLI output, reports, CI, and future dashboards read the same decision.
 
 Example:
 
@@ -41,6 +41,8 @@ Example:
   "evidence": ["preverify-summary.json", "verify-summary.json", "REPORT.md"]
 }
 ```
+
+`apply` is a session-based compatibility command — it requires a completed work cycle with a `SHIP_READY` marker and a cleared Human Gate. The `apply_allowed` field above is an informational verdict field written by `verify-pr`; it does not gate the `apply` command.
 
 ## Default Verifier
 
