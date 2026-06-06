@@ -47,15 +47,17 @@ jobs:
       - name: nekowork bench:rules
         run: pnpm --filter @ps-neko/nekowork run bench:rules
 
-      # Publish the SLIM package only (packages/nekowork).
-      # NODE_AUTH_TOKEN is written by setup-node and read by npm automatically.
-      # --provenance generates an OIDC-signed attestation on npmjs.com.
-      # --access public is required for scoped packages on first publish.
-      - name: Publish @ps-neko/nekowork
+      # Publish the SLIM package only (packages/nekowork) via OIDC Trusted Publishing.
+      # NO NPM_TOKEN / no long-lived token: GitHub's short-lived OIDC id-token
+      # authenticates to npm. Requires a Trusted Publisher configured on npmjs.com
+      # for repo Ps-Neko/NEKOWORK + workflow `publish.yml`, and npm >= 11.5.1
+      # (upgraded below). --provenance attaches a signed build attestation;
+      # --access public for the scoped package on first publish.
+      - name: Publish @ps-neko/nekowork (OIDC trusted publishing, no token)
         working-directory: packages/nekowork
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           PUBLISH_TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
+          npm install -g npm@latest   # ensure OIDC trusted-publishing support (npm >= 11.5.1)
           npm publish --provenance --tag "${PUBLISH_TAG}" --access public
