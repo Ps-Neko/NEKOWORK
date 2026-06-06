@@ -1,217 +1,80 @@
 # Public Alpha Publish Record
 
-NEKOWORK `0.0.3` stays a private/local alpha. The first npm release is the public alpha `0.1.0-alpha.0`; the current public alpha is `0.1.0-alpha.9`. The repository is prepared for `0.1.0-alpha.10`.
+> Updated 2026-06-07 for the package split + OIDC publish flow.
 
-Do not publish from the `0.0.3` line.
+## Packages
 
-The repository metadata is on `0.1.0-alpha.10` with `private: false`. The `0.1.0-alpha.0` publish succeeded on 2026-05-07. The `0.1.0-alpha.1` publish also succeeded on 2026-05-07. The `0.1.0-alpha.2`, `0.1.0-alpha.3`, `0.1.0-alpha.4`, `0.1.0-alpha.5`, `0.1.0-alpha.6`, `0.1.0-alpha.7`, and `0.1.0-alpha.8` publishes succeeded on 2026-05-08. The `0.1.0-alpha.9` publish succeeded on 2026-05-13. The `0.1.0-alpha.10` package dry-run passed and is the next prepared publish.
+NEKOWORK ships as **two packages** (see [HANDOFF-PACKAGE-SPLIT in the slim package](../../nekowork/HANDOFF-PACKAGE-SPLIT.md)):
 
-The latest matching Git tag and GitHub prerelease is `v0.1.0-alpha.9`:
+| Package | Role | npm | Version |
+|---|---|---|---|
+| `@ps-neko/nekowork` | Public **slim verification gate** (4 verbs: `check` / `verify-pr` / `report` / `apply`) | **published** (`@alpha` dist-tag) | `0.2.0-alpha.2` |
+| `@ps-neko/nekowork-harness` | Internal **legacy / power-user runtime** (`ask` / `plan` / `team` / `work` / `ship` / `build` / `auto` / ...) | **not published** (`private: true`) | `0.1.0-alpha.12` (repository version) |
 
-```text
-https://github.com/Ps-Neko/NEKOWORK/releases/tag/v0.1.0-alpha.9
-```
+Only the slim `@ps-neko/nekowork` is published. The harness runtime is internal — used from a **source checkout** of the repo, not installed from npm. Do not add `npm i -g @ps-neko/nekowork-harness` to any user-facing docs or CLI output.
 
-## Registry State
-
-Checked on 2026-05-13:
-
-```text
-npm view @ps-neko/nekowork version --json
--> 0.1.0-alpha.0
-```
-
-The default version output follows `latest`, which is not the documented alpha install path.
-
-The current alpha install path points at the release line:
+## Current registry state
 
 ```text
-npm view @ps-neko/nekowork@alpha version --json
--> 0.1.0-alpha.9
+npm view @ps-neko/nekowork dist-tags
+-> { latest: '0.2.0-alpha.0', alpha: '0.2.0-alpha.2' }
 ```
 
-Dist-tags:
+- The documented install path is the `@alpha` dist-tag: `npx -y @ps-neko/nekowork@alpha`.
+- `latest` is stuck on `0.2.0-alpha.0` (an early dist-tag rm returned `E400`). Treat `latest` as an unavoidable alpha-line pointer; do not promote it as the stable path. Retag `latest` only when a real stable release exists.
 
-```text
-npm view @ps-neko/nekowork dist-tags --json
--> { "alpha": "0.1.0-alpha.9", "latest": "0.1.0-alpha.0" }
-```
+## Publish flow (OIDC — tokenless)
 
-The publish package shape has been checked:
+Publishing runs through the **`publish.yml` GitHub Actions workflow** using npm OIDC Trusted Publishing. No long-lived npm token and no interactive 2FA are involved — npm trusts the workflow's GitHub OIDC identity. (2FA only applies to manual `npm publish` from a laptop, which is **not** the path here.)
 
-```text
-npm publish --dry-run --access public --tag alpha
--> pass
-```
+1. Bump `packages/nekowork/package.json` `version` to the next alpha (e.g. `0.2.0-alpha.3`).
+2. Open a PR, get CI green, merge to `main`.
+3. Trigger the publish workflow against `main`:
+   ```bash
+   gh workflow run publish.yml --repo Ps-Neko/NEKOWORK -f tag=alpha
+   ```
+   (or **Actions → publish → Run workflow**, input `tag=alpha`). The workflow is `workflow_dispatch`-only and never auto-fires.
+4. Verify:
+   ```bash
+   npm view @ps-neko/nekowork@alpha version   # -> the new version
+   ```
+5. Fresh-user smoke from a throwaway git repo (the real external experience):
+   ```bash
+   npx -y @ps-neko/nekowork@alpha check
+   npx -y @ps-neko/nekowork@alpha verify-pr   # run twice — the second run must not self-scan .nekowork/
+   ```
+6. Optionally create/push `v<version>` and a GitHub prerelease.
 
-The first alpha publish succeeded, and duplicate publish attempts are correctly blocked:
+> The published `@alpha` may lag behind `main`. Pin an exact version (`@ps-neko/nekowork@0.2.0-alpha.2`) for reproducible behavior.
 
-```text
-npm publish --access public --tag alpha
--> E403 previously published versions: 0.1.0-alpha.0
-```
+## Gates before a publish
 
-The alpha update was published with the same `alpha` dist-tag:
-
-```text
-npm publish --access public --tag alpha
--> published 0.1.0-alpha.1
-```
-
-The second alpha update was also published with the same `alpha` dist-tag:
-
-```text
-npm publish --access public --tag alpha
--> published 0.1.0-alpha.2
-```
-
-The third alpha update was also published with the same `alpha` dist-tag:
-
-```text
-npm publish --access public --tag alpha
--> published 0.1.0-alpha.3
-```
-
-The fourth alpha update was also published with the same `alpha` dist-tag:
-
-```text
-npm publish --access public --tag alpha
--> published 0.1.0-alpha.4
-```
-
-The fifth alpha update was also published with the same `alpha` dist-tag:
-
-```text
-npm publish --access public --tag alpha
--> published 0.1.0-alpha.5
-```
-
-The sixth alpha update was also published with the same `alpha` dist-tag:
-
-```text
-npm publish --access public --tag alpha
--> published 0.1.0-alpha.6
-```
-
-The seventh alpha update was also published with the same `alpha` dist-tag:
-
-```text
-npm publish --access public --tag alpha
--> published 0.1.0-alpha.7
-```
-
-The eighth alpha update was also published with the same `alpha` dist-tag:
-
-```text
-npm publish --access public --tag alpha
--> published 0.1.0-alpha.8
-```
-
-The ninth alpha update was also published with the same `alpha` dist-tag:
-
-```text
-npm publish --access public --tag alpha
--> published 0.1.0-alpha.9
-```
-
-`npx` smoke passed:
-
-```text
-npx -y @ps-neko/nekowork@alpha check
--> WARN summary, 6 pass, 1 warn, 0 fail
-```
-
-The registry keeps `latest` on the first alpha line. Attempts to remove it after 2FA returned `E400 Bad Request`:
-
-```text
-npm dist-tag rm @ps-neko/nekowork latest
--> E400 Bad Request
-```
-
-Treat `latest` as an unavoidable alpha-line registry pointer for now. Do not promote it in docs as the stable path. When the first stable package is ready, publish or retag that stable version as `latest`.
-
-## Published Alpha Package Shape
-
-Published alpha package:
-
-```text
-name: @ps-neko/nekowork
-version: 0.1.0-alpha.9
-dist-tag: alpha
-bin: nekowork, harness
-```
-
-The alpha tag matters. It prevents accidental default installation before the owner decides the public package should become the stable install path.
-
-## Required Owner Decision For Future Publishes
-
-Before a future publish, explicitly confirm:
-
-- npm scope ownership for `@ps-neko`
-- npm 2FA readiness
-- package name `@ps-neko/nekowork`
-- binary names `nekowork` and `harness`
-- public alpha version for the next publish, for example `0.1.0-alpha.10`
-- `private` removed or set to `false`
-- publish tag is `alpha`, not `latest`
-
-## Next Alpha Publish Checklist
-
-Use this checklist for `0.1.0-alpha.10` or any later alpha. Do not run it until the owner explicitly approves the publish and `npm whoami` is the package owner account.
-
-1. Confirm the candidate scope in [RELEASE-READINESS.md](RELEASE-READINESS.md).
-2. Move the intended changelog entries from `Unreleased` to the new version heading.
-3. Bump `package.json` to the approved alpha version.
-4. Run the required gates below.
-5. Inspect `npm pack --dry-run --json` and confirm issue templates, docs, examples, scripts, and assets are intentional.
-6. Confirm `npm whoami` is the owner account.
-7. Publish with `npm publish --access public --tag alpha`.
-8. Verify `npm view @ps-neko/nekowork@alpha version --json` returns the new version.
-9. Smoke test from a fresh directory with `npx -y @ps-neko/nekowork@alpha check`.
-10. Create and push `v<version>`.
-11. Create a GitHub prerelease for `v<version>`.
-12. Update release docs from candidate/pending language to published language.
-
-Keep `latest` out of the public install path until a stable release exists.
-
-## Required Gates
-
-Run:
+Run from `packages/nekowork-cli` (the harness/source checkout):
 
 ```bash
-node scripts/cli.js doctor
-node scripts/cli.js doctor --quick --gemini-smoke
 npm run lint
-npm test
-npm run demo:quick -- --cleanup
-npm run demo:external -- --cleanup
+npm test                     # nekowork-cli suite (imports the slim package)
 npm audit --audit-level=moderate
-node scripts/repair.js --check
-node scripts/sync-claude-md.js --check
-node scripts/build-codemaps.js --check
-npm pack --dry-run --json
-npm publish --dry-run --access public --tag alpha
 ```
 
-Inspect the `npm pack --dry-run --json` file list before publishing.
-
-## Published Commands
-
-Published with:
+And from `packages/nekowork` (the slim package being published):
 
 ```bash
-npm publish --access public --tag alpha
+npm test                     # slim unit suite
+npm run smoke                # cli --version + verify-pr --help
+npm pack --dry-run --json    # inspect shipped file list (scripts/, README.md, LICENSE)
 ```
 
-Smoke test:
+CI must be green on `main` before triggering `publish.yml`.
 
-```bash
-npx -y @ps-neko/nekowork@alpha check
-```
+## Historical record (pre-split, single `@ps-neko/nekowork` line)
 
-If the `nekowork` or `harness` bin cannot run correctly through `npx`, do not promote the package.
+Before the package split, `@ps-neko/nekowork` was the full runtime, published manually with `npm publish --access public --tag alpha`:
 
-## Post-Publish Work
+- `0.1.0-alpha.0` / `0.1.0-alpha.1` — 2026-05-07
+- `0.1.0-alpha.2` … `0.1.0-alpha.8` — 2026-05-08
+- `0.1.0-alpha.9` — 2026-05-13
+- `0.1.0-alpha.10` / `0.1.0-alpha.11` — 2026-05-16
+- `0.1.0-alpha.12` — 2026-05-26 (last single-package publish)
 
-- Move `latest` to the first stable release when the project is no longer alpha.
-- Keep source/submodule install docs for users who want repository-pinned workflows.
+`0.0.3` and earlier stayed private/local and were never published. After the split, the slim line started at `0.2.0-alpha.0` (published via OIDC) and the harness package became private.
