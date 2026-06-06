@@ -1,0 +1,61 @@
+name: publish
+
+# CRITICAL: workflow_dispatch ONLY — this workflow must NEVER auto-fire.
+# No push:/pull_request:/schedule: triggers allowed.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'npm dist-tag to publish under (e.g. alpha, latest)'
+        required: false
+        default: 'alpha'
+
+# Least-privilege permissions.
+# id-token: write  — required for npm provenance (OIDC attestation).
+# contents: read   — checkout only.
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Setup Node.js (>=22, npm registry auth)
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Validation gates — must pass before publishing.
+      - name: nekowork slim tests
+        run: pnpm --filter @ps-neko/nekowork run test
+
+      - name: nekowork bench:rules
+        run: pnpm --filter @ps-neko/nekowork run bench:rules
+
+      # Publish the SLIM package only (packages/nekowork).
+      # NODE_AUTH_TOKEN is written by setup-node and read by npm automatically.
+      # --provenance generates an OIDC-signed attestation on npmjs.com.
+      # --access public is required for scoped packages on first publish.
+      - name: Publish @ps-neko/nekowork
+        working-directory: packages/nekowork
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PUBLISH_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          npm publish --provenance --tag "${PUBLISH_TAG}" --access public
