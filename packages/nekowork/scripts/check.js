@@ -18,7 +18,13 @@
 //   2  one or more FAIL — verify-pr cannot run
 
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import process from 'node:process';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const _pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'package.json'), 'utf8'));
 
 const STATUSES = { PASS: 'PASS', WARN: 'WARN', FAIL: 'FAIL' };
 const RANK = { PASS: 0, WARN: 1, FAIL: 2 };
@@ -98,7 +104,7 @@ if (json) {
   console.log(JSON.stringify({
     overall: worstStatus,
     checks,
-    nekowork_version: '0.2.0-alpha.0',
+    nekowork_version: _pkg.version,
   }, null, 2));
 } else {
   console.log('=== nekowork check ===');

@@ -25,19 +25,3 @@ export function latestStageHandoff(handoffs, stage) {
     .at(0) || null;
 }
 
-export function nextRound(handoffs, stage) {
-  const rounds = handoffs
-    .filter(h => h.stage === stage)
-    .map(h => Number(h.round || 1))
-    .filter(Number.isFinite);
-  return rounds.length ? Math.max(...rounds) + 1 : 1;
-}
-
-export function readJsonIfExists(file) {
-  if (!fs.existsSync(file)) return null;
-  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; }
-}
-
-export function readSessionProfile(sessionDir) {
-  return readJsonIfExists(path.join(sessionDir, 'ask.json'))?.profile || null;
-}
