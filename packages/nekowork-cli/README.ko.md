@@ -116,7 +116,11 @@ NEKOWORK는 이 질문에 답하기 위한 로컬 우선 런타임입니다.
 1.0 기본 흐름은 `verify-pr` 한 줄입니다. AI 도구(Claude Code / Cursor / Codex)가 diff를 만든 뒤:
 
 ```text
-check -> verify-pr -> REPORT.md / decision.json 확인 -> Human Gate -> apply
+check -> verify-pr -> REPORT.md / decision.json 확인 -> Human Gate -> 사람의 merge 결정
+```
+
+```text
+Session 기반 apply (compatibility, 별도): work -> verify -> ship -> cleared Human Gate -> apply
 ```
 
 `verify-pr`가 현재 diff를 결정적 룰로 스캔해 verdict(`BLOCK` / `NEEDS_HUMAN_REVIEW` / `INSUFFICIENT_EVIDENCE` / `ALLOW_WITH_WARNINGS` / `ALLOW`)를 정하고, 프로젝트 루트에 `REPORT.md`, `.nekowork/decision.json`을 씁니다.
