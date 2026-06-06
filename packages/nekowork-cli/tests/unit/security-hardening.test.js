@@ -32,9 +32,10 @@ test('security hardening validates exact semver MCP pins', () => {
 test('security hardening passes the repository policy', () => {
   const report = checkSecurityHardening(MONOREPO_ROOT);
   assert.deepEqual(report.errors, []);
-  // workflows: harness-review + harness-validate + visualizer-deploy = 3
+  // workflows: harness-review + harness-validate + visualizer-deploy + publish = 4
   // (visualizer-deploy 는 commit fb91033 에서 Phase 1.0 plan T7 으로 추가)
-  assert.equal(report.stats.workflows, 3);
+  // (publish.yml = workflow_dispatch-only npm 릴리스 워크플로, automation PR 에서 추가)
+  assert.equal(report.stats.workflows, 4);
   assert.ok(report.stats.actions >= 2);
 });
 
