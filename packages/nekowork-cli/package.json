@@ -88,7 +88,6 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@napi-rs/keyring": "^1.2.0",
     "@ps-neko/nekowork": "workspace:*",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
@@ -99,6 +98,7 @@
     "typescript": "^5.7.2"
   },
   "optionalDependencies": {
-    "@anthropic-ai/sdk": "^0.92.0"
+    "@anthropic-ai/sdk": "^0.92.0",
+    "@napi-rs/keyring": "^1.2.0"
   }
 }

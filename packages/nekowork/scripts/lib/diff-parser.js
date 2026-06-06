@@ -265,6 +265,8 @@ function synthesizeUntrackedDiff(cwd) {
  * @param {string[]} relPaths  repo-relative paths
  * @returns {string} concatenated unified-diff chunks
  */
+const SYNTH_FILE_SIZE_LIMIT = 2 * 1024 * 1024; // 2 MB per file
+
 function synthesizeFilesAsDiff(cwd, relPaths) {
   let chunks = '';
   for (const rel of relPaths) {
@@ -273,6 +275,8 @@ function synthesizeFilesAsDiff(cwd, relPaths) {
     try {
       const stat = fs.statSync(full);
       if (!stat.isFile()) continue;
+      // Skip files over the size limit to avoid OOM on huge files.
+      if (stat.size > SYNTH_FILE_SIZE_LIMIT) continue;
       content = fs.readFileSync(full, 'utf8');
     } catch { continue; }
     const lines = content.split('\n');

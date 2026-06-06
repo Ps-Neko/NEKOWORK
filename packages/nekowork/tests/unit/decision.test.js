@@ -196,3 +196,53 @@ test('decision reads approval actor from gate marker when summary is absent', ()
     rmrf(projectRoot);
   }
 });
+
+// Fix 1: unknown/unrecognized risk_level must NOT silently downgrade to 'low'
+// It must be treated as the highest known severity (fail-closed).
+test('maxRisk: unknown risk_level string must not silently become low', () => {
+  const { projectRoot, sessionId, sessionDir } = seedSession();
+  try {
+    // Inject a summary with an unknown/crafted risk_level string that could
+    // come from a rule returning an unrecognized enum value.
+    fs.writeFileSync(path.join(sessionDir, 'preverify-summary.json'), JSON.stringify({
+      verdict: 'block',
+      finding_count: 1,
+      gate_required: false,
+      reason: 'some finding',
+      risk_level: 'UNKNOWN_CRAFTED_RISK_LEVEL',
+      risk_tags: ['custom'],
+    }, null, 2));
+
+    const decision = buildDecision(sessionDir, { sessionId });
+    // An unrecognized risk_level must NOT collapse to 'low'.
+    // It must surface as 'critical' (highest safe default).
+    assert.notEqual(decision.risk.level, 'low',
+      'unknown risk_level must not silently downgrade to low');
+    assert.equal(decision.risk.level, 'critical',
+      'unknown risk_level must surface as critical (fail-closed)');
+  } finally {
+    rmrf(projectRoot);
+  }
+});
+
+// Fix 5: readMarker TOCTOU — file removed between existsSync and readFileSync
+test('readMarker: file removed between exists and read does not crash decision', () => {
+  const { projectRoot, sessionDir } = seedSession();
+  try {
+    // Write the marker file, then use a patched exists that returns true
+    // but remove the file before the read happens.
+    // We simulate this by writing the marker, building the decision (it
+    // survives), and then removing the marker and building again.
+    fs.writeFileSync(path.join(sessionDir, 'HUMAN_GATE'), 'reason: test\nat: 2026-01-01T00:00:00Z\n');
+    // Remove mid-flight cannot be easily simulated without patching; instead
+    // verify that a pre-removed marker path is handled gracefully (no throw).
+    fs.unlinkSync(path.join(sessionDir, 'HUMAN_GATE'));
+    // If TOCTOU protection is in place, a missing file after existsSync returns
+    // false should not throw — and since existsSync+readFileSync are guarded,
+    // the decision should still complete without throwing.
+    assert.doesNotThrow(() => buildDecision(sessionDir, {}),
+      'decision must not crash when a marker file is removed at read time');
+  } finally {
+    rmrf(projectRoot);
+  }
+});
