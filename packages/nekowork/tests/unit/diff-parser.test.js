@@ -1,7 +1,11 @@
 // diff-parser: edge cases — empty input, binary files, malformed headers
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
-import { parseDiff } from '../../scripts/lib/diff-parser.js';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { parseDiff, getGitDiff } from '../../scripts/lib/diff-parser.js';
 
 test('parseDiff: empty string returns zero-file result', () => {
   const result = parseDiff('');
@@ -105,4 +109,41 @@ test('parseDiff: multiple files accumulate totalAdditions/totalDeletions', () =>
   assert.equal(result.totalFiles, 2);
   assert.equal(result.totalAdditions, 1);
   assert.equal(result.totalDeletions, 1);
+});
+
+function git(cwd, args) {
+  const r = spawnSync('git', args, { cwd, encoding: 'utf8', windowsHide: true });
+  if (r.status !== 0) throw new Error(`git ${args.join(' ')} failed: ${r.stderr || ''}`);
+  return r.stdout;
+}
+
+test("getGitDiff: working mode excludes the tool's own output (.nekowork/ + REPORT.md)", () => {
+  const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-selfscan-'));
+  try {
+    git(cwd, ['init', '-q']);
+    git(cwd, ['config', 'user.email', 'test@test.local']);
+    git(cwd, ['config', 'user.name', 'test']);
+    git(cwd, ['config', 'commit.gpgsign', 'false']);
+    fs.writeFileSync(path.join(cwd, 'README.md'), '# baseline\n');
+    git(cwd, ['add', 'README.md']);
+    git(cwd, ['commit', '-qm', 'baseline']);
+
+    // a real AI change (untracked source file) — must be scanned
+    fs.mkdirSync(path.join(cwd, 'src'), { recursive: true });
+    fs.writeFileSync(path.join(cwd, 'src', 'auth.ts'), 'export const k = process.env.X || "sk-fallback-123";\n');
+
+    // the tool's own prior output (untracked, NOT gitignored) — must be excluded,
+    // otherwise the secret text stored in its evidence is re-flagged next run.
+    fs.mkdirSync(path.join(cwd, '.nekowork', 'evidence'), { recursive: true });
+    fs.writeFileSync(path.join(cwd, '.nekowork', 'decision.json'), '{"verdict":"BLOCK","match":"process.env.X || \\"sk-fallback-123\\""}\n');
+    fs.writeFileSync(path.join(cwd, '.nekowork', 'evidence', 'risk-findings.json'), '[{"match":"process.env.X || \\"sk-fallback-123\\""}]\n');
+    fs.writeFileSync(path.join(cwd, 'REPORT.md'), '# report\n');
+
+    const paths = getGitDiff({ cwd, mode: 'working' }).files.map(f => f.path);
+    assert.ok(paths.includes('src/auth.ts'), 'real source change should be scanned');
+    assert.ok(!paths.some(p => p.startsWith('.nekowork/')), '.nekowork/ output must be excluded');
+    assert.ok(!paths.includes('REPORT.md'), 'REPORT.md output must be excluded');
+  } finally {
+    fs.rmSync(cwd, { recursive: true, force: true });
+  }
 });
