@@ -148,7 +148,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: harness-handoffs-${{ env.HARNESS_CI_SESSION_ID }}
           path: .harness/state/sessions/${{ env.HARNESS_CI_SESSION_ID }}/
