@@ -4,7 +4,7 @@
 // All 4 public verbs run LOCALLY in this package. No delegation to any other package.
 //
 // Public verbs: check, verify-pr, report, apply
-// Anything else → error with hint to install @ps-neko/nekowork-harness.
+// Anything else → error: harness verbs live in the internal (unpublished) @ps-neko/nekowork-harness; use a source checkout.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -45,8 +45,9 @@ verify-pr options:
   --no-write                don't write REPORT.md / decision.json
 
 Need legacy / harness commands (ask / plan / team / work / ship / build / auto / ...)?
-  npm i -g @ps-neko/nekowork-harness
-  nekowork-harness <verb>
+  They live in the internal @ps-neko/nekowork-harness runtime, which is NOT
+  published to npm. Run them from a source checkout:
+  https://github.com/Ps-Neko/NEKOWORK
 
 Docs:
   https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/QUICKSTART.md
@@ -72,9 +73,9 @@ if (VERBS_INTERNAL.has(verb)) {
 The slim @ps-neko/nekowork supports:
   check, verify-pr, report, apply
 
-For \`${verb}\` (a harness command), install @ps-neko/nekowork-harness:
-  npm i -g @ps-neko/nekowork-harness
-  nekowork-harness ${verb} ${args.slice(1).join(' ')}`);
+\`${verb}\` is a harness command. The harness runtime (@ps-neko/nekowork-harness)
+is internal and NOT published to npm — run harness verbs from a source checkout:
+  https://github.com/Ps-Neko/NEKOWORK`);
   process.exit(1);
 }
 

@@ -441,7 +441,7 @@ export function parseVerifyPrArgs(rest = []) {
     else if (a === '--no-write') opts.write = false;
     else if (a === '--comment-file') { opts.commentFile = nextArg(rest, ++i, '--comment-file'); }
     else if (a === '--ci-exit-soft') opts.ciExitSoft = true;
-    else if (a === '--run-checks') process.stderr.write('warning: --run-checks is not supported in the slim @ps-neko/nekowork gate; install @ps-neko/nekowork-harness for this feature\n');
+    else if (a === '--run-checks') process.stderr.write('warning: --run-checks is not supported in the slim @ps-neko/nekowork gate; use the @ps-neko/nekowork-harness runtime from a source checkout for this feature\n');
     else if (a === '--include') { (opts.includePaths = opts.includePaths || []).push(nextArg(rest, ++i, '--include')); }
   }
   return opts;
