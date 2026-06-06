@@ -82,6 +82,50 @@ NEKOWORK should not absorb upstream discovery features into the core runtime:
 
 The integration point is the artifact contract. Upstream tools own domain clarity. NEKOWORK owns the evidence-backed apply boundary.
 
+## CI / pre-commit
+
+### GitHub Actions
+
+Use the `Ps-Neko/NEKOWORK` composite action to gate PRs automatically:
+
+```yaml
+# .github/workflows/verify-pr.yml
+name: verify-pr
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: Ps-Neko/NEKOWORK@v1
+        with:
+          args: '--comment-file pr-comment.md'
+```
+
+The action installs Node.js ≥ 22 automatically. Pass additional flags to `verify-pr`
+via the `args` input. The `@v1` tag tracks the current stable release.
+
+### pre-commit hook
+
+For local safety before each commit, add this to your `.pre-commit-config.yaml`:
+
+```yaml
+repos:
+  - repo: https://github.com/Ps-Neko/NEKOWORK
+    rev: v1          # pin to a specific tag or SHA
+    hooks:
+      - id: nekowork-verify-pr
+```
+
+Then run `pre-commit install` once. After that, every `git commit` scans the
+staged diff with `nekowork verify-pr --from-staged` and blocks if the gate fails.
+
+Requires Python's `pre-commit` tool (`pip install pre-commit`).
+
 ## Concrete recipes
 
 For a catalog of tools that produce `context.md`, `DOMAIN.md`, `SPEC.md`, and `PLAN.md` (brainstorming skill, gstack `/office-hours`, DDD passes, `writing-plans`, etc.), see [UPSTREAM-RECIPES.md](UPSTREAM-RECIPES.md).

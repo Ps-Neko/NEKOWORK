@@ -1,0 +1,30 @@
+name: 'NEKOWORK verify-pr'
+description: 'Run @ps-neko/nekowork verify-pr to gate AI-written diffs deterministically before they hit main.'
+author: 'Ps-Neko'
+branding:
+  icon: 'shield'
+  color: 'gray-dark'
+
+inputs:
+  args:
+    description: 'Extra args passed to `nekowork verify-pr`. Example: --from-staged --comment-file pr-comment.md'
+    required: false
+    default: ''
+  node-version:
+    description: 'Node.js major version to install. Must be 22+.'
+    required: false
+    default: '22'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Run nekowork verify-pr
+      shell: bash
+      run: |
+        set -euo pipefail
+        npx -y @ps-neko/nekowork verify-pr ${{ inputs.args }}
