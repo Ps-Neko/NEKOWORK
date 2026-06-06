@@ -265,14 +265,25 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
 });
 
 function mapKeyToPath(key) {
+  const sep = path.sep;
   switch (key) {
     case 'notepad':  return path.join(SESSION_DIR, 'notepad.md');
     case 'prd':      return path.join(SESSION_DIR, 'prd.json');
     case 'progress': return path.join(SESSION_DIR, 'progress.txt');
     case 'round':    return path.join(SESSION_DIR, 'round.json');
-    default:
+    default: {
       if (key.includes('..')) throw new Error('상위 디렉터리 접근 금지');
-      return path.join(SESSION_DIR, key);
+      const joined = path.join(SESSION_DIR, key);
+      // Resolve both sides and require the result stays within SESSION_DIR.
+      // path.join with an absolute second arg escapes the base — resolve catches both
+      // '..' traversal and absolute-path injection.
+      const resolved = path.resolve(joined);
+      const base = path.resolve(SESSION_DIR) + sep;
+      if (!resolved.startsWith(base) && resolved !== path.resolve(SESSION_DIR)) {
+        throw new Error('세션 디렉터리 범위 벗어남: 접근 금지');
+      }
+      return joined;
+    }
   }
 }
 

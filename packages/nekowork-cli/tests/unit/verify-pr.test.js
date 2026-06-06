@@ -302,6 +302,31 @@ test('parseVerifyPrArgs: --run-checks 와 --checks-timeout', () => {
   assert.equal(opts.checksTimeout, 60000);
 });
 
+// Fix 4: bounds checks — value-taking flags at end of argv must throw clearly
+test('parseVerifyPrArgs: --from-patch as last arg throws bounds error', () => {
+  assert.throws(() => parseVerifyPrArgs(['--from-patch']), /requires a value/i);
+});
+
+test('parseVerifyPrArgs: --range as last arg throws bounds error', () => {
+  assert.throws(() => parseVerifyPrArgs(['--range']), /requires a value/i);
+});
+
+test('parseVerifyPrArgs: --comment-file as last arg throws bounds error', () => {
+  assert.throws(() => parseVerifyPrArgs(['--comment-file']), /requires a value/i);
+});
+
+test('parseVerifyPrArgs: --project-root as last arg throws bounds error', () => {
+  assert.throws(() => parseVerifyPrArgs(['--project-root']), /requires a value/i);
+});
+
+test('parseVerifyPrArgs: --checks-timeout as last arg throws bounds error', () => {
+  assert.throws(() => parseVerifyPrArgs(['--checks-timeout']), /requires a value/i);
+});
+
+test('parseVerifyPrArgs: --include as last arg throws bounds error', () => {
+  assert.throws(() => parseVerifyPrArgs(['--include']), /requires a value/i);
+});
+
 test('parseVerifyPrArgs: --run-checks 없으면 runChecks 는 falsy', () => {
   const opts = parseVerifyPrArgs([]);
   assert.ok(!opts.runChecks);

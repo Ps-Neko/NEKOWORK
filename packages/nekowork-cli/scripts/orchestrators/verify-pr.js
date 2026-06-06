@@ -501,6 +501,13 @@ function renderReport(decision, findings) {
   return lines.join('\n');
 }
 
+function nextArg(rest, i, flag) {
+  if (i >= rest.length || rest[i] === undefined) {
+    throw new Error(`${flag} requires a value but none was provided`);
+  }
+  return rest[i];
+}
+
 export function parseVerifyPrArgs(rest = []) {
   const opts = { mode: 'working', json: false, write: true };
   for (let i = 0; i < rest.length; i++) {
@@ -508,16 +515,16 @@ export function parseVerifyPrArgs(rest = []) {
     if (a === '--from-working-tree') opts.mode = 'working';
     else if (a === '--from-staged' || a === '--staged') opts.mode = 'staged';
     else if (a === '--full-scan' || a === '--full') opts.mode = 'full';
-    else if (a === '--from-patch') { opts.mode = 'patch'; opts.patchPath = rest[++i]; }
-    else if (a === '--range') { opts.mode = 'range'; opts.range = rest[++i]; }
-    else if (a === '--project-root') opts.projectRoot = rest[++i];
+    else if (a === '--from-patch') { opts.mode = 'patch'; opts.patchPath = nextArg(rest, ++i, '--from-patch'); }
+    else if (a === '--range') { opts.mode = 'range'; opts.range = nextArg(rest, ++i, '--range'); }
+    else if (a === '--project-root') { opts.projectRoot = nextArg(rest, ++i, '--project-root'); }
     else if (a === '--json') opts.json = true;
     else if (a === '--no-write') opts.write = false;
-    else if (a === '--comment-file') opts.commentFile = rest[++i];
+    else if (a === '--comment-file') { opts.commentFile = nextArg(rest, ++i, '--comment-file'); }
     else if (a === '--ci-exit-soft') opts.ciExitSoft = true;
     else if (a === '--run-checks') opts.runChecks = true;
-    else if (a === '--checks-timeout') opts.checksTimeout = Number(rest[++i]);
-    else if (a === '--include') { (opts.includePaths = opts.includePaths || []).push(rest[++i]); }
+    else if (a === '--checks-timeout') { opts.checksTimeout = Number(nextArg(rest, ++i, '--checks-timeout')); }
+    else if (a === '--include') { (opts.includePaths = opts.includePaths || []).push(nextArg(rest, ++i, '--include')); }
   }
   return opts;
 }
