@@ -238,7 +238,7 @@ NEKOWORK는 하나의 거대한 agent 묶음이 아니라, 일을 나누고 검�
 ## 현재 alpha 상태
 
 - Package: `@ps-neko/nekowork`
-- Current npm alpha (public slim package): `@ps-neko/nekowork@0.2.0-alpha.2` (`@alpha` dist-tag)
+- Current npm alpha (public slim package): `@ps-neko/nekowork@0.2.0-alpha.3` (`@alpha` dist-tag)
 - Internal harness runtime: `@ps-neko/nekowork-harness` `0.1.0-alpha.12` (private — source-checkout only, not published)
 - CLI: `nekowork`
 - Legacy/internal alias: `harness`
