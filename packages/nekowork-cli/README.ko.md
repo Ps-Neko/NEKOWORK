@@ -105,7 +105,7 @@ NEKOWORK는 이 질문에 답하기 위한 로컬 우선 런타임입니다.
 - verdict는 결정적 룰 + 검사 결과만 결정합니다 (LLM 의견 아님).
 - Codex 리뷰는 선택적 advisor 노트로만 기록되며 verdict에 영향을 주지 않습니다.
 - 위험하면 Human Gate를 엽니다.
-- `apply`는 `decision.apply_allowed = true`일 때만 명시적으로 실행됩니다.
+- `apply`는 session 기반 compatibility 명령으로, SHIP_READY 마커와 gate clear가 필요합니다 — `decision.json.apply_allowed`가 트리거가 아닙니다.
 
 ## 실행 흐름
 
@@ -116,6 +116,8 @@ check -> verify-pr -> REPORT.md / decision.json 확인 -> Human Gate -> apply
 ```
 
 `verify-pr`가 현재 diff를 결정적 룰로 스캔해 verdict(`BLOCK` / `NEEDS_HUMAN_REVIEW` / `INSUFFICIENT_EVIDENCE` / `ALLOW_WITH_WARNINGS` / `ALLOW`)를 정하고, 프로젝트 루트에 `REPORT.md`, `.nekowork/decision.json`을 씁니다.
+
+> verify-pr는 변경사항을 적용하지 않는다. apply는 legacy/session 기반 compatibility 흐름이며, SHIP_READY와 gate clear가 필요하다.
 
 세션 기반 단계별 제어(`ask` / `plan` / `team` / `work` / `verify` / `gate` / `ship` / `auto` / `report --session` / `apply --session`)는 호환용 고급 명령으로 [docs/ADVANCED.md](docs/ADVANCED.md)에 있으며, 2.0에서 제거 예정입니다 ([docs/SCOPE-1.0.md](docs/SCOPE-1.0.md) Phased Cut).
 

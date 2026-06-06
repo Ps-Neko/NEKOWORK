@@ -50,7 +50,9 @@ The evidence chain is intentionally narrow:
 diff -> deterministic risk rules -> checks (test/lint/typecheck; detected always, executed with --run-checks, escalation-only) -> evidence package -> deterministic decision -> REPORT.md -> Human Gate -> explicit apply
 ```
 
-No auto-commit. No auto-push. No surprise deploy. `apply` is explicit; it requires a `decision.json` whose `apply_allowed` is `true`.
+No auto-commit. No auto-push. No surprise deploy. `apply` is explicit; it is session-based and requires a completed work cycle (SHIP_READY + cleared Human Gate) — not `decision.json.apply_allowed`.
+
+> verify-pr itself does not apply changes. Session-based apply is part of the compatibility workflow and requires SHIP_READY and a cleared Human Gate.
 
 Bring your AI tool (Cursor / Claude Code / Codex). NEKOWORK does not replace them — use them to write the code, then run the diff through NEKOWORK. It starts after the diff is on disk. Advanced and legacy commands are documented in [docs/ADVANCED.md](docs/ADVANCED.md) and gated under Phased Cut (see [docs/SCOPE-1.0.md](docs/SCOPE-1.0.md)).
 
@@ -204,7 +206,7 @@ The machine-readable companion is `.nekowork/decision.json` (`schema_version: ve
 }
 ```
 
-`apply` refuses to run unless `decision.json.apply_allowed` is `true`. See the full report contract and example artifact in [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md), and the one-minute terminal transcript in [docs/DEMO.md](docs/DEMO.md).
+`apply` is a session-based compatibility command — it requires a completed work cycle with a `SHIP_READY` marker and a cleared Human Gate, not `decision.json.apply_allowed`. The `apply_allowed` field in `decision.json` is an informational verdict field produced by `verify-pr`, not an apply trigger. See the full report contract and example artifact in [docs/DEMO-REPORT.md](docs/DEMO-REPORT.md), and the one-minute terminal transcript in [docs/DEMO.md](docs/DEMO.md).
 
 ## Main Surface
 

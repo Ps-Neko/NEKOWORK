@@ -127,7 +127,7 @@ The machine-readable companion (`schema_version: verify-pr-v0`). `generated_at` 
 }
 ```
 
-`apply` refuses to run unless `apply_allowed` is `true`.
+`apply` is a session-based compatibility command — it requires a completed work cycle with a `SHIP_READY` marker and a cleared Human Gate. The `apply_allowed` field above is an informational verdict field written by `verify-pr`; it does not gate the `apply` command.
 
 ## Safety contract
 

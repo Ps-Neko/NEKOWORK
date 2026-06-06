@@ -10,18 +10,18 @@ pushes, or deploys on its own.
 
 ## Status
 
-**Phase A skeleton** (2026-05-27). The 4 public verbs work via delegation to
-`@ps-neko/nekowork-cli` in the monorepo. To publish this package
-independently, the verify-pr code path needs to be moved into this package —
-see [HANDOFF-PACKAGE-SPLIT.md](./HANDOFF-PACKAGE-SPLIT.md).
-
-For the full alpha-stage product today, install:
+**Published alpha** (`@ps-neko/nekowork`, alpha dist-tag). This package is the
+published slim verification gate. Install with:
 
 ```bash
-npm i -g @ps-neko/nekowork-cli@alpha
+npm i -g @ps-neko/nekowork
 ```
 
-## Quickstart (once Phase A is complete)
+The fuller legacy and power-user surface lives in the internal
+`@ps-neko/nekowork-harness` package (not separately published). See
+[HANDOFF-PACKAGE-SPLIT.md](./HANDOFF-PACKAGE-SPLIT.md) for the split history.
+
+## Quickstart
 
 ```bash
 # right after your AI tool changes some files:
@@ -39,7 +39,7 @@ whether the change is safe to merge.
 | `check` | Probe environment readiness (Node version, git repo, etc.) |
 | `verify-pr` | Scan working-tree diff. Produce REPORT.md + .nekowork/decision.json |
 | `report` | Render an existing decision.json to a human-readable REPORT.md |
-| `apply` | Apply a stored .diff iff decision.json says `apply_allowed: true` |
+| `apply` | Session-based compatibility apply. Requires a completed work cycle (SHIP_READY marker + cleared Human Gate). NOT driven by verify-pr's decision.json. See [ADVANCED.md](../nekowork-cli/docs/ADVANCED.md). |
 
 Anything else (`ask`, `plan`, `team`, `work`, `ship`, `build`, `auto`,
 `pr-prep`, `review`, ...) belongs to `@ps-neko/nekowork-harness` (legacy and
@@ -50,9 +50,16 @@ power-user surface). The slim package rejects those verbs with a redirect.
 1. Your AI tool writes the code. `nekowork` never writes it for you.
 2. `verify-pr` runs a fixed set of risk rules over the diff — same diff, same
    verdict, every time. **No LLM gets to "vote" the result.**
-3. It saves the evidence into a `REPORT.md` you can read.
+3. It saves the evidence into a `REPORT.md` you can read, and writes
+   `.nekowork/decision.json` with informational verdict fields (`merge_allowed`,
+   `apply_allowed`). **verify-pr itself does not apply changes.**
 4. You decide at the Human Gate — approve, or don't.
-5. Only then can `apply` apply the diff. No auto-commit. No auto-push.
+
+> verify-pr itself does not apply changes. Session-based apply is part of the
+> compatibility workflow and requires SHIP_READY and a cleared Human Gate.
+
+No auto-commit. No auto-push. `apply` is a separate, session-based compatibility
+step — it is not triggered by `decision.json`.
 
 ## Docs
 
