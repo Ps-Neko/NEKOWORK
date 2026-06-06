@@ -1,6 +1,6 @@
 {
   "name": "@ps-neko/nekowork",
-  "version": "0.2.0-alpha.0",
+  "version": "0.2.0-alpha.1",
   "description": "Local verification gate for AI-written code diffs. Deterministic rules decide the verdict, never the LLM. No auto-commit, push, or deploy — you decide at the Human Gate.",
   "keywords": [
     "ai-code-review",
