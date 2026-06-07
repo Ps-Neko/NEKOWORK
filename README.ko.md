@@ -62,8 +62,8 @@ npx -y @ps-neko/nekowork@alpha verify-pr
 ```
 
 > 항상 **`@alpha`** 태그를 쓰세요 — 태그 없는 기본 / `latest` dist-tag 는 오래된
-> `0.2.0-alpha.0` 에 고정돼 있습니다. (`@alpha` 와 `latest` 는 현재 같은 룰을 담고 있고,
-> 차이는 버그 수정뿐이라 `@alpha` 를 설치하면 됩니다.)
+> `0.2.0-alpha.0`(규칙 5개, 의존성 0개)에 고정돼 있습니다. `@alpha`(`0.2.0-alpha.7`)는
+> **11개 규칙 전부**를 담고 있으니 `@alpha` 를 설치하면 됩니다.
 
 NEKOWORK가 바뀐 줄을 읽고, 사람이 읽기 쉬운 `REPORT.md`를 만들고, 이 변경을
 진행해도 되는지 알려줍니다.
@@ -100,12 +100,11 @@ NEKOWORK는 **정해진 AI 유발 위험 패턴 집합** — 11개 결정적 규
 결함)는 여전히 **범위 밖**입니다. 정확한 경계는
 [벤치마크의 "What is NOT covered"](packages/nekowork-cli/docs/BENCHMARK.md) 참고.
 
-> 참고: 발행된 `@alpha`(0.2.0-alpha.6)는 현재 원래의 5개 규칙만 담고 있고 **의존성이
-> 0개**입니다. 새로 추가된 6개 규칙(eval, 안전하지 않은 TLS, CORS 와일드카드,
-> SQL/command injection, AST dataflow)은 레포에 들어와 있으며 다음 alpha 발행에서 함께
-> 나갑니다. 그 빌드는 AST 엔진을 위해 **작고 잘 알려진 의존성 1개**(`acorn`, JS 파서 —
-> MIT, transitive 의존성 0)를 추가합니다. 즉 오늘 `@alpha` 를 설치하면 5개 규칙 + 의존성
-> 0이고, 11개 규칙 + acorn 빌드는 다음 발행에서 나옵니다.
+> 참고: 발행된 `@alpha`(0.2.0-alpha.7)는 이제 **11개 규칙 전부**(eval, 안전하지 않은 TLS,
+> CORS 와일드카드, SQL/command injection, AST dataflow 포함)를 담고 있으며, AST 엔진을 위해
+> **작고 잘 알려진 의존성 1개**(`acorn`, JS 파서 — MIT, transitive 의존성 0)를 추가합니다.
+> 항상 **`@alpha`** 태그로 설치하세요 — `latest` dist-tag 는 오래된 `0.2.0-alpha.0`(규칙 5개,
+> 의존성 0개)입니다.
 
 전체 기술 범위: [SCOPE-1.0.md](packages/nekowork-cli/docs/SCOPE-1.0.md).
 
