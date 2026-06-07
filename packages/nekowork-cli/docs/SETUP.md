@@ -2,7 +2,7 @@
 
 Start with [QUICKSTART.md](QUICKSTART.md) if this is your first run. This page is the deeper contributor setup guide.
 
-NEKOWORK `0.1.0-alpha.12` is the current repository version (the internal `@ps-neko/nekowork-harness` runtime, source-checkout only). The published public alpha is the slim `@ps-neko/nekowork@alpha` (currently `0.2.0-alpha.4`). Use the npm `@alpha` tag for the shortest first-run path, or use a source checkout, submodule, or local repository integration when you need examples, tests, or repository-pinned workflows.
+NEKOWORK `0.1.0-alpha.12` is the current repository version (the internal `@ps-neko/nekowork-harness` runtime, source-checkout only). The published public alpha is the slim `@ps-neko/nekowork@alpha` (currently `0.2.0-alpha.5`). Use the npm `@alpha` tag for the shortest first-run path, or use a source checkout, submodule, or local repository integration when you need examples, tests, or repository-pinned workflows.
 
 ## Requirements
 
