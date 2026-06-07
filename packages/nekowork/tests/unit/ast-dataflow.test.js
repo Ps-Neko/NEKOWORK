@@ -233,6 +233,112 @@ test('SCOPE: intraprocedural only — dynamic value built in another function is
 });
 
 // ---------------------------------------------------------------------------
+// Inter-procedural (intra-module): local-function return-taint resolution
+// (arg-sensitive). Catches helpers that assemble the dangerous value.
+// ---------------------------------------------------------------------------
+
+test('XFN SQL: helper concats param into SQL, return flows into db.query() → flagged', () => {
+  const r = a('function build(x){ return "SELECT * FROM u WHERE id="+x; } function h(req){ return db.query(build(req.id)); }');
+  assert.ok(r.findings.some(f => f.rule === 'ast-sql-injection' && f.severity === 'high'));
+});
+
+test('XFN SQL: arrow helper (expression body) builds SQL from arg → flagged', () => {
+  const r = a('const wrap=(s)=>"SELECT "+s; function h(req){ return conn.query(wrap(req.c)); }');
+  assert.ok(rules(r).includes('ast-sql-injection'));
+});
+
+test('XFN CMD: helper assembles shell command, return flows into execSync() → flagged critical', () => {
+  const r = a('function mk(p){ return "ls "+p; } function h(req){ return cp.execSync(mk(req.q)); }');
+  assert.ok(r.findings.some(f => f.rule === 'ast-command-injection' && f.severity === 'critical'));
+});
+
+test('XFN EVAL: helper wraps input as code, return flows into eval() → flagged', () => {
+  const r = a('function asm(c){ return "("+c+")"; } function h(i){ return eval(asm(i)); }');
+  assert.ok(rules(r).includes('ast-eval-injection'));
+});
+
+test('XFN: nested helper chain (build → wrap) resolves through depth → flagged', () => {
+  const r = a('function frag(x){ return "id="+x; } function build(x){ return "SELECT * FROM u WHERE "+frag(x); } function h(req){ return db.query(build(req.id)); }');
+  assert.ok(rules(r).includes('ast-sql-injection'));
+});
+
+// Inter-procedural FP-safety: helper returns/identity/non-SQL/numeric.
+
+test('XFN FP: helper returns a CONSTANT SQL string → clean', () => {
+  const r = a('function build(){ return "SELECT 1"; } function h(){ return db.query(build()); }');
+  assert.equal(r.findings.length, 0);
+});
+
+test('XFN FP: identity helper called with a CONSTANT arg (keyword present but non-dynamic) → clean', () => {
+  const r = a('function id(x){ return x; } function h(){ return db.query(id("SELECT 1")); }');
+  assert.equal(r.findings.length, 0);
+});
+
+test('XFN FP: parameterized query inside a helper, outer call static + params array → clean', () => {
+  const r = a('function run(sql,p){ return db.query(sql,p); } function h(req){ return run("SELECT * FROM u WHERE id=$1",[req.id]); }');
+  assert.equal(r.findings.length, 0);
+});
+
+test('XFN FP: helper builds a dynamic but NON-SQL string into emitter.query() → clean (keyword gate)', () => {
+  const r = a('function build(x){ return "topic-"+x; } function h(req){ return emitter.query(build(req.id)); }');
+  assert.equal(r.findings.length, 0);
+});
+
+test('XFN FP: numeric helper (add) with constant args, logged → clean', () => {
+  const r = a('function add(a,b){ return a+b; } function h(){ const x=add(1,2); return console.log(x); }');
+  assert.equal(r.findings.length, 0);
+});
+
+test('XFN FP: unknown/non-local call into db.query stays structurally dynamic with no text → clean', () => {
+  const r = a('function h(req){ return db.query(externalBuild(req.id)); }');
+  assert.equal(r.findings.length, 0);
+});
+
+test('XFN FP: recursive helper does not infinite-loop and stays clean (no recovered SQL keyword)', () => {
+  const r = a('function rec(x){ return rec(x); } function h(req){ return db.query(rec(req.id)); }');
+  assert.equal(r.findings.length, 0);
+});
+
+// ---------------------------------------------------------------------------
+// Inter-procedural: sink-alias resolution (const X = obj.sinkMethod).
+// ---------------------------------------------------------------------------
+
+test('ALIAS SQL: const q=db.query; q("SELECT ..."+input) → ast-sql-injection high', () => {
+  const r = a("const q=db.query; function h(req){ return q(\"SELECT * FROM t WHERE n='\"+req.n+\"'\"); }");
+  assert.ok(r.findings.some(f => f.rule === 'ast-sql-injection' && f.severity === 'high'));
+});
+
+test('ALIAS CMD: const run=cp.execSync; run("rm -rf "+input) → ast-command-injection critical', () => {
+  const r = a('const cp=require("child_process"); const run=cp.execSync; function h(req){ return run("rm -rf "+req.path); }');
+  assert.ok(r.findings.some(f => f.rule === 'ast-command-injection' && f.severity === 'critical'));
+});
+
+test('ALIAS: sql alias fed a local helper return resolves arg-sensitively → flagged', () => {
+  const r = a('const q=db.query; function build(x){ return "DELETE FROM logs WHERE id="+x; } function h(req){ return q(build(req.id)); }');
+  assert.ok(rules(r).includes('ast-sql-injection'));
+});
+
+test('ALIAS FP: const run=console.log; run("SELECT "+x) is NOT a sink → clean', () => {
+  const r = a('const run=console.log; function h(req){ return run("SELECT "+req.x); }');
+  assert.equal(r.findings.length, 0);
+});
+
+test('ALIAS FP: sql alias fed a parameterized call (placeholder + params array) → clean', () => {
+  const r = a('const q=db.query; function h(req){ return q("SELECT * FROM u WHERE id=$1",[req.id]); }');
+  assert.equal(r.findings.length, 0);
+});
+
+test('ALIAS FP: sql alias fed a const-bound static query → clean', () => {
+  const r = a('const q=db.query; function h(){ const s="SELECT 1"; return q(s); }');
+  assert.equal(r.findings.length, 0);
+});
+
+test('ALIAS FP: reassigned binding is NOT treated as a stable sink alias → clean', () => {
+  const r = a('let run=cp.execSync; run=console.log; function h(req){ return run("rm -rf "+req.path); }');
+  assert.equal(r.findings.length, 0);
+});
+
+// ---------------------------------------------------------------------------
 // TS stripping (offsets preserved → correct line numbers)
 // ---------------------------------------------------------------------------
 
