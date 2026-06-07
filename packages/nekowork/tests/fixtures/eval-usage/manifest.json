@@ -5,7 +5,7 @@
   "notes": "F1: dynamic code execution (eval / new Function). High severity injection/RCE vector. fpMode any — there is no acceptable eval finding, so any finding on a negative is an FP. Static-literal eval and comment/identifier mentions must not fire.",
   "targets": {
     "any_detection_recall": 0.95,
-    "fp_rate": 0.10
+    "fp_rate": 0.1
   },
   "entries": [
     {
@@ -14,7 +14,13 @@
       "source": "synthetic",
       "file": "positive/001-eval-variable.js",
       "pattern": "eval-call",
-      "expected_findings": [{ "rule": "eval-usage", "line": 4, "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "line": 4,
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "eval(input) — variable argument."
     },
@@ -24,7 +30,13 @@
       "source": "synthetic",
       "file": "positive/002-eval-concat.js",
       "pattern": "eval-call",
-      "expected_findings": [{ "rule": "eval-usage", "line": 4, "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "line": 4,
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "eval('return ' + expr + ';') — concatenated string."
     },
@@ -34,7 +46,13 @@
       "source": "synthetic",
       "file": "positive/003-new-function.js",
       "pattern": "new-function-constructor",
-      "expected_findings": [{ "rule": "eval-usage", "line": 4, "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "line": 4,
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "new Function('ctx', body)."
     },
@@ -44,7 +62,13 @@
       "source": "synthetic",
       "file": "positive/004-eval-template.js",
       "pattern": "eval-call",
-      "expected_findings": [{ "rule": "eval-usage", "line": 4, "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "line": 4,
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "eval(`${name} = ${value}`) — interpolated template."
     },
@@ -81,7 +105,12 @@
       "source": "synthetic",
       "file": "positive/005-window-eval.js",
       "pattern": "indirect-global-eval",
-      "expected_findings": [{ "rule": "eval-usage", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "R2-3 indirect eval: window.eval(req.query.code)."
     },
@@ -91,7 +120,12 @@
       "source": "synthetic",
       "file": "positive/006-globalthis-eval.js",
       "pattern": "indirect-global-eval",
-      "expected_findings": [{ "rule": "eval-usage", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "R2-3 indirect eval: globalThis.eval('(' + payload + ')')."
     },
@@ -101,7 +135,12 @@
       "source": "synthetic",
       "file": "positive/007-vm-runincontext.js",
       "pattern": "node-vm-run",
-      "expected_findings": [{ "rule": "eval-usage", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "R2-3 Node vm: vm.runInNewContext(userScript, context)."
     },
@@ -111,7 +150,12 @@
       "source": "synthetic",
       "file": "positive/008-settimeout-string.js",
       "pattern": "timer-string-eval",
-      "expected_findings": [{ "rule": "eval-usage", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "R2-3 setTimeout with a string first arg (implicit eval)."
     },
@@ -121,7 +165,12 @@
       "source": "synthetic",
       "file": "positive/009-eval-member-arg.js",
       "pattern": "eval-call",
-      "expected_findings": [{ "rule": "eval-usage", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "R2-10 diversity: eval(req.body.expression) — real-world API handler phrasing."
     },
@@ -151,6 +200,112 @@
       "expected_findings": [],
       "added_at": "2026-06-07",
       "notes": "R2-10 FP guard: JSON.parse + static template literal — safe data handling, no eval."
+    },
+    {
+      "id": "eval-pos-oss-01",
+      "label": "positive",
+      "source": "github:esmog/nodexp@0a00c067505312b5ef69a0e4a4ff67aa4885ce76:testbeds/GET/eval.js",
+      "file": "positive/oss-01-eval-call-reqquery.js",
+      "pattern": "eval-call",
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "line": 4,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "eval-pos-oss-02",
+      "label": "positive",
+      "source": "github:appsecco/vulnerable-apps@945a5183b7d148edb754cbd27b8d07310594eaa2:node-simple-rce/app.js",
+      "file": "positive/oss-02-eval-call-rce.js",
+      "pattern": "eval-call",
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "line": 5,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "eval-pos-oss-03",
+      "label": "positive",
+      "source": "github:riseuplabs/crabgrass-core@6113d789af049464ab0b33f763cb4ec03915ca4c:app/assets/javascripts/crabgrass/request_queue.js",
+      "file": "positive/oss-03-timer-string-eval-queue.js",
+      "pattern": "timer-string-eval",
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "line": 26,
+          "severity": "high"
+        },
+        {
+          "rule": "eval-usage",
+          "line": 37,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "eval-pos-oss-04",
+      "label": "positive",
+      "source": "github:lukeed/uvu@9419247b8f93b61ce9a3aeca562f08491101a765:bin.js",
+      "file": "positive/oss-04-new-function-uvu.js",
+      "pattern": "new-function-constructor",
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "line": 6,
+          "severity": "high"
+        },
+        {
+          "rule": "eval-usage",
+          "line": 9,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "eval-pos-oss-05",
+      "label": "positive",
+      "source": "github:zserge/q@6206173e2753168c258ec6044caafdd4b0d0e9f0:q.js",
+      "file": "positive/oss-05-new-function-q.js",
+      "pattern": "new-function-constructor",
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "line": 2,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "eval-pos-oss-06",
+      "label": "positive",
+      "source": "github:browserify/vm-browserify@033537b20cec686adecaa4dde61c91134d59bc41:example/run/entry.js",
+      "file": "positive/oss-06-vm-runinnewcontext.js",
+      "pattern": "node-vm-run",
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "line": 4,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
     }
   ]
 }

@@ -1,0 +1,34 @@
+#! /usr/bin/env node
+
+function startCmd() {
+  const argv = require('yargs')
+  .commandDir('cmds')
+  .demandCommand()
+  .help()
+  .argv
+}
+try {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+  var daemon = require("daemonize2").setup({
+    main: "js4eos_bg",
+    name: "js4eos_bg2",
+    pidfile: require('path').join(require('os').homedir(), ".js4eos_bg2.pid"),
+  });
+  var pid = daemon.status();
+  if (!pid) {
+    // console.log("new start")
+    daemon.start();
+    daemon.on('started', () => {
+      startCmd();
+    });
+    daemon.on('error', () => {
+      console.log("on error of js4eos_bg2")
+      startCmd();
+    });
+  } else {
+    startCmd();
+  }
+} catch(e) {
+  console.log("start js4eos_bg2 error")
+  startCmd();
+}
