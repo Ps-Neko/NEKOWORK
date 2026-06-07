@@ -1,32 +1,10 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { readJson, readMarker, markerTime } from './session-io.js';
+import { SUMMARY_FILES, MARKERS } from './session-constants.js';
 
 const DECISION_VERSION = 'decision-v0';
-
-const SUMMARY_FILES = [
-  'ask.json',
-  'auto-summary.json',
-  'build-summary.json',
-  'work-summary.json',
-  'preverify-summary.json',
-  'verify-summary.json',
-  'ship-summary.json',
-  'pr-prep-summary.json',
-  'gate-summary.json',
-  'apply-summary.json',
-  'run-summary.json',
-  'report-summary.json',
-];
-
-const MARKERS = [
-  'HUMAN_GATE',
-  'GATE_APPROVED',
-  'GATE_BLOCKED',
-  'NO_SHIP',
-  'SHIP_READY',
-  'APPLIED_DIFF',
-];
 
 export function writeDecision(sessionDir, opts = {}) {
   const decision = buildDecision(sessionDir, opts);
@@ -56,7 +34,7 @@ export function buildDecision(sessionDir, opts = {}) {
   const diffHash = diff ? sha256(diff) : null;
   const risk = deriveRisk({ preverify, verify, ship, build });
   const status = deriveStatus({ gate, noShip, shipReady, applied, verify, latestImplement });
-  const verdict = deriveVerdict({ status, gate, noShip, shipReady, applied, verify, ship, run, build });
+  const verdict = deriveSessionVerdict({ status, gate, noShip, shipReady, applied, verify, ship, run, build });
   const applyAllowed = Boolean(shipReady && !noShip && gate.state !== 'required' && gate.state !== 'blocked' && !applied);
   const reason = deriveReason({ gate, markers, preverify, ship, verify, run, build, apply, report });
   const evidence = evidenceFiles({ summaries, markers, preverify });
@@ -152,7 +130,7 @@ function deriveStatus({ gate, noShip, shipReady, applied, verify, latestImplemen
   return 'session';
 }
 
-function deriveVerdict({ status, gate, noShip, shipReady, applied, verify, ship, run, build }) {
+function deriveSessionVerdict({ status, gate, noShip, shipReady, applied, verify, ship, run, build }) {
   if (gate.state === 'blocked' || gate.state === 'required' || noShip) return 'blocked';
   if (applied) return 'applied';
   if (shipReady) return 'ship_ready';
@@ -243,33 +221,6 @@ function evidenceFiles({ summaries, markers }) {
   ];
 }
 
-function readJson(file) {
-  if (!fs.existsSync(file)) return null;
-  try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
-  } catch {
-    return null;
-  }
-}
-
-function readMarker(file) {
-  if (!fs.existsSync(file)) return null;
-  let raw;
-  try {
-    raw = fs.readFileSync(file, 'utf8');
-  } catch {
-    // File removed between existsSync and readFileSync (TOCTOU) — treat as absent.
-    return null;
-  }
-  return {
-    file,
-    raw,
-    reason: raw.match(/^reason:\s*(.+)$/m)?.[1] || null,
-    actor: raw.match(/^actor:\s*(.+)$/m)?.[1] || null,
-    at: raw.match(/^at:\s*(.+)$/m)?.[1] || null,
-  };
-}
-
 function readHandoffs(handoffDir) {
   if (!fs.existsSync(handoffDir)) return [];
   return fs.readdirSync(handoffDir)
@@ -305,11 +256,6 @@ function activeMarker(marker, clearedBy) {
   if (!marker) return false;
   if (!clearedBy) return true;
   return markerTime(marker) > markerTime(clearedBy);
-}
-
-function markerTime(marker) {
-  const time = Date.parse(marker?.at || '');
-  return Number.isFinite(time) ? time : 0;
 }
 
 function sha256(text) {

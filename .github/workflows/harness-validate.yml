@@ -284,7 +284,14 @@ jobs:
           echo "OK docs/visualizer/ excluded from tarball"
 
   validate-all:
-    needs: [security, validate-cli, tarball-size-guard]
+    # published-alpha-smoke is included so a BROKEN published artifact (version
+    # mismatch vs registry, install/run failure, malformed check --json) fails the
+    # gate — previously it could not. It exercises the LIVE npm registry, so a
+    # registry outage / network blip would surface as `cancelled` (timeout-minutes:
+    # 5) rather than a code-quality `failure`; the aggregate below tolerates
+    # cancelled/skipped for THIS job only and still treats a real `failure` as
+    # blocking. This keeps the gate honest without flaking on registry weather.
+    needs: [security, validate-cli, tarball-size-guard, published-alpha-smoke]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 2
@@ -294,6 +301,7 @@ jobs:
           R_SECURITY: ${{ needs.security.result }}
           R_CLI: ${{ needs.validate-cli.result }}
           R_TARBALL: ${{ needs.tarball-size-guard.result }}
+          R_SMOKE: ${{ needs.published-alpha-smoke.result }}
         run: |
           set -euo pipefail
           fail=0
@@ -311,6 +319,19 @@ jobs:
                 ;;
             esac
           done
+          # published-alpha-smoke: blocking on `failure` (broken published
+          # artifact), but `cancelled` is tolerated because this job hits the live
+          # npm registry and a registry outage / timeout must not red-flag an
+          # otherwise-good PR. A genuine smoke `failure` still fails the gate.
+          case "$R_SMOKE" in
+            success|skipped|cancelled)
+              echo "published-alpha-smoke: $R_SMOKE"
+              ;;
+            *)
+              echo "::error::published-alpha-smoke = $R_SMOKE (published artifact is broken)"
+              fail=1
+              ;;
+          esac
           if [ "$fail" = "1" ]; then
             echo "::error::one or more required jobs failed"
             exit 1

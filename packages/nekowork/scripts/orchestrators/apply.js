@@ -1,8 +1,11 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { applyExecutionDiff } from '../core/execution-workspace.js';
-import { readGitStatus } from '../core/git-mutation-guard.js';
+import { readGitStatus, withGitMutationGuardSync } from '../core/git-mutation-guard.js';
 import { writeDecision } from '../lib/decision.js';
+import { readMarker as readMarkerFile, markerTime } from '../lib/session-io.js';
+import { assertSafeSessionId } from '../lib/session-resolver.js';
 import { gateStatus } from './gate.js';
 import { readPriorHandoffs, latestStageHandoff } from './_handoff-utils.js';
 
@@ -11,6 +14,10 @@ export function applyCycle(opts) {
   if (!opts.sessionId) throw new Error('apply requires --session <id> from a shipped work cycle');
 
   const sessionId = opts.sessionId;
+  // Path-traversal guard: the session id becomes a path segment below, so a
+  // `..` or absolute id could escape the sessions directory. Centralized in
+  // session-resolver so apply / gate / report enforce the same rule.
+  assertSafeSessionId(sessionId);
   const sessionDir = path.join(projectRoot, '.harness', 'state', 'sessions', sessionId);
   const handoffDir = path.join(sessionDir, 'handoffs');
   if (!fs.existsSync(sessionDir)) throw new Error('apply requires an existing session');
@@ -76,13 +83,33 @@ export function applyCycle(opts) {
     throw new Error('apply requires a captured diff from live work. Rerun harness work --live, then verify, ship, and apply.');
   }
 
+  // Approval-to-content binding (defense-in-depth, integrity-by-content-hash —
+  // NOT authentication): when the gate was approved, gate.js recorded the
+  // sha256 of the session diff at that moment. If the diff has since changed,
+  // the prior approval no longer covers what would be applied, so refuse.
+  const approval = readMarker(sessionDir, 'GATE_APPROVED');
+  if (approval?.diffHash) {
+    const currentHash = crypto.createHash('sha256').update(String(diffInfo.diff)).digest('hex');
+    if (currentHash !== approval.diffHash) {
+      throw new Error('approval does not match current diff — re-approve');
+    }
+  }
+
   const status = readApplyGitStatus(projectRoot);
   if (!status) throw new Error('apply requires project root to be a git worktree');
   if (status.dirty && !opts.allowDirty) {
     throw new Error('apply requires a clean git worktree. Commit, stash, or rerun with --allow-dirty.');
   }
 
-  const applied = applyExecutionDiff(projectRoot, diffInfo.diff);
+  // Guard the apply: the diff legitimately touches latestImplement.files, but
+  // any git change OUTSIDE that set (a stray commit, branch op, or edit to an
+  // unrelated file) is an unexpected EXTRA mutation and is rejected. .harness/
+  // state writes happen after this block, so they don't enter the comparison.
+  const applied = withGitMutationGuardSync(
+    projectRoot,
+    () => applyExecutionDiff(projectRoot, diffInfo.diff),
+    { label: 'apply', expectedPaths: latestImplement.files || [] },
+  );
   writeApplyMarker(sessionDir, diffInfo.path, latestImplement.files || []);
 
   const result = {
@@ -117,17 +144,11 @@ function readDiffForHandoff(sessionDir, handoff) {
   return { path: null, diff: '' };
 }
 
+// Thin wrapper preserving apply.js's historical (sessionDir, name) signature
+// over the shared single-path readMarker (which returns the superset incl.
+// diffPath).
 function readMarker(sessionDir, name) {
-  const file = path.join(sessionDir, name);
-  if (!fs.existsSync(file)) return null;
-  const raw = fs.readFileSync(file, 'utf8');
-  return {
-    file,
-    raw,
-    reason: raw.match(/^reason:\s*(.+)$/m)?.[1] || null,
-    at: raw.match(/^at:\s*(.+)$/m)?.[1] || null,
-    diffPath: raw.match(/^diff_path:\s*(.+)$/m)?.[1] || null,
-  };
+  return readMarkerFile(path.join(sessionDir, name));
 }
 
 function readApplyGitStatus(projectRoot) {
@@ -144,11 +165,6 @@ function readApplyGitStatus(projectRoot) {
     relevantText: relevantLines.join('\n'),
     dirty: relevantLines.length > 0,
   };
-}
-
-function markerTime(marker) {
-  const time = Date.parse(marker?.at || '');
-  return Number.isFinite(time) ? time : 0;
 }
 
 function writeApplyMarker(sessionDir, diffPath, files) {

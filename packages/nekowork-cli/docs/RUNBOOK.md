@@ -6,13 +6,13 @@ This is the operator checklist for maintaining NEKOWORK.
 
 ```bash
 git status --short --branch
-node scripts/cli.js doctor
+node packages/nekowork-cli/scripts/cli.js doctor
 npm run lint
 npm test
 npm audit --audit-level=moderate
 ```
 
-`doctor` exits with failure if required freshness checks fail. Use `--quick` for a faster local environment check. Use `node scripts/cli.js doctor --quick --gemini-smoke` when Gemini live auth readiness matters for the release or machine being checked.
+`doctor` exits with failure if required freshness checks fail. Use `--quick` for a faster local environment check. Use `node packages/nekowork-cli/scripts/cli.js doctor --quick --gemini-smoke` when Gemini live auth readiness matters for the release or machine being checked.
 
 ## Catalog Changes
 
@@ -47,19 +47,22 @@ The validator runs through `npm run lint`.
 
 Use a temporary target project:
 
+`init` / `install` is a heavy-harness operation (the slim npm package rejects it),
+so run it from a source checkout:
+
 ```bash
-npx -y @ps-neko/nekowork@alpha init --profile developer --project-root <target>
-npx -y @ps-neko/nekowork@alpha check --project-root <target>
+node packages/nekowork-cli/scripts/cli.js install --apply --profile developer --project-root <target>
+cd <target> && npx -y @ps-neko/nekowork@alpha check
 ```
 
 For repository-pinned source checkout testing:
 
 ```bash
 node scripts/portability/simulate-port.js <target> --profile developer --verbose
-node scripts/cli.js init --profile developer --project-root <target>
-node scripts/cli.js doctor --project-root <target> --quick
-node scripts/cli.js plan "release smoke" --project-root <target> --session release-smoke
-node scripts/cli.js run "release decomposed smoke" --project-root <target> --session release-run-smoke
+node packages/nekowork-cli/scripts/cli.js install --apply --profile developer --project-root <target>
+node packages/nekowork-cli/scripts/cli.js doctor --project-root <target> --quick
+node packages/nekowork-cli/scripts/cli.js plan "release smoke" --project-root <target> --session release-smoke
+node packages/nekowork-cli/scripts/cli.js run "release decomposed smoke" --project-root <target> --session release-run-smoke
 ```
 
 Expected target outputs:

@@ -24,35 +24,77 @@ const RULES = [
     module: '../lib/rules/secret-fallback.js',
     fixtureDir: 'secret-fallback',
     fpMode: 'any', // negative = ANY finding counts as FP
-    targets: { recall: 0.90, fp: 0.10 },
+    targets: { recall: 0.95, fp: 0.10 },
   },
   {
     id: 'auto-apply-commit-push',
     module: '../lib/rules/auto-apply-commit-push.js',
     fixtureDir: 'auto-apply-commit-push',
     fpMode: 'critical', // negative = CRITICAL findings only count as FP
-    targets: { recall: 0.90, fp: 0.10 },
+    targets: { recall: 0.95, fp: 0.10 },
   },
   {
     id: 'hardcoded-credential',
     module: '../lib/rules/hardcoded-credential.js',
     fixtureDir: 'hardcoded-credential',
     fpMode: 'critical',
-    targets: { recall: 0.90, fp: 0.10 },
+    targets: { recall: 0.95, fp: 0.10 },
   },
   {
     id: 'test-or-security-disable',
     module: '../lib/rules/test-or-security-disable.js',
     fixtureDir: 'test-or-security-disable',
     fpMode: 'critical',
-    targets: { recall: 0.90, fp: 0.10 },
+    targets: { recall: 0.95, fp: 0.10 },
   },
   {
     id: 'package-lockfile-risk',
     module: '../lib/rules/package-lockfile-risk.js',
     fixtureDir: 'package-lockfile-risk',
     fpMode: 'critical',
-    targets: { recall: 0.90, fp: 0.10 },
+    targets: { recall: 0.95, fp: 0.10 },
+  },
+  {
+    id: 'eval-usage',
+    module: '../lib/rules/eval-usage.js',
+    fixtureDir: 'eval-usage',
+    fpMode: 'any', // no acceptable eval finding — any finding on a negative is FP
+    targets: { recall: 0.95, fp: 0.10 },
+  },
+  {
+    id: 'insecure-tls',
+    module: '../lib/rules/insecure-tls.js',
+    fixtureDir: 'insecure-tls',
+    fpMode: 'any', // verification-disable findings are never acceptable
+    targets: { recall: 0.95, fp: 0.10 },
+  },
+  {
+    id: 'cors-wildcard',
+    module: '../lib/rules/cors-wildcard.js',
+    fixtureDir: 'cors-wildcard',
+    fpMode: 'any', // benign explicit-origin CORS config must produce NO finding at all
+    targets: { recall: 0.95, fp: 0.10 },
+  },
+  {
+    id: 'sql-injection',
+    module: '../lib/rules/sql-injection.js',
+    fixtureDir: 'sql-injection',
+    fpMode: 'any', // parameterized / static SQL must produce NO finding at all
+    targets: { recall: 0.95, fp: 0.10 },
+  },
+  {
+    id: 'command-injection',
+    module: '../lib/rules/command-injection.js',
+    fixtureDir: 'command-injection',
+    fpMode: 'any', // array-arg / static-literal exec must produce NO finding at all
+    targets: { recall: 0.95, fp: 0.10 },
+  },
+  {
+    id: 'ast-dataflow',
+    module: '../lib/rules/ast-dataflow.js',
+    fixtureDir: 'ast-dataflow',
+    fpMode: 'any', // const-bound / parameterized / ORM code must produce NO finding at all
+    targets: { recall: 0.95, fp: 0.10 },
   },
 ];
 

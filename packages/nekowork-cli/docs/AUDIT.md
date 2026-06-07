@@ -40,8 +40,8 @@ This audit summarizes the current NEKOWORK state for the `0.1.0-alpha.10` alpha 
 Run these before any release or public package decision:
 
 ```bash
-node scripts/cli.js doctor
-node scripts/cli.js doctor --quick --gemini-smoke
+node packages/nekowork-cli/scripts/cli.js doctor
+node packages/nekowork-cli/scripts/cli.js doctor --quick --gemini-smoke
 npm run lint
 npm test
 npm run demo:quick -- --cleanup

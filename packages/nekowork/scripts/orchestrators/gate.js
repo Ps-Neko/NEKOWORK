@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { writeDecision } from '../lib/decision.js';
-import { resolveSessionId } from '../lib/session-resolver.js';
+import { resolveSessionId, assertSafeSessionId } from '../lib/session-resolver.js';
+import { readMarker as readMarkerFile, markerTime } from '../lib/session-io.js';
+import { computeSessionDiffHash } from './_handoff-utils.js';
 
 const MARKERS = {
   human: 'HUMAN_GATE',
@@ -21,6 +23,7 @@ export function gateStatus(opts) {
   const projectRoot = opts.projectRoot || process.cwd();
   if (!opts.sessionId) throw new Error('gate requires --session <id>');
 
+  assertSafeSessionId(opts.sessionId);
   const sessionId = resolveSessionId(projectRoot, opts.sessionId);
   const sessionDir = sessionPath(projectRoot, sessionId);
   if (!fs.existsSync(sessionDir)) {
@@ -82,10 +85,16 @@ export function approveGate(opts) {
   if (!String(opts.reason || '').trim()) throw new Error('gate approve requires --reason <text>');
 
   const sessionDir = base.sessionDir;
+  // Bind the approval to the exact diff being approved (defense-in-depth,
+  // integrity-by-content-hash — NOT authentication). apply recomputes this hash
+  // and refuses if the session diff changed after approval, so a stale/forged
+  // approval cannot be used to apply a DIFFERENT diff.
+  const diffHash = computeSessionDiffHash(sessionDir);
   writeMarker(sessionDir, MARKERS.approved, {
     reason: opts.reason,
     humanGateReason: base.humanGateReason,
     actor: opts.actor || defaultActor(),
+    diffHash,
   });
   appendEvent(sessionDir, {
     event: 'approve',
@@ -104,6 +113,7 @@ export function blockGate(opts) {
   if (!opts.sessionId) throw new Error('gate requires --session <id>');
   if (!String(opts.reason || '').trim()) throw new Error('gate block requires --reason <text>');
 
+  assertSafeSessionId(opts.sessionId);
   const sessionId = resolveSessionId(projectRoot, opts.sessionId);
   const sessionDir = sessionPath(projectRoot, sessionId);
   if (!fs.existsSync(sessionDir)) throw new Error('gate block requires an existing session');
@@ -122,19 +132,12 @@ function sessionPath(projectRoot, sessionId) {
   return path.join(projectRoot, '.harness', 'state', 'sessions', sessionId);
 }
 
+// Thin wrapper preserving gate.js's historical (sessionDir, name) signature
+// over the shared single-path readMarker. The shared reader returns the
+// superset of fields (kind=basename, plus diffPath), so all gate call sites
+// keep the fields they read (kind, reason, at, humanGateReason, actor).
 function readMarker(sessionDir, name) {
-  const file = path.join(sessionDir, name);
-  if (!fs.existsSync(file)) return null;
-  const raw = fs.readFileSync(file, 'utf8');
-  return {
-    kind: name,
-    file,
-    raw,
-    reason: raw.match(/^reason:\s*(.+)$/m)?.[1] || null,
-    at: raw.match(/^at:\s*(.+)$/m)?.[1] || null,
-    humanGateReason: raw.match(/^human_gate_reason:\s*(.+)$/m)?.[1] || null,
-    actor: raw.match(/^actor:\s*(.+)$/m)?.[1] || null,
-  };
+  return readMarkerFile(path.join(sessionDir, name));
 }
 
 function writeMarker(sessionDir, name, fields) {
@@ -142,6 +145,7 @@ function writeMarker(sessionDir, name, fields) {
   lines.push(`reason: ${fields.reason}`);
   if (fields.humanGateReason) lines.push(`human_gate_reason: ${fields.humanGateReason}`);
   if (fields.actor) lines.push(`actor: ${fields.actor}`);
+  if (fields.diffHash) lines.push(`diff_hash: ${fields.diffHash}`);
   lines.push(`at: ${new Date().toISOString()}`);
   fs.writeFileSync(path.join(sessionDir, name), lines.join('\n') + '\n');
 }
@@ -183,11 +187,6 @@ function nextStep(result) {
   if (result.status === 'open') return 'human must approve or block the gate';
   if (result.status === 'missing') return 'create a work/verify session first';
   return 'continue to verify or ship';
-}
-
-function markerTime(marker) {
-  const time = Date.parse(marker?.at || '');
-  return Number.isFinite(time) ? time : 0;
 }
 
 export {

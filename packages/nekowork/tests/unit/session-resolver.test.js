@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { resolveSessionId } from '../../scripts/lib/session-resolver.js';
+import { resolveSessionId, assertSafeSessionId } from '../../scripts/lib/session-resolver.js';
 import { rmrf } from '../helpers/tmp.js';
 
 function makeProjectWithSessions(names) {
@@ -84,4 +84,21 @@ test('resolveSessionId: unmatched prefix returns input value unchanged', () => {
   } finally {
     rmrf(root);
   }
+});
+
+// ---------- R2-11: assertSafeSessionId path-traversal guard ----------
+
+test('assertSafeSessionId: rejects .. traversal', () => {
+  assert.throws(() => assertSafeSessionId('../escape'), /invalid session id/);
+  assert.throws(() => assertSafeSessionId('a/../../etc'), /invalid session id/);
+  assert.throws(() => assertSafeSessionId('..'), /invalid session id/);
+});
+
+test('assertSafeSessionId: rejects absolute paths', () => {
+  assert.throws(() => assertSafeSessionId('/etc/passwd'), /invalid session id/);
+});
+
+test('assertSafeSessionId: accepts a normal session id', () => {
+  assert.equal(assertSafeSessionId('sess-2026-06-07-abc'), 'sess-2026-06-07-abc');
+  assert.equal(assertSafeSessionId('latest'), 'latest');
 });

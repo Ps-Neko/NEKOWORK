@@ -11,9 +11,12 @@ diff (working tree | staged | patch | range | full)
   |
   v  project detector (does the project have test / lint / typecheck / build / audit?)
   |
-  v  5 deterministic risk rules
-     (secret fallback . hardcoded credential . auto commit/push/apply .
-      test-or-security disable . package/lockfile risk)
+  v  11 deterministic risk rules
+     (secret fallback . auto commit/push/apply . hardcoded credential .
+      test-or-security disable . package/lockfile risk .
+      eval usage . insecure tls . cors wildcard .
+      sql injection (basic) . command injection (basic) .
+      ast dataflow (intraprocedural taint, variable-mediated injection))
   |
   v  deterministic verdict
      (ALLOW . ALLOW_WITH_WARNINGS . NEEDS_HUMAN_REVIEW . INSUFFICIENT_EVIDENCE . BLOCK)
@@ -26,6 +29,8 @@ diff (working tree | staged | patch | range | full)
 ```
 
 The verdict is derived only from the deterministic rules and check availability — an LLM never decides the verdict. The project detector **detects whether** test/lint commands exist (returning `INSUFFICIENT_EVIDENCE` for a source change with no test command). Running those commands and folding pass/fail into the verdict is implemented via `--run-checks` (test/lint/typecheck; escalation-only — a failing check upgrades the verdict toward `NEEDS_HUMAN_REVIEW` but never triggers a standalone `BLOCK`). See [SCOPE-1.0.md](SCOPE-1.0.md) §5 for the full policy.
+
+Ten of the 11 rules are pure regex over added diff lines. The 11th, `ast-dataflow`, builds an AST with `acorn` and runs **intraprocedural (single-function) taint analysis** to catch **variable-mediated injection** the regex rules miss (assembled SQL/`eval`/shell across statements). Because of it the slim package carries **one tiny, well-known dependency** — `acorn`, the JS parser (MIT, **zero transitive dependencies**); TypeScript is parsed via Node's built-in type-stripping, so there is no TypeScript dependency. `ast-dataflow` is JS/TS-only and does **not** do cross-function or whole-program dataflow.
 
 ## Catalog and Projection (internal engine)
 
@@ -101,25 +106,25 @@ Mock mode is the default. Live mode delegates authentication to local provider C
 Beyond `verify-pr`, the session runtime exposes a broader command surface. These are the advanced/legacy commands being phased out of the first-run path (see [ADVANCED.md](ADVANCED.md)):
 
 ```bash
-node scripts/cli.js doctor
-node scripts/cli.js install --plan --pack quality
-node scripts/cli.js install --plan --profile developer
-node scripts/cli.js install --apply --profile developer --project-root <target>
-node scripts/cli.js ask "clarify a risky or ambiguous request" --project-root <target>
-node scripts/cli.js plan "target project smoke" --project-root <target>
-node scripts/cli.js team "target project handoff review" --project-root <target>
-node scripts/cli.js work "single executor implementation" --session work-smoke --project-root <target>
-node scripts/cli.js verify "Codex verification" --session work-smoke --project-root <target>
-node scripts/cli.js gate status --session work-smoke --project-root <target>
-node scripts/cli.js ship "ship readiness" --session work-smoke --project-root <target>
-node scripts/cli.js report --session work-smoke --project-root <target>
-node scripts/cli.js apply --session work-smoke --project-root <target>
-node scripts/cli.js run "decomposed wrapper" --session run-smoke --project-root <target>
-node scripts/cli.js start "compatibility builder alias" --session start-smoke --project-root <target>
-node scripts/cli.js build "safe builder wrapper" --mode team --session build-smoke --project-root <target>
-node scripts/cli.js auto "bounded autonomy before apply" --level normal --session auto-smoke --project-root <target>
-node scripts/cli.js review "change request" --no-ship --project-root <target>
-node scripts/cli.js review-cycle "legacy full-cycle request" --no-ship --project-root <target>
+node packages/nekowork-cli/scripts/cli.js doctor
+node packages/nekowork-cli/scripts/cli.js install --plan --pack quality
+node packages/nekowork-cli/scripts/cli.js install --plan --profile developer
+node packages/nekowork-cli/scripts/cli.js install --apply --profile developer --project-root <target>
+node packages/nekowork-cli/scripts/cli.js ask "clarify a risky or ambiguous request" --project-root <target>
+node packages/nekowork-cli/scripts/cli.js plan "target project smoke" --project-root <target>
+node packages/nekowork-cli/scripts/cli.js team "target project handoff review" --project-root <target>
+node packages/nekowork-cli/scripts/cli.js work "single executor implementation" --session work-smoke --project-root <target>
+node packages/nekowork-cli/scripts/cli.js verify "Codex verification" --session work-smoke --project-root <target>
+node packages/nekowork-cli/scripts/cli.js gate status --session work-smoke --project-root <target>
+node packages/nekowork-cli/scripts/cli.js ship "ship readiness" --session work-smoke --project-root <target>
+node packages/nekowork-cli/scripts/cli.js report --session work-smoke --project-root <target>
+node packages/nekowork-cli/scripts/cli.js apply --session work-smoke --project-root <target>
+node packages/nekowork-cli/scripts/cli.js run "decomposed wrapper" --session run-smoke --project-root <target>
+node packages/nekowork-cli/scripts/cli.js start "compatibility builder alias" --session start-smoke --project-root <target>
+node packages/nekowork-cli/scripts/cli.js build "safe builder wrapper" --mode team --session build-smoke --project-root <target>
+node packages/nekowork-cli/scripts/cli.js auto "bounded autonomy before apply" --level normal --session auto-smoke --project-root <target>
+node packages/nekowork-cli/scripts/cli.js review "change request" --no-ship --project-root <target>
+node packages/nekowork-cli/scripts/cli.js review-cycle "legacy full-cycle request" --no-ship --project-root <target>
 ```
 
 Advanced features are documented separately:
@@ -238,5 +243,5 @@ Builders project the catalog into tool-specific files:
 The current repository release line is `0.1.0-alpha.12`:
 
 - Repository and GitHub tarball release are available.
-- Public npm alpha is the slim `@ps-neko/nekowork@alpha`, currently `0.2.0-alpha.6`. The internal harness runtime `@ps-neko/nekowork-harness` is `private` and not published (source-checkout only).
+- Public npm alpha is the slim `@ps-neko/nekowork@alpha`, currently `0.2.0-alpha.6` (ships 5 rules, **zero dependencies**). The 11-rule repo build adds **one tiny, well-known dependency** (`acorn`, the JS parser — MIT, zero transitive dependencies) for the AST engine and lands in the next publish. The internal harness runtime `@ps-neko/nekowork-harness` is `private` and not published (source-checkout only).
 - Clone, submodule, and local checkout integration remain supported for repository-pinned workflows.

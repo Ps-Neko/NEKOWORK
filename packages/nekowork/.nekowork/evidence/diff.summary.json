@@ -1,0 +1,37 @@
+{
+  "totalFiles": 5,
+  "totalAdditions": 136,
+  "totalDeletions": 0,
+  "files": [
+    {
+      "path": ".nekowork/decision.json",
+      "status": "added",
+      "additions": 44,
+      "deletions": 0
+    },
+    {
+      "path": ".nekowork/evidence/diff.summary.json",
+      "status": "added",
+      "additions": 37,
+      "deletions": 0
+    },
+    {
+      "path": ".nekowork/evidence/evidence-manifest.json",
+      "status": "added",
+      "additions": 14,
+      "deletions": 0
+    },
+    {
+      "path": ".nekowork/evidence/risk-findings.json",
+      "status": "added",
+      "additions": 1,
+      "deletions": 0
+    },
+    {
+      "path": "REPORT.md",
+      "status": "added",
+      "additions": 40,
+      "deletions": 0
+    }
+  ]
+}

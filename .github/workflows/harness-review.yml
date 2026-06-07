@@ -99,12 +99,18 @@ jobs:
 
           LIVE_FLAG=""
           RUNNER=""
+          IS_LIVE="false"
           if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$INPUT_LIVE" = "true" ] && [ "$HAS_ANTHROPIC_API_KEY" = "true" ]; then
             LIVE_FLAG="--live"
             RUNNER="sdk"
+            IS_LIVE="true"
           fi
           echo "live_flag=$LIVE_FLAG" >> "$GITHUB_OUTPUT"
           echo "runner=$RUNNER" >> "$GITHUB_OUTPUT"
+          # is_live is the single source of truth for "did a real LLM run?".
+          # On pull_request events it is always false (live is workflow_dispatch
+          # only), so the PR comment must disclose the mock provider.
+          echo "is_live=$IS_LIVE" >> "$GITHUB_OUTPUT"
 
       - name: Run review
         id: review
@@ -162,7 +168,17 @@ jobs:
             const fs = require('fs');
             const sessionId = process.env.HARNESS_CI_SESSION_ID;
             const sessionDir = `.harness/state/sessions/${sessionId}`;
+            const isLive = '${{ steps.opts.outputs.is_live }}' === 'true';
             let body = `### HARNESS review (${{ steps.review.outputs.verdict }})\n\n`;
+            // Honesty disclosure: pull_request runs always use the MOCK provider
+            // (live LLM is workflow_dispatch + live=true only). Never let a mock
+            // verdict read as a real review.
+            if (!isLive) {
+              body += `> ⚠️ **Mock provider — no live LLM ran; this is a smoke check, not a real review.** `;
+              body += `Use **workflow_dispatch** with \`live=true\` for a real review.\n\n`;
+            } else {
+              body += `> ✅ Live review (real LLM).\n\n`;
+            }
             body += `session: \`${sessionId}\`\n`;
             body += `exit: \`${{ steps.review.outputs.exit }}\`\n\n`;
             try {
@@ -184,8 +200,13 @@ jobs:
               body,
             });
 
-      - name: Fail on human gate / error
-        if: steps.review.outputs.verdict != 'approve'
+      - name: Fail on human gate / error (live runs only)
+        # A MOCK run (every pull_request) is a smoke check, not a real review, so
+        # its non-approve verdict must not hard-fail the PR — that would be a
+        # dishonest gate. Only a live review (workflow_dispatch + live=true) is
+        # allowed to block. Mock crashes still surface via the review step exit
+        # code in the disclosed PR comment.
+        if: steps.opts.outputs.is_live == 'true' && steps.review.outputs.verdict != 'approve'
         run: |
-          echo "review verdict: ${{ steps.review.outputs.verdict }}"
+          echo "live review verdict: ${{ steps.review.outputs.verdict }}"
           exit 1

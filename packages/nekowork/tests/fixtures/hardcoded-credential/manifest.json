@@ -87,6 +87,112 @@
       "expected_findings": [],
       "added_at": "2026-05-16",
       "notes": "PUBLIC KEY 는 secret 아님 — PRIVATE 만 잡음"
+    },
+    {
+      "id": "hc-pos-009",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/009-npm-token.ts",
+      "pattern": "npm-access-token",
+      "expected_findings": [{ "rule": "hardcoded-credential", "line": 3, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "B1: npm_ + 36 alnum access token."
+    },
+    {
+      "id": "hc-pos-010",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/010-mailgun-key.ts",
+      "pattern": "mailgun-api-key",
+      "expected_findings": [{ "rule": "hardcoded-credential", "line": 3, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "B1: Mailgun key- + 32 hex."
+    },
+    {
+      "id": "hc-pos-011",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/011-dockerhub-pat.ts",
+      "pattern": "dockerhub-pat",
+      "expected_findings": [{ "rule": "hardcoded-credential", "line": 3, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "B1: Docker Hub dckr_pat_ token."
+    },
+    {
+      "id": "hc-pos-012",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/012-datadog-key.ts",
+      "pattern": "datadog-api-key",
+      "expected_findings": [{ "rule": "hardcoded-credential", "line": 4, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "B1: Datadog 32-hex api key in a datadog-keyed field."
+    },
+    {
+      "id": "hc-pos-013",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/013-pypi-token.ts",
+      "pattern": "pypi-upload-token",
+      "expected_findings": [{ "rule": "hardcoded-credential", "line": 3, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "B1: PyPI pypi-AgEIcHlwaS5vcmc upload token."
+    },
+    {
+      "id": "hc-pos-014",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/014-base64-aws.ts",
+      "pattern": "base64-encoded-credential",
+      "expected_findings": [{ "rule": "hardcoded-credential", "line": 3, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "B2: Buffer.from(<b64>,'base64') decoding to an AKIA AWS key."
+    },
+    {
+      "id": "hc-pos-015",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/015-supabase-service-role.ts",
+      "pattern": "supabase-service-role-jwt",
+      "expected_findings": [{ "rule": "hardcoded-credential", "line": 3, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "B1: Supabase JWT whose payload decodes to role=service_role (RLS bypass)."
+    },
+    {
+      "id": "hc-neg-006",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/006-sk-placeholders.ts",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "B3: placeholder/sample/dummy/mock/your/todo sk- bodies must be filtered."
+    },
+    {
+      "id": "hc-neg-007",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/007-sk-low-entropy.ts",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "B3: near-zero-entropy sk- bodies (xxxx / 0000 / abab) must be filtered."
+    },
+    {
+      "id": "hc-neg-008",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/008-anon-jwt.ts",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "B1 FP guard: Supabase anon JWT (role != service_role) → high JWT only, no critical."
+    },
+    {
+      "id": "hc-neg-009",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/009-generic-key-hex.ts",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-4 FP guard: generic key-<32hex> slugs (cacheKey/contentHash/requestId) without a mailgun marker must NOT fire."
     }
   ]
 }

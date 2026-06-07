@@ -56,12 +56,56 @@ const PATTERNS = [
     recommendation: 'Remove the auto-push. Push should be a human-driven explicit action.',
   },
   {
+    // Python: subprocess.run(['git','push',...]) / subprocess.call([...]) /
+    // subprocess.Popen([...]) / check_call / check_output with a list arg
+    // whose first two items are 'git' and 'push'.
+    id: 'python-subprocess-git-push',
+    re: /subprocess\.(?:run|call|Popen|check_call|check_output)\s*\(\s*\[\s*["']git["']\s*,\s*["']push["']/g,
+    severity: 'critical',
+    title: 'Python subprocess git push detected',
+    description: 'Python spawns `git push` via subprocess. NEKOWORK requires explicit human approval for push operations.',
+    recommendation: 'Remove the auto-push. Push should be a human-driven explicit action.',
+  },
+  {
+    // Go: exec.Command("git", "push", ...)
+    id: 'go-exec-git-push',
+    re: /exec\.Command\(\s*"git"\s*,\s*"push"/g,
+    severity: 'critical',
+    title: 'Go exec.Command git push detected',
+    description: 'Go spawns `git push` via exec.Command. NEKOWORK requires explicit human approval for push operations.',
+    recommendation: 'Remove the auto-push. Push should be a human-driven explicit action.',
+  },
+  {
+    // Ruby: system('git push') / system("git", "push") / `git push` (backticks)
+    // or %x(git push). The backtick form is handled by the generic
+    // git-push-line pattern; this adds CRITICAL specificity for the explicit
+    // subprocess-invocation forms.
+    id: 'ruby-system-git-push',
+    re: /(?:\bsystem\(\s*["'`]git\s+push|\bsystem\(\s*["']git["']\s*,\s*["']push["']|%x\(\s*git\s+push)/g,
+    severity: 'critical',
+    title: 'Ruby system() git push detected',
+    description: 'Ruby invokes `git push` via system()/%x. NEKOWORK requires explicit human approval for push operations.',
+    recommendation: 'Remove the auto-push. Push should be a human-driven explicit action.',
+  },
+  {
     id: 'auto-merge-config',
     re: /\bauto[-_]?merge\s*[:=]\s*(?:true|"true"|'true'|1\b|enabled\b|yes\b|on\b)/gi,
     severity: 'critical',
     title: 'Auto-merge enabled in config',
     description: 'Auto-merge bypasses human review on PRs.',
     recommendation: 'Disable auto-merge unless review is delegated to a vetted bot with policy.',
+  },
+  {
+    // `gh pr merge ... --auto` enables GitHub auto-merge, which lands the PR
+    // automatically once required checks pass — bypassing the human approval
+    // NEKOWORK's entire premise requires. CRITICAL. `--auto` may appear before
+    // or after the PR ref, so the lookahead scans the rest of the line.
+    id: 'gh-pr-merge-auto',
+    re: /^[^\n]*\bgh\s+pr\s+merge\b(?=[^\n]*\s--auto\b)[^\n]*/gm,
+    severity: 'critical',
+    title: 'gh pr merge --auto detected',
+    description: '`gh pr merge --auto` enables GitHub auto-merge — the PR merges automatically once checks pass, with no human approval step.',
+    recommendation: 'Remove --auto. Merging must be a human-driven explicit action after review.',
   },
   {
     id: 'git-push-line',

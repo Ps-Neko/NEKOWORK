@@ -1,0 +1,14 @@
+{
+  "created_at": "2026-06-06T01:23:49.119Z",
+  "input_source": "working_tree",
+  "artifacts": [
+    {
+      "name": "diff.summary.json",
+      "path": "evidence/diff.summary.json"
+    },
+    {
+      "name": "risk-findings.json",
+      "path": "evidence/risk-findings.json"
+    }
+  ]
+}

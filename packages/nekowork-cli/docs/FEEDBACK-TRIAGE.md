@@ -85,9 +85,9 @@ For target project reports:
 
 ```bash
 node scripts/portability/simulate-port.js <target> --profile developer --json
-node scripts/cli.js doctor --quick --project-root <target> --json
-node scripts/cli.js report --session <session> --project-root <target> --stdout
-node scripts/cli.js gate status --session <session> --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js doctor --quick --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js report --session <session> --project-root <target> --stdout
+node packages/nekowork-cli/scripts/cli.js gate status --session <session> --project-root <target> --json
 ```
 
 Use `--profile security --secure` when the report involves auth, secrets, deploy, financial, or environment configuration boundaries.

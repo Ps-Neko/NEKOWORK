@@ -29,6 +29,29 @@ const PATTERNS = [
     recommendation: 'Audit the script. Prefer build-time generation over install-time execution.',
   },
   {
+    // Plain "install" lifecycle hook. npm runs it on install (after a node-gyp
+    // rebuild fallback). The (?<!...) lookbehind keeps it from matching the
+    // tail of "preinstall"/"postinstall", and the leading delimiter class
+    // (start | { | , | whitespace) ensures we matched a real JSON key.
+    id: 'install-hook-install',
+    re: /(?<![A-Za-z])"install"\s*:\s*"[^"]+"/g,
+    severity: 'high',
+    title: 'install lifecycle script added',
+    description: 'The "install" npm lifecycle hook runs automatically on install — same install-time-execution risk as pre/postinstall.',
+    recommendation: 'Confirm the hook is intentional and audit what it runs. Prefer no install-time execution.',
+  },
+  {
+    // "prepublish" / "prepublishOnly" run when the package is published — a
+    // supply-chain vector (malicious code executes on the maintainer's machine
+    // at publish time and never appears in the published tarball's runtime).
+    id: 'install-hook-prepublish',
+    re: /"prepublish(?:Only)?"\s*:\s*"[^"]+"/g,
+    severity: 'high',
+    title: 'prepublish/prepublishOnly script added',
+    description: 'prepublish and prepublishOnly run at publish time. They are a supply-chain vector: code executes on the publisher\'s machine.',
+    recommendation: 'Audit the script. Prefer an explicit, reviewed release pipeline over publish-time hooks.',
+  },
+  {
     id: 'install-hook-prepare-shell',
     // "prepare" with shell command content (chained, sudo, curl, etc.).
     re: /"prepare"\s*:\s*"[^"]*(?:&&|;|\|\s*sh|\bsudo\b|\bcurl\b|\bwget\b)[^"]*"/g,

@@ -1,5 +1,7 @@
+// Shared library module — consumed by the heavy @ps-neko/nekowork-harness package; kept in slim as the single source of truth.
 import fs from 'node:fs';
 import path from 'node:path';
+import { readJson } from './session-io.js';
 
 const DEFAULT_COUNT = 3;
 
@@ -93,13 +95,4 @@ export function buildDefaultAcceptanceCriteria(task = '', minimum = DEFAULT_COUN
     passes: false,
     source: 'task-derived-minimum',
   }));
-}
-
-function readJson(file) {
-  if (!fs.existsSync(file)) return null;
-  try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
-  } catch {
-    return null;
-  }
 }

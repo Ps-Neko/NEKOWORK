@@ -63,6 +63,42 @@ test('eslint-disable-next-line: medium (raw)', () => {
   assert.equal(f[0].severity, 'medium');
 });
 
+test('Go t.Skip: high', () => {
+  const f = scanFileContent('x_test.go', 't.Skip("flaky")\n');
+  assert.equal(f[0].pattern, 'go-test-skip');
+  assert.equal(f[0].severity, 'high');
+});
+
+test('Go //nolint: medium', () => {
+  const f = scanFileContent('x.go', 'foo() //nolint:errcheck\n');
+  assert.equal(f[0].pattern, 'go-nolint');
+});
+
+test('Rust #[allow(...)]: medium', () => {
+  const f = scanFileContent('x.rs', '#[allow(dead_code)]\nfn f() {}\n');
+  assert.equal(f[0].pattern, 'rust-allow');
+});
+
+test('tslint:disable: high', () => {
+  const f = scanFileContent('x.ts', '// tslint:disable\nconst x: any = 1;\n');
+  assert.ok(f.some(y => y.pattern === 'tslint-disable'));
+});
+
+test('biome-ignore: medium', () => {
+  const f = scanFileContent('x.ts', '// biome-ignore lint/style/noVar: legacy\nvar x = 1;\n');
+  assert.ok(f.some(y => y.pattern === 'biome-ignore'));
+});
+
+test('Python # noqa: medium', () => {
+  const f = scanFileContent('x.py', 'import os  # noqa\n');
+  assert.equal(f[0].pattern, 'python-noqa');
+});
+
+test('normal Go test (no skip): not flagged', () => {
+  const f = scanFileContent('x_test.go', 'func TestAdd(t *testing.T) { if add(1,2)!=3 { t.Fatal() } }\n');
+  assert.equal(f.length, 0);
+});
+
 test('fixture manifest: recall + critical FP gate', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(FIXTURE_ROOT, 'manifest.json'), 'utf8'));
   let posCaught = 0, posTotal = 0, criticalFp = 0, negTotal = 0;
@@ -88,4 +124,31 @@ test('fixture manifest: recall + critical FP gate', () => {
   assert.ok(recall >= 0.90, `recall ${recall.toFixed(2)} below 0.90; missed: ${missed.join(', ')}`);
   assert.ok(fpRate <= 0.10, `CRITICAL FP rate ${fpRate.toFixed(2)} above 0.10; FPs: ${JSON.stringify(fps)}`);
   console.log(`[test-or-security-disable] synthetic seed: recall=${(recall * 100).toFixed(0)}% (${posCaught}/${posTotal}), CRITICAL FP=${(fpRate * 100).toFixed(0)}% (${criticalFp}/${negTotal})`);
+});
+
+// ---------- R2-6: JUnit / mypy / gosec / SuppressWarnings ----------
+
+test('JUnit @Disabled / @Ignore: high', () => {
+  assert.ok(scanFileContent('x.java', '@Disabled("flaky")\nvoid t() {}').some(x => x.pattern === 'junit-disabled-ignore' && x.severity === 'high'));
+  assert.ok(scanFileContent('x.java', '@Ignore\nvoid t() {}').some(x => x.pattern === 'junit-disabled-ignore'));
+});
+
+test('mypy # type: ignore: medium', () => {
+  const f = scanFileContent('x.py', 'x = f()  # type: ignore');
+  assert.ok(f.some(x => x.pattern === 'mypy-type-ignore' && x.severity === 'medium'));
+});
+
+test('gosec #nosec: high', () => {
+  const f = scanFileContent('x.go', 'cmd := exec.Command(a) // #nosec');
+  assert.ok(f.some(x => x.pattern === 'gosec-nosec' && x.severity === 'high'));
+});
+
+test('Java @SuppressWarnings: medium', () => {
+  const f = scanFileContent('x.java', '@SuppressWarnings("unchecked")\nList l = x;');
+  assert.ok(f.some(x => x.pattern === 'java-suppresswarnings'));
+});
+
+test('normal test / prose mentions: not flagged (R2-6 FP guard)', () => {
+  assert.equal(scanFileContent('x.java', 'void t() { assert ok; }').length, 0);
+  assert.equal(scanFileContent('x.py', 'nosecond = v  # checks the type properly').length, 0);
 });

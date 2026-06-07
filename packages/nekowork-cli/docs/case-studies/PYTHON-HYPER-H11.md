@@ -45,11 +45,11 @@ python -m venv .venv
 From the NEKOWORK checkout:
 
 ```bash
-node scripts/cli.js doctor --quick --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js doctor --quick --project-root <target> --json
 node scripts/portability/simulate-port.js <target> --profile quality --json
-node scripts/cli.js ask "assess h11 HTTP/1.1 parser boundary and malformed request handling" --profile quality --session nekowork-h11-case --project-root <target> --json
-node scripts/cli.js run "assess h11 HTTP/1.1 parser boundary and malformed request handling" --profile quality --strict-quality --session nekowork-h11-case --project-root <target> --json
-node scripts/cli.js gate status --session nekowork-h11-case --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js ask "assess h11 HTTP/1.1 parser boundary and malformed request handling" --profile quality --session nekowork-h11-case --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js run "assess h11 HTTP/1.1 parser boundary and malformed request handling" --profile quality --strict-quality --session nekowork-h11-case --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js gate status --session nekowork-h11-case --project-root <target> --json
 ```
 
 ## Target Test Result

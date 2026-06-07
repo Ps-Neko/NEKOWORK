@@ -1,0 +1,23 @@
+# .gitleaksignore — synthetic test fixtures, not real secrets.
+#
+# The paths below contain INTENTIONALLY-FAKE credentials used as positive
+# test fixtures for NEKOWORK's secret-detection rules (hardcoded-credential,
+# secret-fallback). They are crafted to look like real AWS keys, GitHub PATs,
+# private keys, JWT-secret fallbacks, etc. so the rules can be exercised against
+# realistic input. None of them are live or grant access to anything. Listing
+# them here prevents gitleaks from flagging the deliberately-fake fixtures.
+#
+# Path globs (gitleaks honours glob patterns in .gitleaksignore in addition to
+# commit:file:rule:line fingerprints). If your gitleaks version requires
+# fingerprints, mirror these directories under [allowlist] paths in your
+# gitleaks config.
+
+# Hardcoded-credential positives (fake AWS/GitHub/Google/SendGrid/Twilio/etc.)
+packages/nekowork/tests/fixtures/hardcoded-credential/positive/**
+
+# Secret-fallback positives (env-var || "literal-default" patterns)
+packages/nekowork/tests/fixtures/secret-fallback/positive/**
+
+# Scraped OSS candidate fixtures + captured live-AI diffs for the above rules
+packages/nekowork/tests/fixtures/secret-fallback/positive/candidates/**
+packages/nekowork/tests/fixtures/secret-fallback/positive/live-ai/**

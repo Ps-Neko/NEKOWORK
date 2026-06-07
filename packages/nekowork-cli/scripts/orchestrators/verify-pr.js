@@ -1,13 +1,15 @@
-// verify-pr orchestrator — the 1.0 hero entrypoint.
+// verify-pr orchestrator (heavy @ps-neko/nekowork-harness) — the 1.0 hero
+// entrypoint, plus the heavy-only --run-checks extension.
 //
-// Pipeline:
-//   1. Collect diff (working tree | staged | --from-patch | --from-range)
-//   2. Detect project baseline (test/lint/typecheck availability)
-//   3. Run deterministic risk rules: secret-fallback, auto-apply-commit-push,
-//      hardcoded-credential, test-or-security-disable, package-lockfile-risk
-//   4. Derive verdict from rule findings + (optional --run-checks) results
-//   5. Write evidence (.nekowork/evidence/*) + .nekowork/decision.json + REPORT.md
-//   6. Print summary, return decision
+// All deterministic pipeline pieces (file classification, the 10-rule scanner,
+// verdict-from-findings logic, decision build, report/comment rendering) are
+// imported from the SLIM @ps-neko/nekowork package's lib/verify-helpers.js so
+// heavy can never drift from slim. The ONLY heavy-specific behavior kept local:
+//   - --run-checks: actually run the project's test/lint/typecheck commands and
+//     downgrade an otherwise-clean verdict to NEEDS_HUMAN_REVIEW on failure
+//     (a check failure never produces a standalone BLOCK).
+//   - checksBlockedByRisk: refuse to execute commands when the diff itself
+//     tampered with the execution surface or carries a critical finding.
 //
 // Verdict matrix (Phase 0, per docs/SCOPE-1.0.md §7):
 //   CRITICAL finding                              → BLOCK
@@ -20,35 +22,22 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {
-  parseDiff,
-  getGitDiff,
-  loadDiffFile,
-} from '@ps-neko/nekowork/scripts/lib/diff-parser.js';
+  VERDICT,
+  EXIT_CODE,
+  inputSourceForMode,
+  loadDiff,
+  runRules,
+  describeChecks,
+  classifyChangedFiles,
+  deriveRiskVerdict,
+  buildVerifyPrDecision,
+  renderPrComment,
+  renderReport,
+} from '@ps-neko/nekowork/scripts/lib/verify-helpers.js';
 import { detectProject } from '@ps-neko/nekowork/scripts/lib/project-detector.js';
-import { scanDiff as scanSecretFallback } from '@ps-neko/nekowork/scripts/lib/rules/secret-fallback.js';
-import { scanDiff as scanAutoApply } from '@ps-neko/nekowork/scripts/lib/rules/auto-apply-commit-push.js';
-import { scanDiff as scanHardcodedCredential } from '@ps-neko/nekowork/scripts/lib/rules/hardcoded-credential.js';
-import { scanDiff as scanTestDisable } from '@ps-neko/nekowork/scripts/lib/rules/test-or-security-disable.js';
-import { scanDiff as scanPackageRisk } from '@ps-neko/nekowork/scripts/lib/rules/package-lockfile-risk.js';
 import { runChecks } from '../lib/check-runner.js';
 
-const SCHEMA_VERSION = 'verify-pr-v0';
-
-export const VERDICT = Object.freeze({
-  ALLOW: 'ALLOW',
-  ALLOW_WITH_WARNINGS: 'ALLOW_WITH_WARNINGS',
-  NEEDS_HUMAN_REVIEW: 'NEEDS_HUMAN_REVIEW',
-  BLOCK: 'BLOCK',
-  INSUFFICIENT_EVIDENCE: 'INSUFFICIENT_EVIDENCE',
-});
-
-export const EXIT_CODE = Object.freeze({
-  [VERDICT.ALLOW]: 0,
-  [VERDICT.ALLOW_WITH_WARNINGS]: 0,
-  [VERDICT.NEEDS_HUMAN_REVIEW]: 1,
-  [VERDICT.INSUFFICIENT_EVIDENCE]: 1,
-  [VERDICT.BLOCK]: 2,
-});
+export { VERDICT, EXIT_CODE };
 
 /**
  * @param {object} opts
@@ -58,6 +47,7 @@ export const EXIT_CODE = Object.freeze({
  * @param {string} [opts.range]         required when mode='range'
  * @param {boolean} [opts.write=true]   write evidence + REPORT.md to disk
  * @param {boolean} [opts.json]         caller will print JSON (suppress summary)
+ * @param {boolean} [opts.runChecks]    run project test/lint/typecheck commands
  */
 export async function verifyPrCycle(opts = {}) {
   const projectRoot = opts.projectRoot || process.cwd();
@@ -66,8 +56,10 @@ export async function verifyPrCycle(opts = {}) {
 
   const parsedDiff = loadDiff({ mode, projectRoot, opts });
   const project = detectProject(projectRoot);
-  const findings = runRules(parsedDiff);
+  const findings = runRules(parsedDiff, { projectRoot });
   const checksAvailable = describeChecks(project);
+  // Classify changed files ONCE and thread it through the verdict + decision.
+  const classified = classifyChangedFiles(parsedDiff);
 
   let checks = { requested: Boolean(opts.runChecks), skippedReason: null, results: [] };
   if (opts.runChecks) {
@@ -81,12 +73,27 @@ export async function verifyPrCycle(opts = {}) {
     }
   }
 
-  const verdict = deriveVerdict({ findings, parsedDiff, checksAvailable, checks });
-  const decision = buildDecision({ verdict, findings, parsedDiff, project, checksAvailable, checks });
+  // Base verdict from the shared (slim) deterministic logic, then layer the
+  // heavy-only --run-checks downgrade on top.
+  const verdict = applyChecksToVerdict(
+    deriveRiskVerdict({ findings, classified, checksAvailable }),
+    checks,
+  );
+  const decision = buildVerifyPrDecision({
+    verdict,
+    findings,
+    parsedDiff,
+    classified,
+    project,
+    checksAvailable,
+    extra: { checks: checks || { requested: false, skippedReason: null, results: [] } },
+  });
+
+  const inputSource = inputSourceForMode(mode);
 
   let writtenPaths = null;
   if (write) {
-    writtenPaths = writeEvidence({ projectRoot, parsedDiff, findings, decision });
+    writtenPaths = writeEvidence({ projectRoot, parsedDiff, findings, decision, inputSource });
   }
 
   if (opts.commentFile) {
@@ -110,116 +117,25 @@ export async function verifyPrCycle(opts = {}) {
   };
 }
 
-function renderPrComment(decision, findings) {
-  const emoji = {
-    [VERDICT.ALLOW]: '✅',
-    [VERDICT.ALLOW_WITH_WARNINGS]: '⚠️',
-    [VERDICT.NEEDS_HUMAN_REVIEW]: '👀',
-    [VERDICT.INSUFFICIENT_EVIDENCE]: '🔍',
-    [VERDICT.BLOCK]: '🛑',
-  };
-  const lines = [];
-  lines.push(`### ${emoji[decision.verdict] || ''} NEKOWORK verify-pr: \`${decision.verdict}\``);
-  lines.push('');
-  lines.push(`**Reason:** ${decision.reason}`);
-  lines.push('');
-  lines.push(`| | |`);
-  lines.push(`|---|---|`);
-  lines.push(`| Merge allowed | ${decision.merge_allowed ? 'yes' : '**no**'} |`);
-  lines.push(`| Apply allowed | ${decision.apply_allowed ? 'yes' : '**no**'} |`);
-  lines.push(`| Risk level | ${decision.risk_level} |`);
-  lines.push(`| Findings | critical=${decision.finding_counts.critical} high=${decision.finding_counts.high} medium=${decision.finding_counts.medium} low=${decision.finding_counts.low} |`);
-  lines.push(`| Changed files | ${decision.changed_files.total} (+${decision.changed_files.additions} -${decision.changed_files.deletions}) |`);
-  const cks = decision.checks || { requested: false, results: [] };
-  if (cks.requested) {
-    const summary = cks.results.length
-      ? cks.results.map(c => `${c.name}=${c.status}`).join(' ')
-      : (cks.skippedReason ? 'skipped' : 'none');
-    lines.push(`| Checks | ${summary} |`);
+/**
+ * Layer the heavy --run-checks result onto the shared deterministic verdict.
+ * A failed check downgrades an otherwise-clean/ALLOW* verdict to
+ * NEEDS_HUMAN_REVIEW, but it never converts a non-critical verdict into a BLOCK
+ * and never overrides an existing BLOCK / NEEDS_HUMAN_REVIEW.
+ */
+function applyChecksToVerdict(verdict, checks) {
+  if (verdict.verdict === VERDICT.BLOCK || verdict.verdict === VERDICT.NEEDS_HUMAN_REVIEW) {
+    return verdict;
   }
-  lines.push('');
-  const blocking = findings.filter(f => f.blocks_apply);
-  if (blocking.length) {
-    lines.push('#### Blocking findings');
-    lines.push('');
-    for (const f of blocking.slice(0, 10)) {
-      lines.push(`- **${f.severity.toUpperCase()}** [${f.rule}] ${f.title} — \`${f.file}:${f.line}\``);
-      if (f.recommendation) lines.push(`  - ${f.recommendation}`);
-    }
-    if (blocking.length > 10) lines.push(`- _(+${blocking.length - 10} more — see \`.nekowork/evidence/risk-findings.json\`)_`);
-    lines.push('');
-  }
-  const nonBlocking = findings.filter(f => !f.blocks_apply);
-  if (nonBlocking.length) {
-    lines.push('<details><summary>Other findings</summary>');
-    lines.push('');
-    for (const f of nonBlocking.slice(0, 20)) {
-      lines.push(`- ${f.severity.toUpperCase()} [${f.rule}] ${f.title} — \`${f.file}:${f.line}\``);
-    }
-    if (nonBlocking.length > 20) lines.push(`- _(+${nonBlocking.length - 20} more)_`);
-    lines.push('');
-    lines.push('</details>');
-    lines.push('');
-  }
-  lines.push('---');
-  lines.push('Generated by `nekowork verify-pr`. Full report: `REPORT.md` · Evidence: `.nekowork/evidence/`.');
-  return lines.join('\n');
-}
-
-function loadDiff({ mode, projectRoot, opts }) {
-  const includePaths = opts.includePaths;
-  if (mode === 'patch') {
-    if (!opts.patchPath) throw new Error('mode=patch requires --from-patch <file>');
-    return loadDiffFile(opts.patchPath);
-  }
-  if (mode === 'range') {
-    if (!opts.range) throw new Error('mode=range requires --range <ref>');
-    return getGitDiff({ cwd: projectRoot, mode: 'range', range: opts.range, includePaths });
-  }
-  if (mode === 'staged') {
-    return getGitDiff({ cwd: projectRoot, mode: 'staged', includePaths });
-  }
-  if (mode === 'full') {
-    return getGitDiff({ cwd: projectRoot, mode: 'full', includePaths });
-  }
-  return getGitDiff({ cwd: projectRoot, mode: 'working', includePaths });
-}
-
-function runRules(parsedDiff) {
-  const findings = [];
-  findings.push(...scanSecretFallback(parsedDiff));
-  findings.push(...scanAutoApply(parsedDiff));
-  findings.push(...scanHardcodedCredential(parsedDiff));
-  findings.push(...scanTestDisable(parsedDiff));
-  findings.push(...scanPackageRisk(parsedDiff));
-  return findings;
-}
-
-function describeChecks(project) {
+  const ranChecks = checks && Array.isArray(checks.results) && checks.results.length > 0;
+  if (!ranChecks) return verdict;
+  const failed = checks.results.filter(c => c.status === 'fail' || c.status === 'timeout');
+  if (!failed.length) return verdict;
   return {
-    test: Boolean(project.hasTests),
-    lint: Boolean(project.hasLint),
-    typecheck: Boolean(project.hasTypecheck),
-    build: Boolean(project.hasBuild),
-    audit: Boolean(project.hasAudit),
+    verdict: VERDICT.NEEDS_HUMAN_REVIEW,
+    reason: `verification command failed: ${failed.map(c => c.name).join(', ')}`,
+    apply_allowed: false,
   };
-}
-
-function classifyChangedFiles(parsedDiff) {
-  const source = [];
-  const tests = [];
-  const docs = [];
-  const config = [];
-  const ci = [];
-  for (const f of parsedDiff.files || []) {
-    const p = f.path.toLowerCase();
-    if (/(^|\/)tests?\/|\.test\.|\.spec\./.test(p)) tests.push(f.path);
-    else if (/\.(md|rst|txt)$/.test(p) || /^docs\//.test(p) || /readme/i.test(p)) docs.push(f.path);
-    else if (/\.(json|toml|yaml|yml|ini|cfg)$/.test(p)) config.push(f.path);
-    else if (/^\.github\/|^\.gitlab-ci|^\.circleci|jenkinsfile/i.test(f.path)) ci.push(f.path);
-    else source.push(f.path);
-  }
-  return { source, tests, docs, config, ci };
 }
 
 /**
@@ -241,119 +157,7 @@ export function checksBlockedByRisk(findings) {
   });
 }
 
-function deriveVerdict({ findings, parsedDiff, checksAvailable, checks }) {
-  const hasCritical = findings.some(f => f.severity === 'critical');
-  const hasHigh = findings.some(f => f.severity === 'high');
-  const hasMediumOrLow = findings.some(f => f.severity === 'medium' || f.severity === 'low');
-  const classified = classifyChangedFiles(parsedDiff);
-  const sourceOnly = classified.source.length > 0;
-  const docsOnly = classified.source.length === 0 && classified.tests.length === 0 &&
-    (classified.docs.length > 0 || classified.config.length > 0);
-
-  if (hasCritical) {
-    return {
-      verdict: VERDICT.BLOCK,
-      reason: firstCriticalReason(findings),
-      apply_allowed: false,
-    };
-  }
-  if (hasHigh) {
-    return {
-      verdict: VERDICT.NEEDS_HUMAN_REVIEW,
-      reason: 'HIGH severity finding requires human review',
-      apply_allowed: false,
-    };
-  }
-  const ranChecks = checks && Array.isArray(checks.results) && checks.results.length > 0;
-  if (ranChecks) {
-    const failed = checks.results.filter(c => c.status === 'fail' || c.status === 'timeout');
-    if (failed.length) {
-      return {
-        verdict: VERDICT.NEEDS_HUMAN_REVIEW,
-        reason: `verification command failed: ${failed.map(c => c.name).join(', ')}`,
-        apply_allowed: false,
-      };
-    }
-  }
-
-  if (sourceOnly && !checksAvailable.test) {
-    return {
-      verdict: VERDICT.INSUFFICIENT_EVIDENCE,
-      reason: 'risk scan passed (no blocking findings), but this project has no test command — full verification needs one. This is "not enough evidence", not a failure.',
-      apply_allowed: false,
-    };
-  }
-  if (hasMediumOrLow) {
-    return {
-      verdict: VERDICT.ALLOW_WITH_WARNINGS,
-      reason: 'lower-severity findings present',
-      apply_allowed: true,
-    };
-  }
-  if (docsOnly) {
-    return {
-      verdict: VERDICT.ALLOW,
-      reason: 'docs/config only, no findings',
-      apply_allowed: true,
-    };
-  }
-  return {
-    verdict: VERDICT.ALLOW,
-    reason: 'no findings',
-    apply_allowed: true,
-  };
-}
-
-function firstCriticalReason(findings) {
-  const critical = findings.find(f => f.severity === 'critical');
-  if (!critical) return 'CRITICAL finding present';
-  return `${critical.title} (${critical.file}:${critical.line})`;
-}
-
-function buildDecision({ verdict, findings, parsedDiff, project, checksAvailable, checks }) {
-  const classified = classifyChangedFiles(parsedDiff);
-  return {
-    schema_version: SCHEMA_VERSION,
-    generated_at: new Date().toISOString(),
-    verdict: verdict.verdict,
-    reason: verdict.reason,
-    apply_allowed: verdict.apply_allowed,
-    merge_allowed: verdict.verdict === VERDICT.ALLOW || verdict.verdict === VERDICT.ALLOW_WITH_WARNINGS,
-    risk_level: deriveRiskLevel(findings),
-    finding_counts: countBySeverity(findings),
-    changed_files: {
-      total: parsedDiff.totalFiles,
-      additions: parsedDiff.totalAdditions,
-      deletions: parsedDiff.totalDeletions,
-      ...classified,
-    },
-    project: {
-      type: project.projectType,
-      package_manager: project.packageManager,
-      checks_available: checksAvailable,
-    },
-    findings,
-    checks: checks || { requested: false, skippedReason: null, results: [] },
-  };
-}
-
-function deriveRiskLevel(findings) {
-  if (findings.some(f => f.severity === 'critical')) return 'CRITICAL';
-  if (findings.some(f => f.severity === 'high')) return 'HIGH';
-  if (findings.some(f => f.severity === 'medium')) return 'MEDIUM';
-  if (findings.length > 0) return 'LOW';
-  return 'LOW';
-}
-
-function countBySeverity(findings) {
-  const counts = { critical: 0, high: 0, medium: 0, low: 0 };
-  for (const f of findings) {
-    if (counts[f.severity] != null) counts[f.severity]++;
-  }
-  return counts;
-}
-
-function writeEvidence({ projectRoot, parsedDiff, findings, decision }) {
+function writeEvidence({ projectRoot, parsedDiff, findings, decision, inputSource = 'working_tree' }) {
   const evidenceDir = path.join(projectRoot, '.nekowork', 'evidence');
   fs.mkdirSync(evidenceDir, { recursive: true });
 
@@ -379,7 +183,7 @@ function writeEvidence({ projectRoot, parsedDiff, findings, decision }) {
   const manifestPath = path.join(evidenceDir, 'evidence-manifest.json');
   fs.writeFileSync(manifestPath, JSON.stringify({
     created_at: new Date().toISOString(),
-    input_source: 'working_tree',
+    input_source: inputSource,
     artifacts: [
       { name: 'diff.summary.json', path: 'evidence/diff.summary.json' },
       { name: 'risk-findings.json', path: 'evidence/risk-findings.json' },
@@ -402,103 +206,6 @@ function writeEvidence({ projectRoot, parsedDiff, findings, decision }) {
     decision: decisionPath,
     report: reportPath,
   };
-}
-
-function renderReport(decision, findings) {
-  const lines = [];
-  lines.push('# NEKOWORK Verification Report');
-  lines.push('');
-  lines.push('## Verdict');
-  lines.push('');
-  lines.push(`**${decision.verdict}**`);
-  lines.push('');
-  lines.push('## Reason');
-  lines.push('');
-  lines.push(decision.reason);
-  lines.push('');
-  lines.push('## Decision');
-  lines.push('');
-  lines.push(`- merge_allowed: ${decision.merge_allowed}`);
-  lines.push(`- apply_allowed: ${decision.apply_allowed}`);
-  lines.push(`- risk_level: ${decision.risk_level}`);
-  lines.push('');
-  lines.push('## Changed Files');
-  lines.push('');
-  lines.push(`- total: ${decision.changed_files.total}`);
-  lines.push(`- additions: ${decision.changed_files.additions}`);
-  lines.push(`- deletions: ${decision.changed_files.deletions}`);
-  if (decision.changed_files.source?.length) {
-    lines.push(`- source: ${decision.changed_files.source.join(', ')}`);
-  }
-  if (decision.changed_files.tests?.length) {
-    lines.push(`- tests: ${decision.changed_files.tests.join(', ')}`);
-  }
-  if (decision.changed_files.docs?.length) {
-    lines.push(`- docs: ${decision.changed_files.docs.join(', ')}`);
-  }
-  lines.push('');
-  if (findings.length === 0) {
-    lines.push('## Findings');
-    lines.push('');
-    lines.push('No findings.');
-  } else {
-    lines.push('## Blocking Findings');
-    lines.push('');
-    const blocking = findings.filter(f => f.blocks_apply);
-    if (!blocking.length) {
-      lines.push('_(none)_');
-    } else {
-      for (const f of blocking) {
-        lines.push(`- **${f.severity.toUpperCase()}** [${f.rule}] ${f.title} — \`${f.file}:${f.line}\``);
-        if (f.recommendation) lines.push(`  - ${f.recommendation}`);
-      }
-    }
-    lines.push('');
-    const nonBlocking = findings.filter(f => !f.blocks_apply);
-    if (nonBlocking.length) {
-      lines.push('## Other Findings');
-      lines.push('');
-      for (const f of nonBlocking) {
-        lines.push(`- ${f.severity.toUpperCase()} [${f.rule}] ${f.title} — \`${f.file}:${f.line}\``);
-      }
-      lines.push('');
-    }
-  }
-  lines.push('## Evidence');
-  lines.push('');
-  lines.push('- `.nekowork/evidence/risk-findings.json`');
-  lines.push('- `.nekowork/evidence/diff.summary.json`');
-  lines.push('- `.nekowork/evidence/evidence-manifest.json`');
-  lines.push('- `.nekowork/decision.json`');
-  lines.push('');
-  const checks = decision.checks || { requested: false, skippedReason: null, results: [] };
-  if (checks.requested && checks.results.length) {
-    lines.push('## Checks Run');
-    lines.push('');
-    for (const c of checks.results) {
-      lines.push(`- ${c.name}: ${c.status}${c.exitCode != null ? ` (exit ${c.exitCode})` : ''}`);
-      if ((c.status === 'fail' || c.status === 'timeout') && c.outputTail) {
-        lines.push('');
-        lines.push('````text');
-        lines.push(c.outputTail);
-        lines.push('````');
-      }
-    }
-    lines.push('');
-  } else if (checks.requested && checks.skippedReason) {
-    lines.push('## Checks Run');
-    lines.push('');
-    lines.push(`Skipped: ${checks.skippedReason}`);
-    lines.push('');
-  } else {
-    lines.push('## Checks Available');
-    lines.push('');
-    for (const [name, ok] of Object.entries(decision.project.checks_available)) {
-      lines.push(`- ${name}: ${ok ? 'configured' : 'not configured'}`);
-    }
-    lines.push('');
-  }
-  return lines.join('\n');
 }
 
 function nextArg(rest, i, flag) {
