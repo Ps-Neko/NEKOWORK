@@ -75,14 +75,22 @@ Local verification gate for AI-generated diffs — recall 90+%, no LLM in the ve
 ```text
 I built NEKOWORK after watching Cursor and Claude Code happily commit `process.env.X || "fallback-secret"` and `git push --force` into PRs I had to review.
 
-What it does: takes the working-tree diff (or a patch file), runs 5 deterministic rules over the added lines, writes evidence, and emits a verdict — ALLOW / ALLOW_WITH_WARNINGS / NEEDS_HUMAN_REVIEW / INSUFFICIENT_EVIDENCE / BLOCK. Optional Codex review is recorded as an advisor note only and never controls the verdict.
+What it does: takes the working-tree diff (or a patch file), runs 11 deterministic rules over the added lines, writes evidence, and emits a verdict — ALLOW / ALLOW_WITH_WARNINGS / NEEDS_HUMAN_REVIEW / INSUFFICIENT_EVIDENCE / BLOCK. Optional Codex review is recorded as an advisor note only and never controls the verdict.
 
-Rules (1.0 scope):
-- Secret Fallback (`env.X || "literal"` and 6 variants) — 90% recall on synthetic seed
+Rules (current scope):
+- Secret Fallback (`env.X || "literal"` and variants) — 30 real OSS positives, 2 live-AI captures
 - Auto-Apply / Commit / Push (`git push --force`, subprocess git push, auto-merge config)
-- Hardcoded Credential (provider signatures: AKIA, sk_live_, ghp_, xox-, AIza, PEM)
+- Hardcoded Credential (provider signatures: AKIA, sk_live_, ghp_, xox-, AIza, PEM) — synthetic fixtures only
 - Test-Or-Security-Disable (it.skip, @ts-nocheck, file-wide eslint-disable)
 - Package-Lockfile-Risk (postinstall, curl|bash, git/tarball URL deps)
+- eval usage (`eval(...)`, `new Function(...)`) — synthetic fixtures only
+- Insecure TLS (`rejectUnauthorized: false`, `NODE_TLS_REJECT_UNAUTHORIZED=0`) — synthetic fixtures only
+- CORS wildcard (`Access-Control-Allow-Origin: *` on credentialed endpoints) — synthetic fixtures only
+- SQL injection (basic string-concat query shapes; regex-level only) — synthetic fixtures only
+- Command injection (basic user-input-into-shell shapes; regex-level only) — synthetic fixtures only
+- AST dataflow (intraprocedural taint for variable-mediated injection: assembled SQL/`eval`/shell across statements; AST-based, JS/TS only) — synthetic fixtures only
+
+All 11 rules currently sit at 100% recall / 0 false positives on their fixture corpus (184/184 positives, 0/120 negatives). Honest provenance: only secret-fallback carries real OSS + live-AI positives; the 7 newer rules (incl. the two basic injection rules and `ast-dataflow`) are validated by synthetic fixtures only. Ten rules are pure regex; `ast-dataflow` adds one tiny, well-known dependency (`acorn`, the JS parser — MIT, zero transitive dependencies). The published `@alpha` today still ships 5 rules + zero deps; the 11-rule + acorn build lands in the next publish. NEKOWORK is a deterministic risk-pattern gate, not an exhaustive security audit — most injection classes, cross-function/whole-program dataflow, auth flaws, and logic bugs are out of scope (see BENCHMARK.md "What is NOT covered").
 
 Quick try:
     npx -y @ps-neko/nekowork@alpha verify-pr

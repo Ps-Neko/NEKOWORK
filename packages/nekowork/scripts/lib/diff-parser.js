@@ -40,6 +40,10 @@ export function parseDiff(diffText) {
   if (!diffText || typeof diffText !== 'string') return result;
 
   const lines = diffText.split(/\r?\n/);
+  // A trailing newline makes `split` produce a trailing empty element, which
+  // would otherwise be parsed as a phantom context line (inflating hunk.lines
+  // and line counts by 1). Drop it before the loop.
+  if (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
   let current = null;
   let hunk = null;
   let oldLineNum = 0;
@@ -47,11 +51,21 @@ export function parseDiff(diffText) {
 
   const flushCurrent = () => {
     if (!current) return;
+    // `_fromGitHeader` is an internal parse hint; do not leak it to callers.
+    delete current._fromGitHeader;
     result.files.push(current);
     result.totalAdditions += current.additions;
     result.totalDeletions += current.deletions;
     current = null;
     hunk = null;
+  };
+
+  // Strip the `a/` or `b/` prefix git adds to `--- ` / `+++ ` paths; pass
+  // through `/dev/null` and prefix-less paths unchanged.
+  const stripPrefix = (p) => {
+    if (p === '/dev/null') return p;
+    if (p.startsWith('a/') || p.startsWith('b/')) return p.slice(2);
+    return p;
   };
 
   for (const line of lines) {
@@ -66,6 +80,27 @@ export function parseDiff(diffText) {
         deletions: 0,
         binary: false,
         hunks: [],
+        _fromGitHeader: true,
+      };
+      hunk = null;
+      continue;
+    }
+
+    // Fallback: a plain unified diff (no `diff --git` line) starts a file at
+    // its `--- a/path` marker. Only triggered when no git header preceded a
+    // hunk-bearing block, so `--from-patch` on non-git patches still parses.
+    if (line.startsWith('--- ') && (!current || current.hunks.length > 0 || current.binary)) {
+      flushCurrent();
+      const oldPath = stripPrefix(line.slice('--- '.length).split('\t')[0].trim());
+      current = {
+        path: oldPath === '/dev/null' ? '' : oldPath,
+        oldPath: oldPath === '/dev/null' ? '' : oldPath,
+        status: 'modified',
+        additions: 0,
+        deletions: 0,
+        binary: false,
+        hunks: [],
+        _fromGitHeader: false,
       };
       hunk = null;
       continue;
@@ -95,7 +130,21 @@ export function parseDiff(diffText) {
       current.status = 'binary';
       continue;
     }
-    if (line.startsWith('--- ') || line.startsWith('+++ ') || line.startsWith('index ')) {
+    if (line.startsWith('+++ ')) {
+      // For a plain (non-git-header) file, the `+++ b/path` line carries the
+      // authoritative new path. For git-header files the header already set it.
+      if (!current._fromGitHeader) {
+        const newPath = stripPrefix(line.slice('+++ '.length).split('\t')[0].trim());
+        if (newPath === '/dev/null') {
+          current.status = 'deleted';
+        } else {
+          current.path = newPath;
+          if (!current.oldPath) current.oldPath = newPath;
+        }
+      }
+      continue;
+    }
+    if (line.startsWith('--- ') || line.startsWith('index ')) {
       continue;
     }
 
@@ -198,6 +247,20 @@ export function getGitDiff(opts = {}) {
     return stdout + synthesizeFilesAsDiff(cwd, collectIncludeFiles(cwd, opts.includePaths));
   };
 
+  // Centrally drop the tool's own output (REPORT.md + .nekowork/**) from EVERY
+  // diff source — working, staged, range, full, and synthesized. Without this,
+  // a 2nd verify-pr run scans its own prior evidence (which stores the secret
+  // text it flagged) and can force a FALSE BLOCK. Applied after parseDiff so it
+  // covers the real `git diff` path, not only synthesized diffs.
+  const dropSelfOutput = (parsed) => {
+    const kept = (parsed.files || []).filter(f => !isSelfOutput(f.path));
+    if (kept.length === (parsed.files || []).length) return parsed;
+    let totalAdditions = 0;
+    let totalDeletions = 0;
+    for (const f of kept) { totalAdditions += f.additions; totalDeletions += f.deletions; }
+    return { files: kept, totalAdditions, totalDeletions, totalFiles: kept.length };
+  };
+
   // full-scan: treat the entire tracked file set (plus untracked, unless
   // disabled) as an all-added diff, so risk rules see every line rather than
   // only a git delta. This is the onboarding path — run verify-pr on a repo
@@ -211,7 +274,7 @@ export function getGitDiff(opts = {}) {
     const tracked = (ls.stdout || '').split('\n').map(s => s.trim()).filter(Boolean).filter(p => !isSelfOutput(p));
     let stdout = synthesizeFilesAsDiff(cwd, tracked);
     if (includeUntracked) stdout += synthesizeUntrackedDiff(cwd);
-    return parseDiff(appendIncluded(stdout));
+    return dropSelfOutput(parseDiff(appendIncluded(stdout)));
   }
 
   const args = ['diff', '--no-color', '--no-ext-diff'];
@@ -245,7 +308,7 @@ export function getGitDiff(opts = {}) {
     stdout += synthesizeUntrackedDiff(cwd);
   }
 
-  return parseDiff(appendIncluded(stdout));
+  return dropSelfOutput(parseDiff(appendIncluded(stdout)));
 }
 
 /**
@@ -255,7 +318,12 @@ export function getGitDiff(opts = {}) {
  * contamination). Exclude them from every synthesized diff.
  */
 function isSelfOutput(relPath) {
-  return relPath === 'REPORT.md' || relPath.startsWith('.nekowork/');
+  // Case-insensitive: on case-insensitive filesystems (Windows, macOS default)
+  // `REPORT.MD` / `.NEKOWORK/` resolve to the same files as the tool's own
+  // output, so they must be excluded too — otherwise the tool re-scans its own
+  // evidence on the next run (self-contamination / false BLOCK).
+  const lower = String(relPath).toLowerCase();
+  return lower === 'report.md' || lower.startsWith('.nekowork/');
 }
 
 function synthesizeUntrackedDiff(cwd) {
@@ -362,3 +430,6 @@ export function loadDiffFile(filePath) {
   }
   return parseDiff(fs.readFileSync(filePath, 'utf8'));
 }
+
+// Exposed for unit testing the case-insensitive self-output exclusion.
+export { isSelfOutput as _isSelfOutput };

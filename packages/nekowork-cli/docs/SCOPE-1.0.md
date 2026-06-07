@@ -1,10 +1,16 @@
 # NEKOWORK 1.0 Scope
 
 > Status: Active alpha scope. 검증 게이트 정체성은 확정(locked). §5–§7 의 핵심 엔진(diff 파서,
-> 5개 risk rule, 5종 verdict 결정 로직, `--run-checks` 검사 실행, `--comment-file` PR 코멘트)은
-> **구현 완료** — alpha.12 의 `scripts/orchestrators/verify-pr.js` 에 출하 중이다. 남은 1.0 작업은
+> 11개 risk rule, 5종 verdict 결정 로직, `--run-checks` 검사 실행, `--comment-file` PR 코멘트)은
+> **구현 완료** — `scripts/orchestrators/verify-pr.js` 에 출하 중이다. 룰 인벤토리와 최신 recall/FP
+> 수치의 단일 출처(single source of truth)는 [BENCHMARK.md](./BENCHMARK.md) 다. 남은 1.0 작업은
 > fixture corpus 확대 + recall/FP 게이트(§9) 달성 + Codex advisor 경로 연결이다. 초기 결정은
-> 2026-05-15~16 전략 논의 산물이며, 구현 현황은 2026-06-05 코드 기준으로 갱신했다.
+> 2026-05-15~16 전략 논의 산물이며, 구현 현황은 2026-06-07 코드 기준으로 갱신했다.
+>
+> **버전 표기 주의(two-version line):** 슬림 발행 패키지(`@ps-neko/nekowork@alpha`)는 `0.2.0-alpha.x`
+> 라인이고, 소스 체크아웃 전용 헤비 하네스(`@ps-neko/nekowork-harness`)는 레포 버전 `0.1.0-alpha.12`
+> 다. 이 문서의 옛 "alpha.12" 표기는 헤비 git-tag 기준이며, 슬림 사용자는 `0.2.0-alpha.x` 로 읽으면
+> 된다. 자세한 두 버전 라인 설명은 [INTEGRATION.md](./INTEGRATION.md) 참조.
 
 ## 1. 결정 요약
 
@@ -64,7 +70,7 @@ AI 가 만든 코드, 검증 없이는 통과시키지 마세요.
 | `sessions` | Diagnostics | retained | retained | retained |
 | `costs` | Diagnostics | retained | retained | retained |
 
-## 4. 현재 코드 인벤토리 (alpha.12 기준)
+## 4. 현재 코드 인벤토리 (헤비 레포 `0.1.0-alpha.12` / 슬림 `0.2.0-alpha.x` 기준)
 
 ### 재사용 가능 (verify-pr 의 토대)
 - `scripts/lib/decision.js` (325줄) — decision.json writer/schema 성숙. session summary aggregate. 새 input source (diff finding) 만 추가하면 됨.
@@ -74,9 +80,9 @@ AI 가 만든 코드, 검증 없이는 통과시키지 마세요.
 - Human gate state machine (HUMAN_GATE / GATE_APPROVED / GATE_BLOCKED markers).
 - `apply_allowed` gate 로직 (decision.js:60).
 
-### 구현 완료 (alpha.12)
+### 구현 완료 (헤비 레포 `0.1.0-alpha.12` / 슬림 `0.2.0-alpha.x`)
 - **Diff 파서**: `scripts/lib/diff-parser.js` — working tree / staged / patch 파일 / range → 파일·라인 수준 분석.
-- **5개 결정적 risk rule** (§6): `scripts/lib/rules/{secret-fallback,auto-apply-commit-push,hardcoded-credential,test-or-security-disable,package-lockfile-risk}.js`, `verify-pr.js` 의 `runRules()` 에서 일괄 실행.
+- **11개 결정적 risk rule** (§6): `scripts/lib/rules/{secret-fallback,auto-apply-commit-push,hardcoded-credential,test-or-security-disable,package-lockfile-risk,eval-usage,insecure-tls,cors-wildcard,sql-injection,command-injection,ast-dataflow}.js`, `verify-pr.js` 의 `runRules()` 에서 일괄 실행. 룰별 recall/FP·corpus 출처(synthetic/OSS/live)의 단일 출처는 [BENCHMARK.md](./BENCHMARK.md). 10종은 정규식 패턴 매처이고, `ast-dataflow` 1종만 `acorn` 으로 AST 를 만들어 함수 내(intraprocedural) taint 분석을 한다 — 그래서 슬림 패키지는 작고 잘 알려진 의존성 1개(`acorn`, JS 파서 — MIT, transitive 의존성 0)를 갖는다 (TS 는 Node 내장 type-stripping 으로 파싱, TS 의존성 없음).
 - **`INSUFFICIENT_EVIDENCE` verdict**: `verify-pr.js` 의 5종 verdict 에 포함 (source 변경 + test 명령 없음 → INSUFFICIENT_EVIDENCE).
 - **GitHub PR comment 출력**: `--comment-file` 옵션(`renderPrComment`) + `docs/examples/github-actions-verify-pr.yml`.
 - **검사 실행**: `--run-checks` (test/lint/typecheck), 격상-only — `scripts/lib/check-runner.js`.
@@ -115,7 +121,17 @@ REPORT.md 렌더링
 (optional) Codex advisor 실행 후 evidence/codex-advisor.md 만 기록
 ```
 
-## 6. Risk Rule (Killer 1 + Supporting 4)
+## 6. Risk Rule (11종 — Killer 1 + Supporting 10)
+
+> 룰별 recall/FP 와 corpus 출처(synthetic/OSS/live)의 **단일 출처는 [BENCHMARK.md](./BENCHMARK.md)** 다.
+> 아래는 각 룰이 잡는 패턴의 설명이며, 숫자는 BENCHMARK.md 를 본다. 전체 11종:
+> `secret-fallback`, `auto-apply-commit-push`, `hardcoded-credential`, `test-or-security-disable`,
+> `package-lockfile-risk`, `eval-usage`, `insecure-tls`, `cors-wildcard`, `sql-injection`,
+> `command-injection`, `ast-dataflow`. 앞의 10종은 정규식 패턴 매처이고, `ast-dataflow` 1종만
+> AST/dataflow 분석(함수 내 taint)이다. 정직성 주의: `secret-fallback` 만 30개의 실제 OSS positive 를
+> 갖고, 더 최근 룰들(특히 `sql-injection`·`command-injection`·`eval-usage`·`insecure-tls`·
+> `cors-wildcard`·`hardcoded-credential`·`ast-dataflow`)은 **synthetic fixture 만**으로 측정됐다 —
+> OSS/live 검증이 아니다.
 
 ### Killer: Secret Fallback
 - 잡아야 할 패턴:
@@ -144,8 +160,27 @@ REPORT.md 렌더링
 - `package.json` 변경, lockfile 변경, dependency 추가, script 변경, `postinstall`/`preinstall` 추가.
 - dependency 추가 자체는 BLOCK 아님. postinstall/preinstall 추가는 HIGH. script 가 shell/network/git 실행하면 HIGH.
 
+### Supporting 5: eval Usage
+- `eval(...)`, `new Function(...)` 등 동적 코드 실행. **synthetic fixture 만으로 측정** (OSS/live 미검증).
+
+### Supporting 6: Insecure TLS
+- `rejectUnauthorized: false`, `NODE_TLS_REJECT_UNAUTHORIZED=0` 등 TLS 검증 비활성화. **synthetic fixture 만**.
+
+### Supporting 7: CORS Wildcard
+- credentialed 엔드포인트에서 `Access-Control-Allow-Origin: *`. **synthetic fixture 만**.
+
+### Supporting 8: SQL Injection (basic)
+- 문자열 연결로 만든 SQL 쿼리 등 **기본 패턴만** 잡는다 (정규식 수준; data-flow/AST 분석 아님). **synthetic fixture 만**. 대부분의 injection 클래스는 범위 밖 — BENCHMARK.md "## What is NOT covered" 참조.
+
+### Supporting 9: Command Injection (basic)
+- 사용자 입력을 셸로 흘리는 `exec`/`spawn` 류 **기본 패턴만**. **synthetic fixture 만**. 함수 경계를 넘는 케이스는 범위 밖.
+
+### Supporting 10: AST Dataflow (변수 매개 injection)
+- 유일한 AST/dataflow 룰. `acorn` 으로 AST 를 만들고 **함수 내(intraprocedural) taint 분석**으로, 정규식 룰이 놓치는 **변수 매개 / 문장 간 injection** 을 잡는다 — 예: `const q = "SELECT "+id; db.query(q)` 처럼 여러 문장에 걸쳐 조립된 SQL, 조각을 합쳐 만든 `eval`, 부분으로 짜맞춘 셸 명령. **synthetic fixture 만**. 보수적 설계: 함수 경계를 넘는 cross-function / whole-program dataflow 와 비-JS 언어는 범위 밖이다.
+
 ### 1.0 제외
-- auth bypass 일반 탐지 (1.x)
+- auth / authorization 우회 일반 탐지 (1.x)
+- basic sql/command + `ast-dataflow`(함수 내 taint) 가 잡는 것 외 대부분의 injection 클래스 (cross-function / whole-program dataflow 필요 — 1.x)
 - dangerous shell 범용 탐지 (1.x)
 - CI/CD 보안 완화 범용 탐지 (1.x)
 - prompt injection 탐지 (verify-skill, 1.x)
@@ -256,8 +291,9 @@ Phase 1 에서 별도 검토: `apply` 가 verify-pr 와 어떻게 묶이는지. 
 
 ## 12. 30일 빌드 순서 (제안)
 
-> 구현 현황 (2026-06-05): 아래는 초기 제안 순서다. 항목 2–7 (diff 파서 → exit code 매핑) 은 alpha.12 기준
-> **구현 완료**, 항목 8–9 (internal benchmark / 외부 알파) 가 **진행 중** (벤치마크는 게이트 통과, corpus 확대 잔존).
+> 구현 현황 (2026-06-07): 아래는 초기 제안 순서다. 항목 2–7 (diff 파서 → exit code 매핑) 은
+> 헤비 레포 `0.1.0-alpha.12` / 슬림 `0.2.0-alpha.x` 기준 **구현 완료**, 항목 8–9 (internal benchmark /
+> 외부 알파) 가 **진행 중** (벤치마크는 11룰 모두 게이트 통과, corpus 확대 잔존 — [BENCHMARK.md](./BENCHMARK.md)).
 
 상세 day-by-day 는 별도 docs/ROADMAP-1.0.md 에 (향후 작성). 핵심 마일스톤:
 

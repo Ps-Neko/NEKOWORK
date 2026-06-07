@@ -208,6 +208,64 @@
       "notes": "테스트 파일에서 'git push' 문자열은 주석/문자열 안 — comment stripper 가 제거"
     },
     {
+      "id": "aacp-pos-009",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/009-python-subprocess-push.py",
+      "pattern": "python-subprocess-git-push",
+      "expected_findings": [{ "rule": "auto-apply-commit-push", "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "C1: subprocess.run(['git','push',...])."
+    },
+    {
+      "id": "aacp-pos-010",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/010-go-exec-push.go",
+      "pattern": "go-exec-git-push",
+      "expected_findings": [{ "rule": "auto-apply-commit-push", "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "C1: exec.Command('git','push')."
+    },
+    {
+      "id": "aacp-pos-011",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/011-ruby-system-push.rb",
+      "pattern": "ruby-system-git-push",
+      "expected_findings": [{ "rule": "auto-apply-commit-push", "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "C1: Ruby system('git push') + backtick git push."
+    },
+    {
+      "id": "aacp-neg-007",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/007-python-subprocess-status.py",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "C1 FP guard: subprocess git status (read-only) must not fire critical."
+    },
+    {
+      "id": "aacp-pos-012",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/012-gh-pr-merge-auto.sh",
+      "pattern": "gh-pr-merge-auto",
+      "expected_findings": [{ "rule": "auto-apply-commit-push", "line": 4, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-5: gh pr merge --auto enables GitHub auto-merge — bypasses human review (CRITICAL)."
+    },
+    {
+      "id": "aacp-neg-008",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/008-gh-pr-merge-manual.sh",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-5 FP guard: gh pr merge --squash (no --auto) is a human-driven explicit merge."
+    },
+    {
       "id": "aacp-pos-oss-001",
       "label": "positive",
       "source": "github:anvaka/pm@140510a36a14893000c7ad1df33a783a4e739ca5:deploy.sh",

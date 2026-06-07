@@ -220,8 +220,8 @@
 - `node scripts/repair.js --check`
 - `node scripts/sync-claude-md.js --check`
 - `node scripts/build-codemaps.js --check`
-- `node scripts/cli.js doctor`
-- `node scripts/cli.js doctor --quick --gemini-smoke`
+- `node packages/nekowork-cli/scripts/cli.js doctor`
+- `node packages/nekowork-cli/scripts/cli.js doctor --quick --gemini-smoke`
 - `npm audit --audit-level=moderate`
 - `npm pack --dry-run --json`
 

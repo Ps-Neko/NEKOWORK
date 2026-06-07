@@ -61,8 +61,8 @@ Then run NEKOWORK from its checkout:
 cd REPO_ROOT
 node scripts/portability/simulate-port.js C:/path/to/demo-target --profile developer --verbose
 node scripts/install-apply.js --profile developer --project-root C:/path/to/demo-target
-node scripts/cli.js doctor --project-root C:/path/to/demo-target --quick
-node scripts/cli.js plan "external project smoke" --project-root C:/path/to/demo-target --session external-smoke
+node packages/nekowork-cli/scripts/cli.js doctor --project-root C:/path/to/demo-target --quick
+node packages/nekowork-cli/scripts/cli.js plan "external project smoke" --project-root C:/path/to/demo-target --session external-smoke
 ```
 
 Expected target outputs:

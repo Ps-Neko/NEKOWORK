@@ -1,0 +1,44 @@
+{
+  "schema_version": "verify-pr-v0",
+  "generated_at": "2026-06-06T01:23:49.118Z",
+  "verdict": "ALLOW",
+  "reason": "docs/config only, no findings",
+  "apply_allowed": true,
+  "merge_allowed": true,
+  "risk_level": "LOW",
+  "finding_counts": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0
+  },
+  "changed_files": {
+    "total": 5,
+    "additions": 136,
+    "deletions": 0,
+    "source": [],
+    "tests": [],
+    "docs": [
+      "REPORT.md"
+    ],
+    "config": [
+      ".nekowork/decision.json",
+      ".nekowork/evidence/diff.summary.json",
+      ".nekowork/evidence/evidence-manifest.json",
+      ".nekowork/evidence/risk-findings.json"
+    ],
+    "ci": []
+  },
+  "project": {
+    "type": "node",
+    "package_manager": null,
+    "checks_available": {
+      "test": true,
+      "lint": false,
+      "typecheck": false,
+      "build": false,
+      "audit": true
+    }
+  },
+  "findings": []
+}

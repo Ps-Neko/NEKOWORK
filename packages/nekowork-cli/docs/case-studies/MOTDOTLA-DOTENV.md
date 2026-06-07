@@ -46,12 +46,12 @@ npm test
 From the NEKOWORK checkout:
 
 ```bash
-node scripts/cli.js doctor --quick --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js doctor --quick --project-root <target> --json
 node scripts/portability/simulate-port.js <target> --profile security --json
-node scripts/cli.js ask "assess dotenv .env loading, override behavior, and secret configuration boundary" --profile security --session nekowork-dotenv-case --project-root <target> --json
-node scripts/cli.js run "assess dotenv .env loading, override behavior, and secret configuration boundary" --profile security --strict-quality --secure --session nekowork-dotenv-case --project-root <target> --json
-node scripts/cli.js gate status --session nekowork-dotenv-case --project-root <target> --json
-node scripts/cli.js report --session nekowork-dotenv-case --project-root <target> --stdout
+node packages/nekowork-cli/scripts/cli.js ask "assess dotenv .env loading, override behavior, and secret configuration boundary" --profile security --session nekowork-dotenv-case --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js run "assess dotenv .env loading, override behavior, and secret configuration boundary" --profile security --strict-quality --secure --session nekowork-dotenv-case --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js gate status --session nekowork-dotenv-case --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js report --session nekowork-dotenv-case --project-root <target> --stdout
 ```
 
 ## Target Test Result

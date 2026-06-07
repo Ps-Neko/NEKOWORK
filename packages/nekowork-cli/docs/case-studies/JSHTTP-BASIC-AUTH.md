@@ -45,11 +45,11 @@ npm run specs
 From the NEKOWORK checkout:
 
 ```bash
-node scripts/cli.js doctor --quick --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js doctor --quick --project-root <target> --json
 node scripts/portability/simulate-port.js <target> --profile security --json
-node scripts/cli.js ask "assess basic-auth Authorization parser boundary and malformed credential handling" --profile security --session nekowork-basic-auth-case --project-root <target> --json
-node scripts/cli.js run "assess basic-auth Authorization parser boundary and malformed credential handling" --profile security --strict-quality --secure --session nekowork-basic-auth-case --project-root <target> --json
-node scripts/cli.js gate status --session nekowork-basic-auth-case --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js ask "assess basic-auth Authorization parser boundary and malformed credential handling" --profile security --session nekowork-basic-auth-case --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js run "assess basic-auth Authorization parser boundary and malformed credential handling" --profile security --strict-quality --secure --session nekowork-basic-auth-case --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js gate status --session nekowork-basic-auth-case --project-root <target> --json
 ```
 
 ## Target Test Result

@@ -61,6 +61,10 @@ npx -y @ps-neko/nekowork@alpha check
 npx -y @ps-neko/nekowork@alpha verify-pr
 ```
 
+> 항상 **`@alpha`** 태그를 쓰세요 — 태그 없는 기본 / `latest` dist-tag 는 오래된
+> `0.2.0-alpha.0` 에 고정돼 있습니다. (`@alpha` 와 `latest` 는 현재 같은 룰을 담고 있고,
+> 차이는 버그 수정뿐이라 `@alpha` 를 설치하면 됩니다.)
+
 NEKOWORK가 바뀐 줄을 읽고, 사람이 읽기 쉬운 `REPORT.md`를 만들고, 이 변경을
 진행해도 되는지 알려줍니다.
 
@@ -77,11 +81,31 @@ NEKOWORK가 바뀐 줄을 읽고, 사람이 읽기 쉬운 `REPORT.md`를 만들�
 
 ## 무엇을 잡아주나
 
-- 코드에 실수로 들어간 시크릿 키나 임시 비밀번호.
+NEKOWORK는 **정해진 AI 유발 위험 패턴 집합** — 11개 결정적 규칙 — 을 표시하고,
+나머지는 전부 사람의 결정으로 보냅니다. 이것은 **전수 보안 감사가 아닙니다**:
+
+- 코드에 실수로 들어간 시크릿 키, 하드코딩된 인증정보, 임시(fallback) 비밀번호.
 - 꺼져버린 테스트, lint, 보안 검사.
 - 자동 커밋, 자동 push, 자동 병합, 자동 배포를 시도하는 코드.
-- 위험한 패키지 변경이나 설치 스크립트.
+- 위험한 패키지 변경이나 설치 스크립트(예: `postinstall` 훅).
+- `eval` / 동적 코드 실행, 안전하지 않은 TLS, CORS 와일드카드.
+- 기본적인 SQL / command injection 형태.
+- 변수 매개 / 문장 간 injection(여러 문장에 걸쳐 조립된 SQL·셸 명령·`eval`)을 AST dataflow 분석으로 — 한 줄짜리 정규식만이 아니라.
 - 안전하다고 믿기에는 증거가 부족한 변경.
+
+결정적 판정, 사람 게이트, "스스로 push하지 않는다"는 약속은 위 항목 전부에 대해
+유지됩니다. AST dataflow 룰은 **함수 내(intraprocedural)·보수적**입니다 — taint 를
+**한 함수 안에서만** JS/TS 한정으로 따라가며, cross-function 이나 whole-program 분석은
+하지 않습니다. 그 너머(대부분의 injection 부류, 비즈니스 로직 버그, 인가(authorization)
+결함)는 여전히 **범위 밖**입니다. 정확한 경계는
+[벤치마크의 "What is NOT covered"](packages/nekowork-cli/docs/BENCHMARK.md) 참고.
+
+> 참고: 발행된 `@alpha`(0.2.0-alpha.6)는 현재 원래의 5개 규칙만 담고 있고 **의존성이
+> 0개**입니다. 새로 추가된 6개 규칙(eval, 안전하지 않은 TLS, CORS 와일드카드,
+> SQL/command injection, AST dataflow)은 레포에 들어와 있으며 다음 alpha 발행에서 함께
+> 나갑니다. 그 빌드는 AST 엔진을 위해 **작고 잘 알려진 의존성 1개**(`acorn`, JS 파서 —
+> MIT, transitive 의존성 0)를 추가합니다. 즉 오늘 `@alpha` 를 설치하면 5개 규칙 + 의존성
+> 0이고, 11개 규칙 + acorn 빌드는 다음 발행에서 나옵니다.
 
 전체 기술 범위: [SCOPE-1.0.md](packages/nekowork-cli/docs/SCOPE-1.0.md).
 

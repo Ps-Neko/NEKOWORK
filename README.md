@@ -62,6 +62,10 @@ npx -y @ps-neko/nekowork@alpha check
 npx -y @ps-neko/nekowork@alpha verify-pr
 ```
 
+> Always use the **`@alpha`** tag — the bare package / `latest` dist-tag is pinned
+> to a stale `0.2.0-alpha.0`. (`@alpha` and `latest` ship the same rules today; the
+> difference is bugfixes, so `@alpha` is the one to install.)
+
 NEKOWORK reads the changed lines, writes a plain-English `REPORT.md`, and tells
 you whether the change should move forward.
 
@@ -78,11 +82,33 @@ Example when a change is blocked:
 
 ## What It Catches
 
-- Secret keys or fallback passwords accidentally placed in code.
+NEKOWORK flags a **defined set of AI-introduced risk patterns** — 11 deterministic
+rules — and routes everything else to a human decision. It is **not an exhaustive
+security audit**:
+
+> Note: the published `@alpha` (0.2.0-alpha.6) currently ships the original 5 rules
+> and has **zero dependencies**. The 6 newer rules (eval, insecure TLS, CORS wildcard,
+> SQL/command injection, and AST dataflow) are in the repo and land in the next alpha
+> publish; that build adds **one tiny, well-known dependency** (`acorn`, the JS parser
+> — MIT, zero transitive dependencies) for the AST engine. So installing `@alpha`
+> today gives you 5 rules + zero deps; the 11-rule + acorn build ships next.
+
+- Secret keys, hardcoded credentials, or fallback passwords accidentally placed in code.
 - Tests, lint checks, or security checks being switched off.
 - Code that tries to auto-commit, auto-push, auto-merge, or deploy.
-- Risky package or install-script changes.
+- Risky package or install-script changes (e.g. `postinstall` hooks).
+- `eval` / dynamic code execution, insecure TLS, CORS wildcards.
+- Basic SQL / command injection shapes.
+- Variable-mediated / cross-statement injection (assembled SQL, shell commands, `eval`) via AST dataflow analysis — not just single-line regex.
 - Changes with too little evidence to trust safely.
+
+The deterministic verdict, the human gate, and the "never auto-pushes" promise hold
+for everything above. The AST dataflow rule is **intraprocedural and conservative**:
+it follows tainted values **within a single function** and JS/TS only — it does **not**
+do cross-function or whole-program analysis. Anything beyond that (most injection
+classes, business-logic bugs, auth/authorization flaws) is still **out of scope**. See
+the [benchmark's "What is NOT covered"](packages/nekowork-cli/docs/BENCHMARK.md) for the
+exact boundary.
 
 Full technical scope: [SCOPE-1.0.md](packages/nekowork-cli/docs/SCOPE-1.0.md).
 

@@ -4,9 +4,23 @@
 
 AI can write 100 lines in 10 seconds. Who checks them before they hit `main`?
 
-This package reviews every change your AI tool makes, flags the risky parts with
-deterministic rules, and lets **you** make the final call. It never commits,
-pushes, or deploys on its own.
+This package reviews every change your AI tool makes, **flags a defined set of
+AI-introduced risk patterns** (11 deterministic rules: secrets, secret fallbacks,
+hardcoded credentials, auto-push/commit, test/security disables, risky package
+hooks, eval, insecure TLS, CORS wildcard, basic SQL/command injection, and AST
+dataflow taint for variable-mediated injection) and routes everything else to a
+human decision. It is **not an exhaustive security audit** — the AST rule is
+intraprocedural (single-function, JS/TS); cross-function and whole-program dataflow
+are out of scope. The verdict is deterministic (same diff, same result), and it never
+commits, pushes, or deploys on its own. **You** make the final call.
+
+> Note: the published `@alpha` (0.2.0-alpha.6) currently ships the original 5 rules
+> and has **zero dependencies**. The 6 newer rules (eval, insecure TLS, CORS wildcard,
+> SQL/command injection, AST dataflow) are in the repo and land in the next alpha
+> publish; that build adds **one tiny, well-known dependency** (`acorn`, the JS parser
+> — MIT, zero transitive dependencies) for the AST engine. Installing `@alpha` today
+> gives you 5 rules + zero deps; the "11 deterministic rules" above describes that next
+> release.
 
 ## Status
 
@@ -73,7 +87,7 @@ step — it is not triggered by `decision.json`.
 
 - [Quickstart](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/QUICKSTART.md)
 - [How verification works](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/SCOPE-1.0.md)
-- [Benchmark](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/BENCHMARK.md) — 85/86 (99%) recall, 0/47 FP, 30 real OSS positives (secret-fallback)
+- [Benchmark](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/BENCHMARK.md) — 11 rules, 184/184 (100%) recall, 0/120 FP; 30 real OSS positives on `secret-fallback`, the newer rules (incl. sql/command injection and `ast-dataflow`) are synthetic-only
 - [Integration](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/INTEGRATION.md)
 
 ## License

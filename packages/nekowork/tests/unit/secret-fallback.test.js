@@ -109,6 +109,66 @@ index 1111111..2222222 100644
   assert.equal(f[0].severity, 'critical');
 });
 
+// ---------- A1-A4: new patterns ----------
+
+test('flow-sensitive if-not-fallback (JS): critical', () => {
+  const src = 'let token = process.env.AUTH_TOKEN;\nif (!token) token = "fallback-token-abc";';
+  const f = scanFileContent('x.ts', src);
+  assert.ok(f.some(x => x.severity === 'critical'));
+});
+
+test('fail-closed if-throw: not flagged', () => {
+  const src = 'const key = process.env.OPENAI_API_KEY;\nif (!key) { throw new Error("missing"); }';
+  const f = scanFileContent('x.ts', src);
+  assert.equal(f.length, 0);
+});
+
+test('bracket empty-string fallback: critical', () => {
+  const f = scanFileContent('x.ts', "const s = process.env['JWT_SECRET'] || '';");
+  assert.ok(f.some(x => x.severity === 'critical'));
+});
+
+test('Deno.env.get fallback: critical', () => {
+  const f = scanFileContent('x.ts', "const t = Deno.env.get('AUTH_TOKEN') ?? 'fallback-value';");
+  assert.ok(f.some(x => x.pattern === 'deno-env-or-literal'));
+});
+
+test('Bun.env fallback: critical', () => {
+  const f = scanFileContent('x.ts', "const s = Bun.env.SESSION_SECRET || 'dev-secret';");
+  assert.ok(f.some(x => x.pattern === 'bun-env-or-literal'));
+});
+
+test('import.meta.env (Vite) fallback: critical', () => {
+  const f = scanFileContent('x.ts', "const k = import.meta.env.VITE_API_KEY || 'public-fallback';");
+  assert.ok(f.some(x => x.pattern === 'import-meta-env-or-literal'));
+});
+
+test('Python os.getenv default: critical', () => {
+  const f = scanFileContent('x.py', "JWT = os.getenv('JWT_SECRET', 'dev-secret')");
+  assert.ok(f.some(x => x.pattern === 'python-getenv-default'));
+});
+
+test('Python getenv port default: not flagged', () => {
+  const f = scanFileContent('x.py', "PORT = os.getenv('PORT', '8080')");
+  assert.equal(f.length, 0);
+});
+
+test('Ruby ENV.fetch default: critical', () => {
+  const f = scanFileContent('x.rb', "ENV.fetch('SECRET_KEY_BASE', 'insecure-default')");
+  assert.ok(f.some(x => x.pattern === 'ruby-env-fetch-default'));
+});
+
+test('Go os.Getenv if-empty default: critical', () => {
+  const src = 'token := os.Getenv("AUTH_TOKEN")\nif token == "" {\n  token = "hardcoded"\n}';
+  const f = scanFileContent('x.go', src);
+  assert.ok(f.some(x => x.pattern === 'go-getenv-if-empty'));
+});
+
+test('Rust env::var unwrap_or default: critical', () => {
+  const f = scanFileContent('x.rs', 'std::env::var("JWT_SECRET").unwrap_or("dev-secret".to_string())');
+  assert.ok(f.some(x => x.pattern === 'rust-env-var-unwrap-or'));
+});
+
 // ---------- fixture manifest: recall / FP measurement ----------
 
 test('fixture manifest: positive recall + negative FP gate', () => {
@@ -189,4 +249,70 @@ test('URL scheme https:// 포함 줄 다음 줄의 secret fallback 도 감지', 
   const f = scanFileContent('config.ts', content);
   assert.ok(f.length >= 1, `URL 다음 줄의 secret fallback 을 감지해야 함 (got ${f.length})`);
   assert.equal(f[0].line, 2, `line 은 2여야 함 (got ${f[0].line})`);
+});
+
+// ---------- R2-1: concat / ternary / parenthesized / variable fallback bypass ----------
+
+test('concatenated string fallback (?? + concat): critical', () => {
+  const f = scanFileContent('x.ts', 'const k = process.env.SECRET ?? ("a" + "b");');
+  assert.ok(f.some(x => x.severity === 'critical'), `expected critical, got ${JSON.stringify(f)}`);
+});
+
+test('parenthesized ternary fallback (||): critical', () => {
+  const f = scanFileContent('x.ts', 'const k = process.env.API_KEY || (cond ? "x" : "y");');
+  assert.ok(f.some(x => x.severity === 'critical'));
+});
+
+test('secret-like env || variable expression: critical', () => {
+  const f = scanFileContent('x.ts', 'const k = process.env.JWT_SECRET || someDefault;');
+  assert.ok(f.some(x => x.pattern === 'env-secretname-expr-fallback'));
+});
+
+test('secret-like env || function call: critical', () => {
+  const f = scanFileContent('x.ts', 'const k = process.env.API_KEY || getDefaultKey();');
+  assert.ok(f.some(x => x.severity === 'critical'));
+});
+
+test('fail-closed paren throw fallback: not flagged', () => {
+  const f = scanFileContent('x.ts', 'const k = process.env.API_KEY || (() => { throw new Error("no key"); })();');
+  assert.equal(f.length, 0, `fail-closed throw must not flag, got ${JSON.stringify(f)}`);
+});
+
+test('fail-closed process.exit fallback: not flagged', () => {
+  const f = scanFileContent('x.ts', 'const k = process.env.JWT_SECRET ?? process.exit(1);');
+  assert.equal(f.length, 0);
+});
+
+test('non-secret env (PORT) || variable: not flagged', () => {
+  const f = scanFileContent('x.ts', 'const p = process.env.PORT || defaultPort;');
+  assert.equal(f.length, 0);
+});
+
+test('non-secret env (PORT) || ternary: not flagged', () => {
+  const f = scanFileContent('x.ts', 'const h = process.env.HOST || (isDev ? "localhost" : "0.0.0.0");');
+  assert.equal(f.length, 0);
+});
+
+// ---------- R2-7: C# / PHP / Elixir env fallbacks ----------
+
+test('C# Environment.GetEnvironmentVariable ?? literal: critical', () => {
+  const f = scanFileContent('x.cs', 'var k = Environment.GetEnvironmentVariable("API_KEY") ?? "hardcoded";');
+  assert.ok(f.some(x => x.pattern === 'csharp-getenv-coalesce' && x.severity === 'critical'));
+});
+
+test('PHP getenv() ?: literal: critical', () => {
+  const f = scanFileContent('x.php', "$k = getenv('SECRET_KEY') ?: 'default-secret';");
+  assert.ok(f.some(x => x.pattern === 'php-getenv-elvis'));
+});
+
+test('Elixir System.get_env/2 default: critical', () => {
+  const f = scanFileContent('x.ex', 'System.get_env("AUTH_TOKEN", "fallback-token")');
+  assert.ok(f.some(x => x.pattern === 'elixir-get-env-default'));
+});
+
+test('string-aware stripper: secret fallback after URL-in-string survives', () => {
+  // R2-2 regression guard at the rule level: a string literal containing `//`
+  // must not blank the rest of the line and hide a later fallback.
+  const f = scanFileContent('x.ts', 'const u = "a//b"; const k = process.env.API_KEY || "leaked-key-value";');
+  assert.ok(f.some(x => x.severity === 'critical'), `expected critical, got ${JSON.stringify(f)}`);
 });

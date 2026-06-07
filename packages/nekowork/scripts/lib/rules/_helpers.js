@@ -8,18 +8,98 @@ import { addedLines as collectAddedLines } from '../diff-parser.js';
 /**
  * Strip line and block comments while preserving line count and column
  * positions, so regex line offsets still map to the original text.
+ *
+ * String-aware: a `//`, `/* *​/`, or `#` that lives INSIDE a single-quoted,
+ * double-quoted, or backtick string literal is NOT a comment and must be
+ * preserved. A naive regex stripper would treat `const u = "https://e";
+ * eval(x)` as having a line comment after `https:` (the negative lookbehind
+ * only handled the exact `://` case) and would blank out the rest of the line,
+ * masking a real `eval(x)` finding. The small state machine below walks the
+ * text once, tracking whether it is inside a string / comment, so only true
+ * comments are replaced with spaces (newlines kept to preserve offsets).
  */
 export function stripCommentsPreservingOffsets(text) {
-  let out = text.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '));
-  // // comment, but NOT inside a URL scheme like `https://`. Negative
-  // lookbehind for `:` keeps `://` intact while still stripping `// real
-  // comments`.
-  out = out.replace(/(?<!:)\/\/[^\n]*/g, (m) => ' '.repeat(m.length));
-  // Also handle # comments (shell, yaml, dockerfile). Be conservative — only
-  // strip when # is at line start or preceded by whitespace, to avoid
-  // mangling URL fragments or shell parameter expansions like ${#var}.
-  out = out.replace(/(^|[\s;&|])#[^\n]*/g, (m, prefix) => prefix + ' '.repeat(m.length - prefix.length));
-  return out;
+  const n = text.length;
+  const out = new Array(n);
+  // States: 'code' | 'line' (line comment) | 'block' (block comment)
+  //         | 'sq' (') | 'dq' (") | 'tpl' (`)
+  let state = 'code';
+  let i = 0;
+  const blank = (idx) => { out[idx] = text[idx] === '\n' ? '\n' : ' '; };
+
+  while (i < n) {
+    const c = text[i];
+    const next = i + 1 < n ? text[i + 1] : '';
+
+    if (state === 'code') {
+      // # line comment — only when at line start or preceded by whitespace or
+      // a shell separator, to avoid mangling URL fragments (`#frag`) and shell
+      // parameter expansions (`${#var}`). Mirrors the previous regex intent.
+      if (c === '#') {
+        const prev = i > 0 ? text[i - 1] : '';
+        if (prev === '' || /[\s;&|]/.test(prev) || i === 0) {
+          state = 'line';
+          blank(i); i++; continue;
+        }
+      }
+      if (c === '/' && next === '/') {
+        // `://` is a URL scheme separator, not a comment — even outside a string
+        // literal (e.g. a bare `curl https://host/x | bash` shell line). Keep the
+        // pre-state-machine behavior of not treating `://` as a line comment.
+        const prev = i > 0 ? text[i - 1] : '';
+        if (prev !== ':') {
+          state = 'line';
+          blank(i); blank(i + 1); i += 2; continue;
+        }
+        out[i] = c; i++; continue;
+      }
+      if (c === '/' && next === '*') {
+        state = 'block';
+        blank(i); blank(i + 1); i += 2; continue;
+      }
+      if (c === '"') { state = 'dq'; out[i] = c; i++; continue; }
+      if (c === "'") { state = 'sq'; out[i] = c; i++; continue; }
+      if (c === '`') { state = 'tpl'; out[i] = c; i++; continue; }
+      out[i] = c; i++; continue;
+    }
+
+    if (state === 'line') {
+      if (c === '\n') { state = 'code'; out[i] = '\n'; i++; continue; }
+      blank(i); i++; continue;
+    }
+
+    if (state === 'block') {
+      if (c === '*' && next === '/') {
+        state = 'code'; blank(i); blank(i + 1); i += 2; continue;
+      }
+      blank(i); i++; continue;
+    }
+
+    // Inside a string literal: copy verbatim, honoring backslash escapes, until
+    // the matching closing quote. Newlines inside the string are preserved as
+    // newlines either way (offset-preserving).
+    if (state === 'sq' || state === 'dq' || state === 'tpl') {
+      if (c === '\\') {
+        // Copy the backslash and the escaped char verbatim.
+        out[i] = c;
+        if (i + 1 < n) out[i + 1] = text[i + 1];
+        i += 2; continue;
+      }
+      const closer = state === 'sq' ? "'" : state === 'dq' ? '"' : '`';
+      if (c === closer) { state = 'code'; out[i] = c; i++; continue; }
+      // Single/double quoted strings do not span lines in valid JS; if we hit a
+      // newline, bail back to code so an unterminated quote cannot eat the rest
+      // of the file.
+      if ((state === 'sq' || state === 'dq') && c === '\n') {
+        state = 'code'; out[i] = '\n'; i++; continue;
+      }
+      out[i] = c; i++; continue;
+    }
+
+    out[i] = c; i++;
+  }
+
+  return out.join('');
 }
 
 export function lineNumberFromIndex(text, index) {

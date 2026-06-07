@@ -92,9 +92,9 @@ Example:
 
 ```bash
 node scripts/install-plan.js --profile quality
-node scripts/cli.js plan "implement feature X" --session feature-x
-node scripts/cli.js run "implement feature X" --profile quality --session feature-x
-node scripts/cli.js verify "verify feature X" --profile quality --strict-quality --session feature-x
+node packages/nekowork-cli/scripts/cli.js plan "implement feature X" --session feature-x
+node packages/nekowork-cli/scripts/cli.js run "implement feature X" --profile quality --session feature-x
+node packages/nekowork-cli/scripts/cli.js verify "verify feature X" --profile quality --strict-quality --session feature-x
 ```
 
 `--strict-quality` is opt-in. In normal quality mode, missing evidence or acceptance coverage is recorded as warnings. In strict quality mode, those warnings become a fix-required verification verdict before ship readiness.

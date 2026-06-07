@@ -1,0 +1,117 @@
+{
+  "fixture_set": "cors-wildcard",
+  "schema_version": "0.1",
+  "generated_at": "2026-06-07",
+  "notes": "F3: permissive CORS (wildcard origin). MEDIUM for bare wildcard, HIGH when combined with credentials. fpMode any — benign explicit-origin CORS config must produce NO finding at all (validates FP avoidance). Severity escalation is content-sensitive (credentials present in the scanned block).",
+  "targets": {
+    "any_detection_recall": 0.95,
+    "fp_rate": 0.10
+  },
+  "entries": [
+    {
+      "id": "cw-pos-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/001-set-header-wildcard.js",
+      "pattern": "acao-set-header-wildcard",
+      "expected_findings": [{ "rule": "cors-wildcard", "line": 4, "severity": "medium" }],
+      "added_at": "2026-06-07",
+      "notes": "res.setHeader('Access-Control-Allow-Origin','*') with no credentials → medium."
+    },
+    {
+      "id": "cw-pos-002",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/002-cors-mw-credentials.js",
+      "pattern": "cors-mw-wildcard-origin",
+      "expected_findings": [{ "rule": "cors-wildcard", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "cors({ origin: '*', credentials: true }) → high (wildcard + credentials)."
+    },
+    {
+      "id": "cw-pos-003",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/003-config-wildcard-credentials.js",
+      "pattern": "acao-config-wildcard",
+      "expected_findings": [{ "rule": "cors-wildcard", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "config { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': 'true' } → high."
+    },
+    {
+      "id": "cw-neg-001",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/001-explicit-origin.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "Explicit origin 'https://app.example.com' in both cors() and setHeader — no wildcard, must not fire."
+    },
+    {
+      "id": "cw-neg-002",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/002-origin-allowlist-array.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "Array allow-list + reflecting origin function — no '*', must not fire."
+    },
+    {
+      "id": "cw-pos-004",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/004-django-allow-all.py",
+      "pattern": "django-cors-allow-all",
+      "expected_findings": [{ "rule": "cors-wildcard", "line": 2 }],
+      "added_at": "2026-06-07",
+      "notes": "R2-8 Django CORS_ALLOW_ALL_ORIGINS = True."
+    },
+    {
+      "id": "cw-pos-005",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/005-fastapi-allow-origins.py",
+      "pattern": "fastapi-allow-origins-wildcard",
+      "expected_findings": [{ "rule": "cors-wildcard", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-8 FastAPI CORSMiddleware allow_origins=['*'] + allow_credentials=True → high."
+    },
+    {
+      "id": "cw-pos-006",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/006-flask-after-request-wildcard.js",
+      "pattern": "acao-set-header-wildcard",
+      "expected_findings": [{ "rule": "cors-wildcard", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-10 diversity: raw wildcard ACAO header + credentials set on every response → high."
+    },
+    {
+      "id": "cw-neg-003",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/003-django-explicit-origins.py",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-8 FP guard: Django CORS_ALLOW_ALL_ORIGINS = False + explicit CORS_ALLOWED_ORIGINS."
+    },
+    {
+      "id": "cw-neg-004",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/004-fastapi-explicit-origins.py",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-8 FP guard: FastAPI allow_origins=['https://app.example.com'] (explicit) even with credentials."
+    },
+    {
+      "id": "cw-neg-005",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/005-reflected-allowlist.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-10 FP guard: reflected origin from an allow-list Set, no wildcard."
+    }
+  ]
+}

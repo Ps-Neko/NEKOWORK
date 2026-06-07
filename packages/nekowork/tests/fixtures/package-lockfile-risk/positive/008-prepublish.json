@@ -1,0 +1,6 @@
+{
+  "name": "demo",
+  "scripts": {
+    "prepublishOnly": "node scripts/upload-telemetry.js"
+  }
+}

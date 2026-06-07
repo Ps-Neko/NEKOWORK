@@ -110,6 +110,132 @@
       "notes": "markdown docs 의 'it.skip()' 언급 — 함수 호출 아님 (괄호 없음). regex 가 자연스럽게 무시"
     },
     {
+      "id": "td-pos-007",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/007-go-test-skip.go",
+      "pattern": "go-test-skip",
+      "expected_findings": [{ "rule": "test-or-security-disable", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "D1: Go t.Skip(...)."
+    },
+    {
+      "id": "td-pos-008",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/008-go-nolint.go",
+      "pattern": "go-nolint",
+      "expected_findings": [{ "rule": "test-or-security-disable", "severity": "medium" }],
+      "added_at": "2026-06-07",
+      "notes": "D1: Go //nolint."
+    },
+    {
+      "id": "td-pos-009",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/009-rust-allow.rs",
+      "pattern": "rust-allow",
+      "expected_findings": [{ "rule": "test-or-security-disable", "severity": "medium" }],
+      "added_at": "2026-06-07",
+      "notes": "D1: Rust #[allow(...)]."
+    },
+    {
+      "id": "td-pos-010",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/010-tslint-biome.ts",
+      "pattern": "tslint-disable, biome-ignore",
+      "expected_findings": [{ "rule": "test-or-security-disable", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "D1: tslint:disable (high) + biome-ignore (medium)."
+    },
+    {
+      "id": "td-pos-011",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/011-python-noqa.py",
+      "pattern": "python-noqa",
+      "expected_findings": [{ "rule": "test-or-security-disable", "severity": "medium" }],
+      "added_at": "2026-06-07",
+      "notes": "D1: Python # noqa."
+    },
+    {
+      "id": "td-neg-006",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/006-go-normal-test.go",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "D1 FP guard: normal Go test, no skip/nolint."
+    },
+    {
+      "id": "td-neg-007",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/007-rust-scoped-test.rs",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "D1 FP guard: normal Rust test, no #[allow]."
+    },
+    {
+      "id": "td-pos-012",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/012-junit-disabled.java",
+      "pattern": "junit-disabled-ignore",
+      "expected_findings": [{ "rule": "test-or-security-disable", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-6 JUnit @Disabled / @Ignore skip tests."
+    },
+    {
+      "id": "td-pos-013",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/013-mypy-type-ignore.py",
+      "pattern": "mypy-type-ignore",
+      "expected_findings": [{ "rule": "test-or-security-disable", "severity": "medium" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-6 mypy # type: ignore suppresses a type error."
+    },
+    {
+      "id": "td-pos-014",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/014-gosec-nosec.go",
+      "pattern": "gosec-nosec",
+      "expected_findings": [{ "rule": "test-or-security-disable", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-6 gosec #nosec suppresses a Go security finding."
+    },
+    {
+      "id": "td-pos-015",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/015-java-suppresswarnings.java",
+      "pattern": "java-suppresswarnings",
+      "expected_findings": [{ "rule": "test-or-security-disable", "severity": "medium" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-6 Java @SuppressWarnings silences compiler/lint warnings."
+    },
+    {
+      "id": "td-neg-008",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/008-java-normal-test.java",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-6 FP guard: normal JUnit test, no @Disabled/@Ignore/@SuppressWarnings."
+    },
+    {
+      "id": "td-neg-009",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/009-type-and-nosec-mentions.py",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-6 FP guard: prose mentions of 'type' and a 'nosecond' identifier — not suppression directives."
+    },
+    {
       "id": "td-pos-oss-001",
       "label": "positive",
       "source": "github:cypress-io/cypress@6e8bd6cd4044dec9619ef7d20c2946054df80e3c:npm/grep/cypress/e2e/skip.cy.ts",

@@ -848,6 +848,279 @@
       "model": "opus-4.7",
       "task_prompt": "Wire up an OpenAI client using OPENAI_API_KEY from the env.",
       "notes": "Second live-AI positive (same primed session). Natural OpenAI-client output included process.env.OPENAI_API_KEY || '' on line 3 plus a console.warn as soft guard. Rule fired via multi-line-or-literal (caught the warning string as the literal target — true positive on the antipattern, imperfect pattern attribution). Same primer-bias caveat as sf-pos-live-001."
+    },
+    {
+      "id": "sf-pos-013",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/013-env-bracket-or-empty.ts",
+      "pattern": "env-bracket-or-empty-string",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 3, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A3: process.env['JWT_SECRET'] || '' — bracket-form empty-string fallback."
+    },
+    {
+      "id": "sf-pos-014",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/014-env-bracket-or-literal.ts",
+      "pattern": "env-bracket-or-literal",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 3, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A3: process.env['API_KEY'] || 'literal' — bracket-form literal fallback."
+    },
+    {
+      "id": "sf-pos-015",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/015-deno-env.ts",
+      "pattern": "deno-env-or-literal",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 3, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A1: Deno.env.get('AUTH_TOKEN') ?? 'literal'."
+    },
+    {
+      "id": "sf-pos-016",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/016-bun-env.ts",
+      "pattern": "bun-env-or-literal",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 3, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A1: Bun.env.SESSION_SECRET || 'literal'."
+    },
+    {
+      "id": "sf-pos-017",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/017-import-meta-env.ts",
+      "pattern": "import-meta-env-or-literal",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 3, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A1: import.meta.env.VITE_SUPABASE_KEY || 'literal' (Vite/Astro/SvelteKit — ships to browser)."
+    },
+    {
+      "id": "sf-pos-018",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/018-python-getenv-default.py",
+      "pattern": "python-getenv-default",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 6, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A4 Python: os.getenv('JWT_SECRET', 'literal')."
+    },
+    {
+      "id": "sf-pos-019",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/019-python-environ-get.py",
+      "pattern": "python-getenv-default",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 4, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A4 Python: os.environ.get('OPENAI_API_KEY', 'literal')."
+    },
+    {
+      "id": "sf-neg-012",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/012-python-port-default.py",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "A4 Python FP guard: PORT / HOST defaults are non-secret."
+    },
+    {
+      "id": "sf-pos-020",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/020-go-getenv-if-empty.go",
+      "pattern": "go-getenv-if-empty",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 7, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A4 Go: token := os.Getenv('AUTH_TOKEN'); if token == \"\" { token = 'literal' }."
+    },
+    {
+      "id": "sf-pos-021",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/021-go-getenv-jwt.go",
+      "pattern": "go-getenv-if-empty",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 7, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A4 Go: JWT_SECRET if-empty fallback."
+    },
+    {
+      "id": "sf-neg-013",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/013-go-port-default.go",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "A4 Go FP guard: PORT non-secret default + API_SECRET fail-closed (log.Fatal)."
+    },
+    {
+      "id": "sf-pos-022",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/022-ruby-env-fetch.rb",
+      "pattern": "ruby-env-fetch-default",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 4, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A4 Ruby: ENV.fetch('SECRET_KEY_BASE', 'literal')."
+    },
+    {
+      "id": "sf-pos-023",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/023-ruby-env-or.rb",
+      "pattern": "ruby-env-or-literal",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 4, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A4 Ruby: ENV['JWT_SECRET'] || 'literal'."
+    },
+    {
+      "id": "sf-neg-014",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/014-ruby-port-default.rb",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "A4 Ruby FP guard: PORT/HOST non-secret defaults."
+    },
+    {
+      "id": "sf-pos-024",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/024-java-getenv-orelse.java",
+      "pattern": "java-getenv-orelse",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 7, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A4 Java: Optional.ofNullable(System.getenv('API_KEY')).orElse('literal')."
+    },
+    {
+      "id": "sf-pos-025",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/025-java-getenv-if-null.java",
+      "pattern": "java-getenv-if-null",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 6, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A4 Java: String s = System.getenv('JWT_SECRET'); if (s == null) s = 'literal'."
+    },
+    {
+      "id": "sf-neg-015",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/015-java-port-default.java",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "A4 Java FP guard: PORT non-secret default + DB_PASSWORD fail-closed (throw)."
+    },
+    {
+      "id": "sf-pos-026",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/026-rust-env-unwrap-or.rs",
+      "pattern": "rust-env-var-unwrap-or",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 3, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A4 Rust: std::env::var('JWT_SECRET').unwrap_or('literal')."
+    },
+    {
+      "id": "sf-pos-027",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/027-rust-env-unwrap-or-else.rs",
+      "pattern": "rust-env-var-unwrap-or",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 5, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "A4 Rust: env::var('API_KEY').unwrap_or_else(|_| String::from('literal'))."
+    },
+    {
+      "id": "sf-neg-016",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/016-rust-port-default.rs",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "A4 Rust FP guard: PORT non-secret default + DB_PASSWORD fail-closed (expect)."
+    },
+    {
+      "id": "sf-pos-028",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/028-concat-fallback.ts",
+      "pattern": "env-paren-expr-fallback",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 2, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-1 bypass: process.env.SECRET ?? ('a' + 'b' + 'c') — concatenated/parenthesized fallback."
+    },
+    {
+      "id": "sf-pos-029",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/029-ternary-fallback.ts",
+      "pattern": "env-paren-expr-fallback",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 3, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-1 bypass: process.env.API_KEY || (cond ? 'x' : 'y') — parenthesized ternary fallback."
+    },
+    {
+      "id": "sf-pos-030",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/030-secretname-var-fallback.ts",
+      "pattern": "env-secretname-expr-fallback",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 2, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-1 bypass: secret-like env var || variable expression (non-literal RHS)."
+    },
+    {
+      "id": "sf-pos-031",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/031-csharp-getenv-coalesce.cs",
+      "pattern": "csharp-getenv-coalesce",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 4, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-7 C#: Environment.GetEnvironmentVariable('API_KEY') ?? 'literal'."
+    },
+    {
+      "id": "sf-pos-032",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/032-php-getenv-elvis.php",
+      "pattern": "php-getenv-elvis",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 3, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-7 PHP: getenv('SECRET_KEY') ?: 'literal' (Elvis operator)."
+    },
+    {
+      "id": "sf-pos-033",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/033-elixir-get-env-default.ex",
+      "pattern": "elixir-get-env-default",
+      "expected_findings": [{ "rule": "secret-fallback", "line": 4, "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-7 Elixir: System.get_env('AUTH_TOKEN', 'literal') (2-arg default)."
+    },
+    {
+      "id": "sf-neg-017",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/017-paren-throw-fallback.ts",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-1 FP guard: process.env.API_KEY || (() => { throw ... })() is fail-closed, not a fallback."
+    },
+    {
+      "id": "sf-neg-018",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/018-port-var-fallback.ts",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-1 FP guard: non-secret env (PORT/HOST) || variable/ternary value — not a secret leak."
     }
   ]
 }

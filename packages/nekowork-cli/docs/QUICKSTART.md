@@ -39,9 +39,9 @@ Example when a change is blocked:
   apply_allowed  : false
 ```
 
-`check` is the beginner alias for `doctor --quick`. It checks Node.js, package
-metadata, git state, API key overrides, and provider CLI presence without the
-slower freshness checks.
+`check` probes environment readiness: Node.js version, package metadata, git
+state, API key overrides, and provider CLI presence. It is one of the four verbs
+the published slim package supports.
 
 ## 2. What verify-pr Looks At
 
@@ -55,13 +55,31 @@ npx -y @ps-neko/nekowork@alpha verify-pr --range origin/main...HEAD  # a commit 
 npx -y @ps-neko/nekowork@alpha verify-pr --full-scan           # the whole tree
 ```
 
-It then runs five deterministic risk rules over the changed lines:
+It then runs eleven deterministic risk rules over the changed lines:
 
 - **Secret fallback** — `process.env.X || "literal"` and similar hardcoded fallbacks.
-- **Hardcoded credential** — API keys, tokens, passwords, private keys in code.
 - **Auto commit / push / apply** — code that tries to `git push`, auto-merge, `rm -rf`, etc.
+- **Hardcoded credential** — API keys, tokens, passwords, private keys in code.
 - **Test or security disable** — mass `*.skip`, `eslint-disable`, `ts-ignore`, or CI checks removed.
 - **Package / lockfile risk** — dependency, script, and `postinstall`/`preinstall` changes.
+- **eval usage** — `eval(...)` and `new Function(...)` dynamic-code execution.
+- **Insecure TLS** — `rejectUnauthorized: false`, `NODE_TLS_REJECT_UNAUTHORIZED=0`, etc.
+- **CORS wildcard** — `Access-Control-Allow-Origin: *` on credentialed endpoints.
+- **SQL injection (basic)** — string-concatenated SQL query shapes (regex-level only).
+- **Command injection (basic)** — user input flowing into `exec`/`spawn` shells (regex-level only).
+- **AST dataflow** — AST/dataflow taint for **variable-mediated injection** that the regex rules miss (assembled SQL/`eval`/shell across statements). Intraprocedural (single-function), JS/TS-only.
+
+All eleven rules currently sit at 100% recall / 0% false positives on their
+fixture corpus and pass the 0.95 detection gate. The newer rules
+(`hardcoded-credential`, `eval-usage`, `insecure-tls`, `cors-wildcard`,
+`sql-injection`, `command-injection`, `ast-dataflow`) are validated by **synthetic
+fixtures only**; only `secret-fallback` carries real OSS positives. The two injection
+rules are **basic regex shapes** and `ast-dataflow` is **intraprocedural only** — most
+injection classes (and anything needing cross-function/whole-program dataflow) are out
+of scope. Ten of the rules are pure regex; `ast-dataflow` adds **one tiny, well-known
+dependency** (`acorn`, the JS parser — MIT, zero transitive dependencies). See
+[BENCHMARK.md](BENCHMARK.md) for the per-rule provenance and the full "What is NOT
+covered" boundary.
 
 ### Checks: detection and `--run-checks`
 
@@ -102,9 +120,32 @@ npx -y @ps-neko/nekowork@alpha verify-pr --range origin/main...HEAD --ci-exit-so
 
 See [INTEGRATION.md](INTEGRATION.md) for a full GitHub Actions example.
 
-## 5. Install From Source (contributors)
+## 5. The Four Slim Verbs
 
-Use the repository path when you want examples, tests, or local development:
+The published `@ps-neko/nekowork@alpha` package supports exactly four verbs.
+Anything else is rejected with a redirect to the source checkout.
+
+| Verb | What it does |
+|---|---|
+| `check` | Probe environment readiness (Node version, git repo, etc.). |
+| `verify-pr` | Scan the working-tree diff → `REPORT.md` + `.nekowork/decision.json`. |
+| `report --session <id>` | Render a session's evidence to `REPORT.md` (session-based compatibility). |
+| `apply --session <id>` | Apply a stored `.diff`; requires `SHIP_READY` + a cleared Human Gate (session-based compatibility). |
+
+For the normal flow you only need `check` and `verify-pr` — `verify-pr` already
+writes `REPORT.md` directly. `report`/`apply` are session-based compatibility
+commands and are **not** driven by `verify-pr`'s `decision.json`.
+
+---
+
+## Source checkout (heavy harness only)
+
+Everything below requires cloning the repository. The heavy
+`@ps-neko/nekowork-harness` runtime (`ask`, `plan`, `team`, `work`, `verify`,
+`gate`, `ship`, `run`, `build`, `review`, …) is **internal and NOT published to
+npm** — it only runs from a source checkout, and the slim CLI rejects those verbs.
+
+### Clone and run the slim verbs from source
 
 ```bash
 git clone https://github.com/Ps-Neko/NEKOWORK.git harness
@@ -112,47 +153,50 @@ cd harness
 npm ci
 ```
 
-Verify the checkout, then run the hero command directly:
+Run the slim verbs directly from the slim package path:
 
 ```bash
-node scripts/cli.js check
-node scripts/cli.js verify-pr
+node packages/nekowork/scripts/cli.js check
+node packages/nekowork/scripts/cli.js verify-pr
 ```
 
-## 6. Use NEKOWORK In Another Project
+### Heavy harness commands, install/apply, and the demo
 
-Initialize a target project with the published alpha:
+The heavy runtime lives in a separate package path. Run its verbs from
+`packages/nekowork-cli/scripts/cli.js` (the slim package does not accept them):
 
 ```bash
-cd /path/to/my-project
-npx -y @ps-neko/nekowork@alpha init --profile developer --project-root .
+node packages/nekowork-cli/scripts/cli.js team "split and review this change" --no-write --session team-smoke
 ```
 
-`init` is the beginner alias for `install --apply`. It writes generated NEKOWORK
-tool surfaces and install state to the target project. It does not commit, push,
-publish, or deploy.
+Initialize a target project with the heavy harness install flow:
+
+```bash
+node packages/nekowork-cli/scripts/cli.js install --apply --profile developer --project-root /path/to/my-project
+```
+
+`install --apply` writes generated NEKOWORK tool surfaces and install state into
+the target project. It does not commit, push, publish, or deploy.
 
 For a no-API tour without touching your own repo:
 
 ```bash
+cd packages/nekowork-cli
 npm run demo:quick -- --cleanup
 ```
 
 The quick demo creates a disposable target project, runs a mock workflow, and
-removes the target when `--cleanup` is set. It does not call Claude, Codex, Gemini,
-or any paid API.
+removes the target when `--cleanup` is set. It does not call Claude, Codex,
+Gemini, or any paid API.
 
-## 7. Advanced / Legacy Runtime
+`doctor` (the full environment audit with repair/sync/codemap freshness checks)
+is also a heavy-harness command:
 
-NEKOWORK also ships a larger session-based runtime — `ask`, `plan`, `team`, `work`,
-`verify`, `gate`, `ship`, `run`, `build`, `review`, and more. These remain functional
-but are **being phased out of the first-run path** in favor of `verify-pr`. The
-recommended front-surface commands for 1.0 are `check` and `verify-pr` (the
-read-only verification gate). `report` and `apply` remain as session-based
-compatibility commands — `apply` requires a completed work cycle (SHIP_READY +
-cleared Human Gate), not `decision.json.apply_allowed`.
+```bash
+node packages/nekowork-cli/scripts/cli.js doctor
+```
 
-See [ADVANCED.md](ADVANCED.md) for the full runtime surface and the
+See [ADVANCED.md](ADVANCED.md) for the full heavy runtime surface and the
 [Phased Cut plan](SCOPE-1.0.md#2-phased-cut-단계).
 
 ## Troubleshooting
@@ -169,8 +213,9 @@ See [ADVANCED.md](ADVANCED.md) for the full runtime surface and the
 - Add a test script for full verification, or pass `--ci-exit-soft` to avoid
   blocking CI.
 
-`check` / `doctor` exits with `FAIL`:
+`check` exits with `FAIL`:
 
 - Read the failed row first.
-- Run `doctor` without `--quick` if you need repair/sync/codemap freshness checks.
 - Use `--json` for CI or issue reports.
+- From a source checkout, the heavy `doctor` command runs the deeper
+  repair/sync/codemap freshness audit if you need it.

@@ -19,12 +19,12 @@ Build a trading dashboard mockup. It must use mock data only and must not place 
 ## Recommended Flow
 
 ```bash
-node scripts/cli.js ask "stock trading dashboard mockup with mock-only orders" --session trading-demo
-node scripts/cli.js plan "stock trading dashboard mockup with mock-only orders" --session trading-demo
-node scripts/cli.js team "stock trading dashboard mockup with mock-only orders" --workers planner,product,security,test --no-write --session trading-demo
-node scripts/cli.js work "implement the planned trading dashboard mockup" --single-executor --session trading-demo
-node scripts/cli.js verify "verify the trading dashboard mockup stays mock-only" --session trading-demo
-node scripts/cli.js gate status --session trading-demo
+node packages/nekowork-cli/scripts/cli.js ask "stock trading dashboard mockup with mock-only orders" --session trading-demo
+node packages/nekowork-cli/scripts/cli.js plan "stock trading dashboard mockup with mock-only orders" --session trading-demo
+node packages/nekowork-cli/scripts/cli.js team "stock trading dashboard mockup with mock-only orders" --workers planner,product,security,test --no-write --session trading-demo
+node packages/nekowork-cli/scripts/cli.js work "implement the planned trading dashboard mockup" --single-executor --session trading-demo
+node packages/nekowork-cli/scripts/cli.js verify "verify the trading dashboard mockup stays mock-only" --session trading-demo
+node packages/nekowork-cli/scripts/cli.js gate status --session trading-demo
 ```
 
 ## Expected Policy Behavior
@@ -52,14 +52,14 @@ That means:
 Approve only after confirming that no real broker, payment, order, or account code is present:
 
 ```bash
-node scripts/cli.js gate approve --session trading-demo --reason "Confirmed mock-only data and no real order execution."
-node scripts/cli.js ship "prepare trading dashboard mock ship readiness" --require-clean-gates --session trading-demo
+node packages/nekowork-cli/scripts/cli.js gate approve --session trading-demo --reason "Confirmed mock-only data and no real order execution."
+node packages/nekowork-cli/scripts/cli.js ship "prepare trading dashboard mock ship readiness" --require-clean-gates --session trading-demo
 ```
 
 If any real-money behavior is present:
 
 ```bash
-node scripts/cli.js gate block --session trading-demo --reason "Real order/payment behavior is not allowed in this mock cycle."
+node packages/nekowork-cli/scripts/cli.js gate block --session trading-demo --reason "Real order/payment behavior is not allowed in this mock cycle."
 ```
 
 `apply` remains separate and should only run after `SHIP_READY` exists for a live-work diff.

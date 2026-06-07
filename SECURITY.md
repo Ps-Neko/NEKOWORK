@@ -39,12 +39,16 @@ HARNESS 는 LLM 에이전트 도구입니다. 다음 위협 영역을 인지합�
 
 ## 보안 점검 명령
 
+> 모노레포 분리 이후 루트에는 `scripts/` 디렉터리가 없다. 아래 명령은 모두
+> `packages/nekowork-cli/` 에서 실행하거나 그 경로를 명시해서 호출한다.
+
 ```bash
-npm run lint                              # catalog + 4 validator
-node scripts/ci/check-markers.js          # 마커 일관성
-node scripts/repair.js --check            # sha256 변조 검출
-npm audit                                 # 의존성 취약점 (외부 도구)
-npm test -- tests/unit/severity.test.js   # severity 분류 회귀
+# packages/nekowork-cli/ 에서 실행
+node packages/nekowork-cli/scripts/ci/check-markers.js   # 마커 일관성
+node packages/nekowork-cli/scripts/repair.js --check     # sha256 변조 검출
+npm --prefix packages/nekowork-cli run lint              # catalog + validator
+npm audit                                                # 의존성 취약점 (외부 도구)
+npm --prefix packages/nekowork test                      # 회귀 테스트 (severity 등)
 ```
 
 ## 12-item Minimum Security Bar

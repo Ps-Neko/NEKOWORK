@@ -1,0 +1,126 @@
+{
+  "fixture_set": "sql-injection",
+  "schema_version": "0.1",
+  "generated_at": "2026-06-07",
+  "notes": "R2-9a: SQL injection via concatenation / template interpolation of a variable into a query string passed to query/execute/raw. fpMode any — parameterized ($1/?/%s) and static SQL must produce NO finding. All SYNTHETIC. The keyword gate (SELECT/INSERT/UPDATE/DELETE/...) keeps generic .query() calls out.",
+  "targets": {
+    "any_detection_recall": 0.95,
+    "fp_rate": 0.10
+  },
+  "entries": [
+    {
+      "id": "si-pos-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/001-concat-select.js",
+      "pattern": "sql-concat",
+      "expected_findings": [{ "rule": "sql-injection", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "SELECT ... WHERE id = ' + req.params.id."
+    },
+    {
+      "id": "si-pos-002",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/002-template-where.js",
+      "pattern": "sql-template",
+      "expected_findings": [{ "rule": "sql-injection", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "Template literal LIKE '%${term}%'."
+    },
+    {
+      "id": "si-pos-003",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/003-execute-delete.js",
+      "pattern": "sql-concat",
+      "expected_findings": [{ "rule": "sql-injection", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "DELETE concat with embedded single quotes."
+    },
+    {
+      "id": "si-pos-004",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/004-template-update.js",
+      "pattern": "sql-template",
+      "expected_findings": [{ "rule": "sql-injection", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "UPDATE with two interpolated vars."
+    },
+    {
+      "id": "si-pos-005",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/005-knex-raw.js",
+      "pattern": "sql-template",
+      "expected_findings": [{ "rule": "sql-injection", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "knex.raw(`SELECT ... ${userId}`)."
+    },
+    {
+      "id": "si-pos-006",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/006-insert-concat.py",
+      "pattern": "sql-concat",
+      "expected_findings": [{ "rule": "sql-injection", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "Python cursor.execute INSERT concat."
+    },
+    {
+      "id": "si-neg-001",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/001-parameterized-pg.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: $1 placeholder + params array (pg)."
+    },
+    {
+      "id": "si-neg-002",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/002-placeholder-mysql.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: ? placeholder + params array (mysql2)."
+    },
+    {
+      "id": "si-neg-003",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/003-static-sql.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: fully static SQL, no concat/interpolation."
+    },
+    {
+      "id": "si-neg-004",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/004-orm-builder.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: ORM find() + query builder where(), no raw SQL string."
+    },
+    {
+      "id": "si-neg-005",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/005-non-sql-query.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: query/execute/exec on NON-SQL strings (no DML keyword)."
+    },
+    {
+      "id": "si-neg-006",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/006-python-parameterized.py",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: Python %s placeholders + params tuple."
+    }
+  ]
+}

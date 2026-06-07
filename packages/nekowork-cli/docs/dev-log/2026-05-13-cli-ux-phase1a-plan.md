@@ -652,7 +652,7 @@ const sessionId = opts.sessionId || generateSessionId('review');
 `tests/integration/cli-output.test.js`는 Task 9에서 만든다. 여기서는 수동 한 줄로 확인:
 
 ```bash
-node scripts/cli.js work "phase1a smoke" 2>&1 | head -5
+node packages/nekowork-cli/scripts/cli.js work "phase1a smoke" 2>&1 | head -5
 ```
 
 기대 출력 안에 `work-YYYY-MM-DD-xxxx` 형태의 session 라인이 포함되어야 함. (출력 포맷 변경은 Task 9 — 여기서는 기존 `=== work ===` 블록 그대로지만 ID 형식만 바뀐다.)
@@ -822,8 +822,8 @@ node --test tests/integration/cli-output.test.js
 - [ ] **Step 6: 회귀 — 기존 도움말 호출자 영향 없는지 확인**
 
 ```bash
-node scripts/cli.js help all 2>&1 | head -5
-node scripts/cli.js --help 2>&1 | head -5
+node packages/nekowork-cli/scripts/cli.js help all 2>&1 | head -5
+node packages/nekowork-cli/scripts/cli.js --help 2>&1 | head -5
 ```
 
 기대: 전자는 기존 전체 도움말, 후자는 새 단축 출력.
@@ -1161,12 +1161,12 @@ git commit -m "feat(cli): apply new format/Next/prefix matching to 'verify' verb
 - [ ] **Step 1: 새 출력 캡처**
 
 ```bash
-node scripts/cli.js > /tmp/nekowork-bare.txt 2>&1
-node scripts/cli.js work "doc capture demo" > /tmp/nekowork-work.txt 2>&1
+node packages/nekowork-cli/scripts/cli.js > /tmp/nekowork-bare.txt 2>&1
+node packages/nekowork-cli/scripts/cli.js work "doc capture demo" > /tmp/nekowork-work.txt 2>&1
 SESSION=$(grep -oE 'work-[0-9-]+-[0-9a-f]{4}' /tmp/nekowork-work.txt | head -1)
 SHORT=$(echo $SESSION | awk -F- '{print $NF}')
-node scripts/cli.js verify "doc capture demo" --session $SHORT > /tmp/nekowork-verify.txt 2>&1
-node scripts/cli.js work > /tmp/nekowork-work-error.txt 2>&1
+node packages/nekowork-cli/scripts/cli.js verify "doc capture demo" --session $SHORT > /tmp/nekowork-verify.txt 2>&1
+node packages/nekowork-cli/scripts/cli.js work > /tmp/nekowork-work-error.txt 2>&1
 ```
 
 - [ ] **Step 2: docs/CLI-UX-REDESIGN.md 끝에 "Phase 1a 적용 후 실제 캡처" 섹션 추가**

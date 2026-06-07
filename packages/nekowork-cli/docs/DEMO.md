@@ -49,7 +49,7 @@ $ echo $?
 ## Doctor Demo
 
 ```bash
-node scripts/cli.js doctor --quick
+node packages/nekowork-cli/scripts/cli.js doctor --quick
 ```
 
 Example shape:

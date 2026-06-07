@@ -20,25 +20,58 @@ HARNESS 에 기여해주셔서 감사합니다. 외부 컨트리뷰터를 위한
 
 ### 로컬 셋업
 
+이 레포는 모노레포입니다. 발행되는 **슬림 패키지**는 `packages/nekowork/`
+(`@ps-neko/nekowork`, 공개 verb 4종: `check` / `verify-pr` / `report` / `apply`)
+이고, 무거운 **하네스 런타임**은 `packages/nekowork-cli/`
+(`@ps-neko/nekowork-harness`, npm 미발행, 소스 체크아웃 전용) 입니다.
+레포 루트에는 `scripts/` 디렉터리가 없습니다.
+
 ```bash
 git clone <repo>
 cd harness
 npm install
-node scripts/install-plan.js --profile core --verbose
-node --test tests/unit/*.test.js   # 56/56 PASS 여야 함
+```
+
+### 슬림 패키지 기여 (`@ps-neko/nekowork`)
+
+대부분의 검증 게이트 변경(룰, `verify-pr`, 벤치마크)은 슬림 패키지에서 이뤄집니다.
+
+```bash
+cd packages/nekowork
+node --test tests/unit/*.test.js   # 전부 green 이어야 함
+node scripts/benchmark/rules.js    # 룰 벤치마크 (recall/FP 게이트)
+```
+
+슬림 verb 를 소스에서 직접 실행:
+
+```bash
+node packages/nekowork/scripts/cli.js check
+node packages/nekowork/scripts/cli.js verify-pr
+```
+
+### 하네스 런타임 기여 (`@ps-neko/nekowork-harness`)
+
+`ask` / `plan` / `team` / `work` / `verify` / `ship` / `review` 등 무거운 명령은
+`packages/nekowork-cli/` 에 있습니다. 슬림 패키지는 이 verb 들을 거부합니다 — 항상
+하네스 경로에서 실행하세요.
+
+```bash
+cd packages/nekowork-cli
+node --test tests/unit/*.test.js   # 전부 green 이어야 함
+node scripts/ci/catalog.js
+node scripts/ci/check-markers.js
+```
+
+하네스 verb 를 소스에서 직접 실행:
+
+```bash
+node packages/nekowork-cli/scripts/cli.js review "<변경 요약>" --no-ship --session dev-<짧은 ID>
 ```
 
 ## 개발 워크플로우
 
 이 프로젝트는 자기 자신을 개발할 때도 자기 자신의 풀사이클을 사용합니다 (dogfooding).
-
-```bash
-# 변경 후
-node scripts/cli.js review "<변경 요약>" --no-ship --session dev-<짧은 ID>
-node --test tests/unit/*.test.js
-node scripts/ci/catalog.js
-node scripts/ci/check-markers.js
-```
+변경 후 해당 패키지 디렉터리에서 테스트와 CI 체크를 돌립니다 (위 셋업 참고).
 
 ## 코드 스타일
 
