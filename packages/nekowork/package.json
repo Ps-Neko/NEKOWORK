@@ -1,6 +1,6 @@
 {
   "name": "@ps-neko/nekowork",
-  "version": "0.2.0-alpha.5",
+  "version": "0.2.0-alpha.6",
   "description": "Local verification gate for AI-written code diffs. Deterministic rules decide the verdict, never the LLM. No auto-commit, push, or deploy — you decide at the Human Gate.",
   "keywords": [
     "ai-code-review",
@@ -30,8 +30,7 @@
     "node": ">=22.0.0"
   },
   "bin": {
-    "nekowork": "scripts/cli.js",
-    "harness": "scripts/cli.js"
+    "nekowork": "scripts/cli.js"
   },
   "files": [
     "scripts/",
