@@ -15,7 +15,7 @@ inputs:
     required: false
     default: '22'
   version:
-    description: 'Pin the @ps-neko/nekowork package version or dist-tag (e.g. 0.2.0-alpha.9). Defaults to the alpha dist-tag — not `latest`, which is pinned to a stale 0.2.0-alpha.0.'
+    description: 'Pin the @ps-neko/nekowork package version or dist-tag (e.g. 0.2.0-alpha.10). Defaults to the alpha dist-tag — not `latest`, which is pinned to a stale 0.2.0-alpha.0.'
     required: false
     default: 'alpha'
 
