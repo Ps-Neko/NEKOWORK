@@ -243,5 +243,5 @@ Builders project the catalog into tool-specific files:
 The current repository release line is `0.1.0-alpha.12`:
 
 - Repository and GitHub tarball release are available.
-- Public npm alpha is the slim `@ps-neko/nekowork@alpha`, currently `0.2.0-alpha.9`, which now ships all **11 rules** and adds **one tiny, well-known dependency** (`acorn`, the JS parser — MIT, zero transitive dependencies) for the AST engine. The `latest` dist-tag is still a stale `0.2.0-alpha.0` (5 rules, **zero dependencies**), so always install with `@alpha`. The internal harness runtime `@ps-neko/nekowork-harness` is `private` and not published (source-checkout only).
+- Public npm alpha is the slim `@ps-neko/nekowork@alpha`, currently `0.2.0-alpha.10`, which now ships all **11 rules** and adds **one tiny, well-known dependency** (`acorn`, the JS parser — MIT, zero transitive dependencies) for the AST engine. The `latest` dist-tag is still a stale `0.2.0-alpha.0` (5 rules, **zero dependencies**), so always install with `@alpha`. The internal harness runtime `@ps-neko/nekowork-harness` is `private` and not published (source-checkout only).
 - Clone, submodule, and local checkout integration remain supported for repository-pinned workflows.
