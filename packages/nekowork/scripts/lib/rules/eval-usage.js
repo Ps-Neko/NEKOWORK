@@ -4,6 +4,15 @@
 // vector when fed anything that is not a compile-time constant:
 //   - eval(<non-literal>)            // string-built code executed at runtime
 //   - new Function(<...>)            // the Function constructor = eval by proxy
+//   - exec(<non-literal>)            // Python builtin exec(); runs a code string
+//
+// Note: the language-agnostic `eval(` token means Python `eval(user_input)` is
+// already caught by the JS eval-call pattern below. Python's SAFE alternative
+// ast.literal_eval(x) does NOT fire because eval-call's `(?<![.\w$])` lookbehind
+// rejects the `.eval` member form. The Python `exec()` builtin gets its own
+// pattern (exec-call) with the same lookbehind + static-literal filter, so
+// member calls like RegExp.exec / cursor.exec / child_process exec("ls") never
+// match.
 //
 // Comment-stripping (default in makeRegexScanner) removes the word "eval" in
 // comments and the disable-directive `// eslint-disable ... no-eval` lines, so
@@ -12,6 +21,17 @@
 // dangerous case is runtime-assembled / variable input.
 
 import { makeRegexScanner } from './_helpers.js';
+
+// Shared filter: reject a pure single string-literal / static template argument
+// (low-signal static eval/exec). Any concatenation / interpolation / variable
+// is dynamic and is kept.
+const isDynamicArg = (m) => {
+  const arg = (m[1] || '').trim();
+  if (!arg) return false;
+  if (/^(["'])(?:[^"'\\\n]|\\.)*\1\s*$/.test(arg)) return false; // "lit" / 'lit'
+  if (/^`[^`$]*`\s*$/.test(arg)) return false;                   // `lit` (no ${})
+  return true;
+};
 
 const PATTERNS = [
   {
@@ -35,6 +55,21 @@ const PATTERNS = [
       if (/^`[^`$]*`\s*$/.test(arg)) return false;
       return true;
     },
+  },
+  {
+    // Python builtin exec( <arg> ) with a non-literal argument: exec(code),
+    // exec("x = " + val), exec(f"...{x}..."). The `(?<![.\w$])` lookbehind keeps
+    // member calls out (RegExp.exec, cursor.exec, cp.exec — child_process exec
+    // is a command-injection concern, handled by that rule, not eval-usage). A
+    // pure static literal (exec("pass")) is filtered as low-signal, matching the
+    // eval-call behavior. ast.literal_eval / .execute(...) never match.
+    id: 'exec-call',
+    re: /(?<![.\w$])exec\s*\(\s*([^)]*)/g,
+    severity: 'high',
+    title: 'exec() with dynamic input detected',
+    description: 'Python exec() runs a string as code. With any runtime-assembled or external input this is a code-injection / RCE vector.',
+    recommendation: 'Remove exec(). Use ast.literal_eval for data, a lookup table / getattr for dispatch, or a real parser.',
+    filter: isDynamicArg,
   },
   {
     // new Function('a','b','return a+b') — the Function constructor compiles a

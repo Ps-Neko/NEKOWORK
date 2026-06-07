@@ -57,6 +57,32 @@ test('finding schema: required fields', () => {
   assert.equal(f.rule, 'sql-injection');
 });
 
+// --- Python ---
+
+test('python f-string SQL into cursor.execute: high', () => {
+  const f = scanFileContent('x.py', 'cursor.execute(f"SELECT * FROM users WHERE id = {uid}")');
+  assert.ok(f.some(t => t.pattern === 'sql-py-fstring' && t.severity === 'high'));
+});
+
+test('python concat SQL into cursor.execute: high', () => {
+  const f = scanFileContent('x.py', 'cur.execute("DELETE FROM t WHERE id = " + uid)');
+  assert.ok(f.some(t => t.pattern === 'sql-concat'));
+});
+
+test('python %-format SQL into cursor.execute: high', () => {
+  assert.ok(scanFileContent('x.py', 'cursor.execute("SELECT * FROM users WHERE id = %s" % uid)').some(t => t.pattern === 'sql-py-percent'));
+  assert.ok(scanFileContent('x.py', `cur.execute("DELETE FROM t WHERE name = '%s'" % (name,))`).some(t => t.pattern === 'sql-py-percent'));
+});
+
+test('python parameterized 2-arg execute(sql, params): not flagged', () => {
+  assert.equal(scanFileContent('x.py', 'cursor.execute("SELECT * FROM t WHERE id = %s", (id,))').length, 0);
+  assert.equal(scanFileContent('x.py', 'cursor.execute("SELECT * FROM t WHERE id = %(id)s", {"id": id})').length, 0);
+});
+
+test('python static SQL: not flagged', () => {
+  assert.equal(scanFileContent('x.py', 'cursor.execute("SELECT 1")').length, 0);
+});
+
 test('fixture manifest: recall + FP gate', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(FIXTURE_ROOT, 'manifest.json'), 'utf8'));
   let posCaught = 0, posTotal = 0, fp = 0, negTotal = 0;

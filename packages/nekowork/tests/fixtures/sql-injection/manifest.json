@@ -2,7 +2,7 @@
   "fixture_set": "sql-injection",
   "schema_version": "0.1",
   "generated_at": "2026-06-07",
-  "notes": "R2-9a: SQL injection via concatenation / template interpolation of a variable into a query string passed to query/execute/raw. fpMode any — parameterized ($1/?/%s) and static SQL must produce NO finding. All SYNTHETIC. The keyword gate (SELECT/INSERT/UPDATE/DELETE/...) keeps generic .query() calls out.",
+  "notes": "R2-9a: SQL injection via concatenation / template interpolation of a variable into a query string passed to query/execute/raw. Multi-language (R3): Python f-string SQL into cursor.execute and Python %-format SQL (NOT the safe 2-arg execute(sql, params)). fpMode any — parameterized ($1/?/%s 2-arg), static SQL, and Python named/2-arg params must produce NO finding. All SYNTHETIC. The keyword gate (SELECT/INSERT/UPDATE/DELETE/...) keeps generic .query() calls out.",
   "targets": {
     "any_detection_recall": 0.95,
     "fp_rate": 0.1
@@ -151,6 +151,45 @@
       "expected_findings": [],
       "added_at": "2026-06-07",
       "notes": "FP guard: Python %s placeholders + params tuple."
+    },
+    {
+      "id": "si-pos-007",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/007-py-fstring-select.py",
+      "pattern": "sql-py-fstring",
+      "expected_findings": [
+        {
+          "rule": "sql-injection",
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "Python f-string SELECT into cursor.execute."
+    },
+    {
+      "id": "si-pos-008",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/008-py-percent-format.py",
+      "pattern": "sql-py-percent",
+      "expected_findings": [
+        {
+          "rule": "sql-injection",
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "Python %-format DELETE into cursor.execute (single-arg string % var, NOT 2-arg params)."
+    },
+    {
+      "id": "si-neg-007",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/007-py-static-and-named.py",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: Python static SQL + 2-arg %s params + named %(id)s params."
     },
     {
       "id": "sql-pos-oss-01",

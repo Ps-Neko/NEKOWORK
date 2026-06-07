@@ -7,6 +7,18 @@
 ### Added
 - `verify-pr --include <path>` (repeatable): force-scan an explicit path even if it is gitignored. `git diff` / `ls-files --exclude-standard` skip gitignored build/codegen output; `--include` synthesizes those files as an all-added diff so risk rules see them. Directories are walked recursively (`node_modules`/`.git` skipped). (First external-user feedback — gitignored codegen output was invisible to the scan.)
 
+## [0.2.0-alpha.9] - 2026-06-07
+
+Not yet published; the `@alpha` on npm is still `0.2.0-alpha.8`. This version closes the honest non-JS recall gaps the OSS-scraping surfaced: the regex risk rules were JS/TS-centric while real injections live in Python and Go too. Patterns mirror the existing multi-language style of `insecure-tls.js` (per-language regex via `makeRegexScanner`); FP stays 0 against the synthetic + shared OSS negative corpus.
+
+### Added
+- `command-injection` — **Python**: `subprocess.run/call/Popen(..., shell=True)` with a dynamic command (f-string / concat / variable), `os.system(f"...{x}...")` / `os.system("..."+x)`, and `os.popen(<dynamic>)`. **Go**: `exec.Command("sh"|"bash", "-c", <dynamic>)`. Recall fixtures 12 → 16 positives, 0 FP. Safe forms stay clean: `subprocess.run(["ls","-la"])`, `shell=False`, static `os.system("ls -la")`, and `exec.Command("ls","-la")` (arg array).
+- `sql-injection` — **Python**: f-string SQL into `cursor.execute(f"SELECT ... {x}")` and `%`-format SQL (`.execute("... %s" % x)`). The safe 2-arg `.execute(sql, params)` and named-`%(id)s` params stay clean. (Python `.execute("..." + x)` concat was already caught.) Recall fixtures 12 → 14 positives, 0 FP.
+- `eval-usage` — **Python**: the `exec()` builtin on a non-literal argument (`exec(code)` / `exec(f"...")` / `exec("..."+x)`). Python `eval(<non-literal>)` was already caught by the language-agnostic `eval(` token. The SAFE alternative `ast.literal_eval(x)` and static `eval("1+1")` / `exec("pass")` stay clean. Recall fixtures 15 → 17 positives, 0 FP.
+
+### Tests
+- Per-rule unit tests extended for the new languages; slim package coverage 490 → 508 tests. All 11 rules pass the 1.0 benchmark gate (recall 100%, FP 0%).
+
 ## [0.2.0-alpha.8] - 2026-06-07
 
 Published slim release. The published `@alpha` on npm is now `0.2.0-alpha.8`, shipping the inter-procedural `ast-dataflow` engine described below.

@@ -53,6 +53,52 @@ test('finding schema: required fields', () => {
   assert.equal(f.rule, 'command-injection');
 });
 
+// --- Python ---
+
+test('python subprocess.run shell=True + f-string command: critical', () => {
+  const f = scanFileContent('x.py', 'subprocess.run(f"git checkout {branch}", shell=True)');
+  assert.ok(f.some(t => t.pattern === 'py-subprocess-shell-true' && t.severity === 'critical'));
+});
+
+test('python subprocess.call/Popen shell=True + concat/variable: critical', () => {
+  assert.ok(scanFileContent('x.py', 'subprocess.call("rm -rf " + path, shell=True)').some(t => t.pattern === 'py-subprocess-shell-true'));
+  assert.ok(scanFileContent('x.py', 'subprocess.Popen(cmd, shell=True)').some(t => t.pattern === 'py-subprocess-shell-true'));
+});
+
+test('python os.system with dynamic command: critical', () => {
+  assert.ok(scanFileContent('x.py', 'os.system(f"rm -rf {path}")').some(t => t.pattern === 'py-os-system' && t.severity === 'critical'));
+  assert.ok(scanFileContent('x.py', 'os.system("tar " + name)').some(t => t.pattern === 'py-os-system'));
+});
+
+test('python os.popen with dynamic command: high', () => {
+  assert.ok(scanFileContent('x.py', 'os.popen(f"ls {dir}")').some(t => t.pattern === 'py-os-popen'));
+  assert.ok(scanFileContent('x.py', 'os.popen("grep " + pat)').some(t => t.pattern === 'py-os-popen'));
+  assert.ok(scanFileContent('x.py', 'result = os.popen(cmd)').some(t => t.pattern === 'py-os-popen'));
+});
+
+test('python subprocess list args / shell=False: not flagged', () => {
+  assert.equal(scanFileContent('x.py', 'subprocess.run(["ls", "-la", dir])').length, 0);
+  assert.equal(scanFileContent('x.py', 'subprocess.run("ls", shell=False)').length, 0);
+});
+
+test('python os.system with static literal: not flagged', () => {
+  assert.equal(scanFileContent('x.py', 'os.system("ls -la")').length, 0);
+  assert.equal(scanFileContent('x.py', 'os.popen("ls -la")').length, 0);
+});
+
+// --- Go ---
+
+test('go exec.Command sh/bash -c with dynamic command: critical', () => {
+  assert.ok(scanFileContent('x.go', 'exec.Command("sh", "-c", "tar " + name)').some(t => t.pattern === 'go-exec-shell-c' && t.severity === 'critical'));
+  assert.ok(scanFileContent('x.go', 'exec.Command("bash", "-c", fmt.Sprintf("rm %s", path))').some(t => t.pattern === 'go-exec-shell-c'));
+  assert.ok(scanFileContent('x.go', 'exec.Command("sh", "-c", cmd)').some(t => t.pattern === 'go-exec-shell-c'));
+});
+
+test('go exec.Command with arg array (no shell): not flagged', () => {
+  assert.equal(scanFileContent('x.go', 'exec.Command("ls", "-la")').length, 0);
+  assert.equal(scanFileContent('x.go', 'exec.Command("git", "checkout", branch)').length, 0);
+});
+
 test('fixture manifest: recall + FP gate', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(FIXTURE_ROOT, 'manifest.json'), 'utf8'));
   let posCaught = 0, posTotal = 0, fp = 0, negTotal = 0;
