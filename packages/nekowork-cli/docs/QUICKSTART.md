@@ -21,6 +21,9 @@ npx -y @ps-neko/nekowork@alpha verify-pr     # scan the diff, write a verdict
 plain-English `REPORT.md` and a machine-readable `.nekowork/decision.json`, and
 prints a verdict.
 
+Tip: add `.nekowork/` and `REPORT.md` to `.gitignore` — they are NEKOWORK's
+evidence output, not changes to commit.
+
 Read the result:
 
 ```bash
