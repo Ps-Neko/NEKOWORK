@@ -22,10 +22,13 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import {
   VERDICT,
   EXIT_CODE,
   RULE_COUNT,
+  RULE_IDS,
   ALLOW_SCOPE_NOTE,
   inputSourceForMode,
   loadDiff,
@@ -38,6 +41,20 @@ import {
   renderReport,
 } from '../lib/verify-helpers.js';
 import { detectProject } from '../lib/project-detector.js';
+
+// Resolve the slim package version once (read from this package's package.json,
+// two levels up from scripts/orchestrators/). Recorded in rule-version.json so a
+// verdict is reproducible against a known engine + ruleset version.
+function readEngineVersion() {
+  try {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const pkgPath = path.resolve(here, '..', '..', 'package.json');
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    return typeof pkg.version === 'string' ? pkg.version : 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
 
 export { VERDICT, EXIT_CODE };
 
@@ -86,6 +103,9 @@ export async function verifyPrCycle(opts = {}) {
     artifacts: writtenPaths
       ? [
           { name: 'diff.summary.json', path: writtenPaths.diffSummary },
+          { name: 'diff.patch', path: writtenPaths.diffPatch },
+          { name: 'diff.sha256', path: writtenPaths.diffSha256 },
+          { name: 'rule-version.json', path: writtenPaths.ruleVersion },
           { name: 'risk-findings.json', path: writtenPaths.riskFindings },
           { name: 'evidence-manifest.json', path: writtenPaths.evidenceManifest },
           { name: 'decision.json', path: writtenPaths.decision },
@@ -127,6 +147,34 @@ function writeEvidence({ projectRoot, parsedDiff, findings, decision, inputSourc
     })),
   }, null, 2));
 
+  // diff.patch — the RAW unified diff text the rules actually scanned (post
+  // self-output exclusion). Binding the exact patch bytes to the verdict makes
+  // "same diff → same verdict" externally provable. If a mode genuinely had no
+  // raw text (should not happen for the supported modes), record an explicit
+  // note rather than a wrong/empty patch that would look like "no changes".
+  const diffPatchPath = path.join(evidenceDir, 'diff.patch');
+  const rawDiff = typeof parsedDiff.rawDiff === 'string' ? parsedDiff.rawDiff : null;
+  const diffPatchContent = rawDiff != null
+    ? rawDiff
+    : '# (raw diff text unavailable for this input mode — see diff.summary.json for the parsed shape)\n';
+  fs.writeFileSync(diffPatchPath, diffPatchContent);
+
+  // diff.sha256 — sha256 hex of diff.patch's exact bytes. One line, no newline,
+  // so an external check can `sha256sum diff.patch` and compare directly.
+  const diffSha256Path = path.join(evidenceDir, 'diff.sha256');
+  const diffSha256 = crypto.createHash('sha256').update(diffPatchContent, 'utf8').digest('hex');
+  fs.writeFileSync(diffSha256Path, diffSha256);
+
+  // rule-version.json — engine + ruleset version so a verdict is reproducible
+  // against a known set of rules. generated_at is the only non-deterministic field.
+  const ruleVersionPath = path.join(evidenceDir, 'rule-version.json');
+  fs.writeFileSync(ruleVersionPath, JSON.stringify({
+    engine_version: readEngineVersion(),
+    rule_count: RULE_COUNT,
+    rules: [...RULE_IDS],
+    generated_at: new Date().toISOString(),
+  }, null, 2));
+
   const findingsPath = path.join(evidenceDir, 'risk-findings.json');
   fs.writeFileSync(findingsPath, JSON.stringify(findings, null, 2));
 
@@ -134,8 +182,12 @@ function writeEvidence({ projectRoot, parsedDiff, findings, decision, inputSourc
   fs.writeFileSync(manifestPath, JSON.stringify({
     created_at: new Date().toISOString(),
     input_source: inputSource,
+    diff_sha256: diffSha256,
     artifacts: [
       { name: 'diff.summary.json', path: 'evidence/diff.summary.json' },
+      { name: 'diff.patch', path: 'evidence/diff.patch' },
+      { name: 'diff.sha256', path: 'evidence/diff.sha256' },
+      { name: 'rule-version.json', path: 'evidence/rule-version.json' },
       { name: 'risk-findings.json', path: 'evidence/risk-findings.json' },
     ],
   }, null, 2));
@@ -149,6 +201,9 @@ function writeEvidence({ projectRoot, parsedDiff, findings, decision, inputSourc
   return {
     evidenceDir,
     diffSummary: diffPath,
+    diffPatch: diffPatchPath,
+    diffSha256: diffSha256Path,
+    ruleVersion: ruleVersionPath,
     riskFindings: findingsPath,
     evidenceManifest: manifestPath,
     decision: decisionPath,
@@ -177,7 +232,7 @@ export function parseVerifyPrArgs(rest = []) {
     else if (a === '--no-write') opts.write = false;
     else if (a === '--comment-file') { opts.commentFile = nextArg(rest, ++i, '--comment-file'); }
     else if (a === '--ci-exit-soft') opts.ciExitSoft = true;
-    else if (a === '--run-checks') process.stderr.write('warning: --run-checks is not supported in the slim @ps-neko/nekowork gate; use the @ps-neko/nekowork-harness runtime from a source checkout for this feature\n');
+    else if (a === '--run-checks') process.stderr.write('warning: --run-checks is not supported in the slim @ps-neko/nekowork gate (checks are still DETECTED for the verdict; only execution requires the @ps-neko/nekowork-harness runtime from a source checkout)\n');
     else if (a === '--include') { (opts.includePaths = opts.includePaths || []).push(nextArg(rest, ++i, '--include')); }
   }
   return opts;

@@ -252,13 +252,23 @@ export function getGitDiff(opts = {}) {
   // a 2nd verify-pr run scans its own prior evidence (which stores the secret
   // text it flagged) and can force a FALSE BLOCK. Applied after parseDiff so it
   // covers the real `git diff` path, not only synthesized diffs.
-  const dropSelfOutput = (parsed) => {
+  //
+  // `rawText` is the exact unified-diff string fed to parseDiff. We attach a
+  // self-output-FILTERED copy as `parsed.rawDiff` so the evidence package can
+  // record the precise patch text the rules saw (patch↔verdict binding for the
+  // "same diff → same verdict" audit), not the unfiltered git stdout.
+  const dropSelfOutput = (parsed, rawText) => {
     const kept = (parsed.files || []).filter(f => !isSelfOutput(f.path));
-    if (kept.length === (parsed.files || []).length) return parsed;
+    const dropped = kept.length !== (parsed.files || []).length;
+    const rawDiff = dropped ? filterSelfOutputRaw(rawText) : (rawText || '');
+    if (!dropped) {
+      parsed.rawDiff = rawDiff;
+      return parsed;
+    }
     let totalAdditions = 0;
     let totalDeletions = 0;
     for (const f of kept) { totalAdditions += f.additions; totalDeletions += f.deletions; }
-    return { files: kept, totalAdditions, totalDeletions, totalFiles: kept.length };
+    return { files: kept, totalAdditions, totalDeletions, totalFiles: kept.length, rawDiff };
   };
 
   // full-scan: treat the entire tracked file set (plus untracked, unless
@@ -274,7 +284,8 @@ export function getGitDiff(opts = {}) {
     const tracked = (ls.stdout || '').split('\n').map(s => s.trim()).filter(Boolean).filter(p => !isSelfOutput(p));
     let stdout = synthesizeFilesAsDiff(cwd, tracked);
     if (includeUntracked) stdout += synthesizeUntrackedDiff(cwd);
-    return dropSelfOutput(parseDiff(appendIncluded(stdout)));
+    const raw = appendIncluded(stdout);
+    return dropSelfOutput(parseDiff(raw), raw);
   }
 
   const args = ['diff', '--no-color', '--no-ext-diff'];
@@ -308,7 +319,8 @@ export function getGitDiff(opts = {}) {
     stdout += synthesizeUntrackedDiff(cwd);
   }
 
-  return dropSelfOutput(parseDiff(appendIncluded(stdout)));
+  const raw = appendIncluded(stdout);
+  return dropSelfOutput(parseDiff(raw), raw);
 }
 
 /**
@@ -324,6 +336,32 @@ function isSelfOutput(relPath) {
   // evidence on the next run (self-contamination / false BLOCK).
   const lower = String(relPath).toLowerCase();
   return lower === 'report.md' || lower.startsWith('.nekowork/');
+}
+
+/**
+ * Drop the tool's own-output file blocks from a RAW unified-diff string, so the
+ * recorded `rawDiff` evidence matches the parsed (post-filter) diff the rules
+ * actually scanned. Splits on `diff --git a/<path> b/<path>` headers and keeps
+ * each block unless its path is self-output. Blocks with no parseable git header
+ * (e.g. a leading plain `--- a/path` patch) are kept conservatively.
+ *
+ * @param {string} rawText
+ * @returns {string}
+ */
+function filterSelfOutputRaw(rawText) {
+  if (!rawText || typeof rawText !== 'string') return '';
+  // Split keeping the `diff --git` delimiter at the head of each block.
+  const blocks = rawText.split(/(?=^diff --git )/m);
+  const kept = [];
+  for (const block of blocks) {
+    const m = block.match(/^diff --git a\/(.+?) b\/(.+?)\s*$/m);
+    // No git header → not a per-file block we can attribute; keep it (e.g. any
+    // preamble before the first file). A header whose new path is self-output
+    // is dropped.
+    if (m && isSelfOutput(m[2])) continue;
+    kept.push(block);
+  }
+  return kept.join('');
 }
 
 function synthesizeUntrackedDiff(cwd) {
@@ -428,7 +466,13 @@ export function loadDiffFile(filePath) {
   if (!fs.existsSync(filePath)) {
     throw new Error(`diff file not found: ${filePath}`);
   }
-  return parseDiff(fs.readFileSync(filePath, 'utf8'));
+  const rawDiff = fs.readFileSync(filePath, 'utf8');
+  // Patch mode does not run through dropSelfOutput (no working copy to compare),
+  // so the patch file content IS the exact text the parser saw — record it as-is
+  // for the evidence package's patch↔verdict binding.
+  const parsed = parseDiff(rawDiff);
+  parsed.rawDiff = rawDiff;
+  return parsed;
 }
 
 // Exposed for unit testing the case-insensitive self-output exclusion.

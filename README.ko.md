@@ -101,6 +101,12 @@ injection 부류, 비즈니스 로직 버그, 인가(authorization)
 결함)는 여전히 **범위 밖**입니다. 정확한 경계는
 [벤치마크의 "What is NOT covered"](packages/nekowork-cli/docs/BENCHMARK.md) 참고.
 
+> **언어 커버리지:** NEKOWORK 는 **기본적으로 JS/TS 스캐너**입니다. 정규식 룰에 **대표적인
+> Python·Go 패턴 몇 개**(예: `subprocess` git push, `os.system`/`exec.Command`,
+> `verify=False` / `InsecureSkipVerify`, `os.environ.get` fallback)가 들어 있지만 —
+> 이는 유용한 샘플일 뿐 **완전한 다국어(multi-language) 지원이 아닙니다**. AST dataflow
+> 룰은 JS/TS 전용입니다. JS/TS 외 언어 커버리지는 best-effort 패턴 샘플로 보세요.
+
 > 참고: 발행된 `@alpha`(0.2.0-alpha.9)는 이제 **11개 규칙 전부**(eval, 안전하지 않은 TLS,
 > CORS 와일드카드, SQL/command injection, AST dataflow 포함)를 담고 있으며, AST 엔진을 위해
 > **작고 잘 알려진 의존성 1개**(`acorn`, JS 파서 — MIT, transitive 의존성 0)를 추가합니다.
