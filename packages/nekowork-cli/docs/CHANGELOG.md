@@ -16,8 +16,13 @@ Not yet published; the `@alpha` on npm is still `0.2.0-alpha.8`. This version cl
 - `sql-injection` — **Python**: f-string SQL into `cursor.execute(f"SELECT ... {x}")` and `%`-format SQL (`.execute("... %s" % x)`). The safe 2-arg `.execute(sql, params)` and named-`%(id)s` params stay clean. (Python `.execute("..." + x)` concat was already caught.) Recall fixtures 12 → 14 positives, 0 FP.
 - `eval-usage` — **Python**: the `exec()` builtin on a non-literal argument (`exec(code)` / `exec(f"...")` / `exec("..."+x)`). Python `eval(<non-literal>)` was already caught by the language-agnostic `eval(` token. The SAFE alternative `ast.literal_eval(x)` and static `eval("1+1")` / `exec("pass")` stay clean. Recall fixtures 15 → 17 positives, 0 FP.
 
+### Fixed
+- `check` git-diff probe now detects **untracked** working-tree changes, matching `verify-pr`'s diff scope. It previously used the equivalent of `git diff` (which omits new untracked files) and printed `git-diff WARN — no working-tree diff` while `verify-pr` then BLOCKed on a critical inside an untracked file — a misleading false-negative that could stop a new user at `check`. It now uses `git status --porcelain` (which lists untracked) and excludes NEKOWORK's own output (`.nekowork/`, `REPORT.md`, mirroring `verify-pr`'s `isSelfOutput`), so it PASSes when there are real changes and only WARNs when there genuinely are none. (First-time-user dogfooding feedback.)
+- `check` now prints a gentle one-line hint to add `.nekowork/` and `REPORT.md` to `.gitignore` when those evidence artifacts exist and are not already ignored — so `verify-pr`'s output doesn't clutter the user's `git status`. (Non-blocking hint, not a check failure.)
+
 ### Tests
 - Per-rule unit tests extended for the new languages; slim package coverage 490 → 508 tests. All 11 rules pass the 1.0 benchmark gate (recall 100%, FP 0%).
+- `check` tests add an untracked-file case (git-diff PASS) and a self-output-only case (git-diff WARN, artifacts excluded).
 
 ## [0.2.0-alpha.8] - 2026-06-07
 
