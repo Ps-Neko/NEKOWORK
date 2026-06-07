@@ -75,7 +75,47 @@ test('check --json: a working-tree change makes git-diff PASS and overall PASS',
     assert.equal(j.overall, 'PASS');
     const diff = j.checks.find(c => c.name === 'git-diff');
     assert.equal(diff.status, 'PASS');
-    assert.match(diff.detail, /modified file/);
+    assert.match(diff.detail, /changes detected/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// (a'') An UNTRACKED new file makes git-diff PASS — verify-pr scans untracked
+// files (synthesizeUntrackedDiff), so `check` must not report "no diff" while
+// verify-pr would BLOCK on a critical in that file. Regression test for the
+// misleading false-negative where plain `git diff` (no untracked) drove check.
+test('check --json: an UNTRACKED new file makes git-diff PASS (matches verify-pr scope)', () => {
+  const root = makeGitRepoWithCommit();
+  try {
+    fs.writeFileSync(path.join(root, 'newfile.js'), 'const x = 1\n');
+    const r = run(['check', '--json'], root);
+    assert.equal(r.status, 0, `untracked file → PASS, exit 0. stdout: ${r.stdout}\nstderr: ${r.stderr}`);
+    const j = JSON.parse(r.stdout);
+    assert.equal(j.overall, 'PASS');
+    const diff = j.checks.find(c => c.name === 'git-diff');
+    assert.equal(diff.status, 'PASS', 'untracked file is a working-tree change verify-pr would scan');
+    assert.match(diff.detail, /changes detected/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// (a''') nekowork's OWN output (.nekowork/, REPORT.md) does NOT count as a change:
+// it mirrors verify-pr's isSelfOutput exclusion, so a repo whose only "changes"
+// are tool artifacts still WARNs "no changes to scan" (not a false PASS).
+test('check --json: only self-output (.nekowork/, REPORT.md) present → git-diff WARN (excluded)', () => {
+  const root = makeGitRepoWithCommit();
+  try {
+    fs.mkdirSync(path.join(root, '.nekowork'), { recursive: true });
+    fs.writeFileSync(path.join(root, '.nekowork', 'decision.json'), '{}\n');
+    fs.writeFileSync(path.join(root, 'REPORT.md'), '# evidence\n');
+    const r = run(['check', '--json'], root);
+    assert.equal(r.status, 1, `self-output only → WARN rolls up to exit 1. stdout: ${r.stdout}`);
+    const j = JSON.parse(r.stdout);
+    const diff = j.checks.find(c => c.name === 'git-diff');
+    assert.equal(diff.status, 'WARN', 'tool artifacts are excluded → no changes to scan');
+    assert.match(diff.detail, /no changes to scan/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

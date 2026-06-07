@@ -72,18 +72,71 @@ function checkHasCommit() {
   }
 }
 
+// Mirror scripts/lib/diff-parser.js isSelfOutput: verify-pr drops its own output
+// (REPORT.md + .nekowork/**) from every diff source, so those artifacts must not
+// count as "working-tree changes" here either. Case-insensitive to match the
+// parser (Windows/macOS case-insensitive filesystems resolve REPORT.MD etc. to
+// the same files).
+function isSelfOutput(relPath) {
+  const lower = String(relPath).toLowerCase();
+  return lower === 'report.md' || lower.startsWith('.nekowork/');
+}
+
+// Parse one `git status --porcelain` line into its repo-relative path. Porcelain
+// v1 format is `XY <path>` (2 status chars + space + path); renames use
+// `XY old -> new`, where the post-rename path is what verify-pr would scan.
+function porcelainPath(line) {
+  let p = line.slice(3);
+  const arrow = p.indexOf(' -> ');
+  if (arrow !== -1) p = p.slice(arrow + ' -> '.length);
+  // Porcelain quotes paths with special chars; strip surrounding quotes.
+  if (p.startsWith('"') && p.endsWith('"')) p = p.slice(1, -1);
+  return p.replace(/\\/g, '/');
+}
+
 function checkDiff() {
+  // Use `git status --porcelain` (NOT `git diff`): plain `git diff` omits
+  // UNTRACKED new files, but verify-pr DOES scan them (synthesizeUntrackedDiff).
+  // Reporting "no diff" while verify-pr finds untracked criticals is a misleading
+  // false-negative. Porcelain lists untracked with `??`, so it matches verify-pr's
+  // diff scope. We then drop nekowork's own output so its artifacts don't count.
   const r = spawnSync('git', ['status', '--porcelain'], { encoding: 'utf8' });
   if (r.status !== 0) {
     record('git-diff', STATUSES.WARN, 'could not check working-tree state');
     return;
   }
-  const lines = r.stdout.split('\n').filter(l => l && !l.startsWith('??'));
-  if (lines.length > 0) {
-    record('git-diff', STATUSES.PASS, `${lines.length} modified file(s) — verify-pr will scan these`);
+  const changed = r.stdout
+    .split('\n')
+    .filter(Boolean)
+    .map(porcelainPath)
+    .filter(p => p && !isSelfOutput(p));
+  if (changed.length > 0) {
+    record('git-diff', STATUSES.PASS, `working-tree changes detected (${changed.length} file(s)) — verify-pr will scan them`);
   } else {
-    record('git-diff', STATUSES.WARN, 'no working-tree diff — `verify-pr` will report no changes');
+    record('git-diff', STATUSES.WARN, 'no changes to scan — `verify-pr` will report no changes');
   }
+}
+
+// Gentle, non-blocking hint: verify-pr leaves its evidence output (.nekowork/ and
+// REPORT.md) in the user's repo, which then shows up in `git status`. If those
+// artifacts already exist AND are not gitignored, suggest adding them. Returns a
+// hint string or null. Never a check/failure — just a nudge.
+function gitignoreHint() {
+  const artifacts = ['.nekowork/', 'REPORT.md'];
+  const present = artifacts.filter(a => {
+    try { return fs.existsSync(path.resolve(process.cwd(), a.replace(/\/$/, ''))); } catch { return false; }
+  });
+  if (present.length === 0) return null;
+  // git check-ignore exits 0 if the path IS ignored, 1 if not. Hint only for
+  // artifacts that exist but are NOT ignored.
+  const notIgnored = present.filter(a => {
+    const r = spawnSync('git', ['check-ignore', '-q', a], { encoding: 'utf8' });
+    return r.status !== 0;
+  });
+  if (notIgnored.length === 0) return null;
+  return 'Tip: NEKOWORK wrote evidence (.nekowork/, REPORT.md) into this repo. '
+    + 'Add them to .gitignore so they don\'t clutter `git status`:\n'
+    + '       echo -e ".nekowork/\\nREPORT.md" >> .gitignore';
 }
 
 checkNode();
@@ -120,6 +173,15 @@ if (json) {
     console.log('verify-pr will run but some steps will be no-ops.');
   } else {
     console.log('Ready. Next: `nekowork verify-pr`');
+  }
+  // Only meaningful inside a repo (where check-ignore works). git-repo PASS implies that.
+  const repoOk = checks.find(c => c.name === 'git-repo')?.status === STATUSES.PASS;
+  if (repoOk) {
+    const hint = gitignoreHint();
+    if (hint) {
+      console.log('');
+      console.log(`  [i] ${hint}`);
+    }
   }
 }
 
