@@ -82,7 +82,7 @@ AI 가 만든 코드, 검증 없이는 통과시키지 마세요.
 
 ### 구현 완료 (헤비 레포 `0.1.0-alpha.12` / 슬림 `0.2.0-alpha.x`)
 - **Diff 파서**: `scripts/lib/diff-parser.js` — working tree / staged / patch 파일 / range → 파일·라인 수준 분석.
-- **11개 결정적 risk rule** (§6): `scripts/lib/rules/{secret-fallback,auto-apply-commit-push,hardcoded-credential,test-or-security-disable,package-lockfile-risk,eval-usage,insecure-tls,cors-wildcard,sql-injection,command-injection,ast-dataflow}.js`, `verify-pr.js` 의 `runRules()` 에서 일괄 실행. 룰별 recall/FP·corpus 출처(synthetic/OSS/live)의 단일 출처는 [BENCHMARK.md](./BENCHMARK.md). 10종은 정규식 패턴 매처이고, `ast-dataflow` 1종만 `acorn` 으로 AST 를 만들어 함수 내(intraprocedural) taint 분석을 한다 — 그래서 슬림 패키지는 작고 잘 알려진 의존성 1개(`acorn`, JS 파서 — MIT, transitive 의존성 0)를 갖는다 (TS 는 Node 내장 type-stripping 으로 파싱, TS 의존성 없음).
+- **11개 결정적 risk rule** (§6): `scripts/lib/rules/{secret-fallback,auto-apply-commit-push,hardcoded-credential,test-or-security-disable,package-lockfile-risk,eval-usage,insecure-tls,cors-wildcard,sql-injection,command-injection,ast-dataflow}.js`, `verify-pr.js` 의 `runRules()` 에서 일괄 실행. 룰별 recall/FP·corpus 출처(synthetic/OSS/live)의 단일 출처는 [BENCHMARK.md](./BENCHMARK.md). 10종은 정규식 패턴 매처이고, `ast-dataflow` 1종만 `acorn` 으로 AST 를 만들어 함수 간(inter-procedural, intra-module) taint 분석을 한다 — 그래서 슬림 패키지는 작고 잘 알려진 의존성 1개(`acorn`, JS 파서 — MIT, transitive 의존성 0)를 갖는다 (TS 는 Node 내장 type-stripping 으로 파싱, TS 의존성 없음).
 - **`INSUFFICIENT_EVIDENCE` verdict**: `verify-pr.js` 의 5종 verdict 에 포함 (source 변경 + test 명령 없음 → INSUFFICIENT_EVIDENCE).
 - **GitHub PR comment 출력**: `--comment-file` 옵션(`renderPrComment`) + `docs/examples/github-actions-verify-pr.yml`.
 - **검사 실행**: `--run-checks` (test/lint/typecheck), 격상-only — `scripts/lib/check-runner.js`.
@@ -128,10 +128,11 @@ REPORT.md 렌더링
 > `secret-fallback`, `auto-apply-commit-push`, `hardcoded-credential`, `test-or-security-disable`,
 > `package-lockfile-risk`, `eval-usage`, `insecure-tls`, `cors-wildcard`, `sql-injection`,
 > `command-injection`, `ast-dataflow`. 앞의 10종은 정규식 패턴 매처이고, `ast-dataflow` 1종만
-> AST/dataflow 분석(함수 내 taint)이다. 정직성 주의: `secret-fallback` 만 30개의 실제 OSS positive 를
-> 갖고, 더 최근 룰들(특히 `sql-injection`·`command-injection`·`eval-usage`·`insecure-tls`·
-> `cors-wildcard`·`hardcoded-credential`·`ast-dataflow`)은 **synthetic fixture 만**으로 측정됐다 —
-> OSS/live 검증이 아니다.
+> AST/dataflow 분석(함수 간·intra-module taint)이다. 정직성 주의: `secret-fallback` 가 30개의 실제 OSS positive 로
+> 가장 강하고, OSS-fixture merge 이후 더 최근 룰들(`eval-usage`·`insecure-tls`·`cors-wildcard`·
+> `sql-injection`·`command-injection`·`ast-dataflow`)도 각각 **real OSS positive** 를 갖는다.
+> `hardcoded-credential` 1종만 설계상 **synthetic fixture 만**이다 (윤리적 이유 — BENCHMARK.md 참조).
+> 정확한 수치는 BENCHMARK.md 가 단일 출처다.
 
 ### Killer: Secret Fallback
 - 잡아야 할 패턴:
@@ -161,26 +162,26 @@ REPORT.md 렌더링
 - dependency 추가 자체는 BLOCK 아님. postinstall/preinstall 추가는 HIGH. script 가 shell/network/git 실행하면 HIGH.
 
 ### Supporting 5: eval Usage
-- `eval(...)`, `new Function(...)` 등 동적 코드 실행. **synthetic fixture 만으로 측정** (OSS/live 미검증).
+- `eval(...)`, `new Function(...)` 등 동적 코드 실행. OSS-fixture merge 이후 **real OSS positives** 보유 (정확한 수는 [BENCHMARK.md](./BENCHMARK.md)).
 
 ### Supporting 6: Insecure TLS
-- `rejectUnauthorized: false`, `NODE_TLS_REJECT_UNAUTHORIZED=0` 등 TLS 검증 비활성화. **synthetic fixture 만**.
+- `rejectUnauthorized: false`, `NODE_TLS_REJECT_UNAUTHORIZED=0` 등 TLS 검증 비활성화. **real OSS positives** 보유 (수치는 BENCHMARK.md).
 
 ### Supporting 7: CORS Wildcard
-- credentialed 엔드포인트에서 `Access-Control-Allow-Origin: *`. **synthetic fixture 만**.
+- credentialed 엔드포인트에서 `Access-Control-Allow-Origin: *`. **real OSS positives** 보유 (수치는 BENCHMARK.md).
 
 ### Supporting 8: SQL Injection (basic)
-- 문자열 연결로 만든 SQL 쿼리 등 **기본 패턴만** 잡는다 (정규식 수준; data-flow/AST 분석 아님). **synthetic fixture 만**. 대부분의 injection 클래스는 범위 밖 — BENCHMARK.md "## What is NOT covered" 참조.
+- 문자열 연결로 만든 SQL 쿼리 등 **기본 패턴만** 잡는다 (정규식 수준; data-flow/AST 분석 아님). **real OSS positives** 보유 (수치는 BENCHMARK.md). 대부분의 injection 클래스는 범위 밖 — BENCHMARK.md "## What is NOT covered" 참조.
 
 ### Supporting 9: Command Injection (basic)
-- 사용자 입력을 셸로 흘리는 `exec`/`spawn` 류 **기본 패턴만**. **synthetic fixture 만**. 함수 경계를 넘는 케이스는 범위 밖.
+- 사용자 입력을 셸로 흘리는 `exec`/`spawn` 류 **기본 패턴만**. **real OSS positives** 보유 (수치는 BENCHMARK.md). 함수 경계를 넘는 케이스는 범위 밖.
 
 ### Supporting 10: AST Dataflow (변수 매개 injection)
-- 유일한 AST/dataflow 룰. `acorn` 으로 AST 를 만들고 **함수 내(intraprocedural) taint 분석**으로, 정규식 룰이 놓치는 **변수 매개 / 문장 간 injection** 을 잡는다 — 예: `const q = "SELECT "+id; db.query(q)` 처럼 여러 문장에 걸쳐 조립된 SQL, 조각을 합쳐 만든 `eval`, 부분으로 짜맞춘 셸 명령. **synthetic fixture 만**. 보수적 설계: 함수 경계를 넘는 cross-function / whole-program dataflow 와 비-JS 언어는 범위 밖이다.
+- 유일한 AST/dataflow 룰. `acorn` 으로 AST 를 만들고 **함수 간(inter-procedural, intra-module) taint 분석**으로, 정규식 룰이 놓치는 **변수 매개 / 문장 간 injection** 을 잡는다 — 예: `const q = "SELECT "+id; db.query(q)` 처럼 여러 문장에 걸쳐 조립된 SQL, 조각을 합쳐 만든 `eval`, 부분으로 짜맞춘 셸 명령, local helper 의 반환값·sink 별칭. **real OSS positives** 보유 (수치는 BENCHMARK.md). 보수적 설계: 한 파일 안에서 함수 경계는 넘지만 cross-file / whole-program dataflow 와 비-JS 언어는 범위 밖이다.
 
 ### 1.0 제외
 - auth / authorization 우회 일반 탐지 (1.x)
-- basic sql/command + `ast-dataflow`(함수 내 taint) 가 잡는 것 외 대부분의 injection 클래스 (cross-function / whole-program dataflow 필요 — 1.x)
+- basic sql/command + `ast-dataflow`(함수 간·intra-module taint) 가 잡는 것 외 대부분의 injection 클래스 (cross-file / whole-program dataflow 필요 — 1.x)
 - dangerous shell 범용 탐지 (1.x)
 - CI/CD 보안 완화 범용 탐지 (1.x)
 - prompt injection 탐지 (verify-skill, 1.x)

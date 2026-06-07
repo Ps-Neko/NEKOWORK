@@ -50,7 +50,7 @@ receive on real diffs, the fraction they confirm as genuinely worth flagging —
 they looked at it and agreed it was a real risk, not noise.
 
 This is in-the-wild precision, not synthetic-fixture recall. The fixture corpus
-(226/226, 100% recall, 0% FP) measures the engine on patterns we wrote fixtures for.
+(234/234, 100% recall, 0% FP) measures the engine on patterns we wrote fixtures for.
 The wild TP rate measures whether those verdicts land on real AI-written code.
 
 **Why it matters.** A tool with high synthetic recall but low wild precision trains
@@ -90,7 +90,7 @@ Run this manually before each alpha publish. Fail the publish if it regresses pa
 
 **Definition.** The existing deterministic detection gate: recall >= 0.95 and FP <=
 0.10 per rule on the `bench:rules` fixture corpus. Currently: 11/11 rules passing
-at 100% recall / 0% FP (226/226 positives caught, 0/126 false positives).
+at 100% recall / 0% FP (234/234 positives caught, 0/130 false positives).
 See `BENCHMARK.md` for the full table and corpus composition caveats.
 
 **Why it matters.** This is the floor, not the ceiling. If a code change causes

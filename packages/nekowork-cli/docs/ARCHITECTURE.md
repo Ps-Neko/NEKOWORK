@@ -16,7 +16,7 @@ diff (working tree | staged | patch | range | full)
       test-or-security disable . package/lockfile risk .
       eval usage . insecure tls . cors wildcard .
       sql injection (basic) . command injection (basic) .
-      ast dataflow (intraprocedural taint, variable-mediated injection))
+      ast dataflow (inter-procedural intra-module taint, variable-mediated injection))
   |
   v  deterministic verdict
      (ALLOW . ALLOW_WITH_WARNINGS . NEEDS_HUMAN_REVIEW . INSUFFICIENT_EVIDENCE . BLOCK)
@@ -30,7 +30,7 @@ diff (working tree | staged | patch | range | full)
 
 The verdict is derived only from the deterministic rules and check availability — an LLM never decides the verdict. The project detector **detects whether** test/lint commands exist (returning `INSUFFICIENT_EVIDENCE` for a source change with no test command). Running those commands and folding pass/fail into the verdict is implemented via `--run-checks` (test/lint/typecheck; escalation-only — a failing check upgrades the verdict toward `NEEDS_HUMAN_REVIEW` but never triggers a standalone `BLOCK`). See [SCOPE-1.0.md](SCOPE-1.0.md) §5 for the full policy.
 
-Ten of the 11 rules are pure regex over added diff lines. The 11th, `ast-dataflow`, builds an AST with `acorn` and runs **intraprocedural (single-function) taint analysis** to catch **variable-mediated injection** the regex rules miss (assembled SQL/`eval`/shell across statements). Because of it the slim package carries **one tiny, well-known dependency** — `acorn`, the JS parser (MIT, **zero transitive dependencies**); TypeScript is parsed via Node's built-in type-stripping, so there is no TypeScript dependency. `ast-dataflow` is JS/TS-only and does **not** do cross-function or whole-program dataflow.
+Ten of the 11 rules are pure regex over added diff lines. The 11th, `ast-dataflow`, builds an AST with `acorn` and runs **inter-procedural (intra-module) taint analysis** to catch **variable-mediated injection** the regex rules miss (assembled SQL/`eval`/shell across statements, local-helper returns, sink aliasing). Because of it the slim package carries **one tiny, well-known dependency** — `acorn`, the JS parser (MIT, **zero transitive dependencies**); TypeScript is parsed via Node's built-in type-stripping, so there is no TypeScript dependency. `ast-dataflow` follows taint across functions within a single file but is JS/TS-only and does **not** do cross-file or whole-program dataflow.
 
 ## Catalog and Projection (internal engine)
 

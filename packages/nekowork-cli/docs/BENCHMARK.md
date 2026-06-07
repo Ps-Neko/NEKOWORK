@@ -42,13 +42,13 @@ its current fixture corpus.
 | `hardcoded-credential` | **100%** | **0%** | 11 / 11 | 0 / 12 | ✅ |
 | `test-or-security-disable` | **100%** | **0%** | 24 / 24 | 0 / 12 | ✅ |
 | `package-lockfile-risk` | **100%** | **0%** | 11 / 11 | 0 / 9 | ✅ |
-| `eval-usage` | **100%** | **0%** | 15 / 15 | 0 / 6 | ✅ |
+| `eval-usage` | **100%** | **0%** | 17 / 17 | 0 / 7 | ✅ |
 | `insecure-tls` | **100%** | **0%** | 16 / 16 | 0 / 5 | ✅ |
 | `cors-wildcard` | **100%** | **0%** | 12 / 12 | 0 / 5 | ✅ |
-| `sql-injection` | **100%** | **0%** | 12 / 12 | 0 / 9 | ✅ |
-| `command-injection` | **100%** | **0%** | 12 / 12 | 0 / 9 | ✅ |
+| `sql-injection` | **100%** | **0%** | 14 / 14 | 0 / 10 | ✅ |
+| `command-injection` | **100%** | **0%** | 16 / 16 | 0 / 11 | ✅ |
 | `ast-dataflow` | **100%** | **0%** | 30 / 30 | 0 / 27 | ✅ |
-| **Aggregate** | **100%** | **0%** | **226 / 226** | **0 / 126** | — |
+| **Aggregate** | **100%** | **0%** | **234 / 234** | **0 / 130** | — |
 
 `ast-dataflow` is the only **AST / dataflow** rule (all others are regex pattern
 matchers): it builds an AST via `acorn` and runs **inter-procedural (intra-module)
@@ -71,15 +71,15 @@ The CLI prints this as "11/11 rules passing 1.0 gate."
 | `hardcoded-credential` | 11 / 0 / 0 ⚠️ syn-only | 9 / 3 / 0 |
 | `test-or-security-disable` | 15 / 8 / 1 | 9 / 3 / 0 |
 | `package-lockfile-risk` | 8 / 3 / 0 | 6 / 3 / 0 |
-| `eval-usage` | 9 / 6 / 0 | 6 / 0 / 0 |
+| `eval-usage` | 11 / 6 / 0 | 7 / 0 / 0 |
 | `insecure-tls` | 10 / 6 / 0 | 5 / 0 / 0 |
 | `cors-wildcard` | 6 / 6 / 0 | 5 / 0 / 0 |
-| `sql-injection` | 6 / 6 / 0 | 6 / 3 / 0 |
-| `command-injection` | 6 / 6 / 0 | 6 / 3 / 0 |
+| `sql-injection` | 8 / 6 / 0 | 7 / 3 / 0 |
+| `command-injection` | 10 / 6 / 0 | 8 / 3 / 0 |
 | `ast-dataflow` | 24 / 6 / 0 | 24 / 3 / 0 |
-| **Total** | **140 / 82 / 4** | **102 / 24 / 0** |
+| **Total** | **148 / 82 / 4** | **106 / 24 / 0** |
 
-Synthetic share of total positives: **62%** (140 / 226). Only `secret-fallback`
+Synthetic share of total positives: **63%** (148 / 234). Only `secret-fallback`
 meets the §9 "30+ real OSS positives" bar (30 OSS / 33 synthetic / 2 live AI), but
 there are now **~82 real OSS positives across rules** — the OSS-fixture merge added
 real OSS positives to the injection rules (`eval-usage`, `insecure-tls`,
@@ -174,8 +174,8 @@ cover — plus a human gate for everything else.
 
 - The deterministic rule engine is **stable**: same input, same verdict, every run.
 - Against the patterns the team thought to write fixtures for, the rules catch
-  them with **100% aggregate recall** (226 / 226) and produce **0 false
-  positives** on the negative corpus (0 / 126).
+  them with **100% aggregate recall** (234 / 234) and produce **0 false
+  positives** on the negative corpus (0 / 130).
 - The detection gate defined in SCOPE-1.0.md §9 is **mechanically passed** for all
   eleven rules.
 
@@ -195,7 +195,7 @@ cover — plus a human gate for everything else.
 - **Live-AI corpus is thin.** 4 live-AI positives across 3 rules vs. the §9
   target of 30+. Real coverage of how Claude Code / Cursor / Codex actually fail
   is still minimal.
-- **Synthetic share is 62%** (140 / 226 positives), above the §9 ≤30% target for
+- **Synthetic share is 63%** (148 / 234 positives), above the §9 ≤30% target for
   the corpus as a whole — even though the OSS-fixture merge added ~36 real OSS
   positives.
 
@@ -210,15 +210,15 @@ cover — plus a human gate for everything else.
 | `hardcoded-credential` OSS positives | 0 (by-design) | — | 🚫 ethical scope |
 | `eval-usage` / `insecure-tls` / `cors-wildcard` / `sql-injection` / `command-injection` / `ast-dataflow` OSS positives | 6 each | 30+ | ⚠️ below bar |
 | Positive fixtures from live AI diffs | 4 | 30+ | ❌ |
-| Overall synthetic share of positives | 62% (140/226) | ≤ 30% | ❌ |
+| Overall synthetic share of positives | 63% (148/234) | ≤ 30% | ❌ |
 | Recall — all 11 rules | 100% | ≥ 95% | ✅ |
-| FP rate — all 11 rules | 0/126 (0%) | ≤ 10% | ✅ |
+| FP rate — all 11 rules | 0/130 (0%) | ≤ 10% | ✅ |
 | CI benchmark job, 3 consecutive PASS | passes locally | + CI history | ⚠️ partial |
 
 **Mechanical gate ✅, corpus honesty ⚠️.** All 11 rules pass the recall + FP gate.
 The OSS-fixture merge moved the newer injection/AST rules off synthetic-only (6 real
 OSS positives each), leaving only `hardcoded-credential` synthetic-only by design —
-but the overall synthetic share (62%) is still well above the §9 target. Treat the
+but the overall synthetic share (63%) is still well above the §9 target. Treat the
 "gate ✅" markers as a **mechanical pass on an admittedly partial corpus** — not as a
 claim that the rules generalize to wild AI-written code.
 
@@ -267,7 +267,7 @@ alpha signal. The benchmark side needs:
       6 real OSS positives each but need more toward the 30+ bar)
 - [ ] Generate live AI diffs by running Claude Code / Cursor / Codex on
       realistic tasks and extracting the risky-pattern diffs (4/30 captured so far)
-- [ ] Rebalance the corpus so synthetic ≤ 30% of total (currently 62%)
+- [ ] Rebalance the corpus so synthetic ≤ 30% of total (currently 63%)
 - [ ] Add CI job that publishes the JSON to `docs/benchmark-history.jsonl` on
       every main push, so the page above stays current automatically
 
