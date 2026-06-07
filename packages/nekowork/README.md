@@ -14,13 +14,11 @@ intraprocedural (single-function, JS/TS); cross-function and whole-program dataf
 are out of scope. The verdict is deterministic (same diff, same result), and it never
 commits, pushes, or deploys on its own. **You** make the final call.
 
-> Note: the published `@alpha` (0.2.0-alpha.6) currently ships the original 5 rules
-> and has **zero dependencies**. The 6 newer rules (eval, insecure TLS, CORS wildcard,
-> SQL/command injection, AST dataflow) are in the repo and land in the next alpha
-> publish; that build adds **one tiny, well-known dependency** (`acorn`, the JS parser
-> — MIT, zero transitive dependencies) for the AST engine. Installing `@alpha` today
-> gives you 5 rules + zero deps; the "11 deterministic rules" above describes that next
-> release.
+> Note: the published `@alpha` (0.2.0-alpha.7) now ships all **11 rules** described
+> above (incl. eval, insecure TLS, CORS wildcard, SQL/command injection, AST dataflow)
+> and adds **one tiny, well-known dependency** (`acorn`, the JS parser — MIT, zero
+> transitive dependencies) for the AST engine. Always install with the **`@alpha`**
+> tag: the `latest` dist-tag is a stale `0.2.0-alpha.0` (5 rules, zero deps).
 
 ## Status
 
