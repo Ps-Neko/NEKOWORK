@@ -94,9 +94,10 @@ NEKOWORK는 **정해진 AI 유발 위험 패턴 집합** — 11개 결정적 규
 - 안전하다고 믿기에는 증거가 부족한 변경.
 
 결정적 판정, 사람 게이트, "스스로 push하지 않는다"는 약속은 위 항목 전부에 대해
-유지됩니다. AST dataflow 룰은 **함수 내(intraprocedural)·보수적**입니다 — taint 를
-**한 함수 안에서만** JS/TS 한정으로 따라가며, cross-function 이나 whole-program 분석은
-하지 않습니다. 그 너머(대부분의 injection 부류, 비즈니스 로직 버그, 인가(authorization)
+유지됩니다. AST dataflow 룰은 **함수 간(inter-procedural, intra-module)·보수적**입니다 —
+taint 를 **한 파일 안에서 함수 경계를 넘어**(local helper 반환값·sink 별칭 포함) JS/TS
+한정으로 따라가며, cross-file 이나 whole-program 분석은 하지 않습니다. 그 너머(대부분의
+injection 부류, 비즈니스 로직 버그, 인가(authorization)
 결함)는 여전히 **범위 밖**입니다. 정확한 경계는
 [벤치마크의 "What is NOT covered"](packages/nekowork-cli/docs/BENCHMARK.md) 참고.
 

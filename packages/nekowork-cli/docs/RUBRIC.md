@@ -32,7 +32,7 @@ Verify each citation yourself:
   are likewise fixed constants.
 - **`packages/nekowork-cli/docs/BENCHMARK.md` — "What is NOT covered"
   (lines 130–162)** + corpus-provenance disclosure (lines 65–128). The corpus
-  is **62% synthetic** (line 82; 140 / 226 positives), only ~**4 live-AI
+  is **63% synthetic** (line 82; 148 / 234 positives), only ~**4 live-AI
   positives** (lines 110–111), and `hardcoded-credential` is **synthetic-only by
   design** (lines 113–128). The page states plainly that the ≤30% synthetic
   target is **not** met (lines 198, 213).
@@ -84,7 +84,7 @@ boundary-disclosure honesty.
 - A reproducible benchmark (`npm run bench:rules`) wired into CI.
 
 **STILL PENALIZES (no free pass for honesty — disclosure ≠ remediation):**
-- Corpus **62% synthetic** while the product's own SCOPE-1.0 §9 target is **≤30%**
+- Corpus **63% synthetic** while the product's own SCOPE-1.0 §9 target is **≤30%**
   (BENCHMARK lines 82, 198, 213). Disclosing it does not neutralize it.
 - **~4 live-AI fixtures** across 3 rules vs. the §9 target of 30+ — recall says
   little about how Claude Code / Cursor / Codex actually fail.
@@ -247,7 +247,7 @@ lightweight, deterministic, local, **1 small dependency** — is **~8.0–8.3**.
   **contradicts NEKOWORK's identity** (deterministic, LLM-excluded verdict; lean;
   bounded scope disclosed in code). Chasing a 9 here means abandoning the moat.
 - **~8.3 is not free, either.** Reaching it still requires real work:
-  - rebalance the corpus toward **≤30% synthetic** (currently 62%),
+  - rebalance the corpus toward **≤30% synthetic** (currently 63%),
   - add a real **live-AI fixture corpus** (currently ~4),
   - turn on **branch protection** and publish benchmark history,
   - close the test gaps on the verdict-integrity attack paths (swapped-diff,
@@ -272,7 +272,7 @@ territory — in which case the **identity**, not just the score, has changed.
    low so we relaxed the dimension" is forbidden.
 2. **Recalibrated dimensions must STILL penalize real gaps.** The recalibration
    narrows the *axis* (claimed scope), it does **not** remove penalties. The
-   62%-synthetic corpus, thin live-AI set, and missing attack-path tests must
+   63%-synthetic corpus, thin live-AI set, and missing attack-path tests must
    keep costing points. A recalibration that turns into a free pass is rejected.
 3. **No double-counting across the two recalibrated dims.** A detection bypass is
    scored once, under `detection-precision`. A verdict-mechanism flaw is scored
