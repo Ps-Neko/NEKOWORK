@@ -2,7 +2,7 @@
   "fixture_set": "ast-dataflow",
   "schema_version": "0.1",
   "generated_at": "2026-06-07",
-  "notes": "AST/dataflow rule: intraprocedural const/taint propagation catches VARIABLE-MEDIATED injection the line-oriented regex rules provably miss (a dangerous value assembled in one statement, used in a later statement). Sinks: eval/new Function (ast-eval-injection, high), child_process exec/execSync + spawn(shell:true) (ast-command-injection, critical), .query/.execute/.raw with a dynamic SQL-shaped non-parameterized arg (ast-sql-injection, high). fpMode any — ANY finding on a negative is an FP. The hard FP guard is const-propagation: a variable bound only to constant strings is CONST-SAFE and never flagged (incl. the prototype's `const q=`SELECT 1`; db.query(q)` FP). Conservative by design: bare unknown identifiers, cross-function flow, and non-SQL .query() do NOT flag. Positives are SYNTHETIC (honest).",
+  "notes": "AST/dataflow rule: inter-procedural (intra-module) const/taint propagation catches VARIABLE-MEDIATED injection the line-oriented regex rules provably miss (a dangerous value assembled in one statement, used in a later statement) PLUS cross-function helper returns and sink aliases. Sinks: eval/new Function (ast-eval-injection, high), child_process exec/execSync + spawn(shell:true) (ast-command-injection, critical), .query/.execute/.raw with a dynamic SQL-shaped non-parameterized arg (ast-sql-injection, high). fpMode any — ANY finding on a negative is an FP. The hard FP guards are: const-propagation (a variable bound only to constant strings is CONST-SAFE and never flagged, incl. the prototype's `const q=`SELECT 1`; db.query(q)` FP); the SQL-keyword gate (a dynamic .query arg only flags when real SQL text is recovered); and the params-array exemption. INTER-PROCEDURAL upgrade: arg-sensitive local-function return-taint resolution binds a helper's params to the call site's arg classifications and recovers BOTH dynamic + static SQL text (cycle-guarded, depth-limited ~6) — so `function build(x){return \"SELECT \"+x} db.query(build(req.id))` flags while `build(){return \"SELECT 1\"} db.query(build())` and `id(x){return x} db.query(id(\"SELECT 1\"))` stay clean. SINK-ALIAS resolution: `const X = obj.query|execute|raw|exec|execSync` (simple non-reassigned const) makes a later `X(arg)` the same sink, while `const run=console.log; run(...)` is NOT a sink. Unknown/non-local calls stay structurally dynamic with NO recovered text (keyword gate still guards). Positives are SYNTHETIC (honest).",
   "targets": {
     "any_detection_recall": 0.95,
     "fp_rate": 0.1
@@ -439,6 +439,150 @@
       "expected_findings": [],
       "added_at": "2026-06-07",
       "notes": "FP guard: knex builder chain (not .raw)."
+    },
+    {
+      "id": "ast-pos-xfn-sql-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/xfn-sql-001-helper-concat.js",
+      "pattern": "ast-sql",
+      "expected_findings": [
+        {
+          "rule": "ast-sql-injection",
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "INTER-PROCEDURAL: SQL concat inside a local helper, result flows into db.query() in another fn. Intraprocedural recovered no text (keyword gate kept it clean); arg-sensitive return-taint binds the param and recovers SELECT."
+    },
+    {
+      "id": "ast-pos-xfn-sql-002",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/xfn-sql-002-arrow-helper.ts",
+      "pattern": "ast-sql",
+      "expected_findings": [
+        {
+          "rule": "ast-sql-injection",
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "INTER-PROCEDURAL: const arrow helper builds SQL from its arg, return flows into conn.query() (TS). Resolver handles arrow expression-body returns."
+    },
+    {
+      "id": "ast-pos-xfn-cmd-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/xfn-cmd-001-helper.js",
+      "pattern": "ast-cmd",
+      "expected_findings": [
+        {
+          "rule": "ast-command-injection",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "INTER-PROCEDURAL: local helper assembles a shell command from its param, result flows into cp.execSync()."
+    },
+    {
+      "id": "ast-pos-xfn-eval-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/xfn-eval-001-helper.ts",
+      "pattern": "ast-eval",
+      "expected_findings": [
+        {
+          "rule": "ast-eval-injection",
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "INTER-PROCEDURAL: local helper wraps input as code text, result flows into eval() across functions (TS)."
+    },
+    {
+      "id": "ast-pos-alias-cmd-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/alias-cmd-001-shell.js",
+      "pattern": "ast-cmd",
+      "expected_findings": [
+        {
+          "rule": "ast-command-injection",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "SINK ALIAS: const run = cp.execSync; run(\"rm -rf \"+input). Aliasing the shell sink to a local const bypassed the member-sink matcher; sink-alias resolution treats run(...) as execSync."
+    },
+    {
+      "id": "ast-pos-alias-sql-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/alias-sql-001-query.js",
+      "pattern": "ast-sql",
+      "expected_findings": [
+        {
+          "rule": "ast-sql-injection",
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "SINK ALIAS: const q = db.query; q(\"SELECT ...\"+input). Sink-alias resolution applies the dynamic + SQL-keyword + parameterized guards to q(...)."
+    },
+    {
+      "id": "ast-neg-xfn-001",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/xfn-001-helper-returns-const.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "INTER-PROCEDURAL FP guard: local helper returns a CONSTANT SQL string (no param influence) into db.query() — resolved return is non-dynamic, stays clean."
+    },
+    {
+      "id": "ast-neg-xfn-002",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/xfn-002-identity-fn-const-arg.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "INTER-PROCEDURAL FP guard: identity helper called with a CONSTANT arg — param binds to non-dynamic constant, so the resolved return is non-dynamic even though a SQL keyword is present (the tricky FP-safety case)."
+    },
+    {
+      "id": "ast-neg-xfn-003",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/xfn-003-parameterized-in-helper.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "INTER-PROCEDURAL FP guard: outer call uses the safe parameterized shape (placeholder string + params array); the helper forwards a static SQL literal — never dynamic."
+    },
+    {
+      "id": "ast-neg-alias-001",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/alias-001-console-log.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "SINK-ALIAS FP guard: const run = console.log aliases a NON-sink; run(...) with a dynamic SQL-shaped string must NOT be treated as a sink."
+    },
+    {
+      "id": "ast-neg-xfn-004",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/xfn-004-non-sql-emitter.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "INTER-PROCEDURAL FP guard: helper builds a dynamic but NON-SQL string (event topic) into a generic emitter.query() — dynamic, but the SQL-keyword gate finds no DML keyword."
+    },
+    {
+      "id": "ast-neg-xfn-005",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/xfn-005-add-numbers.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "INTER-PROCEDURAL FP guard: numeric helper called with constants, result logged — no sink, no SQL keyword, no dynamic string flow."
     },
     {
       "id": "ast-pos-oss-01",
