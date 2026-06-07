@@ -33,14 +33,21 @@ npx -y @ps-neko/nekowork@alpha verify-pr    # scan the diff → get a verdict
 `verify-pr` reads the diff, writes a plain-English `REPORT.md`, and tells you
 whether the change is safe to merge.
 
-## The 4 verbs
+## The verbs
+
+**Primary — the 1.0 front surface. Start here:**
 
 | Verb | What it does |
 |---|---|
 | `check` | Probe environment readiness (Node version, git repo, etc.) |
-| `verify-pr` | Scan working-tree diff. Produce REPORT.md + .nekowork/decision.json |
-| `report` | Session-based compatibility command. Requires `--session <id>` and renders that session's evidence to REPORT.md. The normal `verify-pr` path already writes REPORT.md directly — you don't need `report` for it. |
-| `apply` | Session-based compatibility apply. Requires a completed work cycle (SHIP_READY marker + cleared Human Gate). NOT driven by verify-pr's decision.json. See [ADVANCED.md](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/ADVANCED.md). |
+| `verify-pr` | Scan the working-tree diff. Produce REPORT.md + .nekowork/decision.json |
+
+**Compatibility — session-based (legacy/advanced; not needed for the normal flow):**
+
+| Verb | What it does |
+|---|---|
+| `report --session <id>` | Render that session's evidence to REPORT.md. The normal `verify-pr` path already writes REPORT.md directly — you don't need `report` for it. |
+| `apply --session <id>` | Apply a stored `.diff`. Requires a completed work cycle (SHIP_READY marker + cleared Human Gate). NOT driven by verify-pr's decision.json. See [ADVANCED.md](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/ADVANCED.md). |
 
 Anything else (`ask`, `plan`, `team`, `work`, `ship`, `build`, `auto`,
 `pr-prep`, `review`, ...) belongs to `@ps-neko/nekowork-harness` (legacy and
