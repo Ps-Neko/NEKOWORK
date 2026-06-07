@@ -1,4 +1,5 @@
-// Intraprocedural const/taint propagation + dangerous-sink detection.
+// Inter-procedural (intra-module) const/taint propagation + dangerous-sink
+// detection.
 //
 // Goal: catch the variable-mediated injection forms the line-oriented regex
 // rules provably miss, WITHOUT introducing a single false positive. A naive
@@ -19,9 +20,33 @@
 // binding is CONST-SAFE iff EVERY assignment to it (declarator init +
 // reassignments) is a const-safe string; any non-const-safe assignment, or a
 // reassignment we can't see as const-safe, makes it DYNAMIC. Function PARAMETERS
-// are always dynamic. Analysis is strictly intraprocedural: a value returned
-// from another function call is dynamic (we never chase across calls — that is
-// where FPs come from).
+// are always dynamic.
+//
+// Inter-procedural upgrade (intra-module only — never crosses files):
+//   1. Arg-sensitive local-function return-taint resolution. When a sink
+//      argument is a CallExpression to a function DEFINED in this module
+//      (FunctionDeclaration or const = FunctionExpression/Arrow), the function's
+//      return expression(s) are evaluated with its params BOUND to the call
+//      site's argument classifications, recovering both the dynamic flag and the
+//      static SQL text. This makes
+//        function build(x){ return "SELECT "+x } db.query(build(req.id))   // FLAG
+//      while keeping
+//        function build(){ return "SELECT 1" } db.query(build())          // clean
+//        function id(x){ return x }            db.query(id("SELECT 1"))   // clean
+//      The resolver is guarded by a visited-set (cycle guard) and a depth limit
+//      (~6). Unknown / non-local calls stay structurally dynamic with NO
+//      recovered text, so the SQL-keyword gate still protects against FPs. The
+//      resolution is ADDITIVE: it can only turn a clean SQL sink into a finding
+//      (by recovering SQL text from a helper) — it never clears an existing one.
+//   2. Sink-alias resolution. A module binding `const X = <obj>.<sinkMethod>`
+//      (query/execute/raw → sql alias; exec/execSync → shell alias), where X is a
+//      simple const not reassigned, makes a later `X(arg)` call get the same
+//      dynamic + SQL-keyword + parameterized treatment as the underlying sink.
+//      `const run = console.log; run(...)` is NOT a sink (console.log is not a
+//      tracked sink method).
+//
+// Both upgrades inherit the same FP guards (const-propagation, SQL-keyword gate,
+// params-array exemption), so they hold the FP=0 benchmark gate.
 
 import { parseToAst, walk } from './parse.js';
 
@@ -40,6 +65,221 @@ const CP_SHELL_EXEC = new Set(['exec', 'execSync']);
 // child_process methods that take (command, args[]) and only become injectable
 // when shell:true is set AND the command is dynamic.
 const CP_SPAWN = new Set(['spawn', 'spawnSync', 'execFile', 'execFileSync']);
+
+// Inter-procedural resolution guards.
+const IP_DEPTH_LIMIT = 6; // max local-call resolution depth (cycle/runaway guard)
+
+/**
+ * Collect LOCALLY-DEFINED functions by name (module + nested scopes; last wins,
+ * matching JS hoisting/redeclaration for our conservative best-effort). A name
+ * here resolves to a FunctionDeclaration node, or the FunctionExpression/Arrow
+ * bound by `const f = () => …`. Used by the arg-sensitive return-taint resolver.
+ *
+ * @param {object} ast Program node
+ * @returns {Map<string, object>} name → function node
+ */
+function collectLocalFns(ast) {
+  const fns = new Map();
+  walk(ast, (n) => {
+    if (n.type === 'FunctionDeclaration' && n.id && n.id.type === 'Identifier') {
+      fns.set(n.id.name, n);
+    } else if (n.type === 'VariableDeclaration') {
+      for (const d of n.declarations) {
+        if (
+          d.id.type === 'Identifier' &&
+          d.init &&
+          (d.init.type === 'FunctionExpression' || d.init.type === 'ArrowFunctionExpression')
+        ) {
+          fns.set(d.id.name, d.init);
+        }
+      }
+    }
+  });
+  return fns;
+}
+
+/**
+ * Collect SINK ALIASES: a module binding `const X = <obj>.<sinkMethod>` where
+ * sinkMethod ∈ query/execute/raw (→ sql alias) or exec/execSync (→ shell alias).
+ * Only a SIMPLE const Identifier binding that is NEVER reassigned qualifies (a
+ * reassigned binding cannot be trusted to still point at the sink). A later
+ * `X(arg)` call is then treated as the underlying sink. `const run=console.log`
+ * is ignored (console.log is not a tracked sink method).
+ *
+ * @param {object} ast Program node
+ * @returns {Map<string, {kind:'sql'|'shell', method:string}>}
+ */
+function collectSinkAliases(ast) {
+  const candidates = new Map(); // name → {kind, method}
+  const reassigned = new Set(); // names reassigned anywhere → disqualified
+  walk(ast, (n) => {
+    if (n.type === 'VariableDeclaration') {
+      for (const d of n.declarations) {
+        if (
+          d.id.type === 'Identifier' &&
+          d.init &&
+          d.init.type === 'MemberExpression' &&
+          d.init.property.type === 'Identifier' &&
+          !d.init.computed
+        ) {
+          const method = d.init.property.name;
+          // Only `const` declarations qualify (let/var can be reassigned to a
+          // non-sink; const cannot be rebound).
+          if (n.kind !== 'const') continue;
+          if (SQL_SINKS.has(method)) candidates.set(d.id.name, { kind: 'sql', method });
+          else if (CP_SHELL_EXEC.has(method)) candidates.set(d.id.name, { kind: 'shell', method });
+        }
+      }
+    } else if (n.type === 'AssignmentExpression' && n.left.type === 'Identifier') {
+      reassigned.add(n.left.name);
+    }
+  });
+  for (const name of reassigned) candidates.delete(name);
+  return candidates;
+}
+
+/**
+ * Collect the return expressions of a function node. For an arrow with an
+ * expression body the body itself is the (single) return. For a block body we
+ * gather every ReturnStatement argument, NOT descending into nested functions
+ * (a nested closure's return is not this function's return value).
+ *
+ * @param {object} fn FunctionDeclaration | FunctionExpression | ArrowFunctionExpression
+ * @returns {object[]} return-value expressions
+ */
+function returnsOf(fn) {
+  if (fn.type === 'ArrowFunctionExpression' && fn.body.type !== 'BlockStatement') {
+    return [fn.body];
+  }
+  const out = [];
+  const recurse = (node) => {
+    if (!node || typeof node.type !== 'string') return;
+    if (node.type === 'ReturnStatement') {
+      if (node.argument) out.push(node.argument);
+      return;
+    }
+    // Do not descend into a NESTED function — its returns are not ours.
+    if (FN_TYPES.has(node.type)) return;
+    for (const key of Object.keys(node)) {
+      if (key === 'loc' || key === 'start' || key === 'end' || key === 'range' || key === '__parent') continue;
+      const v = node[key];
+      if (Array.isArray(v)) {
+        for (const c of v) if (c && typeof c.type === 'string') recurse(c);
+      } else if (v && typeof v.type === 'string') {
+        recurse(v);
+      }
+    }
+  };
+  recurse(fn.body);
+  return out;
+}
+
+/**
+ * Arg-sensitive evaluator: classify an expression's { dynamic, text } where
+ * `text` is the recovered static string (used by the SQL-keyword gate). `env`
+ * maps a parameter name → its already-computed { dynamic, text } at the call
+ * site. This is the inter-procedural core: a CallExpression to a LOCAL function
+ * is resolved by binding its params to the call arguments' classifications and
+ * evaluating its return expression(s).
+ *
+ * Conservative leaves (mirror the prototype): a bare unknown Identifier and a
+ * MemberExpression contribute NO text; an unknown/non-local call is structurally
+ * dynamic with NO text (so the SQL-keyword gate still guards FPs).
+ *
+ * @param {object} node
+ * @param {Map<string,{dynamic:boolean,text:string}>} env param bindings
+ * @param {Map<string,object>} fns local-function map
+ * @param {number} depth current recursion depth
+ * @param {Set<string>} seen function names on the active call stack (cycle guard)
+ * @returns {{dynamic:boolean, text:string}}
+ */
+function evalExpr(node, env, fns, depth, seen) {
+  if (!node || depth > IP_DEPTH_LIMIT) return { dynamic: depth > IP_DEPTH_LIMIT, text: '' };
+  switch (node.type) {
+    case 'Literal':
+      return { dynamic: false, text: typeof node.value === 'string' ? node.value : '' };
+    case 'TemplateLiteral': {
+      const text = node.quasis
+        .map((q) => (q.value && q.value.cooked != null ? q.value.cooked : q.value.raw || ''))
+        .join(' ');
+      const dyn = node.expressions.some((e) => evalExpr(e, env, fns, depth + 1, seen).dynamic);
+      return { dynamic: node.expressions.length > 0 && dyn, text };
+    }
+    case 'BinaryExpression': {
+      if (node.operator !== '+') return { dynamic: false, text: '' };
+      const l = evalExpr(node.left, env, fns, depth + 1, seen);
+      const r = evalExpr(node.right, env, fns, depth + 1, seen);
+      return { dynamic: l.dynamic || r.dynamic, text: l.text + ' ' + r.text };
+    }
+    case 'TaggedTemplateExpression':
+      return evalExpr(node.quasi, env, fns, depth + 1, seen);
+    case 'ParenthesizedExpression':
+      return evalExpr(node.expression, env, fns, depth + 1, seen);
+    case 'Identifier': {
+      if (env.has(node.name)) return env.get(node.name);
+      // Unknown bare identifier: conservative — not dynamic-flaggable, no text.
+      return { dynamic: false, text: '' };
+    }
+    case 'CallExpression': {
+      const callee = node.callee;
+      const name = callee.type === 'Identifier' ? callee.name : null;
+      if (name && fns.has(name) && !seen.has(name)) {
+        const fn = fns.get(name);
+        const argEnv = new Map();
+        (fn.params || []).forEach((p, i) => {
+          if (p.type === 'Identifier') {
+            const arg = node.arguments[i];
+            argEnv.set(
+              p.name,
+              arg ? evalExpr(arg, env, fns, depth + 1, seen) : { dynamic: false, text: '' },
+            );
+          }
+        });
+        const seen2 = new Set(seen);
+        seen2.add(name);
+        let dynamic = false;
+        let text = '';
+        for (const ret of returnsOf(fn)) {
+          const v = evalExpr(ret, argEnv, fns, depth + 1, seen2);
+          dynamic = dynamic || v.dynamic;
+          text += ' ' + v.text;
+        }
+        return { dynamic, text };
+      }
+      // Unknown / non-local / recursive call → structurally dynamic, no text.
+      return { dynamic: true, text: '' };
+    }
+    default:
+      // MemberExpression (req.body.x), AwaitExpression, etc. — runtime value,
+      // but no statically recoverable text.
+      return { dynamic: true, text: '' };
+  }
+}
+
+/**
+ * Build the enclosing-scope param env for a node: every parameter of an
+ * enclosing function is dynamic (external/runtime). This seeds evalExpr so a
+ * sink-arg call like `db.query(build(req.id))` inside `function h(req){…}` knows
+ * `req` is dynamic. Mirrors the prototype's enclosingEnv via the __parent chain.
+ *
+ * @param {object} node a CallExpression sink node
+ * @returns {Map<string,{dynamic:boolean,text:string}>}
+ */
+function enclosingParamEnv(node) {
+  const env = new Map();
+  let n = node.__parent;
+  while (n) {
+    if (FN_TYPES.has(n.type) && Array.isArray(n.params)) {
+      for (const p of n.params) {
+        for (const name of patternNames(p)) {
+          if (!env.has(name)) env.set(name, { dynamic: true, text: '' });
+        }
+      }
+    }
+    n = n.__parent;
+  }
+  return env;
+}
 
 /**
  * Scope: a binding map + parent link. `bindings` maps name → { dynamic: bool }.
@@ -351,18 +591,36 @@ export function analyze(code, file, opts = {}) {
   annotateParents(ast);
   const scopeOf = buildScopes(ast);
 
+  // Inter-procedural (intra-module) maps: local functions for arg-sensitive
+  // return-taint resolution, and sink aliases for `const X = obj.query` etc.
+  const ipCtx = { fns: collectLocalFns(ast), aliases: collectSinkAliases(ast) };
+
   const findings = [];
   const line = (n) => (n.loc ? n.loc.start.line : 0);
 
   walk(ast, (node) => {
     if (node.type === 'CallExpression') {
-      handleCall(node, scopeOf, file, line, findings);
+      handleCall(node, scopeOf, file, line, findings, ipCtx);
     } else if (node.type === 'NewExpression') {
       handleNew(node, scopeOf, file, line, findings);
     }
   });
 
   return { parsed: true, findings: dedupe(findings) };
+}
+
+/**
+ * Arg-sensitive inter-procedural resolution of a sink argument that is a CALL to
+ * a local function. Returns the recovered { dynamic, text } so the caller can
+ * apply the SAME dynamic + SQL-keyword gate it uses for intraprocedural values.
+ * Returns null when the argument is not a local-function call (the caller then
+ * keeps the existing intraprocedural classification — purely additive).
+ */
+function resolveLocalCallArg(arg, node, ipCtx) {
+  if (!arg || arg.type !== 'CallExpression') return null;
+  if (!(arg.callee.type === 'Identifier' && ipCtx.fns.has(arg.callee.name))) return null;
+  const env = enclosingParamEnv(node);
+  return evalExpr(arg, env, ipCtx.fns, 0, new Set());
 }
 
 /** Resolve the binding scope that ENCLOSES a given node (its nearest function
@@ -379,7 +637,7 @@ function scopeForNode(scopeOf, node) {
   return makeScope(null);
 }
 
-function handleCall(node, scopeOf, file, line, findings) {
+function handleCall(node, scopeOf, file, line, findings, ipCtx) {
   const callee = node.callee;
   const scope = scopeForNode(scopeOf, node);
   const args = node.arguments || [];
@@ -417,6 +675,20 @@ function handleCall(node, scopeOf, file, line, findings) {
         findings.push(sqlFinding(file, line(node), node));
         return;
       }
+      // INTER-PROCEDURAL (additive): the intraprocedural path above recovers NO
+      // SQL text from a CallExpression arg. If arg0 is a call to a LOCAL helper,
+      // resolve its return arg-sensitively; flag only when the recovered value
+      // is dynamic AND carries a real SQL keyword AND the call is not
+      // parameterized. A const-returning helper or an identity-fn(constant) stays
+      // clean (no dynamic / no recovered keyword); a non-SQL helper stays clean
+      // (keyword gate).
+      if (ipCtx && arg0) {
+        const ip = resolveLocalCallArg(arg0, node, ipCtx);
+        if (ip && ip.dynamic && SQL_KW_RE.test(ip.text) && !isParameterized(node, arg0, scope)) {
+          findings.push(sqlFinding(file, line(node), node));
+          return;
+        }
+      }
     }
 
     // child_process exec / execSync with a dynamic command string.
@@ -434,6 +706,34 @@ function handleCall(node, scopeOf, file, line, findings) {
       if (arg0 && isDynamic(arg0, scope) && hasShellTrue(args, scope)) {
         findings.push(cmdFinding(file, line(node), node, 'critical'));
         return;
+      }
+    }
+  }
+
+  // SINK ALIAS (inter-procedural): `const X = obj.query` / `const X = cp.execSync`
+  // makes a later `X(arg)` call the same sink. Apply the SAME guards as the
+  // underlying member sink (dynamic + SQL-keyword + parameterized for sql;
+  // dynamic for shell). The arg may itself be a local-function call, so reuse the
+  // inter-procedural resolver. `const run=console.log; run(...)` is not an alias
+  // (console.log is not a tracked sink method) and never reaches here.
+  if (callee.type === 'Identifier' && ipCtx && ipCtx.aliases.has(callee.name)) {
+    const alias = ipCtx.aliases.get(callee.name);
+    const arg0 = args[0];
+    if (arg0) {
+      const ip = resolveLocalCallArg(arg0, node, ipCtx);
+      const dynamic = ip ? ip.dynamic : isDynamic(arg0, scope);
+      if (alias.kind === 'shell') {
+        if (dynamic) {
+          findings.push(cmdFinding(file, line(node), node, 'critical'));
+          return;
+        }
+      } else {
+        // sql alias: dynamic + real SQL keyword + not parameterized.
+        const text = ip ? ip.text : collectStaticText(arg0, scope, new Set());
+        if (dynamic && SQL_KW_RE.test(text) && !isParameterized(node, arg0, scope)) {
+          findings.push(sqlFinding(file, line(node), node));
+          return;
+        }
       }
     }
   }
