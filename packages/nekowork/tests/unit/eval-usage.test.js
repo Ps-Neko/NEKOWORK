@@ -82,6 +82,34 @@ test('window.location / *.eval lookalikes: not flagged', () => {
   assert.equal(f.length, 0);
 });
 
+// --- Python ---
+
+test('python eval(variable): high (eval-call token is language-agnostic)', () => {
+  const f = scanFileContent('x.py', 'result = eval(expression)');
+  assert.ok(f.some(t => t.pattern === 'eval-call' && t.severity === 'high'));
+});
+
+test('python exec(variable / f-string): high', () => {
+  assert.ok(scanFileContent('x.py', 'exec(code)').some(t => t.pattern === 'exec-call' && t.severity === 'high'));
+  assert.ok(scanFileContent('x.py', 'exec(f"{name} = {value}")').some(t => t.pattern === 'exec-call'));
+  assert.ok(scanFileContent('x.py', 'exec("x = " + val)').some(t => t.pattern === 'exec-call'));
+});
+
+test('python ast.literal_eval (the SAFE alternative): not flagged', () => {
+  assert.equal(scanFileContent('x.py', 'ast.literal_eval(raw)').length, 0);
+  assert.equal(scanFileContent('x.py', 'literal_eval(raw)').length, 0);
+});
+
+test('python static eval / exec literal: not flagged', () => {
+  assert.equal(scanFileContent('x.py', 'eval("1 + 1")').length, 0);
+  assert.equal(scanFileContent('x.py', 'exec("pass")').length, 0);
+});
+
+test('exec member calls (RegExp.exec / cursor.exec): not flagged by exec-call', () => {
+  assert.ok(!scanFileContent('x.js', '/(\\d+)/.exec(input);').some(t => t.pattern === 'exec-call'));
+  assert.ok(!scanFileContent('x.js', 'cursor.exec(query);').some(t => t.pattern === 'exec-call'));
+});
+
 test('fixture manifest: recall + FP gate', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(FIXTURE_ROOT, 'manifest.json'), 'utf8'));
   let posCaught = 0, posTotal = 0, fp = 0, negTotal = 0;

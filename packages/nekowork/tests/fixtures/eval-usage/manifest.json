@@ -2,7 +2,7 @@
   "fixture_set": "eval-usage",
   "schema_version": "0.1",
   "generated_at": "2026-06-07",
-  "notes": "F1: dynamic code execution (eval / new Function). High severity injection/RCE vector. fpMode any — there is no acceptable eval finding, so any finding on a negative is an FP. Static-literal eval and comment/identifier mentions must not fire.",
+  "notes": "F1: dynamic code execution (eval / new Function). High severity injection/RCE vector. Multi-language (R3): Python eval() (caught by the language-agnostic eval-call token) and the Python exec() builtin (exec-call). fpMode any — there is no acceptable eval finding, so any finding on a negative is an FP. Static-literal eval/exec, comment/identifier mentions, and the SAFE ast.literal_eval must not fire.",
   "targets": {
     "any_detection_recall": 0.95,
     "fp_rate": 0.1
@@ -200,6 +200,45 @@
       "expected_findings": [],
       "added_at": "2026-06-07",
       "notes": "R2-10 FP guard: JSON.parse + static template literal — safe data handling, no eval."
+    },
+    {
+      "id": "ev-pos-010",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/010-py-eval-variable.py",
+      "pattern": "eval-call",
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "Python eval(expression) — caught by the language-agnostic eval-call token."
+    },
+    {
+      "id": "ev-pos-011",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/011-py-exec-variable.py",
+      "pattern": "exec-call",
+      "expected_findings": [
+        {
+          "rule": "eval-usage",
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "Python exec(code) / exec(f-string) — the exec-call builtin pattern."
+    },
+    {
+      "id": "ev-neg-007",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/007-py-literal-eval-and-static.py",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: ast.literal_eval (the SAFE alternative) + static eval('1 + 1') + static exec('pass')."
     },
     {
       "id": "eval-pos-oss-01",

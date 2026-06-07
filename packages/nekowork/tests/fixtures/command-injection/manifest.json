@@ -2,7 +2,7 @@
   "fixture_set": "command-injection",
   "schema_version": "0.1",
   "generated_at": "2026-06-07",
-  "notes": "R2-9b: OS command injection via concatenation / template interpolation into exec/execSync, or spawn with shell:true + dynamic command. fpMode any — array-arg spawn/execFile, static-literal exec, RegExp.exec, and bare-variable exec must produce NO finding. All SYNTHETIC.",
+  "notes": "R2-9b: OS command injection via concatenation / template interpolation into exec/execSync, or spawn with shell:true + dynamic command. Multi-language (R3): Python subprocess(shell=True)/os.system/os.popen with dynamic commands, and Go exec.Command(sh,-c,<dynamic>). fpMode any — array-arg spawn/execFile, static-literal exec, RegExp.exec, bare-variable exec, Python list-arg subprocess / shell=False / static os.system, and Go exec.Command arg-array must produce NO finding. All SYNTHETIC.",
   "targets": {
     "any_detection_recall": 0.95,
     "fp_rate": 0.1
@@ -151,6 +151,84 @@
       "expected_findings": [],
       "added_at": "2026-06-07",
       "notes": "FP guard: spawn array args + shell:false."
+    },
+    {
+      "id": "ci-pos-007",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/007-py-subprocess-shell-true.py",
+      "pattern": "py-subprocess-shell-true",
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "Python subprocess.run(f\"git checkout {branch}\", shell=True) -> critical."
+    },
+    {
+      "id": "ci-pos-008",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/008-py-os-system.py",
+      "pattern": "py-os-system",
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "Python os.system('rm -rf ' + path) -> critical."
+    },
+    {
+      "id": "ci-pos-009",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/009-py-os-popen.py",
+      "pattern": "py-os-popen",
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "Python os.popen(f\"ls -la {directory}\")."
+    },
+    {
+      "id": "ci-pos-010",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/010-go-exec-shell-c.go",
+      "pattern": "go-exec-shell-c",
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "Go exec.Command(\"sh\", \"-c\", fmt.Sprintf(\"tar ... %s\", name)) -> critical."
+    },
+    {
+      "id": "ci-neg-007",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/007-py-subprocess-list.py",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: Python subprocess list args, shell=False, static os.system."
+    },
+    {
+      "id": "ci-neg-008",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/008-go-exec-array.go",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: Go exec.Command real binary + arg array (no sh -c)."
     },
     {
       "id": "cmd-pos-oss-01",
