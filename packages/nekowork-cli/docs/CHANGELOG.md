@@ -9,7 +9,7 @@
 
 ## [0.2.0-alpha.8] - 2026-06-07
 
-Engine enhancement (not yet published; `@alpha` on npm is still `0.2.0-alpha.7`).
+Published slim release. The published `@alpha` on npm is now `0.2.0-alpha.8`, shipping the inter-procedural `ast-dataflow` engine described below.
 
 ### Changed
 - `ast-dataflow` upgraded from **intraprocedural to inter-procedural (intra-module)** taint: an arg-sensitive evaluator resolves the return value of LOCAL helper functions and follows it into a sink, and **sink aliasing** is resolved (`const run = cp.execSync; run("rm " + x)` is now caught). Catches cross-function injection (`function build(x){return "SELECT "+x} db.query(build(req.id))`) the single-function engine missed — closing the "sink aliased to a local variable" bypass. Cycle-guarded + depth-limited; still conservative (FP=0): identity helpers called with constants, parameterized queries inside helpers, and aliases to non-sinks (`console.log`) stay clean. ast-dataflow fixtures 24→30 positives, 0 FP.
