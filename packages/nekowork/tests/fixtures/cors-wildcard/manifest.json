@@ -5,7 +5,7 @@
   "notes": "F3: permissive CORS (wildcard origin). MEDIUM for bare wildcard, HIGH when combined with credentials. fpMode any — benign explicit-origin CORS config must produce NO finding at all (validates FP avoidance). Severity escalation is content-sensitive (credentials present in the scanned block).",
   "targets": {
     "any_detection_recall": 0.95,
-    "fp_rate": 0.10
+    "fp_rate": 0.1
   },
   "entries": [
     {
@@ -14,7 +14,13 @@
       "source": "synthetic",
       "file": "positive/001-set-header-wildcard.js",
       "pattern": "acao-set-header-wildcard",
-      "expected_findings": [{ "rule": "cors-wildcard", "line": 4, "severity": "medium" }],
+      "expected_findings": [
+        {
+          "rule": "cors-wildcard",
+          "line": 4,
+          "severity": "medium"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "res.setHeader('Access-Control-Allow-Origin','*') with no credentials → medium."
     },
@@ -24,7 +30,12 @@
       "source": "synthetic",
       "file": "positive/002-cors-mw-credentials.js",
       "pattern": "cors-mw-wildcard-origin",
-      "expected_findings": [{ "rule": "cors-wildcard", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "cors-wildcard",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "cors({ origin: '*', credentials: true }) → high (wildcard + credentials)."
     },
@@ -34,7 +45,12 @@
       "source": "synthetic",
       "file": "positive/003-config-wildcard-credentials.js",
       "pattern": "acao-config-wildcard",
-      "expected_findings": [{ "rule": "cors-wildcard", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "cors-wildcard",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "config { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': 'true' } → high."
     },
@@ -62,7 +78,12 @@
       "source": "synthetic",
       "file": "positive/004-django-allow-all.py",
       "pattern": "django-cors-allow-all",
-      "expected_findings": [{ "rule": "cors-wildcard", "line": 2 }],
+      "expected_findings": [
+        {
+          "rule": "cors-wildcard",
+          "line": 2
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "R2-8 Django CORS_ALLOW_ALL_ORIGINS = True."
     },
@@ -72,7 +93,12 @@
       "source": "synthetic",
       "file": "positive/005-fastapi-allow-origins.py",
       "pattern": "fastapi-allow-origins-wildcard",
-      "expected_findings": [{ "rule": "cors-wildcard", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "cors-wildcard",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "R2-8 FastAPI CORSMiddleware allow_origins=['*'] + allow_credentials=True → high."
     },
@@ -82,7 +108,12 @@
       "source": "synthetic",
       "file": "positive/006-flask-after-request-wildcard.js",
       "pattern": "acao-set-header-wildcard",
-      "expected_findings": [{ "rule": "cors-wildcard", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "cors-wildcard",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "R2-10 diversity: raw wildcard ACAO header + credentials set on every response → high."
     },
@@ -112,6 +143,102 @@
       "expected_findings": [],
       "added_at": "2026-06-07",
       "notes": "R2-10 FP guard: reflected origin from an allow-list Set, no wildcard."
+    },
+    {
+      "id": "cors-pos-oss-01",
+      "label": "positive",
+      "source": "github:devbridge/Styleguide@9e42cab180faecf0babe97f112f110e4e4bc5a2d:app.js",
+      "file": "positive/oss-01-acao-header-wildcard-styleguide.js",
+      "pattern": "acao-set-header-wildcard",
+      "expected_findings": [
+        {
+          "rule": "cors-wildcard",
+          "line": 22,
+          "severity": "medium"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "cors-pos-oss-02",
+      "label": "positive",
+      "source": "github:vmkul/db-coursework@645a6da4bec05129d0cec85d6d41fd13d2fb437b:api.js",
+      "file": "positive/oss-02-acao-header-wildcard-fastify.js",
+      "pattern": "acao-set-header-wildcard",
+      "expected_findings": [
+        {
+          "rule": "cors-wildcard",
+          "line": 24,
+          "severity": "medium"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "cors-pos-oss-03",
+      "label": "positive",
+      "source": "github:Janebrenna27/AI-Resume-Screener@c89ff20a86b867a5df6d6e65a93bded1c0c1a069:backend/urls.py",
+      "file": "positive/oss-03-django-cors-allow-all-resume.py",
+      "pattern": "django-cors-allow-all",
+      "expected_findings": [
+        {
+          "rule": "cors-wildcard",
+          "line": 36,
+          "severity": "medium"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "cors-pos-oss-04",
+      "label": "positive",
+      "source": "github:scriptvolutionary/kron-tm-scheme-backend-web@59900da161b269eaa9959ce838cf0965eff17367:api/settings.py",
+      "file": "positive/oss-04-django-cors-allow-all-kron.py",
+      "pattern": "django-cors-allow-all",
+      "expected_findings": [
+        {
+          "rule": "cors-wildcard",
+          "line": 6,
+          "severity": "medium"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "cors-pos-oss-05",
+      "label": "positive",
+      "source": "github:ribahi-dev/salma@3d8774025330603a396be2f433f86db296ab3d9c:core/spy.py",
+      "file": "positive/oss-05-django-cors-allow-all-salma.py",
+      "pattern": "django-cors-allow-all",
+      "expected_findings": [
+        {
+          "rule": "cors-wildcard",
+          "line": 121,
+          "severity": "medium"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "cors-pos-oss-06",
+      "label": "positive",
+      "source": "github:jgonzalez-89/django-recruiting@dfd67b6fd6b456b11413976853931b9415f95fc3:api/settings.py",
+      "file": "positive/oss-06-django-cors-allow-all-recruiting.py",
+      "pattern": "django-cors-allow-all",
+      "expected_findings": [
+        {
+          "rule": "cors-wildcard",
+          "line": 32,
+          "severity": "medium"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
     }
   ]
 }

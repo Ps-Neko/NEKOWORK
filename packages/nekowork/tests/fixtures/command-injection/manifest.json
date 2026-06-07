@@ -5,7 +5,7 @@
   "notes": "R2-9b: OS command injection via concatenation / template interpolation into exec/execSync, or spawn with shell:true + dynamic command. fpMode any — array-arg spawn/execFile, static-literal exec, RegExp.exec, and bare-variable exec must produce NO finding. All SYNTHETIC.",
   "targets": {
     "any_detection_recall": 0.95,
-    "fp_rate": 0.10
+    "fp_rate": 0.1
   },
   "entries": [
     {
@@ -14,7 +14,12 @@
       "source": "synthetic",
       "file": "positive/001-exec-concat.js",
       "pattern": "exec-concat",
-      "expected_findings": [{ "rule": "command-injection", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "exec('ping -c 1 ' + host)."
     },
@@ -24,7 +29,12 @@
       "source": "synthetic",
       "file": "positive/002-execsync-template.js",
       "pattern": "exec-template",
-      "expected_findings": [{ "rule": "command-injection", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "execSync(`rm -rf ${path}`)."
     },
@@ -34,7 +44,12 @@
       "source": "synthetic",
       "file": "positive/003-spawn-shell-true.js",
       "pattern": "spawn-shell-true-concat",
-      "expected_findings": [{ "rule": "command-injection", "severity": "critical" }],
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "severity": "critical"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "spawn(`sh -c ${cmd}`, { shell: true }) → critical."
     },
@@ -44,7 +59,12 @@
       "source": "synthetic",
       "file": "positive/004-exec-concat-archive.js",
       "pattern": "exec-concat",
-      "expected_findings": [{ "rule": "command-injection", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "exec('tar czf ' + name + '.tgz ...')."
     },
@@ -54,7 +74,12 @@
       "source": "synthetic",
       "file": "positive/005-execsync-concat-git.js",
       "pattern": "exec-concat",
-      "expected_findings": [{ "rule": "command-injection", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "execSync('git checkout ' + branch)."
     },
@@ -64,7 +89,12 @@
       "source": "synthetic",
       "file": "positive/006-exec-template-curl.js",
       "pattern": "exec-template",
-      "expected_findings": [{ "rule": "command-injection", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "exec(`curl -fsSL ${url} -o /tmp/out`)."
     },
@@ -121,6 +151,117 @@
       "expected_findings": [],
       "added_at": "2026-06-07",
       "notes": "FP guard: spawn array args + shell:false."
+    },
+    {
+      "id": "cmd-pos-oss-01",
+      "label": "positive",
+      "source": "github:MJunaidAhmad/multitenant-migration-cli@d4a012e4e2c04b3c8be15d4012864dd3c5dd4755:index.js",
+      "file": "positive/oss-01-exec-concat-migration.js",
+      "pattern": "exec-concat",
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "line": 25,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "cmd-pos-oss-02",
+      "label": "positive",
+      "source": "github:yatyricky/Zulaman-WE@4b486c3c45555b307a099d3d961fe49d840fa2b2:make.js",
+      "file": "positive/oss-02-exec-template-make.js",
+      "pattern": "exec-template",
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "line": 17,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "cmd-pos-oss-03",
+      "label": "positive",
+      "source": "github:azukaar/Cosmos-Server@59c561d686c8f9843b3e092b50f6346c481d8bbf:tag.js",
+      "file": "positive/oss-03-exec-template-cosmos.js",
+      "pattern": "exec-template",
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "line": 15,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "cmd-pos-oss-04",
+      "label": "positive",
+      "source": "github:step-security/ssh-agent@bac83f9986f5fabd74becee85840a70b6f3814c7:index.js",
+      "file": "positive/oss-04-exec-template-ssh-agent.js",
+      "pattern": "exec-template",
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "line": 112,
+          "severity": "high"
+        },
+        {
+          "rule": "command-injection",
+          "line": 113,
+          "severity": "high"
+        },
+        {
+          "rule": "command-injection",
+          "line": 114,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "cmd-pos-oss-05",
+      "label": "positive",
+      "source": "github:tfxor/terrahub@b46330f667d2c84c8a4fe4fb48d26a335ae5bd95:bin/publish.js",
+      "file": "positive/oss-05-exec-template-terrahub.js",
+      "pattern": "exec-template",
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "line": 77,
+          "severity": "high"
+        },
+        {
+          "rule": "command-injection",
+          "line": 102,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "cmd-pos-oss-06",
+      "label": "positive",
+      "source": "github:hashgraph/guardian@cd44aaf852a58a2fe8ab7a9c4ac77fdc0d4ab924:dev.mjs",
+      "file": "positive/oss-06-spawn-shell-true-guardian.mjs",
+      "pattern": "spawn-shell-true-concat",
+      "expected_findings": [
+        {
+          "rule": "command-injection",
+          "line": 16,
+          "severity": "critical"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
     }
   ]
 }

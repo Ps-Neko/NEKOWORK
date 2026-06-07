@@ -5,7 +5,7 @@
   "notes": "F2: TLS certificate-verification disablement (MITM vector). High severity. fpMode any — disabling verification is never acceptable, so any finding on a negative is FP. Secure configs (rejectUnauthorized: true, verify=True/explicit CA) must not fire.",
   "targets": {
     "any_detection_recall": 0.95,
-    "fp_rate": 0.10
+    "fp_rate": 0.1
   },
   "entries": [
     {
@@ -14,7 +14,13 @@
       "source": "synthetic",
       "file": "positive/001-reject-unauthorized.js",
       "pattern": "reject-unauthorized-false",
-      "expected_findings": [{ "rule": "insecure-tls", "line": 5, "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "line": 5,
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "rejectUnauthorized: false."
     },
@@ -24,7 +30,13 @@
       "source": "synthetic",
       "file": "positive/002-node-tls-env.js",
       "pattern": "node-tls-reject-env",
-      "expected_findings": [{ "rule": "insecure-tls", "line": 2, "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "line": 2,
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "NODE_TLS_REJECT_UNAUTHORIZED = '0'."
     },
@@ -34,7 +46,13 @@
       "source": "synthetic",
       "file": "positive/003-python-verify-false.py",
       "pattern": "python-verify-false",
-      "expected_findings": [{ "rule": "insecure-tls", "line": 6, "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "line": 6,
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "requests.get(url, verify=False)."
     },
@@ -44,7 +62,13 @@
       "source": "synthetic",
       "file": "positive/004-python-unverified-context.py",
       "pattern": "python-unverified-context",
-      "expected_findings": [{ "rule": "insecure-tls", "line": 7, "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "line": 7,
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "ssl._create_unverified_context()."
     },
@@ -54,7 +78,13 @@
       "source": "synthetic",
       "file": "positive/005-go-insecure-skip.go",
       "pattern": "go-insecure-skip-verify",
-      "expected_findings": [{ "rule": "insecure-tls", "line": 7, "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "line": 7,
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "Go InsecureSkipVerify: true."
     },
@@ -82,7 +112,13 @@
       "source": "synthetic",
       "file": "positive/006-curl-insecure.sh",
       "pattern": "curl-insecure",
-      "expected_findings": [{ "rule": "insecure-tls", "line": 3, "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "line": 3,
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "R2-8 curl -k skips TLS verification."
     },
@@ -92,7 +128,13 @@
       "source": "synthetic",
       "file": "positive/007-curl-insecure-long.sh",
       "pattern": "curl-insecure",
-      "expected_findings": [{ "rule": "insecure-tls", "line": 3, "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "line": 3,
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "R2-8 curl --insecure (long flag) mid-command."
     },
@@ -102,7 +144,13 @@
       "source": "synthetic",
       "file": "positive/008-wget-no-check.sh",
       "pattern": "wget-no-check-certificate",
-      "expected_findings": [{ "rule": "insecure-tls", "line": 3, "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "line": 3,
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "R2-8 wget --no-check-certificate disables cert validation."
     },
@@ -112,7 +160,12 @@
       "source": "synthetic",
       "file": "positive/009-axios-agent.js",
       "pattern": "reject-unauthorized-false",
-      "expected_findings": [{ "rule": "insecure-tls", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "R2-10 diversity: axios httpsAgent with rejectUnauthorized: false."
     },
@@ -122,7 +175,12 @@
       "source": "synthetic",
       "file": "positive/010-httpx-verify-false.py",
       "pattern": "python-verify-false",
-      "expected_findings": [{ "rule": "insecure-tls", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "R2-10 diversity: httpx.Client(verify=False)."
     },
@@ -152,6 +210,107 @@
       "expected_findings": [],
       "added_at": "2026-06-07",
       "notes": "R2-10 FP guard: requests/httpx with explicit verify=True / CA path."
+    },
+    {
+      "id": "tls-pos-oss-01",
+      "label": "positive",
+      "source": "github:apru02/EventManagerBackend@78252f2d80bbfd36cb4e817651aae7273801b76a:db.js",
+      "file": "positive/oss-01-node-tls-reject-env-db.js",
+      "pattern": "node-tls-reject-env",
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "line": 2,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "tls-pos-oss-02",
+      "label": "positive",
+      "source": "github:itleaks/js4eos@c0c45c0a109920d835d52d0dadc25bb285ac333f:js4eos",
+      "file": "positive/oss-02-node-tls-reject-env-js4eos.txt",
+      "pattern": "node-tls-reject-env",
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "line": 11,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "tls-pos-oss-03",
+      "label": "positive",
+      "source": "github:HyeongJinK/A_Packpub_webcrawling@19764fcff9f16101db2c7f03ac196fe6eb5dd44d:menu.js",
+      "file": "positive/oss-03-node-tls-reject-env-crawler.js",
+      "pattern": "node-tls-reject-env",
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "line": 3,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "tls-pos-oss-04",
+      "label": "positive",
+      "source": "github:miksa007/Sustainable2025_ex@b2a8657f74fad810455d6cd65532fa3511572778:wind.py",
+      "file": "positive/oss-04-py-unverified-context-wind.py",
+      "pattern": "python-unverified-context",
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "line": 35,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "tls-pos-oss-05",
+      "label": "positive",
+      "source": "github:In3x0rabl3/OSEP@6a8cbfadfedb37be162454b8147fb3b4ba32ea39:host.py",
+      "file": "positive/oss-05-py-unverified-context-host.py",
+      "pattern": "python-unverified-context",
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "line": 13,
+          "severity": "high"
+        },
+        {
+          "rule": "insecure-tls",
+          "line": 36,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "tls-pos-oss-06",
+      "label": "positive",
+      "source": "github:Bond-o/vnum@74b7bed0641ee07a32f1e680c7cde162ddfc6ede:vnum.py",
+      "file": "positive/oss-06-py-unverified-context-vnum.py",
+      "pattern": "python-unverified-context",
+      "expected_findings": [
+        {
+          "rule": "insecure-tls",
+          "line": 158,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
     }
   ]
 }

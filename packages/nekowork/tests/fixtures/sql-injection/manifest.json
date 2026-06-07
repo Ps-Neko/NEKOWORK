@@ -5,7 +5,7 @@
   "notes": "R2-9a: SQL injection via concatenation / template interpolation of a variable into a query string passed to query/execute/raw. fpMode any — parameterized ($1/?/%s) and static SQL must produce NO finding. All SYNTHETIC. The keyword gate (SELECT/INSERT/UPDATE/DELETE/...) keeps generic .query() calls out.",
   "targets": {
     "any_detection_recall": 0.95,
-    "fp_rate": 0.10
+    "fp_rate": 0.1
   },
   "entries": [
     {
@@ -14,7 +14,12 @@
       "source": "synthetic",
       "file": "positive/001-concat-select.js",
       "pattern": "sql-concat",
-      "expected_findings": [{ "rule": "sql-injection", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "sql-injection",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "SELECT ... WHERE id = ' + req.params.id."
     },
@@ -24,7 +29,12 @@
       "source": "synthetic",
       "file": "positive/002-template-where.js",
       "pattern": "sql-template",
-      "expected_findings": [{ "rule": "sql-injection", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "sql-injection",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "Template literal LIKE '%${term}%'."
     },
@@ -34,7 +44,12 @@
       "source": "synthetic",
       "file": "positive/003-execute-delete.js",
       "pattern": "sql-concat",
-      "expected_findings": [{ "rule": "sql-injection", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "sql-injection",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "DELETE concat with embedded single quotes."
     },
@@ -44,7 +59,12 @@
       "source": "synthetic",
       "file": "positive/004-template-update.js",
       "pattern": "sql-template",
-      "expected_findings": [{ "rule": "sql-injection", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "sql-injection",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "UPDATE with two interpolated vars."
     },
@@ -54,7 +74,12 @@
       "source": "synthetic",
       "file": "positive/005-knex-raw.js",
       "pattern": "sql-template",
-      "expected_findings": [{ "rule": "sql-injection", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "sql-injection",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "knex.raw(`SELECT ... ${userId}`)."
     },
@@ -64,7 +89,12 @@
       "source": "synthetic",
       "file": "positive/006-insert-concat.py",
       "pattern": "sql-concat",
-      "expected_findings": [{ "rule": "sql-injection", "severity": "high" }],
+      "expected_findings": [
+        {
+          "rule": "sql-injection",
+          "severity": "high"
+        }
+      ],
       "added_at": "2026-06-07",
       "notes": "Python cursor.execute INSERT concat."
     },
@@ -121,6 +151,147 @@
       "expected_findings": [],
       "added_at": "2026-06-07",
       "notes": "FP guard: Python %s placeholders + params tuple."
+    },
+    {
+      "id": "sql-pos-oss-01",
+      "label": "positive",
+      "source": "github:bagussatoto/realtime@10663ee41e7443325af174cd180f54c09b101fc4:examples/next-js/pages/api/fetch/[table].js",
+      "file": "positive/oss-01-sql-template-table.js",
+      "pattern": "sql-template",
+      "expected_findings": [
+        {
+          "rule": "sql-injection",
+          "line": 19,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "sql-pos-oss-02",
+      "label": "positive",
+      "source": "github:Warriors-Army-Corp/warriors-bot-v2@7eaa0865ca16b73b7ecb217ddf12de0322a01d45:fonctions/checkGuildDB.js",
+      "file": "positive/oss-02-sql-template-guilddb.js",
+      "pattern": "sql-template",
+      "expected_findings": [
+        {
+          "rule": "sql-injection",
+          "line": 5,
+          "severity": "high"
+        },
+        {
+          "rule": "sql-injection",
+          "line": 12,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "sql-pos-oss-03",
+      "label": "positive",
+      "source": "github:GallantGazelles/PitchMe.io@708aaa847f3ac8a1039ffe6ff17b6f4b8ae9730b:server/db/Votes.js",
+      "file": "positive/oss-03-sql-template-votes.js",
+      "pattern": "sql-template",
+      "expected_findings": [
+        {
+          "rule": "sql-injection",
+          "line": 6,
+          "severity": "high"
+        },
+        {
+          "rule": "sql-injection",
+          "line": 9,
+          "severity": "high"
+        },
+        {
+          "rule": "sql-injection",
+          "line": 17,
+          "severity": "high"
+        },
+        {
+          "rule": "sql-injection",
+          "line": 21,
+          "severity": "high"
+        },
+        {
+          "rule": "sql-injection",
+          "line": 24,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "sql-pos-oss-04",
+      "label": "positive",
+      "source": "github:MJunaidAhmad/multitenant-migration-cli@d4a012e4e2c04b3c8be15d4012864dd3c5dd4755:index.js",
+      "file": "positive/oss-04-sql-concat-migration.js",
+      "pattern": "sql-concat",
+      "expected_findings": [
+        {
+          "rule": "sql-injection",
+          "line": 21,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "sql-pos-oss-05",
+      "label": "positive",
+      "source": "github:durs/node-activex@8cdae1053db066b21240ddbc88a81b72ce199257:examples/ado.js",
+      "file": "positive/oss-05-sql-concat-ado.js",
+      "pattern": "sql-concat",
+      "expected_findings": [
+        {
+          "rule": "sql-injection",
+          "line": 29,
+          "severity": "high"
+        },
+        {
+          "rule": "sql-injection",
+          "line": 30,
+          "severity": "high"
+        },
+        {
+          "rule": "sql-injection",
+          "line": 31,
+          "severity": "high"
+        },
+        {
+          "rule": "sql-injection",
+          "line": 34,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
+    },
+    {
+      "id": "sql-pos-oss-06",
+      "label": "positive",
+      "source": "github:fxding/greader@93bb80bb3ae1008d3713235e8f842895f1efbae9:app/render/app.js",
+      "file": "positive/oss-06-sql-concat-greader.js",
+      "pattern": "sql-concat",
+      "expected_findings": [
+        {
+          "rule": "sql-injection",
+          "line": 121,
+          "severity": "high"
+        },
+        {
+          "rule": "sql-injection",
+          "line": 132,
+          "severity": "high"
+        }
+      ],
+      "added_at": "2026-06-07",
+      "notes": "OSS-sourced real-world positive (scraped + verified)."
     }
   ]
 }
