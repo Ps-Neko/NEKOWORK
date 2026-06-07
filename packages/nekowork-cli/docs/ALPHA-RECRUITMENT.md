@@ -83,14 +83,14 @@ Rules (current scope):
 - Hardcoded Credential (provider signatures: AKIA, sk_live_, ghp_, xox-, AIza, PEM) — synthetic fixtures only
 - Test-Or-Security-Disable (it.skip, @ts-nocheck, file-wide eslint-disable)
 - Package-Lockfile-Risk (postinstall, curl|bash, git/tarball URL deps)
-- eval usage (`eval(...)`, `new Function(...)`) — synthetic fixtures only
-- Insecure TLS (`rejectUnauthorized: false`, `NODE_TLS_REJECT_UNAUTHORIZED=0`) — synthetic fixtures only
-- CORS wildcard (`Access-Control-Allow-Origin: *` on credentialed endpoints) — synthetic fixtures only
-- SQL injection (basic string-concat query shapes; regex-level only) — synthetic fixtures only
-- Command injection (basic user-input-into-shell shapes; regex-level only) — synthetic fixtures only
-- AST dataflow (intraprocedural taint for variable-mediated injection: assembled SQL/`eval`/shell across statements; AST-based, JS/TS only) — synthetic fixtures only
+- eval usage (`eval(...)`, `new Function(...)`) — 6 real OSS positives
+- Insecure TLS (`rejectUnauthorized: false`, `NODE_TLS_REJECT_UNAUTHORIZED=0`) — 6 real OSS positives
+- CORS wildcard (`Access-Control-Allow-Origin: *` on credentialed endpoints) — 6 real OSS positives
+- SQL injection (basic string-concat query shapes; regex-level only) — 6 real OSS positives
+- Command injection (basic user-input-into-shell shapes; regex-level only) — 6 real OSS positives
+- AST dataflow (inter-procedural intra-module taint for variable-mediated injection: assembled SQL/`eval`/shell across statements, local-helper returns, sink aliases; AST-based, JS/TS single-file only) — 6 real OSS positives
 
-All 11 rules currently sit at 100% recall / 0 false positives on their fixture corpus (184/184 positives, 0/120 negatives). Honest provenance: only secret-fallback carries real OSS + live-AI positives; the 7 newer rules (incl. the two basic injection rules and `ast-dataflow`) are validated by synthetic fixtures only. Ten rules are pure regex; `ast-dataflow` adds one tiny, well-known dependency (`acorn`, the JS parser — MIT, zero transitive dependencies). The published `@alpha` (`0.2.0-alpha.7`) now ships all 11 rules + acorn; the `latest` dist-tag is still a stale `0.2.0-alpha.0` (5 rules, zero deps), so install with `@alpha`. NEKOWORK is a deterministic risk-pattern gate, not an exhaustive security audit — most injection classes, cross-function/whole-program dataflow, auth flaws, and logic bugs are out of scope (see BENCHMARK.md "What is NOT covered").
+All 11 rules currently sit at 100% recall / 0 false positives on their fixture corpus (226/226 positives, 0/126 negatives). Honest provenance: ~82 real OSS positives now span the rules (30 on secret-fallback, which also carries the only live-AI captures; 6 each on the newer injection/AST rules after the OSS-fixture merge), and only `hardcoded-credential` stays synthetic-only by design. Synthetic share of positives is 62% — still above the ≤30% target. Ten rules are pure regex; `ast-dataflow` adds one tiny, well-known dependency (`acorn`, the JS parser — MIT, zero transitive dependencies). The published `@alpha` (`0.2.0-alpha.8`) now ships all 11 rules + acorn; the `latest` dist-tag is still a stale `0.2.0-alpha.0` (5 rules, zero deps), so install with `@alpha`. NEKOWORK is a deterministic risk-pattern gate, not an exhaustive security audit — most injection classes, cross-file/whole-program dataflow, auth flaws, and logic bugs are out of scope (see BENCHMARK.md "What is NOT covered").
 
 Quick try:
     npx -y @ps-neko/nekowork@alpha verify-pr

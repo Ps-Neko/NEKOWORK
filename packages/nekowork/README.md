@@ -14,7 +14,7 @@ intraprocedural (single-function, JS/TS); cross-function and whole-program dataf
 are out of scope. The verdict is deterministic (same diff, same result), and it never
 commits, pushes, or deploys on its own. **You** make the final call.
 
-> Note: the published `@alpha` (0.2.0-alpha.7) now ships all **11 rules** described
+> Note: the published `@alpha` (0.2.0-alpha.8) now ships all **11 rules** described
 > above (incl. eval, insecure TLS, CORS wildcard, SQL/command injection, AST dataflow)
 > and adds **one tiny, well-known dependency** (`acorn`, the JS parser — MIT, zero
 > transitive dependencies) for the AST engine. Always install with the **`@alpha`**
@@ -85,7 +85,7 @@ step — it is not triggered by `decision.json`.
 
 - [Quickstart](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/QUICKSTART.md)
 - [How verification works](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/SCOPE-1.0.md)
-- [Benchmark](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/BENCHMARK.md) — 11 rules, 184/184 (100%) recall, 0/120 FP; 30 real OSS positives on `secret-fallback`, the newer rules (incl. sql/command injection and `ast-dataflow`) are synthetic-only
+- [Benchmark](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/BENCHMARK.md) — 11 rules, 226/226 (100%) recall, 0/126 FP; ~82 real OSS positives across rules (incl. 30 on `secret-fallback`), synthetic share 62%; `hardcoded-credential` stays synthetic-only by design
 - [Integration](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/INTEGRATION.md)
 
 ## License
