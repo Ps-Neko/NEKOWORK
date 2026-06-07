@@ -110,6 +110,12 @@ classes, business-logic bugs, auth/authorization flaws) is still **out of scope*
 the [benchmark's "What is NOT covered"](packages/nekowork-cli/docs/BENCHMARK.md) for the
 exact boundary.
 
+> **Language coverage:** NEKOWORK is **primarily a JS/TS scanner**. The regex rules
+> add a **few representative Python and Go patterns** (e.g. `subprocess` git push,
+> `os.system`/`exec.Command`, `verify=False` / `InsecureSkipVerify`, `os.environ.get`
+> fallbacks) — useful samples, **not full multi-language support**. The AST dataflow
+> rule is JS/TS-only. Treat non-JS/TS coverage as best-effort pattern samples.
+
 Full technical scope: [SCOPE-1.0.md](packages/nekowork-cli/docs/SCOPE-1.0.md).
 
 ## What NEKOWORK Is Not

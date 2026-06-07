@@ -7,6 +7,20 @@
 ### Added
 - `verify-pr --include <path>` (repeatable): force-scan an explicit path even if it is gitignored. `git diff` / `ls-files --exclude-standard` skip gitignored build/codegen output; `--include` synthesizes those files as an all-added diff so risk rules see them. Directories are walked recursively (`node_modules`/`.git` skipped). (First external-user feedback — gitignored codegen output was invisible to the scan.)
 
+## [0.2.0-alpha.10] - 2026-06-08
+
+Not yet published; the `@alpha` on npm is still `0.2.0-alpha.9`. This version ships evidence-behavior and honest-framing changes from external (GPT) review feedback.
+
+### Added
+- Evidence package now records three new audit artifacts under `.nekowork/evidence/`: `diff.patch` (the raw unified diff the rules actually scanned, post self-output exclusion), `diff.sha256` (sha256 hex of `diff.patch`'s exact bytes — makes "same diff → same verdict" externally provable), and `rule-version.json` (`engine_version` + `rule_count` + the rule ids run + `generated_at`, so a verdict is reproducible against a known ruleset version). The raw diff string is threaded from `loadDiff`/`getGitDiff`/`loadDiffFile` through `verifyPrCycle` into `writeEvidence`; the evidence manifest lists all three and carries a top-level `diff_sha256`.
+
+### Changed
+- `--run-checks` documentation and slim UX clarified (honest doc↔code alignment): the published slim `@ps-neko/nekowork` gate **detects** test/lint/typecheck availability (feeding `INSUFFICIENT_EVIDENCE`) but does **not execute** checks. Actually running checks (`--run-checks`, escalation-only) is a feature of the heavy `@ps-neko/nekowork-harness` runtime (source checkout). QUICKSTART/SCOPE-1.0 rewritten to say so; the slim `--run-checks` warning now notes "checks are still DETECTED for the verdict; only execution requires the harness".
+- README multi-language wording tightened (EN + KO parity): NEKOWORK is **primarily a JS/TS scanner** with **a few representative Python/Go patterns** for the regex rules — **not a full multi-language scanner**. Matches BENCHMARK.md's honest framing.
+
+### Tests
+- Added unit tests asserting `diff.patch` is written and non-empty, `diff.sha256` equals sha256(`diff.patch`), and `rule-version.json` has `engine_version` + `rule_count===11` + an 11-entry rules array. Slim package coverage 510 → 514 tests; all 11 rules still pass the 1.0 benchmark gate (recall 100%, FP 0%).
+
 ## [0.2.0-alpha.9] - 2026-06-07
 
 Published slim release; the `@alpha` on npm is now `0.2.0-alpha.9`. This version closes the honest non-JS recall gaps the OSS-scraping surfaced: the regex risk rules were JS/TS-centric while real injections live in Python and Go too. Patterns mirror the existing multi-language style of `insecure-tls.js` (per-language regex via `makeRegexScanner`); FP stays 0 against the synthetic + shared OSS negative corpus.

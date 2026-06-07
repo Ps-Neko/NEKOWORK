@@ -85,7 +85,7 @@ AI 가 만든 코드, 검증 없이는 통과시키지 마세요.
 - **11개 결정적 risk rule** (§6): `scripts/lib/rules/{secret-fallback,auto-apply-commit-push,hardcoded-credential,test-or-security-disable,package-lockfile-risk,eval-usage,insecure-tls,cors-wildcard,sql-injection,command-injection,ast-dataflow}.js`, `verify-pr.js` 의 `runRules()` 에서 일괄 실행. 룰별 recall/FP·corpus 출처(synthetic/OSS/live)의 단일 출처는 [BENCHMARK.md](./BENCHMARK.md). 10종은 정규식 패턴 매처이고, `ast-dataflow` 1종만 `acorn` 으로 AST 를 만들어 함수 간(inter-procedural, intra-module) taint 분석을 한다 — 그래서 슬림 패키지는 작고 잘 알려진 의존성 1개(`acorn`, JS 파서 — MIT, transitive 의존성 0)를 갖는다 (TS 는 Node 내장 type-stripping 으로 파싱, TS 의존성 없음).
 - **`INSUFFICIENT_EVIDENCE` verdict**: `verify-pr.js` 의 5종 verdict 에 포함 (source 변경 + test 명령 없음 → INSUFFICIENT_EVIDENCE).
 - **GitHub PR comment 출력**: `--comment-file` 옵션(`renderPrComment`) + `docs/examples/github-actions-verify-pr.yml`.
-- **검사 실행**: `--run-checks` (test/lint/typecheck), 격상-only — `scripts/lib/check-runner.js`.
+- **검사 감지(slim) vs. 실행(harness)**: 발행 슬림 패키지(`@ps-neko/nekowork`)는 test/lint/typecheck 명령의 **존재를 감지**해 verdict 에 반영하지만(소스 변경 + test 명령 없음 → INSUFFICIENT_EVIDENCE), 명령을 **실행하지는 않는다**. 실제 **검사 실행**(`--run-checks`, test/lint/typecheck, 격상-only — `scripts/lib/check-runner.js`)은 소스 체크아웃 전용 헤비 하네스(`@ps-neko/nekowork-harness`) 기능이다. 슬림 게이트에 `--run-checks` 를 넘기면 한 줄 경고를 출력하고(감지는 그대로, 실행만 미지원) 계속 진행한다.
 
 ### 남은 작업
 - **Fixture corpus 확대**: §9 의 출처 정책 — supporting rule 3종 OSS positives < 30, live AI positives 4/30.

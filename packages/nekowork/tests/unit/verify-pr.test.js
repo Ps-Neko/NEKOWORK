@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { parseVerifyPrArgs, VERDICT, EXIT_CODE, verifyPrCycle } from '../../scripts/orchestrators/verify-pr.js';
 
@@ -248,6 +249,69 @@ test('verifyPrCycle: ALLOW report contains the scope disclaimer', async () => {
     assert.match(report, /## Scope/);
     assert.match(report, /NOT an exhaustive security audit/i);
     assert.match(report, /deterministic rules scanned/i);
+  } finally {
+    fs.rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+// --- FIX 2 (GPT P1): evidence chain includes the raw diff + its hash + rule version ---
+test('verifyPrCycle: writes diff.patch (non-empty) for a normal scan', async () => {
+  const cwd = makeRepo({ 'src/app.js': 'export const x = 1;\n' });
+  try {
+    await verifyPrCycle({ projectRoot: cwd, mode: 'working' });
+    const patchPath = path.join(cwd, '.nekowork', 'evidence', 'diff.patch');
+    assert.ok(fs.existsSync(patchPath), 'diff.patch must be written');
+    const patch = fs.readFileSync(patchPath, 'utf8');
+    assert.ok(patch.length > 0, 'diff.patch must be non-empty');
+    // The raw patch is the text the parser saw — it should reference the scanned file.
+    assert.match(patch, /src\/app\.js/, 'diff.patch should contain the scanned file path');
+  } finally {
+    fs.rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('verifyPrCycle: diff.sha256 equals the sha256 of diff.patch content', async () => {
+  const cwd = makeRepo({ 'src/app.js': 'export const x = 1;\n' });
+  try {
+    await verifyPrCycle({ projectRoot: cwd, mode: 'working' });
+    const evidenceDir = path.join(cwd, '.nekowork', 'evidence');
+    const patch = fs.readFileSync(path.join(evidenceDir, 'diff.patch'), 'utf8');
+    const sha = fs.readFileSync(path.join(evidenceDir, 'diff.sha256'), 'utf8').trim();
+    const expected = crypto.createHash('sha256').update(patch, 'utf8').digest('hex');
+    assert.equal(sha, expected, 'diff.sha256 must equal sha256(diff.patch)');
+    assert.match(sha, /^[0-9a-f]{64}$/, 'sha256 is 64 lowercase hex chars');
+    // and the manifest records the same hash for cross-reference
+    const manifest = JSON.parse(fs.readFileSync(path.join(evidenceDir, 'evidence-manifest.json'), 'utf8'));
+    assert.equal(manifest.diff_sha256, expected, 'manifest diff_sha256 matches');
+  } finally {
+    fs.rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('verifyPrCycle: rule-version.json has engine_version, rule_count===11, and rules array', async () => {
+  const cwd = makeRepo({ 'src/app.js': 'export const x = 1;\n' });
+  try {
+    await verifyPrCycle({ projectRoot: cwd, mode: 'working' });
+    const rv = JSON.parse(fs.readFileSync(path.join(cwd, '.nekowork', 'evidence', 'rule-version.json'), 'utf8'));
+    assert.ok(typeof rv.engine_version === 'string' && rv.engine_version.length > 0, 'engine_version present');
+    assert.equal(rv.rule_count, 11, 'rule_count is 11');
+    assert.ok(Array.isArray(rv.rules), 'rules is an array');
+    assert.equal(rv.rules.length, 11, 'rules lists all 11 rule units');
+    assert.ok(rv.rules.includes('secret-fallback') && rv.rules.includes('ast-dataflow'), 'rules contains known rule ids');
+    assert.ok(typeof rv.generated_at === 'string', 'generated_at present (the only non-deterministic field)');
+  } finally {
+    fs.rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('verifyPrCycle: evidence summary artifacts include the three new files', async () => {
+  const cwd = makeRepo({ 'src/app.js': 'export const x = 1;\n' });
+  try {
+    const res = await verifyPrCycle({ projectRoot: cwd, mode: 'working' });
+    const names = res.evidence.artifacts.map((a) => a.name);
+    assert.ok(names.includes('diff.patch'), 'diff.patch in artifacts');
+    assert.ok(names.includes('diff.sha256'), 'diff.sha256 in artifacts');
+    assert.ok(names.includes('rule-version.json'), 'rule-version.json in artifacts');
   } finally {
     fs.rmSync(cwd, { recursive: true, force: true });
   }

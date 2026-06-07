@@ -72,6 +72,12 @@ It then runs eleven deterministic risk rules over the changed lines:
 - **Command injection (basic)** — user input flowing into `exec`/`spawn` shells (regex-level only).
 - **AST dataflow** — AST/dataflow taint for **variable-mediated injection** that the regex rules miss (assembled SQL/`eval`/shell across statements, local-helper returns, sink aliases). Inter-procedural (intra-module, single-file), JS/TS-only.
 
+NEKOWORK is **primarily a JS/TS scanner**. Several regex rules add a **few
+representative Python and Go patterns** (e.g. `subprocess` git push,
+`os.system`/`exec.Command`, `verify=False` / `InsecureSkipVerify`, `os.environ.get`
+fallbacks) — useful samples, **not full multi-language support**. The `ast-dataflow`
+rule is JS/TS-only. Match this honest framing in [BENCHMARK.md](BENCHMARK.md).
+
 All eleven rules currently sit at 100% recall / 0% false positives on their
 fixture corpus and pass the 0.95 detection gate. After the OSS-fixture merge most
 rules carry **real OSS positives** (`eval-usage`, `insecure-tls`, `cors-wildcard`,
@@ -85,18 +91,34 @@ dependency** (`acorn`, the JS parser — MIT, zero transitive dependencies). See
 [BENCHMARK.md](BENCHMARK.md) for the per-rule provenance and the full "What is NOT
 covered" boundary.
 
-### Checks: detection and `--run-checks`
+### Checks: detection (slim) vs. execution (harness only)
 
-verify-pr also looks at whether your project *has* test / lint / typecheck / build /
-audit commands. By default it **detects** which exist and records them in the report.
-If a source change has no test command, verify-pr returns `INSUFFICIENT_EVIDENCE`
-("not enough evidence to PASS", not a failure) instead of a false PASS.
+verify-pr looks at whether your project *has* test / lint / typecheck / build /
+audit commands. The published slim `@ps-neko/nekowork` gate **detects** which exist
+and records them in the report — it does **not** run them. That detection still
+feeds the verdict: if a source change has a test command missing, verify-pr returns
+`INSUFFICIENT_EVIDENCE` ("not enough evidence to PASS", not a failure) instead of a
+false PASS.
 
-Pass `--run-checks` to actually execute test / lint / typecheck. Their results are
-**escalation-only**: a failing check turns `ALLOW` into `NEEDS_HUMAN_REVIEW`, never a
-standalone `BLOCK`. When the diff has a CRITICAL finding or tampers with build/test
-scripts, the checks are skipped and the report records the reason. See
-[SCOPE-1.0.md](SCOPE-1.0.md) §5–§7 for the decision policy.
+**Actually executing** the checks (running test / lint / typecheck and folding the
+result into the verdict) is a feature of the heavy `@ps-neko/nekowork-harness`
+runtime, which only runs from a source checkout — it is **not** in the published
+slim package. In the harness, execution is opt-in via `--run-checks` and its results
+are **escalation-only**: a failing check turns `ALLOW` into `NEEDS_HUMAN_REVIEW`,
+never a standalone `BLOCK`, and checks are skipped when the diff has a CRITICAL
+finding or tampers with build/test scripts.
+
+If you pass `--run-checks` to the **slim** gate, it prints a one-line warning and
+keeps going (detection still happens; only execution is unavailable):
+
+```text
+warning: --run-checks is not supported in the slim @ps-neko/nekowork gate
+(checks are still DETECTED for the verdict; only execution requires the
+@ps-neko/nekowork-harness runtime from a source checkout)
+```
+
+See [SCOPE-1.0.md](SCOPE-1.0.md) §5–§7 for the full decision policy (it documents
+the harness execution behavior).
 
 ## 3. The Five Verdicts (and the simple buckets)
 

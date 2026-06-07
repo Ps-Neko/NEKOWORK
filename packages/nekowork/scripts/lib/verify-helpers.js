@@ -24,9 +24,28 @@ import { scanDiff as scanAstDataflow } from './rules/ast-dataflow.js';
 
 export const SCHEMA_VERSION = 'verify-pr-v0';
 
+// The deterministic rule units runRules() scans, in execution order. Surfaced in
+// the evidence package's rule-version.json so a verdict is reproducible against a
+// known ruleset. The `ast-dataflow` unit emits sub-ids per sink class
+// (ast-eval-injection / ast-sql-injection / ast-command-injection); it is listed
+// here as the single scanner unit it is. Keep in sync with runRules().
+export const RULE_IDS = Object.freeze([
+  'secret-fallback',
+  'auto-apply-commit-push',
+  'hardcoded-credential',
+  'test-or-security-disable',
+  'package-lockfile-risk',
+  'eval-usage',
+  'insecure-tls',
+  'cors-wildcard',
+  'sql-injection',
+  'command-injection',
+  'ast-dataflow',
+]);
+
 // Number of deterministic rules runRules() scans. Surfaced in the report so an
 // ALLOW states exactly how much was checked. Keep in sync with runRules().
-export const RULE_COUNT = 11;
+export const RULE_COUNT = RULE_IDS.length;
 
 // Scope disclaimer for clean/low verdicts. An ALLOW must never read as "this
 // code is safe" — it means the deterministic rules found nothing, NOT that the
@@ -408,6 +427,9 @@ export function renderReport(decision, findings) {
   lines.push('');
   lines.push('- `.nekowork/evidence/risk-findings.json`');
   lines.push('- `.nekowork/evidence/diff.summary.json`');
+  lines.push('- `.nekowork/evidence/diff.patch` — raw diff text the rules scanned');
+  lines.push('- `.nekowork/evidence/diff.sha256` — sha256 of `diff.patch` (same diff → same verdict)');
+  lines.push('- `.nekowork/evidence/rule-version.json` — engine + ruleset version');
   lines.push('- `.nekowork/evidence/evidence-manifest.json`');
   lines.push('- `.nekowork/decision.json`');
   lines.push('');
