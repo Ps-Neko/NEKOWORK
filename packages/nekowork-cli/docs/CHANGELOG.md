@@ -7,6 +7,24 @@
 ### Added
 - `verify-pr --include <path>` (repeatable): force-scan an explicit path even if it is gitignored. `git diff` / `ls-files --exclude-standard` skip gitignored build/codegen output; `--include` synthesizes those files as an all-added diff so risk rules see them. Directories are walked recursively (`node_modules`/`.git` skipped). (First external-user feedback — gitignored codegen output was invisible to the scan.)
 
+## [0.2.0-alpha.7] - 2026-06-07
+
+Slim `@ps-neko/nekowork` publish. The published `@alpha` now ships the full rule engine; the `latest` dist-tag remains a stale `0.2.0-alpha.0` (5 rules, zero deps), so install with `@alpha`.
+
+### Added
+- Rule engine grows from **5 to 11 deterministic rules**: adds `eval-usage`, `insecure-tls`, `cors-wildcard`, `sql-injection`, `command-injection`, and `ast-dataflow`. The `ast-dataflow` rule performs intraprocedural (single-function, JS/TS) taint tracking for variable-mediated injection (assembled SQL / shell / `eval` across statements) — not just single-line regex.
+- One runtime dependency: `acorn` (the JS parser — MIT, zero transitive dependencies) powers the AST engine.
+
+### Changed
+- Gate ↔ diff hash binding: the verdict is bound to the exact diff it measured, so a changed diff cannot reuse a prior decision.
+- ~1.2k LOC of slim ↔ heavy duplication de-duplicated onto shared modules.
+
+### Fixed
+- Self-pollution fix: `verify-pr` no longer re-scans its own `.nekowork/` output and REPORT.md on the second run, so previously-recorded evidence is not re-flagged as a finding.
+
+### Tests
+- Unit test coverage grows from **121 to 471** tests across the slim package.
+
 ## [0.1.0-alpha.12] - 2026-05-26
 
 ### Changed

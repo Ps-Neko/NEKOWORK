@@ -63,8 +63,8 @@ npx -y @ps-neko/nekowork@alpha verify-pr
 ```
 
 > Always use the **`@alpha`** tag — the bare package / `latest` dist-tag is pinned
-> to a stale `0.2.0-alpha.0`. (`@alpha` and `latest` ship the same rules today; the
-> difference is bugfixes, so `@alpha` is the one to install.)
+> to a stale `0.2.0-alpha.0` (5 rules, zero deps). `@alpha` (`0.2.0-alpha.7`) ships
+> the full **11 rules**, so `@alpha` is the one to install.
 
 NEKOWORK reads the changed lines, writes a plain-English `REPORT.md`, and tells
 you whether the change should move forward.
@@ -86,12 +86,11 @@ NEKOWORK flags a **defined set of AI-introduced risk patterns** — 11 determini
 rules — and routes everything else to a human decision. It is **not an exhaustive
 security audit**:
 
-> Note: the published `@alpha` (0.2.0-alpha.6) currently ships the original 5 rules
-> and has **zero dependencies**. The 6 newer rules (eval, insecure TLS, CORS wildcard,
-> SQL/command injection, and AST dataflow) are in the repo and land in the next alpha
-> publish; that build adds **one tiny, well-known dependency** (`acorn`, the JS parser
-> — MIT, zero transitive dependencies) for the AST engine. So installing `@alpha`
-> today gives you 5 rules + zero deps; the 11-rule + acorn build ships next.
+> Note: the published `@alpha` (0.2.0-alpha.7) now ships all **11 rules** (incl. eval,
+> insecure TLS, CORS wildcard, SQL/command injection, and AST dataflow) and adds **one
+> tiny, well-known dependency** (`acorn`, the JS parser — MIT, zero transitive
+> dependencies) for the AST engine. Always install with the **`@alpha`** tag: the
+> `latest` dist-tag is a stale `0.2.0-alpha.0` (5 rules, zero deps).
 
 - Secret keys, hardcoded credentials, or fallback passwords accidentally placed in code.
 - Tests, lint checks, or security checks being switched off.
