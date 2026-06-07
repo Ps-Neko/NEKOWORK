@@ -102,8 +102,8 @@ Release exit criteria:
 Run these before a release tag or public package decision:
 
 ```bash
-node scripts/cli.js doctor
-node scripts/cli.js doctor --quick --gemini-smoke
+node packages/nekowork-cli/scripts/cli.js doctor
+node packages/nekowork-cli/scripts/cli.js doctor --quick --gemini-smoke
 npm run lint
 npm test
 npm run demo:quick -- --cleanup
@@ -139,16 +139,19 @@ Current local verification after the decomposed workflow expansion:
 
 For the default developer profile:
 
+`init` / `install` is a heavy-harness operation (the slim npm package rejects it),
+so run it from a source checkout:
+
 ```bash
-npx -y @ps-neko/nekowork@alpha init --profile developer --project-root <target>
-npx -y @ps-neko/nekowork@alpha check --project-root <target>
+node packages/nekowork-cli/scripts/cli.js install --apply --profile developer --project-root <target>
+cd <target> && npx -y @ps-neko/nekowork@alpha check
 node scripts/install-plan.js --list --json
 node scripts/install-plan.js --pack quality --json
 node scripts/install-plan.js --profile developer --json
 node scripts/portability/simulate-port.js <target> --profile developer --json
-node scripts/cli.js init --profile developer --project-root <target>
-node scripts/cli.js plan "release readiness smoke" --project-root <target>
-node scripts/cli.js run "release readiness decomposed smoke" --project-root <target> --session release-run-smoke
+node packages/nekowork-cli/scripts/cli.js install --apply --profile developer --project-root <target>
+node packages/nekowork-cli/scripts/cli.js plan "release readiness smoke" --project-root <target>
+node packages/nekowork-cli/scripts/cli.js run "release readiness decomposed smoke" --project-root <target> --session release-run-smoke
 ```
 
 The disposable install equivalent is:

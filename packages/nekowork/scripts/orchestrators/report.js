@@ -1,34 +1,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { writeDecision } from '../lib/decision.js';
-import { resolveSessionId } from '../lib/session-resolver.js';
-
-const SUMMARY_FILES = [
-  'ask.json',
-  'auto-summary.json',
-  'build-summary.json',
-  'work-summary.json',
-  'verify-summary.json',
-  'ship-summary.json',
-  'pr-prep-summary.json',
-  'gate-summary.json',
-  'apply-summary.json',
-  'run-summary.json',
-];
-
-const MARKERS = [
-  'HUMAN_GATE',
-  'GATE_APPROVED',
-  'GATE_BLOCKED',
-  'NO_SHIP',
-  'SHIP_READY',
-  'APPLIED_DIFF',
-];
+import { resolveSessionId, assertSafeSessionId } from '../lib/session-resolver.js';
+import { readJson, readMarker, markerTime } from '../lib/session-io.js';
+import { SUMMARY_FILES, MARKERS } from '../lib/session-constants.js';
 
 export function reportSession(opts) {
   const projectRoot = opts.projectRoot || process.cwd();
   if (!opts.sessionId) throw new Error('report requires --session <id>');
 
+  assertSafeSessionId(opts.sessionId);
   const sessionId = resolveSessionId(projectRoot, opts.sessionId);
   const sessionDir = path.join(projectRoot, '.harness', 'state', 'sessions', sessionId);
   if (!fs.existsSync(sessionDir)) throw new Error('report requires an existing session');
@@ -85,26 +66,6 @@ function readSessionEvidence(sessionDir) {
   };
 }
 
-function readJson(file) {
-  if (!fs.existsSync(file)) return null;
-  try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
-  } catch {
-    return null;
-  }
-}
-
-function readMarker(file) {
-  if (!fs.existsSync(file)) return null;
-  const raw = fs.readFileSync(file, 'utf8');
-  return {
-    file,
-    raw,
-    reason: raw.match(/^reason:\s*(.+)$/m)?.[1] || null,
-    at: raw.match(/^at:\s*(.+)$/m)?.[1] || null,
-  };
-}
-
 function readHandoffs(handoffDir) {
   if (!fs.existsSync(handoffDir)) return [];
   return fs.readdirSync(handoffDir)
@@ -141,11 +102,6 @@ function deriveStatus(data) {
   if (work) return 'worked';
   if (ask) return 'asked';
   return 'session';
-}
-
-function markerTime(marker) {
-  const time = Date.parse(marker?.at || '');
-  return Number.isFinite(time) ? time : 0;
 }
 
 function buildSummary({ sessionId, sessionDir, data, status }) {

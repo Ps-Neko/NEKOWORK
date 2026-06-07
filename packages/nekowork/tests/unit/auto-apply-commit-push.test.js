@@ -136,6 +136,28 @@ test('finding 스키마: 필수 필드', () => {
   assert.equal(f[0].category, 'automation-safety');
 });
 
+// ---------- C1: non-JS subprocess git push ----------
+
+test('Python subprocess git push: critical', () => {
+  const f = scanFileContent('deploy.py', "subprocess.run(['git', 'push', 'origin', 'main'])\n");
+  assert.ok(f.some(x => x.pattern === 'python-subprocess-git-push' && x.severity === 'critical'));
+});
+
+test('Python subprocess git status: not critical', () => {
+  const f = scanFileContent('check.py', "subprocess.run(['git', 'status'])\n");
+  assert.equal(f.filter(x => x.severity === 'critical').length, 0);
+});
+
+test('Go exec.Command git push: critical', () => {
+  const f = scanFileContent('deploy.go', 'exec.Command("git", "push", "origin", "HEAD")\n');
+  assert.ok(f.some(x => x.pattern === 'go-exec-git-push' && x.severity === 'critical'));
+});
+
+test('Ruby system git push: critical', () => {
+  const f = scanFileContent('deploy.rb', "system('git push origin main')\n");
+  assert.ok(f.some(x => x.pattern === 'ruby-system-git-push' && x.severity === 'critical'));
+});
+
 // ---------- fixture manifest measurement ----------
 
 test('fixture manifest: any-detection recall + CRITICAL FP gate', () => {
@@ -175,4 +197,21 @@ test('fixture manifest: any-detection recall + CRITICAL FP gate', () => {
   assert.ok(fpRate <= 0.10, `CRITICAL FP rate ${fpRate.toFixed(2)} above 0.10; FPs: ${JSON.stringify(criticalFps)}`);
 
   console.log(`[auto-apply-commit-push] synthetic seed: any-detection recall=${(recall * 100).toFixed(0)}% (${posCaught}/${posTotal}), CRITICAL FP=${(fpRate * 100).toFixed(0)}% (${criticalFp}/${negTotal})`);
+});
+
+// ---------- R2-5: gh pr merge --auto ----------
+
+test('gh pr merge --auto: critical', () => {
+  const f = scanFileContent('x.sh', 'gh pr merge 42 --auto --squash');
+  assert.ok(f.some(x => x.pattern === 'gh-pr-merge-auto' && x.severity === 'critical'));
+});
+
+test('gh pr merge --auto with flag after ref: critical', () => {
+  const f = scanFileContent('x.sh', 'gh pr merge "$PR" --auto');
+  assert.ok(f.some(x => x.pattern === 'gh-pr-merge-auto'));
+});
+
+test('gh pr merge without --auto: not flagged as auto-merge', () => {
+  const f = scanFileContent('x.sh', 'gh pr merge 42 --squash');
+  assert.ok(!f.some(x => x.pattern === 'gh-pr-merge-auto'));
 });

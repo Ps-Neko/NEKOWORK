@@ -1,6 +1,23 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+/**
+ * Reject a session id that could escape the sessions directory when joined into
+ * a path. The id becomes a path segment under .harness/state/sessions/, so a
+ * `..` traversal component or an absolute path must be refused. Centralized here
+ * so apply / gate / report all enforce the same guard.
+ *
+ * @param {string} sessionId
+ * @throws {Error} 'invalid session id' when traversal/absolute is detected
+ */
+export function assertSafeSessionId(sessionId) {
+  const value = String(sessionId ?? '');
+  if (/(^|[\\/])\.\.([\\/]|$)/.test(value) || path.isAbsolute(value)) {
+    throw new Error('invalid session id');
+  }
+  return value;
+}
+
 function listSessions(projectRoot) {
   const sessionsRoot = path.join(projectRoot || process.cwd(), '.harness', 'state', 'sessions');
   if (!fs.existsSync(sessionsRoot)) return [];

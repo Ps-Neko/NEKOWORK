@@ -26,7 +26,7 @@
 //
 // Requirements: gh CLI authenticated with `gh auth login`. Network access.
 
-import { execSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -96,16 +96,20 @@ console.log();
 const ghArgs = ['search', 'code', query, '--limit', String(limit), '--json', 'repository,path,textMatches'];
 if (language) ghArgs.push('--language', language);
 
-let searchOutput;
-try {
-  searchOutput = execSync('gh ' + ghArgs.map(a => /[\s"]/.test(a) ? JSON.stringify(a) : a).join(' '), {
-    encoding: 'utf8',
-    maxBuffer: 16 * 1024 * 1024,
-  });
-} catch (err) {
-  console.error('gh search failed:', err.message);
+const searchResult = spawnSync('gh', ghArgs, {
+  encoding: 'utf8',
+  maxBuffer: 16 * 1024 * 1024,
+  windowsHide: true,
+});
+if (searchResult.error) {
+  console.error('gh search failed:', searchResult.error.message);
   process.exit(1);
 }
+if (searchResult.status !== 0) {
+  console.error('gh search failed:', (searchResult.stderr || '').trim() || `exit ${searchResult.status}`);
+  process.exit(1);
+}
+const searchOutput = searchResult.stdout || '';
 
 const results = JSON.parse(searchOutput);
 console.log(`Got ${results.length} raw results from GitHub code search.\n`);
@@ -135,16 +139,24 @@ for (const r of results) {
   // Filter 2: get repo metadata if not cached
   if (!repoStars.has(repo)) {
     try {
-      const repoJson = JSON.parse(execSync(
-        `gh api repos/${repo}`,
-        { encoding: 'utf8' }
-      ));
+      const repoResult = spawnSync('gh', ['api', `repos/${repo}`], {
+        encoding: 'utf8',
+        maxBuffer: 16 * 1024 * 1024,
+        windowsHide: true,
+      });
+      if (repoResult.error) throw repoResult.error;
+      if (repoResult.status !== 0) throw new Error((repoResult.stderr || '').trim() || `exit ${repoResult.status}`);
+      const repoJson = JSON.parse(repoResult.stdout);
       repoStars.set(repo, repoJson.stargazers_count);
       const defaultBranch = repoJson.default_branch;
-      const commitJson = JSON.parse(execSync(
-        `gh api repos/${repo}/commits/${defaultBranch}`,
-        { encoding: 'utf8' }
-      ));
+      const commitResult = spawnSync('gh', ['api', `repos/${repo}/commits/${defaultBranch}`], {
+        encoding: 'utf8',
+        maxBuffer: 16 * 1024 * 1024,
+        windowsHide: true,
+      });
+      if (commitResult.error) throw commitResult.error;
+      if (commitResult.status !== 0) throw new Error((commitResult.stderr || '').trim() || `exit ${commitResult.status}`);
+      const commitJson = JSON.parse(commitResult.stdout);
       repoSha.set(repo, commitJson.sha);
     } catch (err) {
       skipped.push({ repo, filePath, reason: 'repo metadata fetch failed: ' + err.message.slice(0, 60) });
@@ -162,10 +174,19 @@ for (const r of results) {
   // Fetch file content at the pinned SHA
   let content;
   try {
-    const contentJson = JSON.parse(execSync(
-      `gh api "repos/${repo}/contents/${filePath.split('/').map(encodeURIComponent).join('/')}?ref=${sha}"`,
-      { encoding: 'utf8' }
-    ));
+    const encodedPath = filePath.split('/').map(encodeURIComponent).join('/');
+    const contentResult = spawnSync(
+      'gh',
+      ['api', `repos/${repo}/contents/${encodedPath}`, '--field', `ref=${sha}`],
+      {
+        encoding: 'utf8',
+        maxBuffer: 16 * 1024 * 1024,
+        windowsHide: true,
+      }
+    );
+    if (contentResult.error) throw contentResult.error;
+    if (contentResult.status !== 0) throw new Error((contentResult.stderr || '').trim() || `exit ${contentResult.status}`);
+    const contentJson = JSON.parse(contentResult.stdout);
     content = Buffer.from(contentJson.content.replace(/\n/g, ''), 'base64').toString('utf8');
   } catch (err) {
     skipped.push({ repo, filePath, reason: 'content fetch failed: ' + err.message.slice(0, 60) });

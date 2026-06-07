@@ -19,12 +19,12 @@ Harden a GitHub Actions validation workflow without adding deploy or publish beh
 ## Recommended Flow
 
 ```bash
-node scripts/cli.js ask "harden GitHub Actions validation workflow" --session actions-hardening
-node scripts/cli.js plan "harden GitHub Actions validation workflow" --session actions-hardening
-node scripts/cli.js team "harden GitHub Actions validation workflow" --workers planner,security,test --no-write --session actions-hardening
-node scripts/cli.js work "implement hardened GitHub Actions validation workflow" --single-executor --session actions-hardening
-node scripts/cli.js verify "verify hardened GitHub Actions validation workflow" --secure --session actions-hardening
-node scripts/cli.js gate status --session actions-hardening
+node packages/nekowork-cli/scripts/cli.js ask "harden GitHub Actions validation workflow" --session actions-hardening
+node packages/nekowork-cli/scripts/cli.js plan "harden GitHub Actions validation workflow" --session actions-hardening
+node packages/nekowork-cli/scripts/cli.js team "harden GitHub Actions validation workflow" --workers planner,security,test --no-write --session actions-hardening
+node packages/nekowork-cli/scripts/cli.js work "implement hardened GitHub Actions validation workflow" --single-executor --session actions-hardening
+node packages/nekowork-cli/scripts/cli.js verify "verify hardened GitHub Actions validation workflow" --secure --session actions-hardening
+node packages/nekowork-cli/scripts/cli.js gate status --session actions-hardening
 ```
 
 ## Expected Policy Behavior
@@ -75,12 +75,12 @@ The local check verifies:
 Approve only after confirming the workflow remains validation-only:
 
 ```bash
-node scripts/cli.js gate approve --session actions-hardening --reason "Confirmed validation-only hardened workflow."
-node scripts/cli.js ship "prepare GitHub Actions hardening ship readiness" --require-clean-gates --session actions-hardening
+node packages/nekowork-cli/scripts/cli.js gate approve --session actions-hardening --reason "Confirmed validation-only hardened workflow."
+node packages/nekowork-cli/scripts/cli.js ship "prepare GitHub Actions hardening ship readiness" --require-clean-gates --session actions-hardening
 ```
 
 If deploy, publish, or broad permission behavior appears:
 
 ```bash
-node scripts/cli.js gate block --session actions-hardening --reason "Workflow hardening boundary is not proven."
+node packages/nekowork-cli/scripts/cli.js gate block --session actions-hardening --reason "Workflow hardening boundary is not proven."
 ```

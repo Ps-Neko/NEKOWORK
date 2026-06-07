@@ -145,7 +145,7 @@ blocked: HUMAN_GATE open
 ## 참고
 
 - 시각 시안: `.tmp_ecc/cli-design/index.html` (Before/After 5쌍 + 원칙 6 + 미정 5)
-- 현행 도움말 캡처: 본 문서 작성 시 `node scripts/cli.js --help` 출력 기반
+- 현행 도움말 캡처: 본 문서 작성 시 `node packages/nekowork-cli/scripts/cli.js --help` 출력 기반
 - 관련 기존 문서: `docs/CLI-STAGES.md`, `docs/NAMING.md`, `docs/QUICKSTART.md`
 
 ## Phase 1a 적용 후 실제 캡처 (참고)

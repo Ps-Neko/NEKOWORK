@@ -1,3 +1,4 @@
+// Shared library module — consumed by the heavy @ps-neko/nekowork-harness package; kept in slim as the single source of truth.
 import { riskLevel } from './severity.js';
 
 function words(patterns) {

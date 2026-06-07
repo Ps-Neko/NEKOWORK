@@ -1,0 +1,3 @@
+// positive: Supabase service_role JWT (payload contains role=service_role)
+
+export const SUPABASE_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE2MDAwMDAwMDB9.abcdefghijklmnop1234567890ABCDEF";

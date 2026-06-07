@@ -18,7 +18,7 @@ NEKOWORK `0.1.0-alpha.12` is the current repository version (the internal `@ps-n
 git clone https://github.com/Ps-Neko/NEKOWORK.git harness
 cd harness
 npm ci
-node scripts/cli.js doctor --quick
+node packages/nekowork-cli/scripts/cli.js doctor --quick
 npm run lint
 npm test
 ```
@@ -74,7 +74,7 @@ npm run verify:codex
 ```bash
 gemini
 npm run verify:gemini
-node scripts/cli.js doctor --quick --gemini-smoke
+node packages/nekowork-cli/scripts/cli.js doctor --quick --gemini-smoke
 ```
 
 Gemini CLI does not expose the same non-interactive auth-status contract as Claude/Codex. Plain `doctor` checks installation and warns that auth was not checked; `doctor --gemini-smoke` runs the explicit live smoke and will fail if headless Gemini auth is not ready.
@@ -138,6 +138,6 @@ The Node CLI remains the primary user path.
 
 `--live` fails:
 
-- Run `node scripts/cli.js doctor --quick`.
+- Run `node packages/nekowork-cli/scripts/cli.js doctor --quick`.
 - Confirm provider CLI login.
 - Unset API key environment variables unless intentionally opted in.

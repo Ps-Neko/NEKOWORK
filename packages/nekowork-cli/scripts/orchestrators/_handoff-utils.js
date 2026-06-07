@@ -1,29 +1,18 @@
 // Shared helpers for the work-cycle orchestrators (apply, verify, work, ship).
-// All functions here are byte-for-byte identical across those files.
+//
+// The byte-identical functions (readPriorHandoffs, latestStageHandoff,
+// computeSessionDiffHash) live in the SLIM @ps-neko/nekowork package and are
+// re-exported here so heavy never carries a drifting copy. The heavy-only
+// helpers (nextRound, readJsonIfExists, readSessionProfile) stay local.
 import fs from 'node:fs';
 import path from 'node:path';
 
-export function readPriorHandoffs(handoffDir) {
-  if (!fs.existsSync(handoffDir)) return [];
-  return fs.readdirSync(handoffDir)
-    .filter(f => f.endsWith('.json'))
-    .sort()
-    .map(f => {
-      try {
-        return JSON.parse(fs.readFileSync(path.join(handoffDir, f), 'utf8'));
-      } catch {
-        return null;
-      }
-    })
-    .filter(Boolean);
-}
-
-export function latestStageHandoff(handoffs, stage) {
-  return handoffs
-    .filter(h => h.stage === stage)
-    .sort((a, b) => Number(b.round || 1) - Number(a.round || 1))
-    .at(0) || null;
-}
+export {
+  readPriorHandoffs,
+  latestStageHandoff,
+  readSessionDiff,
+  computeSessionDiffHash,
+} from '@ps-neko/nekowork/scripts/orchestrators/_handoff-utils.js';
 
 export function nextRound(handoffs, stage) {
   const rounds = handoffs

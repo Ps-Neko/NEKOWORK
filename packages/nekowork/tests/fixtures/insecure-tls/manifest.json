@@ -1,0 +1,157 @@
+{
+  "fixture_set": "insecure-tls",
+  "schema_version": "0.1",
+  "generated_at": "2026-06-07",
+  "notes": "F2: TLS certificate-verification disablement (MITM vector). High severity. fpMode any — disabling verification is never acceptable, so any finding on a negative is FP. Secure configs (rejectUnauthorized: true, verify=True/explicit CA) must not fire.",
+  "targets": {
+    "any_detection_recall": 0.95,
+    "fp_rate": 0.10
+  },
+  "entries": [
+    {
+      "id": "tls-pos-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/001-reject-unauthorized.js",
+      "pattern": "reject-unauthorized-false",
+      "expected_findings": [{ "rule": "insecure-tls", "line": 5, "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "rejectUnauthorized: false."
+    },
+    {
+      "id": "tls-pos-002",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/002-node-tls-env.js",
+      "pattern": "node-tls-reject-env",
+      "expected_findings": [{ "rule": "insecure-tls", "line": 2, "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "NODE_TLS_REJECT_UNAUTHORIZED = '0'."
+    },
+    {
+      "id": "tls-pos-003",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/003-python-verify-false.py",
+      "pattern": "python-verify-false",
+      "expected_findings": [{ "rule": "insecure-tls", "line": 6, "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "requests.get(url, verify=False)."
+    },
+    {
+      "id": "tls-pos-004",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/004-python-unverified-context.py",
+      "pattern": "python-unverified-context",
+      "expected_findings": [{ "rule": "insecure-tls", "line": 7, "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "ssl._create_unverified_context()."
+    },
+    {
+      "id": "tls-pos-005",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/005-go-insecure-skip.go",
+      "pattern": "go-insecure-skip-verify",
+      "expected_findings": [{ "rule": "insecure-tls", "line": 7, "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "Go InsecureSkipVerify: true."
+    },
+    {
+      "id": "tls-neg-001",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/001-secure-defaults.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "rejectUnauthorized: true + trusted CA — secure, must not fire."
+    },
+    {
+      "id": "tls-neg-002",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/002-python-verify-default.py",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "verify=True / verify='/path/to/ca' — secure, must not fire."
+    },
+    {
+      "id": "tls-pos-006",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/006-curl-insecure.sh",
+      "pattern": "curl-insecure",
+      "expected_findings": [{ "rule": "insecure-tls", "line": 3, "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-8 curl -k skips TLS verification."
+    },
+    {
+      "id": "tls-pos-007",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/007-curl-insecure-long.sh",
+      "pattern": "curl-insecure",
+      "expected_findings": [{ "rule": "insecure-tls", "line": 3, "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-8 curl --insecure (long flag) mid-command."
+    },
+    {
+      "id": "tls-pos-008",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/008-wget-no-check.sh",
+      "pattern": "wget-no-check-certificate",
+      "expected_findings": [{ "rule": "insecure-tls", "line": 3, "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-8 wget --no-check-certificate disables cert validation."
+    },
+    {
+      "id": "tls-pos-009",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/009-axios-agent.js",
+      "pattern": "reject-unauthorized-false",
+      "expected_findings": [{ "rule": "insecure-tls", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-10 diversity: axios httpsAgent with rejectUnauthorized: false."
+    },
+    {
+      "id": "tls-pos-010",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/010-httpx-verify-false.py",
+      "pattern": "python-verify-false",
+      "expected_findings": [{ "rule": "insecure-tls", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-10 diversity: httpx.Client(verify=False)."
+    },
+    {
+      "id": "tls-neg-003",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/003-curl-secure.sh",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-8 FP guard: curl --cacert / plain wget — verification stays on."
+    },
+    {
+      "id": "tls-neg-004",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/004-axios-secure.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-10 FP guard: axios with default secure TLS, nothing disabled."
+    },
+    {
+      "id": "tls-neg-005",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/005-python-verify-explicit.py",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-10 FP guard: requests/httpx with explicit verify=True / CA path."
+    }
+  ]
+}

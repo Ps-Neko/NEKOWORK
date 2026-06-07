@@ -1,0 +1,7 @@
+{
+  "name": "demo",
+  "scripts": {
+    "install-deps": "npm ci",
+    "reinstall": "rm -rf node_modules && npm i"
+  }
+}

@@ -22,9 +22,9 @@ Warnings are meant to tell the user what would matter for live work. They do not
 Recovery path:
 
 ```bash
-node scripts/cli.js report --session <id>
-node scripts/cli.js run "fix the reported blocker" --session <new-id>
-node scripts/cli.js gate status --session <new-id>
+node packages/nekowork-cli/scripts/cli.js report --session <id>
+node packages/nekowork-cli/scripts/cli.js run "fix the reported blocker" --session <new-id>
+node packages/nekowork-cli/scripts/cli.js gate status --session <new-id>
 ```
 
 `apply` refuses a no-ship session unless a maintainer intentionally changes the evidence flow.
@@ -36,9 +36,9 @@ node scripts/cli.js gate status --session <new-id>
 The user can:
 
 ```bash
-node scripts/cli.js gate status --session <id>
-node scripts/cli.js gate approve --session <id> --reason "reviewed risk"
-node scripts/cli.js gate block --session <id> --reason "needs more tests"
+node packages/nekowork-cli/scripts/cli.js gate status --session <id>
+node packages/nekowork-cli/scripts/cli.js gate approve --session <id> --reason "reviewed risk"
+node packages/nekowork-cli/scripts/cli.js gate block --session <id> --reason "needs more tests"
 ```
 
 Approval records evidence. Blocking keeps the session from shipping.
@@ -57,8 +57,8 @@ Recovery path:
 
 ```bash
 git status -sb
-node scripts/cli.js report --session <id>
-node scripts/cli.js gate status --session <id>
+node packages/nekowork-cli/scripts/cli.js report --session <id>
+node packages/nekowork-cli/scripts/cli.js gate status --session <id>
 ```
 
 Then either fix the blocker, approve/block the gate, or rerun the session.

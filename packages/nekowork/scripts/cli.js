@@ -13,8 +13,6 @@ import {
   verifyPrCycle,
   parseVerifyPrArgs,
   printVerifyPrSummary,
-  EXIT_CODE,
-  VERDICT,
 } from './orchestrators/verify-pr.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -38,6 +36,7 @@ verify-pr options:
   --from-staged             scan staged diff
   --range <baseSha...head>  scan commit range
   --from-patch <file>       scan a patch file
+  --full-scan               scan the whole tree (onboarding; no PR/diff yet)
   --include <path>          force-scan a path even if gitignored
   --comment-file <path>     write a PR-comment markdown
   --ci-exit-soft            NEEDS_HUMAN_REVIEW / INSUFFICIENT_EVIDENCE → exit 0
@@ -93,7 +92,20 @@ async function runInternal(verb, rest) {
 
   if (verb === 'verify-pr') {
     const opts = parseVerifyPrArgs(rest);
-    const result = await verifyPrCycle(opts);
+    let result;
+    try {
+      result = await verifyPrCycle(opts);
+    } catch (e) {
+      const msg = String(e?.message || e);
+      if (/not a git repository/i.test(msg)) {
+        console.error('verify-pr could not find a git repository here.');
+        console.error('  Run it inside a git repo, or scan a patch file instead:');
+        console.error('    nekowork verify-pr --from-patch <file>');
+        process.exit(2);
+      }
+      console.error(msg);
+      process.exit(1);
+    }
     if (opts.json) {
       console.log(JSON.stringify({
         decision: result.decision,
@@ -104,11 +116,9 @@ async function runInternal(verb, rest) {
     } else {
       printVerifyPrSummary(result);
     }
-    let exitCode = EXIT_CODE[result.decision.verdict] ?? 1;
-    if (opts.ciExitSoft && (result.decision.verdict === VERDICT.NEEDS_HUMAN_REVIEW || result.decision.verdict === VERDICT.INSUFFICIENT_EVIDENCE)) {
-      exitCode = 0;
-    }
-    process.exit(exitCode);
+    // Single source of truth: verifyPrCycle already computed exitCode and
+    // honored --ci-exit-soft. Do not recompute here.
+    process.exit(result.exitCode ?? 1);
   }
 
   if (verb === 'report') {

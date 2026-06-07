@@ -27,14 +27,22 @@ target-project/
 
 The tool root stays in `.harness-tool/`. Generated harness files, session state, and git-aware execution target the project root.
 
-## npm Alpha Install
+## Install Into A Target Project (source checkout)
 
-Use this when you want the shortest target-project install path:
+Installing NEKOWORK tool surfaces into a target project is a **heavy-harness**
+operation. The published slim `@ps-neko/nekowork@alpha` package only supports
+`check` / `verify-pr` / `report` / `apply` and rejects `init` / `install`. Run the
+install from a cloned repo:
+
+```bash
+node packages/nekowork-cli/scripts/cli.js install --apply --profile developer --project-root <target-project>
+```
+
+Then verify the diff from the target project with the slim verb:
 
 ```bash
 cd <target-project>
-npx -y @ps-neko/nekowork@alpha init --profile developer --project-root .
-npx -y @ps-neko/nekowork@alpha check --project-root .
+npx -y @ps-neko/nekowork@alpha check
 ```
 
 ## Submodule Install
@@ -56,8 +64,8 @@ Use this when developing NEKOWORK and testing it against another project:
 cd C:/Users/Mun/harness
 node scripts/portability/simulate-port.js <target-project> --profile developer --verbose
 node scripts/install-apply.js --profile developer --project-root <target-project>
-node scripts/cli.js doctor --project-root <target-project> --quick
-node scripts/cli.js plan "target project smoke" --project-root <target-project> --session target-smoke
+node packages/nekowork-cli/scripts/cli.js doctor --project-root <target-project> --quick
+node packages/nekowork-cli/scripts/cli.js plan "target project smoke" --project-root <target-project> --session target-smoke
 ```
 
 ## What To Check

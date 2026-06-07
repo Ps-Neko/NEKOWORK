@@ -1,0 +1,126 @@
+{
+  "fixture_set": "command-injection",
+  "schema_version": "0.1",
+  "generated_at": "2026-06-07",
+  "notes": "R2-9b: OS command injection via concatenation / template interpolation into exec/execSync, or spawn with shell:true + dynamic command. fpMode any — array-arg spawn/execFile, static-literal exec, RegExp.exec, and bare-variable exec must produce NO finding. All SYNTHETIC.",
+  "targets": {
+    "any_detection_recall": 0.95,
+    "fp_rate": 0.10
+  },
+  "entries": [
+    {
+      "id": "ci-pos-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/001-exec-concat.js",
+      "pattern": "exec-concat",
+      "expected_findings": [{ "rule": "command-injection", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "exec('ping -c 1 ' + host)."
+    },
+    {
+      "id": "ci-pos-002",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/002-execsync-template.js",
+      "pattern": "exec-template",
+      "expected_findings": [{ "rule": "command-injection", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "execSync(`rm -rf ${path}`)."
+    },
+    {
+      "id": "ci-pos-003",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/003-spawn-shell-true.js",
+      "pattern": "spawn-shell-true-concat",
+      "expected_findings": [{ "rule": "command-injection", "severity": "critical" }],
+      "added_at": "2026-06-07",
+      "notes": "spawn(`sh -c ${cmd}`, { shell: true }) → critical."
+    },
+    {
+      "id": "ci-pos-004",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/004-exec-concat-archive.js",
+      "pattern": "exec-concat",
+      "expected_findings": [{ "rule": "command-injection", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "exec('tar czf ' + name + '.tgz ...')."
+    },
+    {
+      "id": "ci-pos-005",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/005-execsync-concat-git.js",
+      "pattern": "exec-concat",
+      "expected_findings": [{ "rule": "command-injection", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "execSync('git checkout ' + branch)."
+    },
+    {
+      "id": "ci-pos-006",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/006-exec-template-curl.js",
+      "pattern": "exec-template",
+      "expected_findings": [{ "rule": "command-injection", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "exec(`curl -fsSL ${url} -o /tmp/out`)."
+    },
+    {
+      "id": "ci-neg-001",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/001-spawn-array.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: spawn('ls', ['-la', dir]) — array args, no shell."
+    },
+    {
+      "id": "ci-neg-002",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/002-execfile-array.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: execFile / spawnSync with fixed binary + args array."
+    },
+    {
+      "id": "ci-neg-003",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/003-static-literal.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: exec/execSync with static-literal command, no input."
+    },
+    {
+      "id": "ci-neg-004",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/004-regex-exec.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: RegExp.exec / parser.exec — not child_process."
+    },
+    {
+      "id": "ci-neg-005",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/005-exec-variable-only.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: exec(safeCommand) — bare variable, no inline interpolation (out of scope)."
+    },
+    {
+      "id": "ci-neg-006",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/006-spawn-array-shell-false.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "FP guard: spawn array args + shell:false."
+    }
+  ]
+}

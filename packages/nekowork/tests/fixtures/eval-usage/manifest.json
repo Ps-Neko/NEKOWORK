@@ -1,0 +1,156 @@
+{
+  "fixture_set": "eval-usage",
+  "schema_version": "0.1",
+  "generated_at": "2026-06-07",
+  "notes": "F1: dynamic code execution (eval / new Function). High severity injection/RCE vector. fpMode any — there is no acceptable eval finding, so any finding on a negative is an FP. Static-literal eval and comment/identifier mentions must not fire.",
+  "targets": {
+    "any_detection_recall": 0.95,
+    "fp_rate": 0.10
+  },
+  "entries": [
+    {
+      "id": "ev-pos-001",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/001-eval-variable.js",
+      "pattern": "eval-call",
+      "expected_findings": [{ "rule": "eval-usage", "line": 4, "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "eval(input) — variable argument."
+    },
+    {
+      "id": "ev-pos-002",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/002-eval-concat.js",
+      "pattern": "eval-call",
+      "expected_findings": [{ "rule": "eval-usage", "line": 4, "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "eval('return ' + expr + ';') — concatenated string."
+    },
+    {
+      "id": "ev-pos-003",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/003-new-function.js",
+      "pattern": "new-function-constructor",
+      "expected_findings": [{ "rule": "eval-usage", "line": 4, "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "new Function('ctx', body)."
+    },
+    {
+      "id": "ev-pos-004",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/004-eval-template.js",
+      "pattern": "eval-call",
+      "expected_findings": [{ "rule": "eval-usage", "line": 4, "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "eval(`${name} = ${value}`) — interpolated template."
+    },
+    {
+      "id": "ev-neg-001",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/001-no-eval.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "JSON.parse + dispatch table, no eval."
+    },
+    {
+      "id": "ev-neg-002",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/002-eval-in-comment-and-identifier.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "eval only in comments / identifiers (retrieval, evaluateScore) / property access (obj.eval) — must not fire."
+    },
+    {
+      "id": "ev-neg-003",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/003-eval-static-literal.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "eval('1 + 1') — pure static literal, filtered as low-signal."
+    },
+    {
+      "id": "ev-pos-005",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/005-window-eval.js",
+      "pattern": "indirect-global-eval",
+      "expected_findings": [{ "rule": "eval-usage", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-3 indirect eval: window.eval(req.query.code)."
+    },
+    {
+      "id": "ev-pos-006",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/006-globalthis-eval.js",
+      "pattern": "indirect-global-eval",
+      "expected_findings": [{ "rule": "eval-usage", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-3 indirect eval: globalThis.eval('(' + payload + ')')."
+    },
+    {
+      "id": "ev-pos-007",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/007-vm-runincontext.js",
+      "pattern": "node-vm-run",
+      "expected_findings": [{ "rule": "eval-usage", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-3 Node vm: vm.runInNewContext(userScript, context)."
+    },
+    {
+      "id": "ev-pos-008",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/008-settimeout-string.js",
+      "pattern": "timer-string-eval",
+      "expected_findings": [{ "rule": "eval-usage", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-3 setTimeout with a string first arg (implicit eval)."
+    },
+    {
+      "id": "ev-pos-009",
+      "label": "positive",
+      "source": "synthetic",
+      "file": "positive/009-eval-member-arg.js",
+      "pattern": "eval-call",
+      "expected_findings": [{ "rule": "eval-usage", "severity": "high" }],
+      "added_at": "2026-06-07",
+      "notes": "R2-10 diversity: eval(req.body.expression) — real-world API handler phrasing."
+    },
+    {
+      "id": "ev-neg-004",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/004-settimeout-function-ref.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-3 FP guard: setTimeout(fn, 100) / setInterval(() => ..., 1000) — function refs, not strings."
+    },
+    {
+      "id": "ev-neg-005",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/005-window-location-and-vm-lookalike.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-10 FP guard: window.location, myvm.runSomething, evaluator.evaluate — lookalikes, not eval."
+    },
+    {
+      "id": "ev-neg-006",
+      "label": "negative",
+      "source": "synthetic",
+      "file": "negative/006-json-and-template.js",
+      "expected_findings": [],
+      "added_at": "2026-06-07",
+      "notes": "R2-10 FP guard: JSON.parse + static template literal — safe data handling, no eval."
+    }
+  ]
+}

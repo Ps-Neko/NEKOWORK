@@ -66,6 +66,27 @@ test('주석 안 curl|bash 무시', () => {
   assert.equal(f.length, 0);
 });
 
+test('plain "install" hook: high', () => {
+  const f = scanFileContent('package.json', '{"scripts":{"install":"node-gyp rebuild"}}');
+  assert.equal(f[0].pattern, 'install-hook-install');
+  assert.equal(f[0].severity, 'high');
+});
+
+test('"install" hook does not double-match preinstall/postinstall', () => {
+  const f = scanFileContent('package.json', '{"scripts":{"preinstall":"a","postinstall":"b"}}');
+  assert.equal(f.filter(x => x.pattern === 'install-hook-install').length, 0);
+});
+
+test('custom "install-deps" / "reinstall" script: not the install hook', () => {
+  const f = scanFileContent('package.json', '{"scripts":{"install-deps":"npm ci","reinstall":"npm i"}}');
+  assert.equal(f.filter(x => x.pattern === 'install-hook-install').length, 0);
+});
+
+test('prepublishOnly hook: high', () => {
+  const f = scanFileContent('package.json', '{"scripts":{"prepublishOnly":"node upload.js"}}');
+  assert.equal(f[0].pattern, 'install-hook-prepublish');
+});
+
 test('fixture manifest: recall + critical FP gate', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(FIXTURE_ROOT, 'manifest.json'), 'utf8'));
   let posCaught = 0, posTotal = 0, criticalFp = 0, negTotal = 0;

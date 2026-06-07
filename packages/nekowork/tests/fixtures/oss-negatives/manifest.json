@@ -3,7 +3,7 @@
   "schema_version": "0.1",
   "generated_at": "2026-05-16",
   "purpose": "Real-world OSS code that should NOT trigger any verify-pr CRITICAL finding. Used to validate FP rate against well-known, well-reviewed Node code. All entries fetched verbatim from upstream — see source field for repo + commit SHA.",
-  "applies_to_rules": ["secret-fallback", "auto-apply-commit-push", "hardcoded-credential", "test-or-security-disable", "package-lockfile-risk"],
+  "applies_to_rules": ["secret-fallback", "auto-apply-commit-push", "hardcoded-credential", "test-or-security-disable", "package-lockfile-risk", "sql-injection", "command-injection", "ast-dataflow"],
   "entries": [
     {
       "id": "oss-neg-expressjs-auth",

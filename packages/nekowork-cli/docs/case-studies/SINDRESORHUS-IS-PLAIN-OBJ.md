@@ -44,11 +44,11 @@ npm test
 From the NEKOWORK checkout:
 
 ```bash
-node scripts/cli.js doctor --quick --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js doctor --quick --project-root <target> --json
 node scripts/portability/simulate-port.js <target> --profile developer --json
-node scripts/cli.js ask "assess is-plain-obj plain object boundary coverage" --profile quality --session nekowork-is-plain-obj-case --project-root <target> --json
-node scripts/cli.js run "assess is-plain-obj plain object boundary coverage" --profile quality --strict-quality --session nekowork-is-plain-obj-case --project-root <target> --json
-node scripts/cli.js gate status --session nekowork-is-plain-obj-case --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js ask "assess is-plain-obj plain object boundary coverage" --profile quality --session nekowork-is-plain-obj-case --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js run "assess is-plain-obj plain object boundary coverage" --profile quality --strict-quality --session nekowork-is-plain-obj-case --project-root <target> --json
+node packages/nekowork-cli/scripts/cli.js gate status --session nekowork-is-plain-obj-case --project-root <target> --json
 ```
 
 ## Target Test Result

@@ -1,7 +1,7 @@
 - id: nekowork-verify-pr
   name: NEKOWORK verify-pr
   description: Deterministic gate that scans the staged diff for hardcoded secrets, disabled tests/security checks, auto-commit/push attempts, and risky install scripts.
-  entry: npx -y @ps-neko/nekowork verify-pr --from-staged
+  entry: npx -y @ps-neko/nekowork@alpha verify-pr --from-staged
   language: system
   pass_filenames: false
   stages: [pre-commit]

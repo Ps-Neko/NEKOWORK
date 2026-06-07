@@ -17,14 +17,22 @@
 > 명령별 운명은 [SCOPE-1.0.md §3](SCOPE-1.0.md#3-명령-운명-표) 참고.
 > 장기 비전은 [VISION.md](VISION.md) 참고.
 
-The public alpha path focuses on `doctor`, `build`, `report`, `gate`, and the decomposed `ask`, `plan`, `team`, `work`, `verify`, `ship`, `apply`, `run`, `review`, `review-cycle`, and install/apply surfaces. This page keeps the larger runtime surface discoverable without crowding the first-run docs.
+> **Source checkout only.** Every command on this page belongs to the heavy
+> `@ps-neko/nekowork-harness` runtime, which is **NOT published to npm**. The
+> published slim `@ps-neko/nekowork@alpha` package supports only `check`,
+> `verify-pr`, `report`, and `apply` and rejects everything below. Run these
+> commands from a cloned repository via `node packages/nekowork-cli/scripts/cli.js …`
+> (the slim package path `packages/nekowork/scripts/cli.js` does **not** accept
+> them).
+
+The heavy harness surface covers `doctor`, `build`, `report`, `gate`, and the decomposed `ask`, `plan`, `team`, `work`, `verify`, `ship`, `apply`, `run`, `review`, `review-cycle`, and install/apply surfaces. This page keeps the larger runtime surface discoverable without crowding the first-run docs.
 
 ## team
 
 `team` is the public read-only team handoff command:
 
 ```bash
-node scripts/cli.js team "split and review this change" --workers planner,research,security,test --no-write --session team-smoke
+node packages/nekowork-cli/scripts/cli.js team "split and review this change" --workers planner,research,security,test --no-write --session team-smoke
 ```
 
 Rules:
@@ -45,7 +53,7 @@ Outputs:
 `work` is the public single-executor implementation phase:
 
 ```bash
-node scripts/cli.js work "implement the accepted plan" --single-executor --session work-smoke
+node packages/nekowork-cli/scripts/cli.js work "implement the accepted plan" --single-executor --session work-smoke
 ```
 
 Rules:
@@ -71,8 +79,8 @@ Outputs:
 `verify` is the public Codex-only verification phase:
 
 ```bash
-node scripts/cli.js verify "verify the accepted work" --session work-smoke
-node scripts/cli.js verify "verify sensitive auth work" --session work-smoke --secure
+node packages/nekowork-cli/scripts/cli.js verify "verify the accepted work" --session work-smoke
+node packages/nekowork-cli/scripts/cli.js verify "verify sensitive auth work" --session work-smoke --secure
 ```
 
 Rules:
@@ -97,9 +105,9 @@ Outputs:
 `gate` is the explicit human decision phase:
 
 ```bash
-node scripts/cli.js gate status --session work-smoke
-node scripts/cli.js gate approve --session work-smoke --reason "Reviewed and accepted the risk"
-node scripts/cli.js gate block --session work-smoke --reason "Release risk rejected"
+node packages/nekowork-cli/scripts/cli.js gate status --session work-smoke
+node packages/nekowork-cli/scripts/cli.js gate approve --session work-smoke --reason "Reviewed and accepted the risk"
+node packages/nekowork-cli/scripts/cli.js gate block --session work-smoke --reason "Release risk rejected"
 ```
 
 Rules:
@@ -123,7 +131,7 @@ Outputs:
 `ship` is the public ship/no-ship readiness phase:
 
 ```bash
-node scripts/cli.js ship "prepare ship readiness" --require-clean-gates --session work-smoke
+node packages/nekowork-cli/scripts/cli.js ship "prepare ship readiness" --require-clean-gates --session work-smoke
 ```
 
 Rules:
@@ -148,8 +156,8 @@ Outputs:
 `apply` is the explicit project-mutation phase for live work diffs:
 
 ```bash
-node scripts/cli.js apply --session work-smoke
-node scripts/cli.js apply --session work-smoke --allow-dirty
+node packages/nekowork-cli/scripts/cli.js apply --session work-smoke
+node packages/nekowork-cli/scripts/cli.js apply --session work-smoke --allow-dirty
 ```
 
 Rules:
@@ -173,9 +181,9 @@ Outputs:
 `run` is the public convenience wrapper for the decomposed pipeline:
 
 ```bash
-node scripts/cli.js run "implement and verify this change" --session run-smoke
-node scripts/cli.js run "sensitive auth change" --session run-smoke --secure
-node scripts/cli.js run "live change" --session run-smoke --live --apply
+node packages/nekowork-cli/scripts/cli.js run "implement and verify this change" --session run-smoke
+node packages/nekowork-cli/scripts/cli.js run "sensitive auth change" --session run-smoke --secure
+node packages/nekowork-cli/scripts/cli.js run "live change" --session run-smoke --live --apply
 ```
 
 Rules:
@@ -206,10 +214,10 @@ Outputs:
 `build` is the public one-command builder wrapper:
 
 ```bash
-node scripts/cli.js build "implement this safely" --dry-run
-node scripts/cli.js build "implement this safely" --explain --session build-smoke
-node scripts/cli.js build "auth-sensitive change" --mode safe --session auth-smoke
-node scripts/cli.js build "scope with team thinking" --mode team --session team-smoke
+node packages/nekowork-cli/scripts/cli.js build "implement this safely" --dry-run
+node packages/nekowork-cli/scripts/cli.js build "implement this safely" --explain --session build-smoke
+node packages/nekowork-cli/scripts/cli.js build "auth-sensitive change" --mode safe --session auth-smoke
+node packages/nekowork-cli/scripts/cli.js build "scope with team thinking" --mode team --session team-smoke
 ```
 
 Rules:
@@ -236,10 +244,10 @@ Outputs:
 `report` turns existing session evidence into a readable inspect-only report:
 
 ```bash
-node scripts/cli.js report --session run-smoke
-node scripts/cli.js report --session latest
-node scripts/cli.js report --session run-smoke --stdout
-node scripts/cli.js report --session run-smoke --output docs/session-report.md
+node packages/nekowork-cli/scripts/cli.js report --session run-smoke
+node packages/nekowork-cli/scripts/cli.js report --session latest
+node packages/nekowork-cli/scripts/cli.js report --session run-smoke --stdout
+node packages/nekowork-cli/scripts/cli.js report --session run-smoke --output docs/session-report.md
 ```
 
 Rules:
@@ -259,7 +267,7 @@ Outputs:
 `review-cycle` is the explicit compatibility alias for the legacy full workflow:
 
 ```bash
-node scripts/cli.js review-cycle "legacy full-cycle smoke" --no-ship
+node packages/nekowork-cli/scripts/cli.js review-cycle "legacy full-cycle smoke" --no-ship
 ```
 
 Rules:
@@ -274,7 +282,7 @@ Rules:
 `team-lite` is a lightweight staged team pipeline inspired by OMC concepts:
 
 ```bash
-node scripts/cli.js team-lite "split and verify this change" --session team-smoke
+node packages/nekowork-cli/scripts/cli.js team-lite "split and verify this change" --session team-smoke
 ```
 
 Stages:
@@ -305,8 +313,8 @@ Outputs:
 `ralph` is an explicit opt-in loop that repeats until PRD acceptance criteria pass, a human gate is hit, a cost cap stops it, or `--max-iter` is reached.
 
 ```bash
-node scripts/cli.js ralph "finish the acceptance criteria" --max-iter 5
-node scripts/cli.js ralph "finish using the decomposed flow" --engine run --max-iter 5
+node packages/nekowork-cli/scripts/cli.js ralph "finish the acceptance criteria" --max-iter 5
+node packages/nekowork-cli/scripts/cli.js ralph "finish using the decomposed flow" --engine run --max-iter 5
 ```
 
 Rules:
@@ -324,9 +332,9 @@ Use it only when repeated local iteration is desired. It is not part of the basi
 `wait` is the persistent wakeup daemon for explicit active sessions:
 
 ```bash
-node scripts/cli.js wait status
-node scripts/cli.js wait start
-node scripts/cli.js wait stop
+node packages/nekowork-cli/scripts/cli.js wait status
+node packages/nekowork-cli/scripts/cli.js wait start
+node packages/nekowork-cli/scripts/cli.js wait stop
 ```
 
 Rules:
@@ -345,9 +353,9 @@ This is still an advanced opt-in surface. It does not bypass gates and does not 
 Instincts are project-local learning records. Promotion is intentionally manual.
 
 ```bash
-node scripts/cli.js instincts list
-node scripts/cli.js instincts ready --blocked
-node scripts/cli.js instincts adopt <id> --reviewed-by <name> --reason "why this pattern is safe to use"
+node packages/nekowork-cli/scripts/cli.js instincts list
+node packages/nekowork-cli/scripts/cli.js instincts ready --blocked
+node packages/nekowork-cli/scripts/cli.js instincts adopt <id> --reviewed-by <name> --reason "why this pattern is safe to use"
 ```
 
 Adoption requires confidence `1.0`, an explicit reviewer, and a recorded reason. Automatic promotion without human confirmation is outside the current alpha release scope.
@@ -357,9 +365,9 @@ Adoption requires confidence `1.0`, an explicit reviewer, and a recorded reason.
 Cost records are appended to `.harness/costs.jsonl` when live runners report token usage.
 
 ```bash
-node scripts/cli.js costs --since=7d
-node scripts/cli.js costs --since=7d --rows
-node scripts/cli.js costs --since=7d --json
+node packages/nekowork-cli/scripts/cli.js costs --since=7d
+node packages/nekowork-cli/scripts/cli.js costs --since=7d --rows
+node packages/nekowork-cli/scripts/cli.js costs --since=7d --json
 ```
 
 These are estimates, not billing records.
