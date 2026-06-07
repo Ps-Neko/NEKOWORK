@@ -9,7 +9,7 @@
 
 ## [0.2.0-alpha.10] - 2026-06-08
 
-Not yet published; the `@alpha` on npm is still `0.2.0-alpha.9`. This version ships evidence-behavior and honest-framing changes from external (GPT) review feedback.
+Published slim release; the `@alpha` on npm is now `0.2.0-alpha.10`. This version ships evidence-behavior and honest-framing changes from external (GPT) review feedback.
 
 ### Added
 - Evidence package now records three new audit artifacts under `.nekowork/evidence/`: `diff.patch` (the raw unified diff the rules actually scanned, post self-output exclusion), `diff.sha256` (sha256 hex of `diff.patch`'s exact bytes — makes "same diff → same verdict" externally provable), and `rule-version.json` (`engine_version` + `rule_count` + the rule ids run + `generated_at`, so a verdict is reproducible against a known ruleset version). The raw diff string is threaded from `loadDiff`/`getGitDiff`/`loadDiffFile` through `verifyPrCycle` into `writeEvidence`; the evidence manifest lists all three and carries a top-level `diff_sha256`.
