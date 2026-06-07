@@ -1,6 +1,6 @@
 # NEKOWORK verify-pr — Rule Benchmark
 
-> Measured: 2026-06-07 (re-run of `npm run bench:rules`) · Slim package version: `0.2.0-alpha.7`
+> Measured: 2026-06-07 (re-run of `npm run bench:rules`) · Slim package version: `0.2.0-alpha.8`
 > Source of truth: run `npm run bench:rules -- --json` from `packages/nekowork/`.
 > This page is the **single source of truth** for the rule inventory and the
 > recall / false-positive numbers. Other docs (SCOPE-1.0.md, READMEs) point here.
@@ -26,7 +26,7 @@ rule passes the detection gate (recall ≥ 0.95, FP ≤ 0.10) at 100% recall / 0
 its current fixture corpus.
 
 > **Publish-state caveat (read this before quoting "11 rules").** The published
-> `@alpha` (`0.2.0-alpha.7`) now ships all **11 rules** measured on this page
+> `@alpha` (`0.2.0-alpha.8`) now ships all **11 rules** measured on this page
 > (`secret-fallback`, `auto-apply-commit-push`, `hardcoded-credential`,
 > `test-or-security-disable`, `package-lockfile-risk`, `eval-usage`, `insecure-tls`,
 > `cors-wildcard`, `sql-injection`, `command-injection`, `ast-dataflow`) and adds
@@ -42,19 +42,22 @@ its current fixture corpus.
 | `hardcoded-credential` | **100%** | **0%** | 11 / 11 | 0 / 12 | ✅ |
 | `test-or-security-disable` | **100%** | **0%** | 24 / 24 | 0 / 12 | ✅ |
 | `package-lockfile-risk` | **100%** | **0%** | 11 / 11 | 0 / 9 | ✅ |
-| `eval-usage` | **100%** | **0%** | 9 / 9 | 0 / 6 | ✅ |
-| `insecure-tls` | **100%** | **0%** | 10 / 10 | 0 / 5 | ✅ |
-| `cors-wildcard` | **100%** | **0%** | 6 / 6 | 0 / 5 | ✅ |
-| `sql-injection` | **100%** | **0%** | 6 / 6 | 0 / 9 | ✅ |
-| `command-injection` | **100%** | **0%** | 6 / 6 | 0 / 9 | ✅ |
-| `ast-dataflow` | **100%** | **0%** | 18 / 18 | 0 / 21 | ✅ |
-| **Aggregate** | **100%** | **0%** | **184 / 184** | **0 / 120** | — |
+| `eval-usage` | **100%** | **0%** | 15 / 15 | 0 / 6 | ✅ |
+| `insecure-tls` | **100%** | **0%** | 16 / 16 | 0 / 5 | ✅ |
+| `cors-wildcard` | **100%** | **0%** | 12 / 12 | 0 / 5 | ✅ |
+| `sql-injection` | **100%** | **0%** | 12 / 12 | 0 / 9 | ✅ |
+| `command-injection` | **100%** | **0%** | 12 / 12 | 0 / 9 | ✅ |
+| `ast-dataflow` | **100%** | **0%** | 30 / 30 | 0 / 27 | ✅ |
+| **Aggregate** | **100%** | **0%** | **226 / 226** | **0 / 126** | — |
 
 `ast-dataflow` is the only **AST / dataflow** rule (all others are regex pattern
-matchers): it builds an AST via `acorn` and runs **intraprocedural taint analysis** to
-catch **variable-mediated injection** the regex rules miss — e.g.
+matchers): it builds an AST via `acorn` and runs **inter-procedural (intra-module)
+taint analysis** to catch **variable-mediated injection** the regex rules miss — e.g.
 `const q = "SELECT " + id; db.query(q)` assembled across statements, an `eval` built
-from concatenated parts, or a shell command stitched together before `exec`.
+from concatenated parts, a shell command stitched together before `exec`, or a sink
+aliased to a local variable / fed from a local helper's return value
+(`function build(x){return "SELECT "+x} db.query(build(req.id))`). It stays
+**intra-module (single-file)**; cross-file and non-JS taint remain out of scope.
 
 **Detection gate per [SCOPE §9](./SCOPE-1.0.md#9-fixture-출처-정책):** recall ≥ 0.95, FP ≤ 0.10.
 The CLI prints this as "11/11 rules passing 1.0 gate."
@@ -68,37 +71,44 @@ The CLI prints this as "11/11 rules passing 1.0 gate."
 | `hardcoded-credential` | 11 / 0 / 0 ⚠️ syn-only | 9 / 3 / 0 |
 | `test-or-security-disable` | 15 / 8 / 1 | 9 / 3 / 0 |
 | `package-lockfile-risk` | 8 / 3 / 0 | 6 / 3 / 0 |
-| `eval-usage` | 9 / 0 / 0 ⚠️ syn-only | 6 / 0 / 0 |
-| `insecure-tls` | 10 / 0 / 0 ⚠️ syn-only | 5 / 0 / 0 |
-| `cors-wildcard` | 6 / 0 / 0 ⚠️ syn-only | 5 / 0 / 0 |
-| `sql-injection` | 6 / 0 / 0 ⚠️ syn-only | 6 / 3 / 0 |
-| `command-injection` | 6 / 0 / 0 ⚠️ syn-only | 6 / 3 / 0 |
-| `ast-dataflow` | 18 / 0 / 0 ⚠️ syn-only | 18 / 3 / 0 |
-| **Total** | **134 / 46 / 4** | **96 / 24 / 0** |
+| `eval-usage` | 9 / 6 / 0 | 6 / 0 / 0 |
+| `insecure-tls` | 10 / 6 / 0 | 5 / 0 / 0 |
+| `cors-wildcard` | 6 / 6 / 0 | 5 / 0 / 0 |
+| `sql-injection` | 6 / 6 / 0 | 6 / 3 / 0 |
+| `command-injection` | 6 / 6 / 0 | 6 / 3 / 0 |
+| `ast-dataflow` | 24 / 6 / 0 | 24 / 3 / 0 |
+| **Total** | **140 / 82 / 4** | **102 / 24 / 0** |
 
-Synthetic share of total positives: **73%** (134 / 184). Only `secret-fallback`
-meets the §9 "30+ real OSS positives" bar (30 OSS / 33 synthetic / 2 live AI).
+Synthetic share of total positives: **62%** (140 / 226). Only `secret-fallback`
+meets the §9 "30+ real OSS positives" bar (30 OSS / 33 synthetic / 2 live AI), but
+there are now **~82 real OSS positives across rules** — the OSS-fixture merge added
+real OSS positives to the injection rules (`eval-usage`, `insecure-tls`,
+`cors-wildcard`, `sql-injection`, `command-injection`) and `ast-dataflow`, so they
+are no longer synthetic-only. Only `hardcoded-credential` remains synthetic-only
+(by design — see ethical note below).
 
 ### Provenance of the newer rules — read this before quoting recall
 
-The five-rule corpus was extended to eight, then to ten, then to eleven. The seven
-newest rules are validated by **synthetic fixtures only** — they have **no** real-OSS
-and **no** live-AI positives yet:
+The five-rule corpus was extended to eight, then to ten, then to eleven. After the
+OSS-fixture merge, most of the newer rules now carry **real OSS positives** (6 each on
+`eval-usage`, `insecure-tls`, `cors-wildcard`, `sql-injection`, `command-injection`,
+and `ast-dataflow`). Only one rule is still validated by **synthetic fixtures only**:
 
-- `hardcoded-credential` — synthetic-only **by design** (see ethical note below).
-- `eval-usage` — synthetic-only.
-- `insecure-tls` — synthetic-only.
-- `cors-wildcard` — synthetic-only.
-- `sql-injection` — synthetic-only.
-- `command-injection` — synthetic-only.
-- `ast-dataflow` — synthetic-only.
+- `hardcoded-credential` — synthetic-only **by design** (see ethical note below); no
+  real-OSS or live-AI positives, on purpose.
 
-Their 100% recall therefore measures only "does the regex fire on fixtures we
-wrote." **Do not present these six as OSS- or live-AI-validated.** Only
-`secret-fallback` carries the strong provenance mix (30 real OSS positives, 2
-live-AI captures); `auto-apply-commit-push` (5 OSS, 1 live) and
-`test-or-security-disable` (8 OSS, 1 live) carry partial OSS/live evidence;
-`package-lockfile-risk` has 3 OSS positives.
+The other newer rules now have OSS evidence but **no live-AI positives yet**, so do
+not present them as live-AI-validated. The provenance mix per rule:
+
+- `secret-fallback` — the strongest: 30 real OSS positives, 2 live-AI captures.
+- `auto-apply-commit-push` (5 OSS, 1 live) and `test-or-security-disable` (8 OSS, 1
+  live) carry partial OSS/live evidence.
+- `package-lockfile-risk` has 3 OSS positives.
+- `eval-usage`, `insecure-tls`, `cors-wildcard`, `sql-injection`,
+  `command-injection`, and `ast-dataflow` each carry 6 real OSS positives (0 live-AI).
+
+There are now **~82 real OSS positives across rules** (vs. 46 before). Live-AI
+coverage is still thin (4 captures across 3 rules).
 
 ### ⚠️ Ethical note on `hardcoded-credential` OSS scraping
 
@@ -120,23 +130,26 @@ regex fires) — deferred.
 ## What is NOT covered
 
 Ten of the 11 rules are pattern matchers over **added diff lines** — they see a line,
-not a program. The 11th rule, `ast-dataflow`, adds **intraprocedural** AST/taint
-analysis, but it is deliberately conservative. The following are explicitly **out of
-scope** — NEKOWORK routes them to a human decision rather than claiming to catch them:
+not a program. The 11th rule, `ast-dataflow`, adds **inter-procedural (intra-module)**
+AST/taint analysis, but it is deliberately conservative. The following are explicitly
+**out of scope** — NEKOWORK routes them to a human decision rather than claiming to
+catch them:
 
 - **Logic / business-logic bugs** — wrong calculations, off-by-one, broken state
   machines. A diff can be 100% PASS and still be functionally wrong.
 - **Auth / authorization flaws** — missing permission checks, broken access control,
   privilege escalation. There is no auth-bypass rule (deferred to 1.x).
 - **Most injection classes** — only **basic** `sql-injection` and
-  `command-injection` regex shapes plus `ast-dataflow`'s single-function taint are
-  matched. Second-order injection, ORM-mediated injection, template/NoSQL/LDAP/XPath
-  injection, and anything that requires following user input across functions/files
-  are **not** detected.
-- **Cross-function / whole-program dataflow** — `ast-dataflow` is **intraprocedural
-  (single-function) and JS/TS-only**. Taint that crosses function boundaries, flows
-  through whole-program dataflow, or lives in a non-JS language remains **regex-only or
-  out of scope**. The regex rules see a line; the AST rule sees one function.
+  `command-injection` regex shapes plus `ast-dataflow`'s inter-procedural
+  (intra-module) taint are matched. Second-order injection, ORM-mediated injection,
+  template/NoSQL/LDAP/XPath injection, and anything that requires following user input
+  across files are **not** detected.
+- **Cross-file / whole-program dataflow** — `ast-dataflow` is **inter-procedural but
+  intra-module (single-file) and JS/TS-only**. It follows taint across function
+  boundaries within one file (local helper returns, sink aliases), but taint that
+  crosses file boundaries, flows through whole-program dataflow, or lives in a non-JS
+  language remains **regex-only or out of scope**. The regex rules see a line; the AST
+  rule sees one file.
 - **Non-added (context) lines** — by default verify-pr scans only **added** lines.
   Risk that already exists in unchanged code is not re-flagged unless you pass
   `--full-scan`.
@@ -161,28 +174,30 @@ cover — plus a human gate for everything else.
 
 - The deterministic rule engine is **stable**: same input, same verdict, every run.
 - Against the patterns the team thought to write fixtures for, the rules catch
-  them with **100% aggregate recall** (184 / 184) and produce **0 false
-  positives** on the negative corpus (0 / 120).
+  them with **100% aggregate recall** (226 / 226) and produce **0 false
+  positives** on the negative corpus (0 / 126).
 - The detection gate defined in SCOPE-1.0.md §9 is **mechanically passed** for all
   eleven rules.
 
 ### What the numbers do NOT prove
 
-- **Seven of eleven rules are synthetic-only.** `hardcoded-credential`, `eval-usage`,
-  `insecure-tls`, `cors-wildcard`, `sql-injection`, `command-injection`, and
-  `ast-dataflow` have zero OSS and zero live-AI positives. Their recall says nothing
-  about wild AI-written code yet.
-- **`ast-dataflow` is intraprocedural.** Its 18/18 recall measures only
-  single-function, JS/TS taint on fixtures we wrote. Cross-function and
-  whole-program dataflow are out of scope.
+- **One rule is still synthetic-only.** `hardcoded-credential` has zero OSS and zero
+  live-AI positives — by design (the ethical note above). Its recall says nothing
+  about wild AI-written code.
+- **`ast-dataflow` is inter-procedural but intra-module.** Its 30/30 recall measures
+  single-file, JS/TS taint (now following local helpers and sink aliases) on a corpus
+  that is mostly fixtures we wrote (6 OSS positives). Cross-file and whole-program
+  dataflow are out of scope.
 - **Supporting rules are under the OSS-positive target.** Only `secret-fallback`
   meets the §9 "30+ OSS positives" bar (30). `auto-apply-commit-push` (5),
-  `test-or-security-disable` (8), and `package-lockfile-risk` (3) are below it.
+  `test-or-security-disable` (8), `package-lockfile-risk` (3), and the six newer
+  injection/AST rules (6 each) are below it.
 - **Live-AI corpus is thin.** 4 live-AI positives across 3 rules vs. the §9
   target of 30+. Real coverage of how Claude Code / Cursor / Codex actually fail
   is still minimal.
-- **Synthetic share is 73%** (134 / 184 positives), above the §9 ≤30% target for
-  the corpus as a whole — pulled up by the seven synthetic-only rules.
+- **Synthetic share is 62%** (140 / 226 positives), above the §9 ≤30% target for
+  the corpus as a whole — even though the OSS-fixture merge added ~36 real OSS
+  positives.
 
 ## Gap to "claim 1.0-ready"
 
@@ -193,18 +208,19 @@ cover — plus a human gate for everything else.
 | `test-or-security-disable` OSS positives | 8 | 30+ | ⚠️ |
 | `package-lockfile-risk` OSS positives | 3 | 30+ | ⚠️ |
 | `hardcoded-credential` OSS positives | 0 (by-design) | — | 🚫 ethical scope |
-| `eval-usage` / `insecure-tls` / `cors-wildcard` / `sql-injection` / `command-injection` / `ast-dataflow` OSS positives | 0 each | 30+ | ❌ synthetic-only |
+| `eval-usage` / `insecure-tls` / `cors-wildcard` / `sql-injection` / `command-injection` / `ast-dataflow` OSS positives | 6 each | 30+ | ⚠️ below bar |
 | Positive fixtures from live AI diffs | 4 | 30+ | ❌ |
-| Overall synthetic share of positives | 73% (134/184) | ≤ 30% | ❌ |
+| Overall synthetic share of positives | 62% (140/226) | ≤ 30% | ❌ |
 | Recall — all 11 rules | 100% | ≥ 95% | ✅ |
-| FP rate — all 11 rules | 0/120 (0%) | ≤ 10% | ✅ |
+| FP rate — all 11 rules | 0/126 (0%) | ≤ 10% | ✅ |
 | CI benchmark job, 3 consecutive PASS | passes locally | + CI history | ⚠️ partial |
 
-**Mechanical gate ✅, corpus honesty ⚠️.** All 11 rules pass the recall + FP gate,
-but the seven newer rules are synthetic-only and the overall synthetic share is well
-above the §9 target. Treat the "gate ✅" markers as a **mechanical pass on an
-admittedly partial corpus** — not as a claim that the rules generalize to wild
-AI-written code.
+**Mechanical gate ✅, corpus honesty ⚠️.** All 11 rules pass the recall + FP gate.
+The OSS-fixture merge moved the newer injection/AST rules off synthetic-only (6 real
+OSS positives each), leaving only `hardcoded-credential` synthetic-only by design —
+but the overall synthetic share (62%) is still well above the §9 target. Treat the
+"gate ✅" markers as a **mechanical pass on an admittedly partial corpus** — not as a
+claim that the rules generalize to wild AI-written code.
 
 ## How to reproduce
 
@@ -245,13 +261,13 @@ alpha signal. The benchmark side needs:
 - [x] Scrape 30+ real OSS positives for the killer rule (`secret-fallback` — 30 met);
       supporting rules (`auto-apply-commit-push` 5, `test-or-security-disable` 8,
       `package-lockfile-risk` 3) still pending
-- [ ] Source real OSS / live-AI positives for the seven synthetic-only rules
-      (`hardcoded-credential` by-design synthetic; `eval-usage`, `insecure-tls`,
-      `cors-wildcard`, `sql-injection`, `command-injection`, `ast-dataflow` need
-      real corpora)
+- [ ] Grow OSS / live-AI positives for the under-target rules
+      (`hardcoded-credential` stays by-design synthetic; `eval-usage`, `insecure-tls`,
+      `cors-wildcard`, `sql-injection`, `command-injection`, `ast-dataflow` now have
+      6 real OSS positives each but need more toward the 30+ bar)
 - [ ] Generate live AI diffs by running Claude Code / Cursor / Codex on
       realistic tasks and extracting the risky-pattern diffs (4/30 captured so far)
-- [ ] Rebalance the corpus so synthetic ≤ 30% of total (currently 73%)
+- [ ] Rebalance the corpus so synthetic ≤ 30% of total (currently 62%)
 - [ ] Add CI job that publishes the JSON to `docs/benchmark-history.jsonl` on
       every main push, so the page above stays current automatically
 
