@@ -238,5 +238,5 @@ Builders project the catalog into tool-specific files:
 The current repository release line is `0.1.0-alpha.12`:
 
 - Repository and GitHub tarball release are available.
-- Public npm alpha is the slim `@ps-neko/nekowork@alpha`, currently `0.2.0-alpha.5`. The internal harness runtime `@ps-neko/nekowork-harness` is `private` and not published (source-checkout only).
+- Public npm alpha is the slim `@ps-neko/nekowork@alpha`, currently `0.2.0-alpha.6`. The internal harness runtime `@ps-neko/nekowork-harness` is `private` and not published (source-checkout only).
 - Clone, submodule, and local checkout integration remain supported for repository-pinned workflows.
