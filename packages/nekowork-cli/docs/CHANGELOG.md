@@ -9,7 +9,7 @@
 
 ## [0.2.0-alpha.9] - 2026-06-07
 
-Not yet published; the `@alpha` on npm is still `0.2.0-alpha.8`. This version closes the honest non-JS recall gaps the OSS-scraping surfaced: the regex risk rules were JS/TS-centric while real injections live in Python and Go too. Patterns mirror the existing multi-language style of `insecure-tls.js` (per-language regex via `makeRegexScanner`); FP stays 0 against the synthetic + shared OSS negative corpus.
+Published slim release; the `@alpha` on npm is now `0.2.0-alpha.9`. This version closes the honest non-JS recall gaps the OSS-scraping surfaced: the regex risk rules were JS/TS-centric while real injections live in Python and Go too. Patterns mirror the existing multi-language style of `insecure-tls.js` (per-language regex via `makeRegexScanner`); FP stays 0 against the synthetic + shared OSS negative corpus.
 
 ### Added
 - `command-injection` — **Python**: `subprocess.run/call/Popen(..., shell=True)` with a dynamic command (f-string / concat / variable), `os.system(f"...{x}...")` / `os.system("..."+x)`, and `os.popen(<dynamic>)`. **Go**: `exec.Command("sh"|"bash", "-c", <dynamic>)`. Recall fixtures 12 → 16 positives, 0 FP. Safe forms stay clean: `subprocess.run(["ls","-la"])`, `shell=False`, static `os.system("ls -la")`, and `exec.Command("ls","-la")` (arg array).

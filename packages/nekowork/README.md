@@ -15,7 +15,7 @@ single file (local-helper returns, sink aliasing); cross-file and whole-program
 dataflow are out of scope. The verdict is deterministic (same diff, same result), and it never
 commits, pushes, or deploys on its own. **You** make the final call.
 
-> Note: the published `@alpha` (0.2.0-alpha.8) now ships all **11 rules** described
+> Note: the published `@alpha` (0.2.0-alpha.9) now ships all **11 rules** described
 > above (incl. eval, insecure TLS, CORS wildcard, SQL/command injection, AST dataflow)
 > and adds **one tiny, well-known dependency** (`acorn`, the JS parser — MIT, zero
 > transitive dependencies) for the AST engine. Always install with the **`@alpha`**
