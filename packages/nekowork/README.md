@@ -15,6 +15,11 @@ single file (local-helper returns, sink aliasing); cross-file and whole-program
 dataflow are out of scope. The verdict is deterministic (same diff, same result), and it never
 commits, pushes, or deploys on its own. **You** make the final call.
 
+It is **primarily a JS/TS scanner**: the regex rules add a **few representative Python
+and Go patterns** (e.g. `subprocess` git push, `os.system`/`exec.Command`,
+`verify=False` / `InsecureSkipVerify`) as useful samples — **not full multi-language
+support**. The AST dataflow rule is JS/TS-only.
+
 > Note: the published `@alpha` (0.2.0-alpha.9) now ships all **11 rules** described
 > above (incl. eval, insecure TLS, CORS wildcard, SQL/command injection, AST dataflow)
 > and adds **one tiny, well-known dependency** (`acorn`, the JS parser — MIT, zero
