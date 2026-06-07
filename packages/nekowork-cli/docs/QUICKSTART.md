@@ -67,16 +67,17 @@ It then runs eleven deterministic risk rules over the changed lines:
 - **CORS wildcard** — `Access-Control-Allow-Origin: *` on credentialed endpoints.
 - **SQL injection (basic)** — string-concatenated SQL query shapes (regex-level only).
 - **Command injection (basic)** — user input flowing into `exec`/`spawn` shells (regex-level only).
-- **AST dataflow** — AST/dataflow taint for **variable-mediated injection** that the regex rules miss (assembled SQL/`eval`/shell across statements). Intraprocedural (single-function), JS/TS-only.
+- **AST dataflow** — AST/dataflow taint for **variable-mediated injection** that the regex rules miss (assembled SQL/`eval`/shell across statements, local-helper returns, sink aliases). Inter-procedural (intra-module, single-file), JS/TS-only.
 
 All eleven rules currently sit at 100% recall / 0% false positives on their
-fixture corpus and pass the 0.95 detection gate. The newer rules
-(`hardcoded-credential`, `eval-usage`, `insecure-tls`, `cors-wildcard`,
-`sql-injection`, `command-injection`, `ast-dataflow`) are validated by **synthetic
-fixtures only**; only `secret-fallback` carries real OSS positives. The two injection
-rules are **basic regex shapes** and `ast-dataflow` is **intraprocedural only** — most
-injection classes (and anything needing cross-function/whole-program dataflow) are out
-of scope. Ten of the rules are pure regex; `ast-dataflow` adds **one tiny, well-known
+fixture corpus and pass the 0.95 detection gate. After the OSS-fixture merge most
+rules carry **real OSS positives** (`eval-usage`, `insecure-tls`, `cors-wildcard`,
+`sql-injection`, `command-injection`, and `ast-dataflow` each add 6, on top of
+`secret-fallback`'s 30); only `hardcoded-credential` stays **synthetic-only by design**
+(see the ethical note in BENCHMARK.md). The two injection
+rules are **basic regex shapes** and `ast-dataflow` is **inter-procedural but
+intra-module (single-file)** — most injection classes (and anything needing cross-file/
+whole-program dataflow) are out of scope. Ten of the rules are pure regex; `ast-dataflow` adds **one tiny, well-known
 dependency** (`acorn`, the JS parser — MIT, zero transitive dependencies). See
 [BENCHMARK.md](BENCHMARK.md) for the per-rule provenance and the full "What is NOT
 covered" boundary.

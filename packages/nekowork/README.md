@@ -10,8 +10,9 @@ hardcoded credentials, auto-push/commit, test/security disables, risky package
 hooks, eval, insecure TLS, CORS wildcard, basic SQL/command injection, and AST
 dataflow taint for variable-mediated injection) and routes everything else to a
 human decision. It is **not an exhaustive security audit** — the AST rule is
-intraprocedural (single-function, JS/TS); cross-function and whole-program dataflow
-are out of scope. The verdict is deterministic (same diff, same result), and it never
+inter-procedural (intra-module, JS/TS): it follows taint across functions within a
+single file (local-helper returns, sink aliasing); cross-file and whole-program
+dataflow are out of scope. The verdict is deterministic (same diff, same result), and it never
 commits, pushes, or deploys on its own. **You** make the final call.
 
 > Note: the published `@alpha` (0.2.0-alpha.8) now ships all **11 rules** described
@@ -85,7 +86,7 @@ step — it is not triggered by `decision.json`.
 
 - [Quickstart](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/QUICKSTART.md)
 - [How verification works](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/SCOPE-1.0.md)
-- [Benchmark](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/BENCHMARK.md) — 11 rules, 226/226 (100%) recall, 0/126 FP; ~82 real OSS positives across rules (incl. 30 on `secret-fallback`), synthetic share 62%; `hardcoded-credential` stays synthetic-only by design
+- [Benchmark](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/BENCHMARK.md) — 11 rules, 234/234 (100%) recall, 0/130 FP; ~82 real OSS positives across rules (incl. 30 on `secret-fallback`), synthetic share 63%; `hardcoded-credential` stays synthetic-only by design
 - [Integration](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/INTEGRATION.md)
 
 ## License

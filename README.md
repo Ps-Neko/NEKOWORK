@@ -102,9 +102,10 @@ security audit**:
 - Changes with too little evidence to trust safely.
 
 The deterministic verdict, the human gate, and the "never auto-pushes" promise hold
-for everything above. The AST dataflow rule is **intraprocedural and conservative**:
-it follows tainted values **within a single function** and JS/TS only — it does **not**
-do cross-function or whole-program analysis. Anything beyond that (most injection
+for everything above. The AST dataflow rule is **inter-procedural (intra-module) and
+conservative**: it follows tainted values **across functions within a single file**
+(including local-helper returns and sink aliasing), JS/TS only — it does **not** do
+cross-file or whole-program analysis. Anything beyond that (most injection
 classes, business-logic bugs, auth/authorization flaws) is still **out of scope**. See
 the [benchmark's "What is NOT covered"](packages/nekowork-cli/docs/BENCHMARK.md) for the
 exact boundary.
