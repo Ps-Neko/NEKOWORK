@@ -39,7 +39,7 @@ whether the change is safe to merge.
 |---|---|
 | `check` | Probe environment readiness (Node version, git repo, etc.) |
 | `verify-pr` | Scan working-tree diff. Produce REPORT.md + .nekowork/decision.json |
-| `report` | Render an existing decision.json to a human-readable REPORT.md |
+| `report` | Session-based compatibility command. Requires `--session <id>` and renders that session's evidence to REPORT.md. The normal `verify-pr` path already writes REPORT.md directly — you don't need `report` for it. |
 | `apply` | Session-based compatibility apply. Requires a completed work cycle (SHIP_READY marker + cleared Human Gate). NOT driven by verify-pr's decision.json. See [ADVANCED.md](https://github.com/Ps-Neko/NEKOWORK/blob/main/packages/nekowork-cli/docs/ADVANCED.md). |
 
 Anything else (`ask`, `plan`, `team`, `work`, `ship`, `build`, `auto`,
