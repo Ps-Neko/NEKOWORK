@@ -63,7 +63,7 @@ npx -y @ps-neko/nekowork@alpha verify-pr
 ```
 
 > Always use the **`@alpha`** tag — the bare package / `latest` dist-tag is pinned
-> to a stale `0.2.0-alpha.0` (5 rules, zero deps). `@alpha` (`0.2.0-alpha.8`) ships
+> to a stale `0.2.0-alpha.0` (5 rules, zero deps). `@alpha` (`0.2.0-alpha.9`) ships
 > the full **11 rules**, so `@alpha` is the one to install.
 
 NEKOWORK reads the changed lines, writes a plain-English `REPORT.md`, and tells
@@ -86,7 +86,7 @@ NEKOWORK flags a **defined set of AI-introduced risk patterns** — 11 determini
 rules — and routes everything else to a human decision. It is **not an exhaustive
 security audit**:
 
-> Note: the published `@alpha` (0.2.0-alpha.8) now ships all **11 rules** (incl. eval,
+> Note: the published `@alpha` (0.2.0-alpha.9) now ships all **11 rules** (incl. eval,
 > insecure TLS, CORS wildcard, SQL/command injection, and AST dataflow) and adds **one
 > tiny, well-known dependency** (`acorn`, the JS parser — MIT, zero transitive
 > dependencies) for the AST engine. Always install with the **`@alpha`** tag: the
