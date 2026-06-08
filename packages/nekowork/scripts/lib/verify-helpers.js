@@ -181,11 +181,25 @@ export function classifyChangedFiles(parsedDiff) {
 
 /**
  * The deterministic verdict derived purely from rule findings + check
- * availability (the slim verdict-from-findings function). Heavy layers its
- * --run-checks extension on top: a failed check downgrades ALLOW* to
- * NEEDS_HUMAN_REVIEW, but a check failure never produces a standalone BLOCK.
+ * availability (the slim verdict-from-findings function).
+ *
+ * `checkExecution` is an ADDITIVE optional input describing whether the caller
+ * actually RAN the project's checks (slim `--run-checks` gate). When omitted
+ * (the heavy harness, which layers its own --run-checks downgrade afterwards,
+ * and any legacy caller) the verdict is derived from findings + availability
+ * exactly as before. When provided, a SOURCE change is only a clean pass when
+ * checks actually ran AND passed:
+ *   - ran + a check failed  → NEEDS_HUMAN_REVIEW (A; never a standalone BLOCK)
+ *   - checks were not run    → NEEDS_HUMAN_REVIEW (B; "not verified", not a failure)
+ *   - ran + all passed       → falls through to the findings-based verdict
+ *
+ * @param {object} args
+ * @param {Array}  args.findings
+ * @param {object} args.classified
+ * @param {object} args.checksAvailable
+ * @param {{ ran: boolean, allPassed: boolean, failed?: string[] }} [args.checkExecution]
  */
-export function deriveRiskVerdict({ findings, classified, checksAvailable }) {
+export function deriveRiskVerdict({ findings, classified, checksAvailable, checkExecution }) {
   const hasCritical = findings.some(f => f.severity === 'critical');
   const hasHigh = findings.some(f => f.severity === 'high');
   const hasMediumOrLow = findings.some(f => f.severity === 'medium' || f.severity === 'low');
@@ -213,6 +227,27 @@ export function deriveRiskVerdict({ findings, classified, checksAvailable }) {
       reason: 'risk scan passed (no blocking findings), but this project has no test command — full verification needs one. This is "not enough evidence", not a failure.',
       apply_allowed: false,
     };
+  }
+  // A source change with a test command available is only a clean pass when the
+  // caller reports that checks actually ran and passed. Heavy/legacy callers
+  // omit checkExecution and keep the pre-existing fall-through behaviour.
+  if (hasSourceChanges && checkExecution) {
+    const failed = checkExecution.failed || [];
+    if (checkExecution.ran && failed.length) {
+      return {
+        verdict: VERDICT.NEEDS_HUMAN_REVIEW,
+        reason: `verification command failed: ${failed.join(', ')}`,
+        apply_allowed: false,
+      };
+    }
+    if (!checkExecution.ran) {
+      return {
+        verdict: VERDICT.NEEDS_HUMAN_REVIEW,
+        reason: 'source changed but verification checks were not run — pass --run-checks to execute test/lint/typecheck (or --ci-exit-soft to not block CI). A risk scan alone is not full verification.',
+        apply_allowed: false,
+      };
+    }
+    // ran && all passed → verified; fall through to the findings-based verdict.
   }
   if (hasMediumOrLow) {
     return {

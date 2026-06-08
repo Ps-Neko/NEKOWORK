@@ -21,6 +21,10 @@ import { verifyPrCycle, VERDICT } from '../../scripts/orchestrators/verify-pr.js
 import { newFilePatch, multiFilePatch, writePatchFile, makeProjectRoot, PKG_WITH_CHECKS } from '../helpers/patch.js';
 import { rmrf } from '../helpers/tmp.js';
 
+// package.json fixtures whose `npm test` is deterministic and dependency-free.
+const PKG_TEST_PASS = JSON.stringify({ name: 'fx', version: '0.0.0', scripts: { test: 'node -e "process.exit(0)"' } });
+const PKG_TEST_FAIL = JSON.stringify({ name: 'fx', version: '0.0.0', scripts: { test: 'node -e "process.exit(1)"' } });
+
 // Run verifyPrCycle in patch mode against a fresh temp projectRoot + patch file.
 // Always write:false. Cleans up both temp dirs before returning.
 async function runPatch({ patch, projectFiles = {}, opts = {} }) {
@@ -44,31 +48,79 @@ test('verifyPrCycle: clean docs-only diff → ALLOW, exit 0', async () => {
   assert.equal(res.findings.length, 0, 'benign docs change should have no findings');
 });
 
-test('verifyPrCycle: source change with no findings + test available → ALLOW, exit 0', async () => {
+// ── source change WITHOUT --run-checks: not verified → NEEDS_HUMAN_REVIEW (B) ─
+// The slim gate no longer hands out a clean ALLOW for an UNVERIFIED source change
+// just because a test command exists. Without --run-checks the change was never
+// actually run, so it is "not verified", not a pass.
+test('verifyPrCycle: source change, test available, NO --run-checks → NEEDS_HUMAN_REVIEW, exit 1', async () => {
   const res = await runPatch({
     projectFiles: { 'package.json': PKG_WITH_CHECKS },
     patch: newFilePatch('src/util.js', ['// adds a pure helper', 'export const add = (a, b) => a + b;']),
   });
-  assert.equal(res.decision.verdict, VERDICT.ALLOW);
-  assert.equal(res.exitCode, 0);
+  assert.equal(res.decision.verdict, VERDICT.NEEDS_HUMAN_REVIEW);
+  assert.equal(res.exitCode, 1);
+  assert.match(res.decision.reason, /not run|--run-checks/i);
 });
 
-// ── ALLOW_WITH_WARNINGS: only a low/medium non-blocking finding ──────────────
-test('verifyPrCycle: medium non-blocking finding + test available → ALLOW_WITH_WARNINGS, exit 0', async () => {
-  // `// @ts-ignore` is MEDIUM in test-or-security-disable (non-blocking). Test
-  // command is available so the INSUFFICIENT_EVIDENCE branch (checked before
-  // medium/low) is skipped — this isolates the ALLOW_WITH_WARNINGS path.
+// ── source change WITH --run-checks, tests PASS → ALLOW (verified) ───────────
+test('verifyPrCycle: source change + --run-checks (tests pass) → ALLOW, exit 0', async () => {
+  const res = await runPatch({
+    projectFiles: { 'package.json': PKG_TEST_PASS },
+    patch: newFilePatch('src/util.js', ['export const add = (a, b) => a + b;']),
+    opts: { runChecks: true },
+  });
+  assert.equal(res.decision.verdict, VERDICT.ALLOW, `reason=${res.decision.reason}`);
+  assert.equal(res.exitCode, 0);
+  assert.equal(res.decision.checks.requested, true);
+  assert.ok(res.decision.checks.results.some((c) => c.name === 'test' && c.status === 'pass'),
+    `expected a passing test check, got ${JSON.stringify(res.decision.checks.results)}`);
+});
+
+// ── source change WITH --run-checks, tests FAIL → NEEDS_HUMAN_REVIEW ─────────
+test('verifyPrCycle: source change + --run-checks (tests fail) → NEEDS_HUMAN_REVIEW, exit 1', async () => {
+  const res = await runPatch({
+    projectFiles: { 'package.json': PKG_TEST_FAIL },
+    patch: newFilePatch('src/util.js', ['export const add = (a, b) => a + b;']),
+    opts: { runChecks: true },
+  });
+  assert.equal(res.decision.verdict, VERDICT.NEEDS_HUMAN_REVIEW);
+  assert.equal(res.exitCode, 1);
+  assert.match(res.decision.reason, /failed: test/i);
+});
+
+// ── --run-checks is SKIPPED when the diff itself tampers with the run surface ─
+// A diff that disables a test/security gate must not get its (attacker-modified)
+// commands executed — checks are skipped, so the source change stays unverified.
+// `// @ts-ignore` is a test-or-security-disable finding (see the medium-finding
+// case above), which checksBlockedByRisk treats as "do not execute".
+test('verifyPrCycle: --run-checks skips execution when the diff disables a gate', async () => {
+  const res = await runPatch({
+    projectFiles: { 'package.json': PKG_TEST_PASS },
+    patch: newFilePatch('src/widget.js', ['var x = makeWidget(); // @ts-ignore', 'render(x);']),
+    opts: { runChecks: true },
+  });
+  assert.equal(res.decision.checks.requested, true);
+  assert.ok(res.decision.checks.skippedReason, 'execution must be skipped for a tamper diff');
+  assert.equal(res.decision.checks.results.length, 0, 'no checks should have run');
+});
+
+// ── source change with a security-disable (medium) finding → NEEDS_HUMAN_REVIEW
+// `// @ts-ignore` is a MEDIUM test-or-security-disable finding. Non-blocking on
+// its own, but the slim gate no longer ALLOWs an unverified source change, and
+// the finding also marks the diff as tamper-risky so --run-checks refuses to
+// execute the (possibly modified) commands — the change stays NEEDS_HUMAN_REVIEW.
+// (The ALLOW_WITH_WARNINGS verdict branch itself is unit-tested in
+// verify-helpers.test.js, both with and without checkExecution.)
+test('verifyPrCycle: source + medium security-disable finding → NEEDS_HUMAN_REVIEW, exit 1', async () => {
   const res = await runPatch({
     projectFiles: { 'package.json': PKG_WITH_CHECKS },
     patch: newFilePatch('src/widget.js', ['var x = makeWidget(); // @ts-ignore', 'render(x);']),
   });
-  assert.equal(res.decision.verdict, VERDICT.ALLOW_WITH_WARNINGS);
-  assert.equal(res.exitCode, 0);
+  assert.equal(res.decision.verdict, VERDICT.NEEDS_HUMAN_REVIEW);
+  assert.equal(res.exitCode, 1);
   const sev = res.findings.map((f) => f.severity);
   assert.ok(sev.includes('medium'), `expected a medium finding, got: ${sev.join(',')}`);
   assert.ok(!sev.includes('critical') && !sev.includes('high'), 'no blocking/high finding expected');
-  // ALLOW_WITH_WARNINGS still permits apply.
-  assert.equal(res.decision.apply_allowed, true);
 });
 
 // ── BLOCK: critical finding ─────────────────────────────────────────────────

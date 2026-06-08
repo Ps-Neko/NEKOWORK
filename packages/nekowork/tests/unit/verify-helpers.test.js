@@ -148,6 +148,103 @@ test('deriveRiskVerdict: source + test available + medium finding → ALLOW_WITH
     'with a test command the INSUFFICIENT gate is skipped and warnings win');
 });
 
+// ---- deriveRiskVerdict: checkExecution (slim --run-checks A+B gate) ----------
+// `checkExecution` is an ADDITIVE optional param. OMITTED (heavy/legacy callers)
+// → behaviour is exactly as the tests above (source+test → ALLOW). PROVIDED
+// (slim) → a source change is only a clean pass when checks actually ran AND
+// passed: a failed check (A) or unexecuted checks (B) escalate to
+// NEEDS_HUMAN_REVIEW. A check failure never standalone-BLOCKs.
+
+const RAN_PASS = { requested: true, ran: true, allPassed: true, failed: [] };
+const RAN_FAIL = { requested: true, ran: true, allPassed: false, failed: ['test'] };
+const NOT_RUN = { requested: false, ran: false, allPassed: false, failed: [] };
+
+test('deriveRiskVerdict: source + test available + checks NOT run → NEEDS_HUMAN_REVIEW (B floor)', () => {
+  const v = deriveRiskVerdict({
+    findings: [],
+    classified: classified({ source: ['a.js'] }),
+    checksAvailable: CHECKS_WITH_TEST,
+    checkExecution: NOT_RUN,
+  });
+  assert.equal(v.verdict, VERDICT.NEEDS_HUMAN_REVIEW);
+  assert.equal(v.apply_allowed, false);
+  assert.match(v.reason, /not run|--run-checks/i);
+});
+
+test('deriveRiskVerdict: source + checks ran and FAILED → NEEDS_HUMAN_REVIEW (A)', () => {
+  const v = deriveRiskVerdict({
+    findings: [],
+    classified: classified({ source: ['a.js'] }),
+    checksAvailable: CHECKS_WITH_TEST,
+    checkExecution: RAN_FAIL,
+  });
+  assert.equal(v.verdict, VERDICT.NEEDS_HUMAN_REVIEW);
+  assert.equal(v.apply_allowed, false);
+  assert.match(v.reason, /failed: test/i);
+});
+
+test('deriveRiskVerdict: source + checks ran and PASSED → ALLOW (verified)', () => {
+  const v = deriveRiskVerdict({
+    findings: [],
+    classified: classified({ source: ['a.js'] }),
+    checksAvailable: CHECKS_WITH_TEST,
+    checkExecution: RAN_PASS,
+  });
+  assert.equal(v.verdict, VERDICT.ALLOW);
+  assert.equal(v.apply_allowed, true);
+});
+
+test('deriveRiskVerdict: checkExecution OMITTED preserves legacy ALLOW for source+test (heavy contract)', () => {
+  const v = deriveRiskVerdict({
+    findings: [],
+    classified: classified({ source: ['a.js'] }),
+    checksAvailable: CHECKS_WITH_TEST,
+    // no checkExecution → unchanged behaviour for the heavy harness + any caller
+    // that has not opted into the slim run-checks gate.
+  });
+  assert.equal(v.verdict, VERDICT.ALLOW);
+});
+
+test('deriveRiskVerdict: no test command still wins over checkExecution → INSUFFICIENT_EVIDENCE', () => {
+  const v = deriveRiskVerdict({
+    findings: [],
+    classified: classified({ source: ['a.js'] }),
+    checksAvailable: CHECKS_NO_TEST,
+    checkExecution: NOT_RUN,
+  });
+  assert.equal(v.verdict, VERDICT.INSUFFICIENT_EVIDENCE);
+});
+
+test('deriveRiskVerdict: critical still BLOCKs regardless of checkExecution', () => {
+  const v = deriveRiskVerdict({
+    findings: [finding('critical')],
+    classified: classified({ source: ['a.js'] }),
+    checksAvailable: CHECKS_WITH_TEST,
+    checkExecution: RAN_PASS,
+  });
+  assert.equal(v.verdict, VERDICT.BLOCK);
+});
+
+test('deriveRiskVerdict: ran+passed + medium finding → ALLOW_WITH_WARNINGS (verified, warnings remain)', () => {
+  const v = deriveRiskVerdict({
+    findings: [finding('medium')],
+    classified: classified({ source: ['a.js'] }),
+    checksAvailable: CHECKS_WITH_TEST,
+    checkExecution: RAN_PASS,
+  });
+  assert.equal(v.verdict, VERDICT.ALLOW_WITH_WARNINGS);
+});
+
+test('deriveRiskVerdict: not-run + docs-only change → ALLOW (no source to verify)', () => {
+  const v = deriveRiskVerdict({
+    findings: [],
+    classified: classified({ docs: ['README.md'] }),
+    checksAvailable: CHECKS_WITH_TEST,
+    checkExecution: NOT_RUN,
+  });
+  assert.equal(v.verdict, VERDICT.ALLOW);
+});
+
 // ---- classifyChangedFiles -------------------------------------------------
 
 test('classifyChangedFiles: CI workflow yml classifies as ci, NOT config', () => {

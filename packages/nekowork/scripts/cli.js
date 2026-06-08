@@ -38,10 +38,17 @@ verify-pr options:
   --from-patch <file>       scan a patch file
   --full-scan               scan the whole tree (onboarding; no PR/diff yet)
   --include <path>          force-scan a path even if gitignored
+  --run-checks              run the project's test/lint/typecheck commands and
+                            require them to pass (a source change without this is
+                            NEEDS_HUMAN_REVIEW — a risk scan alone is not full
+                            verification). Skipped if the diff tampers with the
+                            run surface (build/test scripts, critical finding).
+  --checks-timeout <ms>     per-check timeout for --run-checks (default 300000)
   --comment-file <path>     write a PR-comment markdown
   --ci-exit-soft            NEEDS_HUMAN_REVIEW / INSUFFICIENT_EVIDENCE → exit 0
   --json                    machine-readable output
   --no-write                don't write REPORT.md / decision.json
+  (flags also accept --flag=value)
 
 Need legacy / harness commands (ask / plan / team / work / ship / build / auto / ...)?
   They live in the internal @ps-neko/nekowork-harness runtime, which is NOT

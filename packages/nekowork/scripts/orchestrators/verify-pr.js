@@ -41,6 +41,7 @@ import {
   renderReport,
 } from '../lib/verify-helpers.js';
 import { detectProject } from '../lib/project-detector.js';
+import { runChecks } from '../lib/check-runner.js';
 
 // Resolve the slim package version once (read from this package's package.json,
 // two levels up from scripts/orchestrators/). Recorded in rule-version.json so a
@@ -66,6 +67,8 @@ export { VERDICT, EXIT_CODE };
  * @param {string} [opts.range]         required when mode='range'
  * @param {boolean} [opts.write=true]   write evidence + REPORT.md to disk
  * @param {boolean} [opts.json]         caller will print JSON (suppress summary)
+ * @param {boolean} [opts.runChecks]    run project test/lint/typecheck commands
+ * @param {number}  [opts.checksTimeout] per-check timeout in ms (default 300000)
  */
 export async function verifyPrCycle(opts = {}) {
   const projectRoot = opts.projectRoot || process.cwd();
@@ -79,8 +82,25 @@ export async function verifyPrCycle(opts = {}) {
   // Classify changed files ONCE and thread the result through both the verdict
   // derivation and the decision build (it was previously computed twice).
   const classified = classifyChangedFiles(parsedDiff);
-  const verdict = deriveRiskVerdict({ findings, classified, checksAvailable });
-  const decision = buildVerifyPrDecision({ verdict, findings, parsedDiff, classified, project, checksAvailable });
+
+  // --run-checks: actually execute the project's test/lint/typecheck commands —
+  // UNLESS the diff itself tampered with the execution surface (modified a
+  // build/test script or has a critical finding), since running it would execute
+  // attacker-modified scripts. The slim gate ALWAYS reports its execution result
+  // to the verdict, so a source change earns a clean ALLOW only when checks ran
+  // and passed; without --run-checks it stays unverified (NEEDS_HUMAN_REVIEW).
+  const checks = { requested: Boolean(opts.runChecks), skippedReason: null, results: [] };
+  if (opts.runChecks) {
+    if (checksBlockedByRisk(findings)) {
+      checks.skippedReason = 'diff modifies build/test scripts or has a critical finding — checks not run; run them manually in a trusted sandbox if you trust this change';
+    } else {
+      checks.results = await runChecks(project.commands, { cwd: projectRoot, timeoutMs: opts.checksTimeout });
+    }
+  }
+  const checkExecution = summarizeCheckExecution(checks);
+
+  const verdict = deriveRiskVerdict({ findings, classified, checksAvailable, checkExecution });
+  const decision = buildVerifyPrDecision({ verdict, findings, parsedDiff, classified, project, checksAvailable, extra: { checks } });
 
   const inputSource = inputSourceForMode(mode);
 
@@ -211,6 +231,48 @@ function writeEvidence({ projectRoot, parsedDiff, findings, decision, inputSourc
   };
 }
 
+/**
+ * Decide whether --run-checks must SKIP executing project commands because the
+ * diff itself tampered with the execution surface (install/test scripts) or has
+ * a critical finding. Running an attacker-modified `npm test` would be arbitrary
+ * code execution, so we refuse. The finding's `pattern` field (set by the
+ * package-lockfile-risk scanner) distinguishes install/script changes from plain
+ * dependency bumps. Mirrors the harness guard so both packages refuse the same
+ * diffs.
+ */
+export function checksBlockedByRisk(findings) {
+  if (!Array.isArray(findings)) return false;
+  return findings.some((f) => {
+    if (f.severity === 'critical') return true;
+    if (f.rule === 'test-or-security-disable') return true;
+    if (f.rule === 'package-lockfile-risk') {
+      const p = String(f.pattern || '');
+      return p.startsWith('install-hook-') || p.startsWith('script-');
+    }
+    return false;
+  });
+}
+
+/**
+ * Collapse a checks block into the verdict-relevant summary deriveRiskVerdict
+ * consumes. Only actually-executed checks (pass/fail/timeout) count as "ran";
+ * skipped (no command) and unavailable (binary missing) ones do not. A source
+ * change is a clean pass only when at least one check ran and none failed.
+ */
+function summarizeCheckExecution(checks) {
+  const executed = (checks.results || []).filter(
+    (c) => c.status === 'pass' || c.status === 'fail' || c.status === 'timeout',
+  );
+  const failed = executed.filter((c) => c.status === 'fail' || c.status === 'timeout').map((c) => c.name);
+  const ran = executed.length > 0;
+  return {
+    requested: Boolean(checks.requested),
+    ran,
+    allPassed: ran && failed.length === 0,
+    failed,
+  };
+}
+
 function nextArg(rest, i, flag) {
   if (i >= rest.length || rest[i] === undefined) {
     throw new Error(`${flag} requires a value but none was provided`);
@@ -241,7 +303,8 @@ export function parseVerifyPrArgs(rest = []) {
     else if (flag === '--no-write') opts.write = false;
     else if (flag === '--comment-file') { opts.commentFile = value('--comment-file'); }
     else if (flag === '--ci-exit-soft') opts.ciExitSoft = true;
-    else if (flag === '--run-checks') process.stderr.write('warning: --run-checks is not supported in the slim @ps-neko/nekowork gate (checks are still DETECTED for the verdict; only execution requires the @ps-neko/nekowork-harness runtime from a source checkout)\n');
+    else if (flag === '--run-checks') opts.runChecks = true;
+    else if (flag === '--checks-timeout') { opts.checksTimeout = Number(value('--checks-timeout')); }
     else if (flag === '--include') { (opts.includePaths = opts.includePaths || []).push(value('--include')); }
     // An unrecognized token is a hard error — never silently ignored. A typo like
     // `--rang origin/main...HEAD` would otherwise fall through to the working-tree
@@ -267,11 +330,35 @@ export function printVerifyPrSummary(result) {
       console.log(`    - [${f.severity.toUpperCase()}] ${f.title} (${f.file}:${f.line})`);
     }
   }
+  const checks = decision.checks;
+  if (checks && checks.requested) {
+    if (checks.skippedReason) {
+      console.log(`  checks         : skipped (${checks.skippedReason})`);
+    } else if (checks.results.length) {
+      console.log(`  checks         : ${checks.results.map((c) => `${c.name}=${c.status}`).join(' ')}`);
+    } else {
+      console.log('  checks         : none configured');
+    }
+  }
   if (decision.verdict === VERDICT.INSUFFICIENT_EVIDENCE) {
     console.log('');
     console.log('  i  not a failure — the risk scan passed with no blocking findings.');
     console.log('     verify-pr just has no test command to fully verify this change.');
     console.log('     -> add a test script for full verification, or pass --ci-exit-soft to avoid blocking CI.');
+  }
+  // A NEEDS_HUMAN_REVIEW with no high/critical finding is a verification gap, not
+  // a flagged risk — point the user at the fix (run the checks) rather than
+  // leaving them to wonder what was "found".
+  if (decision.verdict === VERDICT.NEEDS_HUMAN_REVIEW &&
+      decision.finding_counts.high === 0 && decision.finding_counts.critical === 0) {
+    console.log('');
+    if (/were not run/i.test(decision.reason)) {
+      console.log('  i  no blocking findings — but this source change was NOT verified.');
+      console.log('     -> re-run with --run-checks to execute test/lint/typecheck,');
+      console.log('        or pass --ci-exit-soft to avoid blocking CI.');
+    } else {
+      console.log('  i  a verification check failed — see "Checks Run" in REPORT.md.');
+    }
   }
   if (writtenPaths) {
     console.log(`  report         : ${path.relative(process.cwd(), writtenPaths.report).replace(/\\/g, '/')}`);
