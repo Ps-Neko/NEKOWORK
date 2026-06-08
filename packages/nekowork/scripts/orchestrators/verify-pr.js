@@ -91,8 +91,9 @@ export async function verifyPrCycle(opts = {}) {
   // and passed; without --run-checks it stays unverified (NEEDS_HUMAN_REVIEW).
   const checks = { requested: Boolean(opts.runChecks), skippedReason: null, results: [] };
   if (opts.runChecks) {
-    if (checksBlockedByRisk(findings)) {
-      checks.skippedReason = 'diff modifies build/test scripts or has a critical finding — checks not run; run them manually in a trusted sandbox if you trust this change';
+    const changedPaths = (parsedDiff.files || []).map((f) => f.path);
+    if (checksBlockedByRisk(findings, changedPaths)) {
+      checks.skippedReason = 'diff edits a build/run manifest (e.g. package.json scripts) or has a risk finding — the command body may be attacker-controlled, so checks were NOT executed. Run them manually in a trusted sandbox if you trust this change.';
     } else {
       checks.results = await runChecks(project.commands, { cwd: projectRoot, timeoutMs: opts.checksTimeout });
     }
@@ -231,16 +232,34 @@ function writeEvidence({ projectRoot, parsedDiff, findings, decision, inputSourc
   };
 }
 
+// Build/run manifests whose contents define the commands --run-checks executes
+// (or the code those commands compile/run). Editing any of these in the diff
+// means the executed command body may be attacker-controlled, e.g. rewriting
+// package.json `scripts.test` to an exfiltration command. `npm test` would then
+// run it — remote code execution. Matched against the basename of every changed
+// path; the guard fails CLOSED on any such edit.
+const RUN_SURFACE_MANIFEST = /(^|\/)(package\.json|Cargo\.toml|pyproject\.toml|requirements\.txt|setup\.py|setup\.cfg|tox\.ini|go\.mod|build\.gradle(\.kts)?|pom\.xml|Gemfile|composer\.json|Makefile)$/i;
+
 /**
  * Decide whether --run-checks must SKIP executing project commands because the
- * diff itself tampered with the execution surface (install/test scripts) or has
- * a critical finding. Running an attacker-modified `npm test` would be arbitrary
- * code execution, so we refuse. The finding's `pattern` field (set by the
- * package-lockfile-risk scanner) distinguishes install/script changes from plain
- * dependency bumps. Mirrors the harness guard so both packages refuse the same
- * diffs.
+ * diff tampered with the execution surface. Running an attacker-modified
+ * `npm test` (or any command whose body the diff rewrote) is arbitrary code
+ * execution, so we refuse. Two independent triggers:
+ *   1. the diff edits a build/run manifest (RUN_SURFACE_MANIFEST) — the command
+ *      body itself may be attacker-controlled, which the finding rules do NOT
+ *      catch (they scan for known-bad patterns, not "the test script changed");
+ *   2. a finding marks the diff as risky — a critical finding, a test/security
+ *      disable, or an install-hook / shell-script package change.
+ * The finding's `pattern` field (set by the package-lockfile-risk scanner)
+ * distinguishes install/script changes from plain dependency bumps.
+ *
+ * @param {Array}  findings
+ * @param {string[]} [changedFiles]  repo-relative paths of every changed file
  */
-export function checksBlockedByRisk(findings) {
+export function checksBlockedByRisk(findings, changedFiles = []) {
+  if (Array.isArray(changedFiles) && changedFiles.some((p) => RUN_SURFACE_MANIFEST.test(String(p)))) {
+    return true;
+  }
   if (!Array.isArray(findings)) return false;
   return findings.some((f) => {
     if (f.severity === 'critical') return true;
@@ -352,12 +371,17 @@ export function printVerifyPrSummary(result) {
   if (decision.verdict === VERDICT.NEEDS_HUMAN_REVIEW &&
       decision.finding_counts.high === 0 && decision.finding_counts.critical === 0) {
     console.log('');
-    if (/were not run/i.test(decision.reason)) {
+    const cks = decision.checks;
+    if (cks && cks.skippedReason) {
+      console.log('  i  checks were SKIPPED — the diff edits the run surface, so the');
+      console.log('     (possibly attacker-controlled) commands were not executed.');
+      console.log('     -> review manually in a trusted sandbox.');
+    } else if (cks && cks.requested && cks.results.some((c) => c.status === 'fail' || c.status === 'timeout')) {
+      console.log('  i  a verification check failed — see "Checks Run" in REPORT.md.');
+    } else {
       console.log('  i  no blocking findings — but this source change was NOT verified.');
       console.log('     -> re-run with --run-checks to execute test/lint/typecheck,');
       console.log('        or pass --ci-exit-soft to avoid blocking CI.');
-    } else {
-      console.log('  i  a verification check failed — see "Checks Run" in REPORT.md.');
     }
   }
   if (writtenPaths) {

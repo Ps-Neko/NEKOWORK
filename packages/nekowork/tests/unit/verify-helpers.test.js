@@ -245,6 +245,18 @@ test('deriveRiskVerdict: not-run + docs-only change → ALLOW (no source to veri
   assert.equal(v.verdict, VERDICT.ALLOW);
 });
 
+test('deriveRiskVerdict: not-run + source + medium finding → NEEDS_HUMAN_REVIEW (unverified beats warning)', () => {
+  // An unverified source change short-circuits to NEEDS_HUMAN_REVIEW BEFORE the
+  // medium/low ALLOW_WITH_WARNINGS branch — "not verified" outranks a warning.
+  const v = deriveRiskVerdict({
+    findings: [finding('medium')],
+    classified: classified({ source: ['a.js'] }),
+    checksAvailable: CHECKS_WITH_TEST,
+    checkExecution: NOT_RUN,
+  });
+  assert.equal(v.verdict, VERDICT.NEEDS_HUMAN_REVIEW);
+});
+
 // ---- classifyChangedFiles -------------------------------------------------
 
 test('classifyChangedFiles: CI workflow yml classifies as ci, NOT config', () => {
