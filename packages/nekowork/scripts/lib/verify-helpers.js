@@ -241,9 +241,14 @@ export function deriveRiskVerdict({ findings, classified, checksAvailable, check
       };
     }
     if (!checkExecution.ran) {
+      // Distinguish "you didn't ask to run checks" from "checks were requested
+      // but we refused to execute them" (tamper-risky diff) — the fixes differ.
+      const reason = checkExecution.requested
+        ? 'source changed but verification checks were SKIPPED (the diff edits the run surface or is risky to execute) — the change is unverified. Review manually in a trusted sandbox.'
+        : 'source changed but verification checks were not run — pass --run-checks to execute test/lint/typecheck (or --ci-exit-soft to not block CI). A risk scan alone is not full verification.';
       return {
         verdict: VERDICT.NEEDS_HUMAN_REVIEW,
-        reason: 'source changed but verification checks were not run — pass --run-checks to execute test/lint/typecheck (or --ci-exit-soft to not block CI). A risk scan alone is not full verification.',
+        reason,
         apply_allowed: false,
       };
     }

@@ -104,6 +104,31 @@ test('verifyPrCycle: --run-checks skips execution when the diff disables a gate'
   assert.equal(res.decision.checks.results.length, 0, 'no checks should have run');
 });
 
+// ── --run-checks is SKIPPED when the diff edits the run-surface manifest ──────
+// The executed command (`npm test`) runs package.json's `scripts.test`. A diff
+// that rewrites that script to an arbitrary command must NOT be executed —
+// otherwise --run-checks is remote code execution. The guard fails CLOSED on any
+// manifest edit in the diff (the command body may be attacker-controlled).
+test('verifyPrCycle: --run-checks skips execution when the diff edits package.json', async () => {
+  const res = await runPatch({
+    projectFiles: { 'package.json': PKG_TEST_PASS },
+    // Realistic attack: a source change alongside a rewritten test script. The
+    // script value is benign-LOOKING (no finding rule fires on it), so ONLY the
+    // manifest-in-diff guard can stop execution — exactly the RCE vector the
+    // finding rules miss.
+    patch: multiFilePatch([
+      { file: 'package.json', lines: ['{ "name": "x", "version": "0.0.0",', '  "scripts": { "test": "node run-tests.js" } }'] },
+      { file: 'src/feature.js', lines: ['export const f = () => 1;'] },
+    ]),
+    opts: { runChecks: true },
+  });
+  assert.equal(res.decision.checks.requested, true);
+  assert.ok(res.decision.checks.skippedReason, 'manifest edit must skip execution (RCE guard)');
+  assert.equal(res.decision.checks.results.length, 0, 'the tampered test script must NOT run');
+  // the source change was never verified (checks skipped) → not a clean pass
+  assert.equal(res.decision.verdict, VERDICT.NEEDS_HUMAN_REVIEW);
+});
+
 // ── source change with a security-disable (medium) finding → NEEDS_HUMAN_REVIEW
 // `// @ts-ignore` is a MEDIUM test-or-security-disable finding. Non-blocking on
 // its own, but the slim gate no longer ALLOWs an unverified source change, and

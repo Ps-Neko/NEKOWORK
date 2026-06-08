@@ -91,34 +91,42 @@ dependency** (`acorn`, the JS parser — MIT, zero transitive dependencies). See
 [BENCHMARK.md](BENCHMARK.md) for the per-rule provenance and the full "What is NOT
 covered" boundary.
 
-### Checks: detection (slim) vs. execution (harness only)
+### Checks: detection + execution (`--run-checks`)
 
 verify-pr looks at whether your project *has* test / lint / typecheck / build /
-audit commands. The published slim `@ps-neko/nekowork` gate **detects** which exist
-and records them in the report — it does **not** run them. That detection still
-feeds the verdict: if a source change has a test command missing, verify-pr returns
-`INSUFFICIENT_EVIDENCE` ("not enough evidence to PASS", not a failure) instead of a
-false PASS.
+audit commands. By default it **detects** which exist and records them in the
+report. That detection feeds the verdict: a source change with **no** test
+command returns `INSUFFICIENT_EVIDENCE` ("not enough evidence to PASS", not a
+failure) instead of a false PASS.
 
-**Actually executing** the checks (running test / lint / typecheck and folding the
-result into the verdict) is a feature of the heavy `@ps-neko/nekowork-harness`
-runtime, which only runs from a source checkout — it is **not** in the published
-slim package. In the harness, execution is opt-in via `--run-checks` and its results
-are **escalation-only**: a failing check turns `ALLOW` into `NEEDS_HUMAN_REVIEW`,
-never a standalone `BLOCK`, and checks are skipped when the diff has a CRITICAL
-finding or tampers with build/test scripts.
+Detection alone is not verification, so the published slim `@ps-neko/nekowork`
+gate makes a clean PASS something you **earn**:
 
-If you pass `--run-checks` to the **slim** gate, it prints a one-line warning and
-keeps going (detection still happens; only execution is unavailable):
+- A **source** change is only `ALLOW`ed when its checks actually ran and passed.
+  Without `--run-checks` a source change is `NEEDS_HUMAN_REVIEW` ("not verified",
+  not a failure) — a risk scan alone is not full verification.
+- Pass **`--run-checks`** to actually execute the project's test / lint /
+  typecheck commands and fold the result into the verdict. A failing check turns
+  an otherwise-clean verdict into `NEEDS_HUMAN_REVIEW` (escalation-only; never a
+  standalone `BLOCK`). Tune the per-check timeout with `--checks-timeout <ms>`
+  (default 300000).
+- Execution is **skipped** (and the change stays unverified) when the diff is
+  risky to run: a CRITICAL finding, a test/security disable, or an edit to a
+  build/run manifest (e.g. `package.json` `scripts`). Running an
+  attacker-modified `npm test` would be code execution, so the gate refuses —
+  run those checks manually in a trusted sandbox if you trust the change.
 
-```text
-warning: --run-checks is not supported in the slim @ps-neko/nekowork gate
-(checks are still DETECTED for the verdict; only execution requires the
-@ps-neko/nekowork-harness runtime from a source checkout)
+```bash
+# verify AND run the checks (a clean ALLOW only when they pass)
+npx -y @ps-neko/nekowork@alpha verify-pr --run-checks
+# don't block CI on "not verified" / a failed check
+npx -y @ps-neko/nekowork@alpha verify-pr --run-checks --ci-exit-soft
 ```
 
-See [SCOPE-1.0.md](SCOPE-1.0.md) §5–§7 for the full decision policy (it documents
-the harness execution behavior).
+The heavy `@ps-neko/nekowork-harness` runtime shares the same check-runner and
+verdict core (it imports them from the slim package), so behavior matches.
+
+See [SCOPE-1.0.md](SCOPE-1.0.md) §5–§7 for the full decision policy.
 
 ## 3. The Five Verdicts (and the simple buckets)
 
@@ -129,7 +137,7 @@ five specific verdicts that map onto them, and onto CI exit codes:
 |---|---|---|---|
 | `ALLOW` | PASS | 0 | No blocking risk found. |
 | `ALLOW_WITH_WARNINGS` | PASS | 0 | Lower-severity findings only. |
-| `NEEDS_HUMAN_REVIEW` | REVIEW | 1 | A high-severity finding needs a human look. |
+| `NEEDS_HUMAN_REVIEW` | REVIEW | 1 | A high-severity finding, an unverified source change (no `--run-checks`), or a failed/skipped check needs a human look. |
 | `INSUFFICIENT_EVIDENCE` | REVIEW | 1 | Risk scan passed, but there's no test command to fully verify. |
 | `BLOCK` | BLOCK | 2 | A critical risk was found; merge and apply are refused. |
 
