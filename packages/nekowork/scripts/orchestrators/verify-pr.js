@@ -221,19 +221,32 @@ function nextArg(rest, i, flag) {
 export function parseVerifyPrArgs(rest = []) {
   const opts = { mode: 'working', json: false, write: true };
   for (let i = 0; i < rest.length; i++) {
-    const a = rest[i];
-    if (a === '--from-working-tree') opts.mode = 'working';
-    else if (a === '--from-staged' || a === '--staged') opts.mode = 'staged';
-    else if (a === '--full-scan' || a === '--full') opts.mode = 'full';
-    else if (a === '--from-patch') { opts.mode = 'patch'; opts.patchPath = nextArg(rest, ++i, '--from-patch'); }
-    else if (a === '--range') { opts.mode = 'range'; opts.range = nextArg(rest, ++i, '--range'); }
-    else if (a === '--project-root') { opts.projectRoot = nextArg(rest, ++i, '--project-root'); }
-    else if (a === '--json') opts.json = true;
-    else if (a === '--no-write') opts.write = false;
-    else if (a === '--comment-file') { opts.commentFile = nextArg(rest, ++i, '--comment-file'); }
-    else if (a === '--ci-exit-soft') opts.ciExitSoft = true;
-    else if (a === '--run-checks') process.stderr.write('warning: --run-checks is not supported in the slim @ps-neko/nekowork gate (checks are still DETECTED for the verdict; only execution requires the @ps-neko/nekowork-harness runtime from a source checkout)\n');
-    else if (a === '--include') { (opts.includePaths = opts.includePaths || []).push(nextArg(rest, ++i, '--include')); }
+    const token = rest[i];
+    // Accept both "--flag value" and "--flag=value". Split on the FIRST '=' only,
+    // so a value that itself contains '=' (e.g. --range=a=b...c) survives intact.
+    const eq = token.indexOf('=');
+    const flag = eq === -1 ? token : token.slice(0, eq);
+    const inlineVal = eq === -1 ? undefined : token.slice(eq + 1);
+    // Value-taking flags: prefer the inline "=value"; otherwise consume the next
+    // token. nextArg() throws a bounds error when neither is available.
+    const value = (f) => (inlineVal !== undefined ? inlineVal : nextArg(rest, ++i, f));
+
+    if (flag === '--from-working-tree') opts.mode = 'working';
+    else if (flag === '--from-staged' || flag === '--staged') opts.mode = 'staged';
+    else if (flag === '--full-scan' || flag === '--full') opts.mode = 'full';
+    else if (flag === '--from-patch') { opts.mode = 'patch'; opts.patchPath = value('--from-patch'); }
+    else if (flag === '--range') { opts.mode = 'range'; opts.range = value('--range'); }
+    else if (flag === '--project-root') { opts.projectRoot = value('--project-root'); }
+    else if (flag === '--json') opts.json = true;
+    else if (flag === '--no-write') opts.write = false;
+    else if (flag === '--comment-file') { opts.commentFile = value('--comment-file'); }
+    else if (flag === '--ci-exit-soft') opts.ciExitSoft = true;
+    else if (flag === '--run-checks') process.stderr.write('warning: --run-checks is not supported in the slim @ps-neko/nekowork gate (checks are still DETECTED for the verdict; only execution requires the @ps-neko/nekowork-harness runtime from a source checkout)\n');
+    else if (flag === '--include') { (opts.includePaths = opts.includePaths || []).push(value('--include')); }
+    // An unrecognized token is a hard error — never silently ignored. A typo like
+    // `--rang origin/main...HEAD` would otherwise fall through to the working-tree
+    // default and scan the WRONG diff while the caller believed it scanned a range.
+    else throw new Error(`unknown verify-pr option: ${token}`);
   }
   return opts;
 }
