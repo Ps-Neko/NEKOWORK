@@ -33,12 +33,19 @@ runs:
         # Pass caller inputs through env vars, NOT ${{ }} templates inside run:.
         # Templating untrusted input directly into the run script is the classic
         # GitHub Actions script-injection vector; env-var indirection prevents it.
-        # NEKO_ARGS is word-split intentionally so multiple flags work correctly.
-        # Do not invoke this Action from untrusted PR contexts with attacker-
-        # controlled args.
+        # `args` is still TRUSTED config: the array expansion below stops glob /
+        # word-split surprises, but it cannot stop argument injection — do not
+        # wire attacker-controlled values into `args`.
         NEKO_ARGS: ${{ inputs.args }}
         NEKO_VERSION: ${{ inputs.version }}
       run: |
         set -euo pipefail
-        # shellcheck disable=SC2086
-        npx -y "@ps-neko/nekowork@${NEKO_VERSION}" verify-pr ${NEKO_ARGS}
+        # Split NEKO_ARGS on whitespace into an array, then expand each element as
+        # a separate, individually-quoted argument. Multiple flags still work
+        # (e.g. "--from-staged --comment-file pr-comment.md"), but unlike a bare
+        # unquoted ${NEKO_ARGS} this does NOT glob-expand the args (`*` stays
+        # literal) and has no word-splitting surprises. `read` returns non-zero at
+        # the trailing EOF, harmless under `set -e` (hence `|| true`); an empty
+        # NEKO_ARGS yields an empty array → no extra args.
+        read -ra NEKO_ARGS_ARR <<< "${NEKO_ARGS}" || true
+        npx -y "@ps-neko/nekowork@${NEKO_VERSION}" verify-pr "${NEKO_ARGS_ARR[@]}"
