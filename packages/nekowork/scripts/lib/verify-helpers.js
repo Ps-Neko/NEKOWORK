@@ -59,6 +59,23 @@ export const ALLOW_SCOPE_NOTE =
   'vector outside these rules are out of scope. A clean result means "nothing the rules catch", ' +
   'not "this code is safe".';
 
+// Machine-readable scope of the gate, attached to EVERY decision. It lets a
+// consumer programmatically tell that a clean verdict (ALLOW / ALLOW_WITH_WARNINGS)
+// means "no findings from the deterministic rules", NOT "this change is safe" —
+// the structured counterpart of the ALLOW_SCOPE_NOTE prose in REPORT.md.
+//
+// Why a field and not a rename: renaming the verdict tokens (e.g. ALLOW →
+// PASS_RISK_SCAN) would break the PUBLISHED verify-pr-v0 wire contract that
+// external CI already branches on. This additive field closes the "ALLOW reads
+// as 'safe'" gap with zero breakage; the token rename is deferred to the v1
+// schema (2.0). Additive only — both slim and heavy build decisions here.
+export const VERDICT_SCOPE = Object.freeze({
+  engine: 'deterministic-rules',
+  rules_scanned: RULE_COUNT,
+  note: 'A clean verdict means no findings from the deterministic rules — NOT that the change is safe or fully verified.',
+  out_of_scope: Object.freeze(['logic-bugs', 'auth-flaws', 'cross-file-dataflow', 'dependency-cves']),
+});
+
 export const VERDICT = Object.freeze({
   ALLOW: 'ALLOW',
   ALLOW_WITH_WARNINGS: 'ALLOW_WITH_WARNINGS',
@@ -268,6 +285,10 @@ export function buildVerifyPrDecision({ verdict, findings, parsedDiff, classifie
       package_manager: project.packageManager,
       checks_available: checksAvailable,
     },
+    // Additive: machine-readable gate scope so a clean verdict is never read as
+    // "safe". See VERDICT_SCOPE. Token rename (ALLOW → PASS_RISK_SCAN) deferred
+    // to the v1 schema to avoid breaking the published verify-pr-v0 contract.
+    scope: VERDICT_SCOPE,
     findings,
     ...extra,
   };
