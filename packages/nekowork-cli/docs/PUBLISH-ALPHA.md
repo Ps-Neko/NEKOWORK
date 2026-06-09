@@ -8,7 +8,7 @@ NEKOWORK ships as **two packages** (see [HANDOFF-PACKAGE-SPLIT in the slim packa
 
 | Package | Role | npm | Version |
 |---|---|---|---|
-| `@ps-neko/nekowork` | Public **slim verification gate** (4 verbs: `check` / `verify-pr` / `report` / `apply`) | **published** (`@alpha` dist-tag) | `0.2.0-alpha.10` |
+| `@ps-neko/nekowork` | Public **slim verification gate** (4 verbs: `check` / `verify-pr` / `report` / `apply`) | **published** (`@alpha` dist-tag) | `0.2.0-alpha.11` |
 | `@ps-neko/nekowork-harness` | Internal **legacy / power-user runtime** (`ask` / `plan` / `team` / `work` / `ship` / `build` / `auto` / ...) | **not published** (`private: true`) | `0.1.0-alpha.12` (repository version) |
 
 Only the slim `@ps-neko/nekowork` is published. The harness runtime is internal — used from a **source checkout** of the repo, not installed from npm. Do not add `npm i -g @ps-neko/nekowork-harness` to any user-facing docs or CLI output.
@@ -17,7 +17,7 @@ Only the slim `@ps-neko/nekowork` is published. The harness runtime is internal 
 
 ```text
 npm view @ps-neko/nekowork dist-tags
--> { latest: '0.2.0-alpha.0', alpha: '0.2.0-alpha.10' }
+-> { latest: '0.2.0-alpha.0', alpha: '0.2.0-alpha.11' }
 ```
 
 - The documented install path is the `@alpha` dist-tag: `npx -y @ps-neko/nekowork@alpha`.
@@ -27,7 +27,7 @@ npm view @ps-neko/nekowork dist-tags
 
 Publishing runs through the **`publish.yml` GitHub Actions workflow** using npm OIDC Trusted Publishing. No long-lived npm token and no interactive 2FA are involved — npm trusts the workflow's GitHub OIDC identity. (2FA only applies to manual `npm publish` from a laptop, which is **not** the path here.)
 
-1. Bump `packages/nekowork/package.json` `version` to the next alpha (e.g. `0.2.0-alpha.10`).
+1. Bump `packages/nekowork/package.json` `version` to the next alpha (e.g. `0.2.0-alpha.11`).
 2. Open a PR, get CI green, merge to `main`.
 3. Trigger the publish workflow against `main`:
    ```bash
@@ -45,7 +45,7 @@ Publishing runs through the **`publish.yml` GitHub Actions workflow** using npm 
    ```
 6. Optionally create/push `v<version>` and a GitHub prerelease.
 
-> The published `@alpha` may lag behind `main`. Pin an exact version (`@ps-neko/nekowork@0.2.0-alpha.10`) for reproducible behavior.
+> The published `@alpha` may lag behind `main`. Pin an exact version (`@ps-neko/nekowork@0.2.0-alpha.11`) for reproducible behavior.
 
 ## Gates before a publish
 
