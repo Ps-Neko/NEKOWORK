@@ -91,7 +91,16 @@ async function runInternal(verb, rest) {
   }
 
   if (verb === 'verify-pr') {
-    const opts = parseVerifyPrArgs(rest);
+    let opts;
+    try {
+      opts = parseVerifyPrArgs(rest);
+    } catch (e) {
+      // Usage error (e.g. unknown option / missing value): one clean line + a
+      // pointer to --help, exit 2. Never leak a raw stack trace for bad input.
+      console.error(String(e?.message || e));
+      console.error('Run `nekowork verify-pr --help` for supported options.');
+      process.exit(2);
+    }
     let result;
     try {
       result = await verifyPrCycle(opts);
