@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.2.0-alpha.11] - 2026-06-09
+
+Published slim release; the `@alpha` on npm is now `0.2.0-alpha.11`. This version makes the slim verdict honest about behavior it did not verify — a clean diff scan over a source change no longer reads as a PASS — and ships the `--include` force-scan from external-user feedback.
+
 ### Added
 - `verify-pr --include <path>` (repeatable): force-scan an explicit path even if it is gitignored. `git diff` / `ls-files --exclude-standard` skip gitignored build/codegen output; `--include` synthesizes those files as an all-added diff so risk rules see them. Directories are walked recursively (`node_modules`/`.git` skipped). (First external-user feedback — gitignored codegen output was invisible to the scan.)
 
