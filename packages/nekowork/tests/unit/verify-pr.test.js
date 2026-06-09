@@ -6,7 +6,10 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { parseVerifyPrArgs, VERDICT, EXIT_CODE, verifyPrCycle } from '../../scripts/orchestrators/verify-pr.js';
+
+const CLI = fileURLToPath(new URL('../../scripts/cli.js', import.meta.url));
 
 function git(cwd, args) {
   const r = spawnSync('git', args, { cwd, encoding: 'utf8', windowsHide: true });
@@ -115,6 +118,84 @@ test('parseVerifyPrArgs: --include as last arg throws bounds error', () => {
 test('parseVerifyPrArgs: --include accumulates multiple values', () => {
   const opts = parseVerifyPrArgs(['--include', 'src/', '--include', 'lib/']);
   assert.deepEqual(opts.includePaths, ['src/', 'lib/']);
+});
+
+// --- parseVerifyPrArgs: reject unknown options (no silent fall-through) ---
+// An unrecognized flag must FAIL LOUDLY, never be silently ignored. A typo like
+// `--rang main...HEAD` previously fell through to the working-tree default, so a
+// CI invocation that thought it was scanning a PR range would scan the wrong diff.
+test('parseVerifyPrArgs: unknown --flag throws (no silent ignore)', () => {
+  assert.throws(
+    () => parseVerifyPrArgs(['--rang', 'origin/main...HEAD']),
+    /unknown verify-pr option: --rang/i
+  );
+});
+
+test('parseVerifyPrArgs: bare unknown token throws (no positional args)', () => {
+  assert.throws(
+    () => parseVerifyPrArgs(['bogus']),
+    /unknown verify-pr option: bogus/i
+  );
+});
+
+test('parseVerifyPrArgs: a typo does NOT silently degrade to working mode', () => {
+  // The exact bug: --rang is ignored, mode stays 'working'. Must throw instead.
+  assert.throws(() => parseVerifyPrArgs(['--rang', 'main...HEAD']), /unknown/i);
+});
+
+// --- parseVerifyPrArgs: --flag=value (equals) form for every value-taking flag ---
+test('parseVerifyPrArgs: --range=value (equals form) sets range mode + value', () => {
+  const opts = parseVerifyPrArgs(['--range=origin/main...HEAD']);
+  assert.equal(opts.mode, 'range');
+  assert.equal(opts.range, 'origin/main...HEAD');
+});
+
+test('parseVerifyPrArgs: --from-patch=value (equals form) sets patch mode + path', () => {
+  const opts = parseVerifyPrArgs(['--from-patch=diff.patch']);
+  assert.equal(opts.mode, 'patch');
+  assert.equal(opts.patchPath, 'diff.patch');
+});
+
+test('parseVerifyPrArgs: --project-root=value and --comment-file=value (equals form)', () => {
+  const opts = parseVerifyPrArgs(['--project-root=.', '--comment-file=.nekowork/pr-comment.md']);
+  assert.equal(opts.projectRoot, '.');
+  assert.equal(opts.commentFile, '.nekowork/pr-comment.md');
+});
+
+test('parseVerifyPrArgs: --include=value (equals form) accumulates', () => {
+  const opts = parseVerifyPrArgs(['--include=src/', '--include', 'lib/']);
+  assert.deepEqual(opts.includePaths, ['src/', 'lib/']);
+});
+
+test('parseVerifyPrArgs: equals form keeps a value that itself contains "="', () => {
+  // Only the FIRST '=' splits flag from value, so a value with '=' survives.
+  const opts = parseVerifyPrArgs(['--range=a=b...c']);
+  assert.equal(opts.mode, 'range');
+  assert.equal(opts.range, 'a=b...c');
+});
+
+test('parseVerifyPrArgs: --range= with empty value still consumed (downstream validates)', () => {
+  // `--range=` is degenerate but must not be treated as an unknown option.
+  const opts = parseVerifyPrArgs(['--range=']);
+  assert.equal(opts.mode, 'range');
+  assert.equal(opts.range, '');
+});
+
+// --- CLI surface: an unknown option fails cleanly (exit 2, no JS stack trace) ---
+// parseVerifyPrArgs throws; cli.js must catch it and print a one-line usage error
+// rather than crashing with a raw stack trace.
+test('CLI verify-pr: unknown option exits 2 with a clean message (no stack trace)', () => {
+  const cwd = makeRepo({ 'src/app.js': 'export const x = 1;\n' });
+  try {
+    const r = spawnSync(process.execPath, [CLI, 'verify-pr', '--rang', 'main...HEAD'], {
+      cwd, encoding: 'utf8', windowsHide: true,
+    });
+    assert.equal(r.status, 2, `expected usage exit 2, got ${r.status}; stderr=${r.stderr}`);
+    assert.match(r.stderr, /unknown verify-pr option: --rang/i);
+    assert.doesNotMatch(r.stderr, /\n\s+at /, 'must not leak a JS stack trace');
+  } finally {
+    fs.rmSync(cwd, { recursive: true, force: true });
+  }
 });
 
 // --- Fix 4: verifyPrCycle returns a defined `evidence` field (documented --json shape) ---
