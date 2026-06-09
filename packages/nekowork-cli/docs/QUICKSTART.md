@@ -95,10 +95,14 @@ covered" boundary.
 
 verify-pr looks at whether your project *has* test / lint / typecheck / build /
 audit commands. The published slim `@ps-neko/nekowork` gate **detects** which exist
-and records them in the report — it does **not** run them. That detection still
-feeds the verdict: if a source change has a test command missing, verify-pr returns
-`INSUFFICIENT_EVIDENCE` ("not enough evidence to PASS", not a failure) instead of a
-false PASS.
+and records them in the report — it does **not** run them. Because it never executes
+your checks, the slim gate cannot certify that a **source** change behaves correctly:
+a clean scan over a source diff is `INSUFFICIENT_EVIDENCE` ("not enough evidence to
+PASS", not a failure), never a false PASS — and that holds whether or not a test
+command exists, since the slim gate would not run it either way. (A docs/config-only
+diff has no behavior to verify, so it still earns `ALLOW`.) To turn that into a real
+PASS, run the tests via CI or the heavy harness; pass `--ci-exit-soft` to keep CI
+non-blocking in the meantime.
 
 **Actually executing** the checks (running test / lint / typecheck and folding the
 result into the verdict) is a feature of the heavy `@ps-neko/nekowork-harness`
@@ -130,7 +134,7 @@ five specific verdicts that map onto them, and onto CI exit codes:
 | `ALLOW` | PASS | 0 | No blocking risk found. |
 | `ALLOW_WITH_WARNINGS` | PASS | 0 | Lower-severity findings only. |
 | `NEEDS_HUMAN_REVIEW` | REVIEW | 1 | A high-severity finding needs a human look. |
-| `INSUFFICIENT_EVIDENCE` | REVIEW | 1 | Risk scan passed, but there's no test command to fully verify. |
+| `INSUFFICIENT_EVIDENCE` | REVIEW | 1 | Risk scan passed, but behavior wasn't verified — the slim gate does not run your tests (or the project has no test command). `--ci-exit-soft` keeps CI non-blocking. |
 | `BLOCK` | BLOCK | 2 | A critical risk was found; merge and apply are refused. |
 
 ## 4. CI Integration

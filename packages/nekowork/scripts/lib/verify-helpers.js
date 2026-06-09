@@ -202,7 +202,7 @@ export function classifyChangedFiles(parsedDiff) {
  * --run-checks extension on top: a failed check downgrades ALLOW* to
  * NEEDS_HUMAN_REVIEW, but a check failure never produces a standalone BLOCK.
  */
-export function deriveRiskVerdict({ findings, classified, checksAvailable }) {
+export function deriveRiskVerdict({ findings, classified, checksAvailable, behaviorVerified = true }) {
   const hasCritical = findings.some(f => f.severity === 'critical');
   const hasHigh = findings.some(f => f.severity === 'high');
   const hasMediumOrLow = findings.some(f => f.severity === 'medium' || f.severity === 'low');
@@ -224,10 +224,21 @@ export function deriveRiskVerdict({ findings, classified, checksAvailable }) {
       apply_allowed: false,
     };
   }
-  if (hasSourceChanges && !checksAvailable.test) {
+  // A SOURCE change can carry behavioral regressions that pattern scanning
+  // cannot see, so the verdict may only read as ALLOW when behavior was actually
+  // verified. That fails two ways: (1) the project has no test command at all, or
+  // (2) behaviorVerified is false — the gate that produced this verdict does not
+  // execute the project's checks. The published slim @ps-neko/nekowork gate
+  // DETECTS patterns but never runs tests/lint/typecheck (execution lives in the
+  // @ps-neko/nekowork-harness runtime), so it passes behaviorVerified:false.
+  // Either way a clean scan is "no bad patterns found", never "verified safe".
+  // The parameter defaults to true so heavy/legacy callers keep their behavior.
+  if (hasSourceChanges && (!checksAvailable.test || !behaviorVerified)) {
     return {
       verdict: VERDICT.INSUFFICIENT_EVIDENCE,
-      reason: 'risk scan passed (no blocking findings), but this project has no test command — full verification needs one. This is "not enough evidence", not a failure.',
+      reason: !checksAvailable.test
+        ? 'risk scan passed (no blocking findings), but this project has no test command — full verification needs one. This is "not enough evidence", not a failure.'
+        : 'risk scan passed (no blocking findings), but behavior was not verified — this gate detects patterns, it does not run your tests. Run the suite via CI or the @ps-neko/nekowork-harness runtime (or pass --ci-exit-soft to keep CI non-blocking). This is "not enough evidence", not a failure.',
       apply_allowed: false,
     };
   }

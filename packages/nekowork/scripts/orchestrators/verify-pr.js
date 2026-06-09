@@ -79,7 +79,12 @@ export async function verifyPrCycle(opts = {}) {
   // Classify changed files ONCE and thread the result through both the verdict
   // derivation and the decision build (it was previously computed twice).
   const classified = classifyChangedFiles(parsedDiff);
-  const verdict = deriveRiskVerdict({ findings, classified, checksAvailable });
+  // The slim gate DETECTS patterns but never executes the project's checks
+  // (tests/lint/typecheck) — that boundary keeps the published package lean and
+  // its run-surface attack-free. So it cannot certify behavior: a source change
+  // with a clean scan is INSUFFICIENT_EVIDENCE, not ALLOW. Execution (and the
+  // ALLOW it can earn) lives in the @ps-neko/nekowork-harness runtime.
+  const verdict = deriveRiskVerdict({ findings, classified, checksAvailable, behaviorVerified: false });
   const decision = buildVerifyPrDecision({ verdict, findings, parsedDiff, classified, project, checksAvailable });
 
   const inputSource = inputSourceForMode(mode);
