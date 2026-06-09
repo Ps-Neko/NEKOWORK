@@ -1,6 +1,6 @@
 # Porting NEKOWORK Into Another Project
 
-NEKOWORK `0.1.0-alpha.12` is the current repository version (the internal `@ps-neko/nekowork-harness` runtime, source-checkout only). The published public alpha is the slim `@ps-neko/nekowork@alpha` (currently `0.2.0-alpha.10`). Use the npm `@alpha` tag for the shortest published install path, or use a submodule/local checkout for repository-pinned workflows and examples.
+NEKOWORK `0.1.0-alpha.12` is the current repository version (the internal `@ps-neko/nekowork-harness` runtime, source-checkout only). The published public alpha is the slim `@ps-neko/nekowork@alpha` (currently `0.2.0-alpha.11`). Use the npm `@alpha` tag for the shortest published install path, or use a submodule/local checkout for repository-pinned workflows and examples.
 
 ## Local Demo First
 
