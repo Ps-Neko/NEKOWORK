@@ -44,6 +44,35 @@ test('verifyPrCycle: clean docs-only diff → ALLOW, exit 0', async () => {
   assert.equal(res.findings.length, 0, 'benign docs change should have no findings');
 });
 
+// ── decision.scope: machine-readable "ALLOW ≠ safe" (additive, no rename) ─────
+// Renaming the ALLOW verdict (e.g. → PASS_RISK_SCAN) would break the published
+// verify-pr-v0 wire contract, so instead the decision carries a structured scope
+// field that says, machine-readably, that a clean verdict means "no rule
+// findings", NOT "verified safe".
+test('verifyPrCycle: decision carries a machine-readable scope (ALLOW is not "safe")', async () => {
+  const res = await runPatch({
+    patch: newFilePatch('docs/guide.md', ['# Guide']),
+  });
+  assert.equal(res.decision.verdict, VERDICT.ALLOW);
+  const scope = res.decision.scope;
+  assert.ok(scope, 'decision.scope must be present');
+  assert.equal(scope.engine, 'deterministic-rules');
+  assert.equal(typeof scope.rules_scanned, 'number');
+  assert.ok(scope.rules_scanned >= 1, 'rules_scanned is the rule count');
+  assert.match(scope.note, /not.*(safe|verified)/i, 'note says clean ≠ safe');
+  assert.ok(Array.isArray(scope.out_of_scope) && scope.out_of_scope.length > 0,
+    'out_of_scope lists what the gate does NOT check');
+});
+
+test('verifyPrCycle: scope is present even on BLOCK (additive, always there)', async () => {
+  const res = await runPatch({
+    patch: newFilePatch('src/config.js', ['const k = "AKIAIOSFODNN7EXAMPLE";']),
+  });
+  assert.equal(res.decision.verdict, VERDICT.BLOCK);
+  assert.ok(res.decision.scope, 'scope is part of every decision, not just clean ones');
+  assert.equal(res.decision.scope.rules_scanned, res.decision.scope.rules_scanned | 0);
+});
+
 test('verifyPrCycle: source change with no findings + test available → ALLOW, exit 0', async () => {
   const res = await runPatch({
     projectFiles: { 'package.json': PKG_WITH_CHECKS },
