@@ -7,6 +7,9 @@
 ### Added
 - `verify-pr --include <path>` (repeatable): force-scan an explicit path even if it is gitignored. `git diff` / `ls-files --exclude-standard` skip gitignored build/codegen output; `--include` synthesizes those files as an all-added diff so risk rules see them. Directories are walked recursively (`node_modules`/`.git` skipped). (First external-user feedback — gitignored codegen output was invisible to the scan.)
 
+### Changed
+- **Slim `verify-pr` no longer returns a clean `ALLOW` for source changes (BREAKING for `@ps-neko/nekowork`).** The slim gate **detects** test/lint/typecheck commands but never **runs** them, so it cannot certify that a *source* change behaves correctly. A clean scan over a source diff is now `INSUFFICIENT_EVIDENCE` (exit 1 — "not enough evidence to PASS", not a failure) instead of `ALLOW` (exit 0), and that holds whether or not a test command exists (the slim gate would not run it either way). Docs/config-only diffs have no behavior to verify and still earn `ALLOW`; findings are reported regardless of verdict. Mitigation: pass `--ci-exit-soft` to keep CI non-blocking, and run the tests via CI or the heavy `@ps-neko/nekowork-harness` runtime to earn a real PASS. Implemented as an additive `behaviorVerified` parameter on `deriveRiskVerdict` (defaults to `true`, so the heavy harness and every other caller are unchanged); only the slim orchestrator passes `behaviorVerified: false`. This closes the over-claim where a clean diff scan read as "verified safe" just because a test command happened to exist — **without** crossing the slim→harness execution boundary (no child-process execution is added to the slim package).
+
 ## [0.2.0-alpha.10] - 2026-06-08
 
 Published slim release; the `@alpha` on npm is now `0.2.0-alpha.10`. This version ships evidence-behavior and honest-framing changes from external (GPT) review feedback.
