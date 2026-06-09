@@ -148,6 +148,67 @@ test('deriveRiskVerdict: source + test available + medium finding → ALLOW_WITH
     'with a test command the INSUFFICIENT gate is skipped and warnings win');
 });
 
+// ---- behaviorVerified: the slim gate never executes the project's checks --
+// The published slim @ps-neko/nekowork gate scans the diff for known-bad
+// patterns but does NOT run tests/lint/typecheck (execution lives in the
+// @ps-neko/nekowork-harness runtime). So when behaviorVerified is false, a
+// clean scan over a SOURCE change is "no bad patterns found", never "verified
+// safe" — it must read as INSUFFICIENT_EVIDENCE, not ALLOW. The parameter
+// defaults to true so heavy/legacy callers that omit it keep their behavior.
+
+test('deriveRiskVerdict: behaviorVerified defaults true → source + test + clean stays ALLOW (heavy unchanged)', () => {
+  const v = deriveRiskVerdict({
+    findings: [],
+    classified: classified({ source: ['a.js'] }),
+    checksAvailable: CHECKS_WITH_TEST,
+    // behaviorVerified omitted → defaults to true
+  });
+  assert.equal(v.verdict, VERDICT.ALLOW, 'omitting behaviorVerified must preserve the legacy ALLOW');
+});
+
+test('deriveRiskVerdict: behaviorVerified=false + source + test available + clean → INSUFFICIENT_EVIDENCE (slim never ran them)', () => {
+  const v = deriveRiskVerdict({
+    findings: [],
+    classified: classified({ source: ['a.js'] }),
+    checksAvailable: CHECKS_WITH_TEST,
+    behaviorVerified: false,
+  });
+  assert.equal(v.verdict, VERDICT.INSUFFICIENT_EVIDENCE,
+    'a test command merely existing is not verification when the gate does not run it');
+  assert.equal(v.apply_allowed, false);
+  assert.match(v.reason, /not (?:run|verif)/i, 'reason must explain behavior was not verified');
+});
+
+test('deriveRiskVerdict: behaviorVerified=false + source + medium finding → INSUFFICIENT_EVIDENCE (unverified beats warnings)', () => {
+  const v = deriveRiskVerdict({
+    findings: [finding('medium')],
+    classified: classified({ source: ['a.js'] }),
+    checksAvailable: CHECKS_WITH_TEST,
+    behaviorVerified: false,
+  });
+  assert.equal(v.verdict, VERDICT.INSUFFICIENT_EVIDENCE);
+});
+
+test('deriveRiskVerdict: behaviorVerified=false + docs/config only → ALLOW (no source to verify)', () => {
+  const v = deriveRiskVerdict({
+    findings: [],
+    classified: classified({ docs: ['README.md'], config: ['x.json'] }),
+    checksAvailable: CHECKS_WITH_TEST,
+    behaviorVerified: false,
+  });
+  assert.equal(v.verdict, VERDICT.ALLOW, 'a docs/config-only diff has no behavior to verify');
+});
+
+test('deriveRiskVerdict: behaviorVerified=false + no source + no findings → ALLOW (nothing to verify)', () => {
+  const v = deriveRiskVerdict({
+    findings: [],
+    classified: classified({}),
+    checksAvailable: CHECKS_WITH_TEST,
+    behaviorVerified: false,
+  });
+  assert.equal(v.verdict, VERDICT.ALLOW);
+});
+
 // ---- classifyChangedFiles -------------------------------------------------
 
 test('classifyChangedFiles: CI workflow yml classifies as ci, NOT config', () => {

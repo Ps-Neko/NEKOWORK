@@ -73,31 +73,41 @@ test('verifyPrCycle: scope is present even on BLOCK (additive, always there)', a
   assert.equal(res.decision.scope.rules_scanned, res.decision.scope.rules_scanned | 0);
 });
 
-test('verifyPrCycle: source change with no findings + test available → ALLOW, exit 0', async () => {
+// The slim gate DETECTS patterns but never runs the project's checks, so even
+// when a test command EXISTS it cannot certify a source change — a clean scan is
+// INSUFFICIENT_EVIDENCE, not ALLOW. (Contrast the no-test-command case below: the
+// verdict is the same, but here it's because the slim gate does not execute, not
+// because the project lacks a command. The @ps-neko/nekowork-harness runtime is
+// what can run the checks and earn an ALLOW.)
+test('verifyPrCycle: source change, clean scan, test command available — slim still reports INSUFFICIENT_EVIDENCE (it does not run the tests)', async () => {
   const res = await runPatch({
     projectFiles: { 'package.json': PKG_WITH_CHECKS },
     patch: newFilePatch('src/util.js', ['// adds a pure helper', 'export const add = (a, b) => a + b;']),
   });
-  assert.equal(res.decision.verdict, VERDICT.ALLOW);
-  assert.equal(res.exitCode, 0);
+  assert.equal(res.decision.verdict, VERDICT.INSUFFICIENT_EVIDENCE);
+  assert.equal(res.exitCode, 1);
+  assert.equal(res.decision.apply_allowed, false);
+  assert.match(res.decision.reason, /not (?:run|verif)/i, 'reason explains behavior was not verified');
 });
 
-// ── ALLOW_WITH_WARNINGS: only a low/medium non-blocking finding ──────────────
-test('verifyPrCycle: medium non-blocking finding + test available → ALLOW_WITH_WARNINGS, exit 0', async () => {
-  // `// @ts-ignore` is MEDIUM in test-or-security-disable (non-blocking). Test
-  // command is available so the INSUFFICIENT_EVIDENCE branch (checked before
-  // medium/low) is skipped — this isolates the ALLOW_WITH_WARNINGS path.
+// ── INSUFFICIENT_EVIDENCE precedence over a low/medium warning ───────────────
+// `// @ts-ignore` is MEDIUM (non-blocking) in test-or-security-disable. Because
+// the slim gate never verifies behavior, a SOURCE change escalates to
+// INSUFFICIENT_EVIDENCE *before* the ALLOW_WITH_WARNINGS branch — the medium
+// finding is still reported, but a clean exit is not earned. (The
+// ALLOW_WITH_WARNINGS branch itself is covered directly in verify-helpers.test.js,
+// where behaviorVerified defaults to true.)
+test('verifyPrCycle: source change + medium finding → INSUFFICIENT_EVIDENCE (unverified behavior beats the warning); finding still reported', async () => {
   const res = await runPatch({
     projectFiles: { 'package.json': PKG_WITH_CHECKS },
     patch: newFilePatch('src/widget.js', ['var x = makeWidget(); // @ts-ignore', 'render(x);']),
   });
-  assert.equal(res.decision.verdict, VERDICT.ALLOW_WITH_WARNINGS);
-  assert.equal(res.exitCode, 0);
+  assert.equal(res.decision.verdict, VERDICT.INSUFFICIENT_EVIDENCE);
+  assert.equal(res.exitCode, 1);
   const sev = res.findings.map((f) => f.severity);
   assert.ok(sev.includes('medium'), `expected a medium finding, got: ${sev.join(',')}`);
   assert.ok(!sev.includes('critical') && !sev.includes('high'), 'no blocking/high finding expected');
-  // ALLOW_WITH_WARNINGS still permits apply.
-  assert.equal(res.decision.apply_allowed, true);
+  assert.equal(res.decision.apply_allowed, false);
 });
 
 // ── BLOCK: critical finding ─────────────────────────────────────────────────
