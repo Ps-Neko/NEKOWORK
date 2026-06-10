@@ -265,6 +265,10 @@ export function printVerifyPrSummary(result) {
     // The hint must match WHY the verdict fired (the two branches of
     // deriveRiskVerdict): telling a user whose test command WAS detected to
     // "add a test script" contradicts the reason line on the same screen.
+    // NOTE: the test-detected branch is currently unreachable for the heavy
+    // gate (behaviorVerified defaults to true here, so checks_available.test
+    // = true never yields INSUFFICIENT_EVIDENCE) — kept as a forward-compat
+    // guard mirroring the slim gate, where the branch is live.
     if (decision.project?.checks_available?.test) {
       console.log('     a test command was detected, but it was not executed for this verdict.');
       console.log('     -> run it via --run-checks or CI, or pass --ci-exit-soft to avoid blocking CI.');
