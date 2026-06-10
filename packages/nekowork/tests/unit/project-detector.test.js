@@ -58,6 +58,27 @@ test('detectProject: no package.json (and no language markers) → all checks fa
   }
 });
 
+test('detectProject: package.json with UTF-8 BOM → scripts still detected', () => {
+  // Windows PowerShell 5.1's default `-Encoding utf8` writes a BOM (EF BB BF).
+  // npm itself accepts a BOM'd package.json, so `npm test` works while a naive
+  // JSON.parse throws on the leading U+FEFF — silently flipping hasTests to
+  // false and a clean source change from "test detected" to "no test command".
+  const dir = makeDir({
+    'package.json': '\uFEFF' + JSON.stringify({
+      name: 'x',
+      scripts: { test: 'node --test' },
+    }),
+  });
+  try {
+    const p = detectProject(dir);
+    assert.equal(p.projectType, 'node');
+    assert.equal(p.hasTests, true, 'BOM must not hide the test script');
+    assert.equal(p.commands.test, 'npm test');
+  } finally {
+    rmrf(dir);
+  }
+});
+
 test('detectProject: node package.json with no scripts → hasTests false (the INSUFFICIENT_EVIDENCE trigger)', () => {
   const dir = makeDir({ 'package.json': JSON.stringify({ name: 'x', version: '1.0.0' }) });
   try {

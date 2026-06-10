@@ -207,7 +207,12 @@ function detectNode(root) {
   };
   let pkg;
   try {
-    pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    // Strip a UTF-8 BOM before parsing: Windows PowerShell 5.1's default
+    // `-Encoding utf8` writes one, and npm itself accepts a BOM'd package.json
+    // — so `npm test` runs fine while a bare JSON.parse throws here, silently
+    // flipping hasTests to false (and a source change to INSUFFICIENT_EVIDENCE
+    // with a misleading "no test command" reason).
+    pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8').replace(/^\uFEFF/, ''));
   } catch {
     return out;
   }
