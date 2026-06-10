@@ -1,6 +1,6 @@
 ---
 name: verified-gate
-description: "독립 검증 게이트를 strict 모드로 실행해 review 미실행/경고/위험을 non-zero exit 으로 차단하고, verdict 카드로 ship/no-ship 을 제시한다."
+description: "NEKOWORK verify-pr 게이트를 hard-fail 모드로 실행해 deterministic risk verdict 와 evidence 를 확인하고, verdict 카드로 ship/no-ship 을 제시한다."
 origin: harness-core
 level: 1
 prerequisites: []
@@ -11,11 +11,11 @@ tags: [gate, verification, strict, ci]
 
 # verified-gate
 
-현재 워킹트리 변경을 **strict 검증 게이트**에 통과시킨다. 일반 `gate` 와 달리 세 가지를 강제한다:
+현재 워킹트리 변경을 **NEKOWORK 1.0 검증 게이트**에 통과시킨다. 세 가지를 강제한다:
 
-- review 미실행(`not_run`)·실패(`failed`)를 PASS 로 묻지 않고 `PASS_WITH_WARNINGS` 로 가시화한다 (미검증 = 미통과).
-- `--strict` 는 그 경고·위험을 **non-zero exit 으로 차단**한다 — CI 에서 게이트 자체가 빨갛게 빠진다.
-- `decision.json` 은 content-hash 로 `audit.jsonl` 에 결박되어, gate 이후 사후 변조 시 `apply` 가 거부한다.
+- LLM verdict 를 신뢰하지 않고 deterministic risk rules 와 선택적 `--run-checks` 결과만 본다.
+- `--ci-exit-soft` 없이 실행해 `NEEDS_HUMAN_REVIEW` / `INSUFFICIENT_EVIDENCE` / `BLOCK` 을 **non-zero exit** 으로 유지한다.
+- `REPORT.md` 와 `.nekowork/decision.json` 을 같은 판정에서 나온 evidence 로 확인한다.
 
 ## 사용 시점
 
@@ -25,23 +25,27 @@ tags: [gate, verification, strict, ci]
 
 ## 동작
 
-1. 프로젝트 harness CLI 로 strict 게이트를 실행한다 (`nekoforge` 우선, 없으면 `harness` / `nekowork` 폴백):
+1. 프로젝트 NEKOWORK CLI 로 verify-pr 게이트를 실행한다. source checkout 에서는 `node packages/nekowork-cli/scripts/cli.js verify-pr`, 설치된 slim 패키지에서는 `nekowork verify-pr` 를 사용한다:
    ```bash
-   nekoforge gate --strict --task "<task-id, 기본 TASK-001>"
+   nekowork verify-pr --from-working-tree
    ```
-2. **exit code 를 신뢰해** 판정하고(verdict 텍스트만 보고 통과시키지 않는다), `.harness/decision.json` 과 `REPORT.md` 를 읽어 **verdict 카드**로 제시한다:
+   동작 검증까지 evidence 에 포함해야 하는 heavy harness/source checkout 에서는 명시 승인 후:
+   ```bash
+   node packages/nekowork-cli/scripts/cli.js verify-pr --from-working-tree --run-checks
+   ```
+2. **exit code 를 신뢰해** 판정하고(verdict 텍스트만 보고 통과시키지 않는다), `.nekowork/decision.json` 과 `REPORT.md` 를 읽어 **verdict 카드**로 제시한다:
 
    | exit | verdict | 카드 | 의미 |
    |---|---|---|---|
-   | 0 | PASS | ✅ | clean. apply 가능 |
-   | 3 | NEEDS_HUMAN_REVIEW / PASS_WITH_WARNINGS | ⚠️ | 사람 검토 필요 (경고·미검증 포함) |
-   | 4 | BLOCK / INSUFFICIENT_EVIDENCE | 🚫 | 차단 (critical / 증거 부족) |
+   | 0 | ALLOW / ALLOW_WITH_WARNINGS | ✅ | merge 판단 가능 |
+   | 1 | NEEDS_HUMAN_REVIEW / INSUFFICIENT_EVIDENCE | ⚠️ | 사람 검토 또는 추가 증거 필요 |
+   | 2 | BLOCK | 🚫 | critical risk 로 차단 |
 
 3. no-ship(⚠️/🚫)이면 `REPORT.md` 의 triggered rules·reasons 를 요약하고 다음 행동을 안내한다.
-4. ship-ready(✅)면 `nekoforge apply --approved` 를 **안내만** 한다.
+4. ship-ready(✅)여도 자동 apply/merge 는 하지 않는다. 사람의 merge 결정 또는 별도 session 기반 `apply --session <id>` 흐름으로 넘긴다.
 
 ## 원칙
 
-- **apply 를 자동 실행하지 않는다.** 게이트는 판정만, apply 는 사용자의 명시적 승인으로만.
-- 차단은 exit code 로 강제된다(권고가 아니다).
+- **apply/merge 를 자동 실행하지 않는다.** 게이트는 판정만, 최종 변경 반영은 사용자의 명시적 결정으로만.
+- 차단은 exit code 로 강제된다(권고가 아니다). 단, `--ci-exit-soft` 는 이 스킬에서 쓰지 않는다.
 - 이 스킬은 슬래시 명령이 아니라 스킬+CLI 로 호출한다 (프로젝트의 "슬래시 신규 금지" 정책 준수).
