@@ -1,6 +1,6 @@
 # NEKOWORK verify-pr — Rule Benchmark
 
-> Measured: 2026-06-10 (re-run of `npm run bench:rules`) · Slim package version: `0.2.0-alpha.11`
+> Measured: 2026-06-10 (re-run of `npm run bench:rules`) · Slim package version: `0.2.0-alpha.12`
 > Source of truth: run `npm run bench:rules -- --json` from `packages/nekowork/`.
 > This page is the **single source of truth** for the rule inventory and the
 > recall / false-positive numbers. Other docs (SCOPE-1.0.md, READMEs) point here.
@@ -26,13 +26,13 @@ rule passes the detection gate (recall ≥ 0.95, FP ≤ 0.10) at 100% recall / 0
 its current fixture corpus.
 
 > **Publish-state caveat (read this before quoting "11 rules").** The published
-> `@alpha` (`0.2.0-alpha.11`) now ships all **11 rules** measured on this page
+> `@alpha` (`0.2.0-alpha.12`) now ships all **11 rules** measured on this page
 > (`secret-fallback`, `auto-apply-commit-push`, `hardcoded-credential`,
 > `test-or-security-disable`, `package-lockfile-risk`, `eval-usage`, `insecure-tls`,
 > `cors-wildcard`, `sql-injection`, `command-injection`, `ast-dataflow`) and adds
 > **one tiny, well-known dependency** (`acorn`, the JS parser — MIT, zero transitive
-> dependencies) for the AST engine. The `latest` dist-tag is still a stale
-> `0.2.0-alpha.0` (5 rules, **zero dependencies**), so always install with
+> dependencies) for the AST engine. The `latest` dist-tag can lag behind
+> `@alpha` (currently `0.2.0-alpha.11`), so always install with
 > **`@alpha`**.
 
 | Rule | Recall | FP rate | Pos caught | FP count | gate |
