@@ -62,9 +62,9 @@ npx -y @ps-neko/nekowork@alpha check
 npx -y @ps-neko/nekowork@alpha verify-pr
 ```
 
-> Always use the **`@alpha`** tag — the bare package / `latest` dist-tag is pinned
-> to a stale `0.2.0-alpha.0` (5 rules, zero deps). `@alpha` (`0.2.0-alpha.11`) ships
-> the full **11 rules**, so `@alpha` is the one to install.
+> Always use the **`@alpha`** tag — the bare package / `latest` dist-tag can lag
+> behind (currently `0.2.0-alpha.11`). `@alpha` (`0.2.0-alpha.12`) ships the full
+> **11 rules** plus the latest fixes, so `@alpha` is the one to install.
 
 NEKOWORK reads the changed lines, writes a plain-English `REPORT.md`, and tells
 you whether the change should move forward.
@@ -86,11 +86,11 @@ NEKOWORK flags a **defined set of AI-introduced risk patterns** — 11 determini
 rules — and routes everything else to a human decision. It is **not an exhaustive
 security audit**:
 
-> Note: the published `@alpha` (0.2.0-alpha.11) now ships all **11 rules** (incl. eval,
+> Note: the published `@alpha` (0.2.0-alpha.12) now ships all **11 rules** (incl. eval,
 > insecure TLS, CORS wildcard, SQL/command injection, and AST dataflow) and adds **one
 > tiny, well-known dependency** (`acorn`, the JS parser — MIT, zero transitive
 > dependencies) for the AST engine. Always install with the **`@alpha`** tag: the
-> `latest` dist-tag is a stale `0.2.0-alpha.0` (5 rules, zero deps).
+> `latest` dist-tag can lag behind (currently `0.2.0-alpha.11`).
 
 - Secret keys, hardcoded credentials, or fallback passwords accidentally placed in code.
 - Tests, lint checks, or security checks being switched off.

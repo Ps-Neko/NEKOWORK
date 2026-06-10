@@ -20,11 +20,11 @@ and Go patterns** (e.g. `subprocess` git push, `os.system`/`exec.Command`,
 `verify=False` / `InsecureSkipVerify`) as useful samples — **not full multi-language
 support**. The AST dataflow rule is JS/TS-only.
 
-> Note: the published `@alpha` (0.2.0-alpha.11) now ships all **11 rules** described
+> Note: the published `@alpha` (0.2.0-alpha.12) now ships all **11 rules** described
 > above (incl. eval, insecure TLS, CORS wildcard, SQL/command injection, AST dataflow)
 > and adds **one tiny, well-known dependency** (`acorn`, the JS parser — MIT, zero
 > transitive dependencies) for the AST engine. Always install with the **`@alpha`**
-> tag: the `latest` dist-tag is a stale `0.2.0-alpha.0` (5 rules, zero deps).
+> tag: the `latest` dist-tag can lag behind (currently `0.2.0-alpha.11`).
 
 ## Status
 

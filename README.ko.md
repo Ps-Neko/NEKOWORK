@@ -61,9 +61,9 @@ npx -y @ps-neko/nekowork@alpha check
 npx -y @ps-neko/nekowork@alpha verify-pr
 ```
 
-> 항상 **`@alpha`** 태그를 쓰세요 — 태그 없는 기본 / `latest` dist-tag 는 오래된
-> `0.2.0-alpha.0`(규칙 5개, 의존성 0개)에 고정돼 있습니다. `@alpha`(`0.2.0-alpha.11`)는
-> **11개 규칙 전부**를 담고 있으니 `@alpha` 를 설치하면 됩니다.
+> 항상 **`@alpha`** 태그를 쓰세요 — 태그 없는 기본 / `latest` dist-tag 는 한 단계
+> 뒤(현재 `0.2.0-alpha.11`)일 수 있습니다. `@alpha`(`0.2.0-alpha.12`)는
+> **11개 규칙 전부**와 최신 수정을 담고 있으니 `@alpha` 를 설치하면 됩니다.
 
 NEKOWORK가 바뀐 줄을 읽고, 사람이 읽기 쉬운 `REPORT.md`를 만들고, 이 변경을
 진행해도 되는지 알려줍니다.
@@ -107,11 +107,11 @@ injection 부류, 비즈니스 로직 버그, 인가(authorization)
 > 이는 유용한 샘플일 뿐 **완전한 다국어(multi-language) 지원이 아닙니다**. AST dataflow
 > 룰은 JS/TS 전용입니다. JS/TS 외 언어 커버리지는 best-effort 패턴 샘플로 보세요.
 
-> 참고: 발행된 `@alpha`(0.2.0-alpha.11)는 이제 **11개 규칙 전부**(eval, 안전하지 않은 TLS,
+> 참고: 발행된 `@alpha`(0.2.0-alpha.12)는 이제 **11개 규칙 전부**(eval, 안전하지 않은 TLS,
 > CORS 와일드카드, SQL/command injection, AST dataflow 포함)를 담고 있으며, AST 엔진을 위해
 > **작고 잘 알려진 의존성 1개**(`acorn`, JS 파서 — MIT, transitive 의존성 0)를 추가합니다.
-> 항상 **`@alpha`** 태그로 설치하세요 — `latest` dist-tag 는 오래된 `0.2.0-alpha.0`(규칙 5개,
-> 의존성 0개)입니다.
+> 항상 **`@alpha`** 태그로 설치하세요 — `latest` dist-tag 는 한 단계 뒤(현재
+> `0.2.0-alpha.11`)일 수 있습니다.
 
 전체 기술 범위: [SCOPE-1.0.md](packages/nekowork-cli/docs/SCOPE-1.0.md).
 
