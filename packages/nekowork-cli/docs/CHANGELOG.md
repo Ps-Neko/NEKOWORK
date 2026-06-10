@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+## [0.2.0-alpha.12] - 2026-06-10
+
+Published slim release; the `@alpha` on npm is now `0.2.0-alpha.12`. Windows-focused fix release: a BOM'd `package.json` no longer silently hides the project's test command, and the `INSUFFICIENT_EVIDENCE` summary hint no longer contradicts a detected test command.
+
+### Fixed
+- `detectProject()` strips a UTF-8 BOM before parsing `package.json`. Windows PowerShell 5.1's default `-Encoding utf8` writes a BOM; npm itself accepts it (so `npm test` runs fine) while the detector's bare `JSON.parse` threw and the fail-safe catch silently reported "no test command" — hiding `checks_available.test` from `decision.json` and giving a clean source change a misleading reason text with zero diagnostic clue. The failure direction was always over-conservative (never over-permissive). Regression test added. (#160)
+- `verify-pr`'s `INSUFFICIENT_EVIDENCE` summary hint now matches WHY the verdict fired: when a test command WAS detected, the hint no longer says "add a test script" (a dead end — the slim gate detects checks but never runs them) and instead points to CI / the `@ps-neko/nekowork-harness` runtime. The no-test-command wording is unchanged. Unit tests cover both hint branches. (#161)
+
+### Tests
+- Slim package coverage 531 → 534 tests; all 11 rules still pass the 1.0 benchmark gate (recall 100%, FP 0% — re-measured 2026-06-10).
+
 ## [0.2.0-alpha.11] - 2026-06-09
 
 Published slim release; the `@alpha` on npm is now `0.2.0-alpha.11`. This version makes the slim verdict honest about behavior it did not verify — a clean diff scan over a source change no longer reads as a PASS — and ships the `--include` force-scan from external-user feedback.
