@@ -2,7 +2,7 @@
 
 > **상태: 보류(DEFERRED).** 이 문서의 어떤 항목도 지금 착수하지 않는다.
 > 해제 조건은 맨 아래 "언제 펴보나" 참조. — 근거: 진짜 병목은 검증기 견고성이
-> 아니라 **수요부채(외부 사용자 0)**이며, 본인 규칙이 "외부 1명까지 새 게이트 동결"이다.
+> 아니라 **수요부채(확인된 외부 검증 피드백 0)**이며, 본인 규칙이 "외부 검증 피드백 1건까지 새 게이트 동결"이다.
 
 5개 독립 렌즈(뮤테이션 / 적대적 레드팀 / 계측학 / 독립 오라클 / 사양 드리프트)로
 verify-pr 엔진을 실제 코드 단위까지 감사한 결과를 박제한 것. 다관점 분석 + 종합 비평
@@ -24,7 +24,7 @@ verify-pr 엔진을 실제 코드 단위까지 감사한 결과를 박제한 것
 | 렌즈 | 비유 | 코드로 확인된 사실 |
 |---|---|---|
 | 뮤테이션 | "백신 맞은 기록은 있는데 항체가 진짜 생겼는지는 안 봤다" | 리포 전체 메타-뮤테이션 **0건**. 양성 fixture 어서션 대부분이 `rules(r).includes(...)` — 존재만 보고 줄·개수·위치는 안 봄 (`ast-dataflow.test.js`) |
-| 적대적 레드팀 | "자물쇠를 따는 게 아니라 안 잠그는 옆문" | 모든 룰이 `+`추가 라인만 스캔(`addedLines`), 삭제파일 skip(`ast-dataflow.js:76`). **테스트 삭제·어서션 약화가 가장 싼 통과 경로** |
+| 적대적 레드팀 | "자물쇠를 따는 게 아니라 안 잠그는 옆문" | regex 룰 대부분은 `+`추가 라인(`addedLines`) 중심이고, `ast-dataflow`는 변경된 JS/TS 파일의 post-change 전체 파일을 읽지만 삭제파일·unreadable path·patch mode는 skip(`ast-dataflow.js:63-76`). **테스트 삭제·어서션 약화가 여전히 싼 통과 경로** |
 | 계측학 | "한 손은 얼음물, 한 손은 끓는 물, 평균 36.5도 '쾌적'" | 단일 신뢰점수의 위험. `severity.js:92` `confidence<0.6`은 캘리브레이션 0번 한 마법상수 |
 | 독립 오라클 | "판사가 동시에 피고의 변호사" | slim/heavy 두 패키지가 **같은** `verify-helpers.js`를 import(`verify-pr.js:36`). "두 엔진 교차검증"은 같은 코드 두 번 호출 — **독립성 0** |
 | 사양 드리프트 | "안전한가는 쟀는데 요청한 일을 하는가는 안 잰다" | `deriveRiskVerdict`는 `acceptance-criteria.js`를 **import조차 안 함**. 사양은 보고서 장식, verdict엔 안 들어감 |
@@ -65,7 +65,7 @@ verify-pr 엔진을 실제 코드 단위까지 감사한 결과를 박제한 것
 | **1** | **값-고정 어서션** (`includes` → `deepEqual({rule,line,severity})`) + 돌연변이 가드 한 줄 | low / high | ✅ (새 게이트 아님) | **나머지 전부의 전제조건.** 정답지가 줄 단위로 촘촘해야 뮤턴트 생존·행동 digest 측정 가능. 합성 fixture `expected_findings`에 line/count 채우기 |
 | **2** | **no-silent-caps 헤더** + verdict SPEC 축 (`ALLOW` → `ALLOW(spec:unverified)`) | low~med / high | △ (헤더는 ✅, 게이팅 결선은 새 게이트) | `VERDICT_SCOPE.out_of_scope`에 한계가 **이미 선언돼 있는데** 토큰은 그냥 `ALLOW`. 출력 정직성만 먼저, 게이팅은 후행 분리 |
 | **3** | **메타-뮤테이션 게이트** (Stryker로 `deriveRiskVerdict`·`severity` 분기에 결함 주입) | med / high | ✗ (새 게이트) | **"검증기를 누가 검증하나"에 정면 응답하는 유일 항목.** `>=`→`>`, `some`→`every`, `critical`→`high` 한 줄 비틀어도 게이트 무력화되는지 측정. 1순위 선행 필수 |
-| 4 | `--ci-exit-soft` 가드 강화 (BLOCK/critical엔 soft-exit 무시) | low / high | ✗ | 검증기 항체가 먼저 서야 의미 |
+| 4 | `--ci-exit-soft` 회귀 테스트 강화 (BLOCK/critical은 soft-exit 불가를 고정) | low / med | ✅ (기존 동작 고정) | 현재 구현은 이미 BLOCK을 soft 처리하지 않음. 후속은 기능 추가가 아니라 회귀 방지 |
 | 5 | 행동 봉인 해시 (룰셋 출력 digest를 `rule-version.json`에) | low / med | ✗ | 입력→출력 봉인 확장 |
 | 6 | 제2 독립 오라클 (semgrep/CodeQL/over-taint, import 밖) | high / high | ✗ | CI 비용 gap으로 최후순 |
 
@@ -79,9 +79,9 @@ verify-pr 엔진을 실제 코드 단위까지 감사한 결과를 박제한 것
 
 ## 언제 펴보나 (해제 조건)
 
-- **외부 사용자 1명 확보 이후** (메모리: `project_nekowork_first_customer_channel`).
-- 그 첫 손님이 실제로 게이트를 통과시키며 verify-pr 신뢰성에 불만을 제기하면 → rank 1부터.
+- **외부 검증 피드백 1건 확보 이후** (예: false-positive / false-negative / feedback issue를 연 unique external handle; 메모리: `project_nekowork_first_customer_channel`).
+- 그 외부 피드백이 실제 게이트 통과/차단 경험에서 나온 verify-pr 신뢰성 불만이면 → rank 1부터.
 - 그 전까지 손이 근질거리면 **rank 1 한 줄만** 허용(동결 호환, 기존 테스트 강화, ~30분). 그 이상은 동결 위반.
 
-> 가장 불편한 진실: 통과시킬 외부 PR이 0건이면, 검증기가 아무리 견고해도 그 견고함은
+> 가장 불편한 진실: 검증 피드백을 줄 외부 PR이 0건이면, 검증기가 아무리 견고해도 그 견고함은
 > 영원히 측정되지 않는다.
