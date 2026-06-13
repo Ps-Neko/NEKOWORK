@@ -94,11 +94,11 @@
     "yaml": "^2.6.1"
   },
   "devDependencies": {
-    "@types/node": "^25.9.2",
+    "@types/node": "^25.9.3",
     "typescript": "^6.0.3"
   },
   "optionalDependencies": {
-    "@anthropic-ai/sdk": "^0.101.0",
+    "@anthropic-ai/sdk": "^0.104.1",
     "@napi-rs/keyring": "^1.2.0"
   }
 }
