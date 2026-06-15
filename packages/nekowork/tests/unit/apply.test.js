@@ -191,3 +191,52 @@ test('applyCycle: refuses when the diff changed after approval (forge guard)', (
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+// --- Gate-binding bypass: an approval recorded BEFORE a diff existed carries no
+// diff_hash. apply's binding check used to be `if (approval?.diffHash)`, so an
+// unbound approval was honored for an arbitrary diff added later — defeating the
+// "approval is bound to the exact content approved" guarantee. apply must now
+// fail closed when a non-empty diff is applied under an approval with no bound
+// hash.
+test('applyCycle: refuses an unbound approval (gate approved before a diff was captured)', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-apply-unbound-'));
+  try {
+    git(root, ['init', '-q']);
+    git(root, ['config', 'user.email', 'test@test.local']);
+    git(root, ['config', 'user.name', 'test']);
+    git(root, ['config', 'commit.gpgsign', 'false']);
+    fs.writeFileSync(path.join(root, 'README.md'), '# base\n');
+    git(root, ['add', 'README.md']);
+    git(root, ['commit', '-qm', 'baseline']);
+
+    const sessionId = 'sess-unbound';
+    const sessionDir = path.join(root, '.harness', 'state', 'sessions', sessionId);
+    const handoffDir = path.join(sessionDir, 'handoffs');
+    const diffDir = path.join(sessionDir, 'diffs');
+    fs.mkdirSync(handoffDir, { recursive: true });
+    fs.mkdirSync(diffDir, { recursive: true });
+    fs.writeFileSync(path.join(handoffDir, '01-implement.json'), JSON.stringify({
+      stage: 'implement', round: 1, files: ['feature.txt'], diffPath: path.join(diffDir, '01-implement.diff'),
+    }));
+    fs.writeFileSync(path.join(handoffDir, '02-codex-review.json'), JSON.stringify({
+      stage: 'codex-review', round: 1, verdict: 'approve',
+    }));
+    // Approve while NO diff file exists yet → GATE_APPROVED carries no diff_hash.
+    fs.writeFileSync(path.join(sessionDir, 'HUMAN_GATE'), 'reason: review needed\nat: 2026-01-01T00:00:00.000Z\n');
+    approveGate({ projectRoot: root, sessionId, reason: 'pre-approved', actor: 'tester' });
+    const approved = fs.readFileSync(path.join(sessionDir, 'GATE_APPROVED'), 'utf8');
+    assert.ok(!/diff_hash:/.test(approved), 'precondition: approval is unbound (no diff_hash)');
+
+    // Now an arbitrary, never-reviewed diff appears and ship is marked ready.
+    fs.writeFileSync(path.join(diffDir, '01-implement.diff'), featureDiff);
+    fs.writeFileSync(path.join(sessionDir, 'SHIP_READY'), 'reason: ready\nat: 2026-01-02T00:00:00.000Z\n');
+
+    assert.throws(
+      () => _applyCycle2({ projectRoot: root, sessionId }),
+      /not bound|re-approve/i,
+    );
+    assert.ok(!fs.existsSync(path.join(root, 'feature.txt')), 'unbound approval must not apply anything');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});

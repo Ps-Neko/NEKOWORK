@@ -102,6 +102,24 @@ export function stripCommentsPreservingOffsets(text) {
   return out.join('');
 }
 
+// Upper bound on the length of any single line handed to a rule's regex. A
+// pathological long line (minified bundle, or an attacker-crafted unterminated
+// string) can drive an unbounded regex span into catastrophic O(n^2)
+// backtracking — e.g. the sql-injection patterns hung the gate for ~70s on a
+// 512KB line. Capping per-line length bounds that work for ALL rules at once.
+// Only non-newline characters past the cap are dropped, so line numbers (which
+// are counted by newlines) are preserved exactly; real code lines are far
+// shorter than this, so detection on normal input is unchanged.
+const MAX_SCAN_LINE_LEN = 2000;
+
+export function capLongLines(text, max = MAX_SCAN_LINE_LEN) {
+  if (text.length <= max) return text; // no line can exceed the cap
+  return text
+    .split('\n')
+    .map(line => (line.length > max ? line.slice(0, max) : line))
+    .join('\n');
+}
+
 export function lineNumberFromIndex(text, index) {
   let line = 1;
   for (let i = 0; i < index && i < text.length; i++) {
@@ -167,7 +185,10 @@ export function makeRegexScanner(cfg) {
   function scanFileContent(filePath, content, opts = {}) {
     const lineOffset = opts.lineOffset || 0;
     if (typeof content !== 'string' || !content) return [];
-    const clean = stripCommentsPreservingOffsets(content);
+    // Cap per-line length before any regex runs, so a single pathological line
+    // cannot trigger catastrophic backtracking (ReDoS) in any pattern.
+    const clean = capLongLines(stripCommentsPreservingOffsets(content));
+    let rawCapped = null; // lazily computed; most rules have no `raw` patterns
     const findings = [];
     const seen = new Set();
     // 줄번호 조회기를 haystack 당 한 번만 만든다(O(n) 준비 + 매치당 O(log n) 조회).
@@ -178,8 +199,18 @@ export function makeRegexScanner(cfg) {
     for (const pat of patterns) {
       // `raw: true` patterns scan the original text (needed for directives
       // that live inside comments, like @ts-nocheck or /* eslint-disable */).
-      const haystack = pat.raw ? content : clean;
-      const lookup = pat.raw ? (rawLookup ||= makeLineLookup(content)) : cleanLookup;
+      // 병합: Codex #180 의 capLongLines(ReDoS 상한) + DoS 수정의 makeLineLookup(O(n) 줄번호).
+      // 줄번호 조회기는 정규식이 실제로 도는 capped haystack 위에 만든다(m.index 정합).
+      let haystack, lookup;
+      if (pat.raw) {
+        if (rawCapped === null) rawCapped = capLongLines(content);
+        haystack = rawCapped;
+        if (rawLookup === null) rawLookup = makeLineLookup(rawCapped);
+        lookup = rawLookup;
+      } else {
+        haystack = clean;
+        lookup = cleanLookup;
+      }
       pat.re.lastIndex = 0;
       let m;
       while ((m = pat.re.exec(haystack)) !== null) {

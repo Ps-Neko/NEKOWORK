@@ -88,7 +88,14 @@ export function applyCycle(opts) {
   // sha256 of the session diff at that moment. If the diff has since changed,
   // the prior approval no longer covers what would be applied, so refuse.
   const approval = readMarker(sessionDir, 'GATE_APPROVED');
-  if (approval?.diffHash) {
+  if (approval) {
+    // Fail closed: an approval recorded before a diff was captured carries no
+    // diff_hash, so it is not bound to any content. Honoring it would let an
+    // arbitrary, never-reviewed diff be applied under cover of a human
+    // approval. Require a fresh approval once the diff exists.
+    if (!approval.diffHash) {
+      throw new Error('approval is not bound to a diff (gate was approved before a diff was captured) — re-approve after work captures the diff');
+    }
     const currentHash = crypto.createHash('sha256').update(String(diffInfo.diff)).digest('hex');
     if (currentHash !== approval.diffHash) {
       throw new Error('approval does not match current diff — re-approve');
