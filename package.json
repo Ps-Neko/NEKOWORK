@@ -16,5 +16,10 @@
     "test": "pnpm -r run test",
     "lint": "pnpm -r run lint",
     "build": "pnpm -r run build"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild": ">=0.28.1"
+    }
   }
 }
