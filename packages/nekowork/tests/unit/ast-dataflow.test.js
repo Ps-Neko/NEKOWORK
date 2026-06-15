@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { analyze } from '../../scripts/lib/ast/analyze.js';
 import { parseToAst, walk, isTsPath } from '../../scripts/lib/ast/parse.js';
@@ -427,5 +428,41 @@ test('RULE: scanDiff skips binary files', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ast-dataflow-'));
   fs.writeFileSync(path.join(dir, 'b.js'), 'function h(x){ const q="SELECT "+x; db.query(q); }');
   const parsedDiff = { files: [{ path: 'b.js', binary: true, status: 'modified' }] };
+  assert.equal(scanDiff(parsedDiff, { projectRoot: dir }).length, 0);
+});
+
+// SECURITY: 경로 탈출 차단 — diff 헤더 경로가 projectRoot 밖을 가리켜도 읽지 않는다.
+test('RULE: scanDiff 가 projectRoot 밖 경로(../)를 거부(경로 탈출 차단)', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ast-root-'));
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'ast-out-'));
+  fs.writeFileSync(path.join(outside, 'evil.js'), 'function h(x){ const q="SELECT "+x; return db.query(q); }');
+  const rel = path.relative(root, path.join(outside, 'evil.js')); // ../...-out-/evil.js
+  const parsedDiff = { files: [{ path: rel, binary: false, status: 'modified' }] };
+  assert.equal(scanDiff(parsedDiff, { projectRoot: root }).length, 0, 'projectRoot 밖 파일은 안 읽음');
+});
+
+// CRITICAL(결정성): staged 모드는 디스크가 아니라 staged 내용(git show :path)을 분석해야 한다.
+test('RULE: scanDiff staged 모드는 디스크 아닌 staged 내용을 본다(디스크≠diff 회귀)', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ast-staged-'));
+  const git = (...a) => spawnSync('git', a, { cwd: dir, encoding: 'utf8', windowsHide: true });
+  if (git('init', '-q').status !== 0) return; // git 없으면 skip
+  git('config', 'user.email', 't@t'); git('config', 'user.name', 't');
+  const file = 'svc.js';
+  fs.writeFileSync(path.join(dir, file), 'function h(){ return 1; }\n'); // 양성 baseline
+  git('add', '.'); git('commit', '-qm', 'base');
+  fs.writeFileSync(path.join(dir, file), 'function h(x){ const q="SELECT "+x; return db.query(q); }\n'); // 악성
+  git('add', file);                                            // staged = 악성
+  fs.writeFileSync(path.join(dir, file), 'function h(){ return 1; }\n'); // working = 양성(디스크≠staged)
+  const staged = scanDiff({ mode: 'staged', postRef: null, files: [{ path: file, binary: false, status: 'modified' }] }, { projectRoot: dir });
+  assert.ok(staged.some(x => x.rule === 'ast-sql-injection'), 'staged 악성을 git show 로 읽어 탐지');
+  const working = scanDiff({ mode: 'working', files: [{ path: file, binary: false, status: 'modified' }] }, { projectRoot: dir });
+  assert.equal(working.length, 0, 'working 모드는 디스크(양성)를 읽음 — 모드 분기 확인');
+});
+
+// patch 모드: 디스크가 패치와 일치한다는 보장이 없으므로 AST 디스크 읽기를 건너뛴다(regex 룰은 유지).
+test('RULE: scanDiff patch 모드는 AST 디스크 읽기를 건너뜀', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ast-patch-'));
+  fs.writeFileSync(path.join(dir, 'p.js'), 'function h(x){ const q="SELECT "+x; return db.query(q); }');
+  const parsedDiff = { mode: 'patch', files: [{ path: 'p.js', binary: false, status: 'modified' }] };
   assert.equal(scanDiff(parsedDiff, { projectRoot: dir }).length, 0);
 });

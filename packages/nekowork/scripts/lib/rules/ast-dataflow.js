@@ -26,8 +26,21 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { analyze } from '../ast/analyze.js';
 import { isTsPath } from '../ast/parse.js';
+
+// 검토 대상 diff 의 post-change 내용을 git 에서 읽는다(staged=`:path`, range head=`ref:path`).
+// 디스크 직접 읽기를 staged/range 에도 쓰면 '디스크≠diff' 라 verdict 가 오염돼 결정성이 깨진다.
+function gitShowContent(cwd, spec) {
+  try {
+    const r = spawnSync('git', ['show', spec], { cwd, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024 });
+    if (r.status !== 0) return null;
+    return typeof r.stdout === 'string' ? r.stdout : null;
+  } catch {
+    return null;
+  }
+}
 
 // JS/TS family extensions the AST engine understands.
 const JS_TS_EXT = /\.(js|jsx|mjs|cjs|ts|tsx|mts|cts)$/i;
@@ -64,9 +77,19 @@ export function scanDiff(parsedDiff, opts = {}) {
   if (!parsedDiff || !Array.isArray(parsedDiff.files)) return [];
   const projectRoot = opts.projectRoot;
   // Without a working copy we cannot read whole files — skip silently (the regex
-  // rules still scan the diff's added lines). This is the --from-patch path and
-  // the heavy package's no-projectRoot call.
+  // rules still scan the diff's added lines). This is the heavy package's
+  // no-projectRoot call.
   if (!projectRoot) return [];
+
+  const mode = parsedDiff.mode;       // undefined | working | staged | range | full | patch
+  const postRef = parsedDiff.postRef; // null | '<ref>'
+  // patch: 디스크가 패치와 일치한다는 보장이 없어 AST(전체 파일) 분석을 건너뛴다(regex 룰은 유지).
+  if (mode === 'patch') return [];
+  // ★ 결정성 수정: staged/range(head ref 있음)는 '검토 대상 diff 의 post-change 내용'을 git show 로
+  //   읽는다. working/full/단일-ref range/mode 미정의는 디스크가 곧 post-change 라 디스크를 읽는다.
+  //   디스크 직접 읽기를 staged/range 에까지 쓰면 '디스크≠diff' 로 verdict 가 오염돼
+  //   '같은 diff → 같은 verdict' 결정성이 깨진다(이 분기가 그 핵심 수정).
+  const showRef = mode === 'staged' ? ':' : (mode === 'range' && postRef ? postRef : null);
 
   const findings = [];
   const seenPaths = new Set();
@@ -79,14 +102,24 @@ export function scanDiff(parsedDiff, opts = {}) {
     seenPaths.add(rel);
     if (!isAnalyzablePath(rel)) continue;
 
-    const abs = path.join(projectRoot, rel);
+    // SECURITY: 경로 탈출 차단 — diff 헤더 경로가 projectRoot 밖(../, 절대경로)을 가리키면 건너뛴다.
+    const abs = path.resolve(projectRoot, rel);
+    const within = path.relative(projectRoot, abs);
+    if (within === '' || within.startsWith('..') || path.isAbsolute(within)) continue;
+
     let content;
-    try {
-      const stat = fs.statSync(abs);
-      if (!stat.isFile()) continue;
-      content = fs.readFileSync(abs, 'utf8');
-    } catch {
-      continue; // unreadable → regex rules still cover the diff
+    if (showRef) {
+      // staged → `git show :path`, range head → `git show <ref>:path`
+      content = gitShowContent(projectRoot, showRef === ':' ? `:${rel}` : `${showRef}:${rel}`);
+      if (content == null) continue; // 해당 ref 에 없으면(추가 전 등) 건너뜀 — regex 룰이 커버
+    } else {
+      try {
+        const stat = fs.statSync(abs);
+        if (!stat.isFile()) continue;
+        content = fs.readFileSync(abs, 'utf8');
+      } catch {
+        continue; // unreadable → regex rules still cover the diff
+      }
     }
 
     const fileFindings = scanFileContent(rel, content);

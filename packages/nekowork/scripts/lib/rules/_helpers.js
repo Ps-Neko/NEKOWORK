@@ -128,6 +128,21 @@ export function lineNumberFromIndex(text, index) {
   return line;
 }
 
+// 개행 위치를 한 번만 모아 두고 index→줄번호를 이진탐색(O(log n))으로 돌려주는 조회기.
+// 매치마다 0부터 재스캔하는 lineNumberFromIndex 를 다수-매치 루프에서 쓰면 O(n²)라
+// 대형 파일에서 자원 소진(DoS)이 된다 — 핫 루프(makeRegexScanner)는 이걸 쓴다.
+export function makeLineLookup(text) {
+  const nl = [];
+  const s = typeof text === 'string' ? text : '';
+  for (let i = 0; i < s.length; i++) if (s[i] === '\n') nl.push(i);
+  return (index) => {
+    // index 앞의 개행 개수 = nl 중 (< index) 인 원소 수 (lower-bound).
+    let lo = 0, hi = nl.length;
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (nl[mid] < index) lo = mid + 1; else hi = mid; }
+    return lo + 1;
+  };
+}
+
 /**
  * If multiple patterns fire on the same {file, line}, keep the highest
  * severity (critical > high > medium > low). Output is sorted by line.
@@ -176,23 +191,32 @@ export function makeRegexScanner(cfg) {
     let rawCapped = null; // lazily computed; most rules have no `raw` patterns
     const findings = [];
     const seen = new Set();
+    // 줄번호 조회기를 haystack 당 한 번만 만든다(O(n) 준비 + 매치당 O(log n) 조회).
+    // 매치마다 lineNumberFromIndex(0부터 재스캔)를 부르면 O(n²)라 대형 파일서 DoS.
+    const cleanLookup = makeLineLookup(clean);
+    let rawLookup = null; // raw 패턴이 있을 때만 lazily 생성
 
     for (const pat of patterns) {
       // `raw: true` patterns scan the original text (needed for directives
       // that live inside comments, like @ts-nocheck or /* eslint-disable */).
-      let haystack;
+      // 병합: Codex #180 의 capLongLines(ReDoS 상한) + DoS 수정의 makeLineLookup(O(n) 줄번호).
+      // 줄번호 조회기는 정규식이 실제로 도는 capped haystack 위에 만든다(m.index 정합).
+      let haystack, lookup;
       if (pat.raw) {
         if (rawCapped === null) rawCapped = capLongLines(content);
         haystack = rawCapped;
+        if (rawLookup === null) rawLookup = makeLineLookup(rawCapped);
+        lookup = rawLookup;
       } else {
         haystack = clean;
+        lookup = cleanLookup;
       }
       pat.re.lastIndex = 0;
       let m;
       while ((m = pat.re.exec(haystack)) !== null) {
         if (pat.filter && !pat.filter(m)) continue;
         const severity = pat.pickSeverity ? pat.pickSeverity(m, haystack) : (pat.severity || 'high');
-        const line = lineNumberFromIndex(haystack, m.index) + lineOffset;
+        const line = lookup(m.index) + lineOffset;
         const seenKey = `${pat.id}:${line}`;
         if (seen.has(seenKey)) continue;
         seen.add(seenKey);

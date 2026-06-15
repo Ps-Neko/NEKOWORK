@@ -292,6 +292,9 @@ export function getGitDiff(opts = {}) {
   if (mode === 'staged') args.push('--cached');
   else if (mode === 'range') {
     if (!opts.range) throw new Error('getGitDiff: range mode requires opts.range');
+    if (!isSafeGitRange(opts.range)) {
+      throw new Error(`getGitDiff: unsafe range '${opts.range}' — git refspec 문자만 허용하고 선행 '-' 는 거부합니다(인자 인젝션 방지)`);
+    }
     args.push(opts.range);
   } else if (mode === 'working') {
     args.push('HEAD');
@@ -477,3 +480,22 @@ export function loadDiffFile(filePath) {
 
 // Exposed for unit testing the case-insensitive self-output exclusion.
 export { isSelfOutput as _isSelfOutput };
+
+// git refspec 안전 문자만 허용(선행 '-' 거부). --range 값이 git diff argv 로 흘러
+// `--output=` 같은 인자 인젝션(임의 파일 쓰기)되던 것을 입구에서 차단한다.
+export function isSafeGitRange(range) {
+  if (typeof range !== 'string' || range.length === 0 || range.length > 200) return false;
+  if (range.startsWith('-')) return false;
+  return /^[A-Za-z0-9_.\/~^@{}-]+(\.\.\.?[A-Za-z0-9_.\/~^@{}-]+)?$/.test(range);
+}
+
+// range 의 head(RHS) ref 추출 — AST 가 'diff 의 post-change 내용'을 git show 로 읽을 때 사용.
+// 3-dot/2-dot 우변, 빈 우변은 HEAD, 단일 ref 는 null(RHS=working tree=disk).
+export function rangeHeadRef(range) {
+  if (typeof range !== 'string') return null;
+  const i3 = range.indexOf('...');
+  if (i3 >= 0) return range.slice(i3 + 3) || 'HEAD';
+  const i2 = range.indexOf('..');
+  if (i2 >= 0) return range.slice(i2 + 2) || 'HEAD';
+  return null;
+}

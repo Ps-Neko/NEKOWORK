@@ -1,10 +1,23 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
-import { stripCommentsPreservingOffsets } from '../../scripts/lib/rules/_helpers.js';
+import { stripCommentsPreservingOffsets, makeLineLookup, lineNumberFromIndex } from '../../scripts/lib/rules/_helpers.js';
 
 // The stripper must be STRING-AWARE: a `//`, `/* */`, or `#` inside a string
 // literal is NOT a comment and must survive, while real comments become spaces
 // (newlines preserved so line offsets still map to the original text).
+
+// makeLineLookup: 개행 위치를 한 번만 모아 이진탐색(O(log n)) — 매치마다 0부터 재스캔하던
+// lineNumberFromIndex 의 O(n²)(대형 파일·다수 매치 시 자원 소진 DoS)를 제거하되 결과는 동일해야 한다.
+test('makeLineLookup: 줄번호가 naive lineNumberFromIndex 와 완전 동일(경계 포함)', () => {
+  const text = Array.from({ length: 500 }, (_, i) => `line ${i} foo bar baz qux`).join('\n');
+  const lookup = makeLineLookup(text);
+  for (let idx = 0; idx <= text.length; idx += 31) {
+    assert.equal(lookup(idx), lineNumberFromIndex(text, idx), `index ${idx} 불일치`);
+  }
+  assert.equal(lookup(0), 1, '시작=1행');
+  assert.equal(lookup(text.length), lineNumberFromIndex(text, text.length), '끝 경계');
+  assert.equal(makeLineLookup('')(0), 1, '빈 문자열=1행');
+});
 
 test('preserves length and newlines (offset-stable)', () => {
   const src = 'const a = 1; // tail\nconst b = 2;';
