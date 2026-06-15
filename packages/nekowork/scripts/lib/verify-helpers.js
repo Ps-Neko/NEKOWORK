@@ -9,7 +9,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { getGitDiff, loadDiffFile } from './diff-parser.js';
+import { getGitDiff, loadDiffFile, rangeHeadRef } from './diff-parser.js';
 import { scanDiff as scanSecretFallback } from './rules/secret-fallback.js';
 import { scanDiff as scanAutoApply } from './rules/auto-apply-commit-push.js';
 import { scanDiff as scanHardcodedCredential } from './rules/hardcoded-credential.js';
@@ -104,23 +104,31 @@ export function inputSourceForMode(mode) {
   }
 }
 
+// parsedDiff 에 mode + postRef(=AST 가 post-change 내용을 읽을 git ref) 를 새긴다.
+// 단일 funnel 이라 양 패키지(슬림·헤비)가 자동으로 같은 정보를 받는다.
+function tagDiff(parsed, mode, postRef) {
+  if (parsed && typeof parsed === 'object') { parsed.mode = mode; parsed.postRef = postRef; }
+  return parsed;
+}
+
 export function loadDiff({ mode, projectRoot, opts }) {
   const includePaths = opts.includePaths;
   if (mode === 'patch') {
     if (!opts.patchPath) throw new Error('mode=patch requires --from-patch <file>');
-    return loadDiffFile(opts.patchPath);
+    // patch 는 디스크가 패치와 일치한다는 보장이 없어 AST 디스크 읽기를 건너뛰게 표시(regex 유지).
+    return tagDiff(loadDiffFile(opts.patchPath), 'patch', null);
   }
   if (mode === 'range') {
     if (!opts.range) throw new Error('mode=range requires --range <ref>');
-    return getGitDiff({ cwd: projectRoot, mode: 'range', range: opts.range, includePaths });
+    return tagDiff(getGitDiff({ cwd: projectRoot, mode: 'range', range: opts.range, includePaths }), 'range', rangeHeadRef(opts.range));
   }
   if (mode === 'staged') {
-    return getGitDiff({ cwd: projectRoot, mode: 'staged', includePaths });
+    return tagDiff(getGitDiff({ cwd: projectRoot, mode: 'staged', includePaths }), 'staged', null);
   }
   if (mode === 'full') {
-    return getGitDiff({ cwd: projectRoot, mode: 'full', includePaths });
+    return tagDiff(getGitDiff({ cwd: projectRoot, mode: 'full', includePaths }), 'full', null);
   }
-  return getGitDiff({ cwd: projectRoot, mode: 'working', includePaths });
+  return tagDiff(getGitDiff({ cwd: projectRoot, mode: 'working', includePaths }), 'working', null);
 }
 
 /**

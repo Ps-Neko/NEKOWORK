@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { parseDiff, getGitDiff } from '../../scripts/lib/diff-parser.js';
+import { parseDiff, getGitDiff, rangeHeadRef } from '../../scripts/lib/diff-parser.js';
 
 test('parseDiff: empty string returns zero-file result', () => {
   const result = parseDiff('');
@@ -18,6 +18,25 @@ test('parseDiff: empty string returns zero-file result', () => {
 test('parseDiff: null/undefined input returns zero-file result', () => {
   assert.equal(parseDiff(null).totalFiles, 0);
   assert.equal(parseDiff(undefined).totalFiles, 0);
+});
+
+// SECURITY: --range 값이 git diff argv 로 흘러가 인자 인젝션(임의 파일 쓰기 등)되던 것을 차단.
+test('getGitDiff: range 모드가 argv 인젝션을 거부(선행 - / --output= / 공백·구분자)', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dp-range-'));
+  for (const bad of ['--output=/tmp/evil', '-x', '--upload-pack=x', 'a b', 'a;rm -rf', 'a|b', '$(x)']) {
+    assert.throws(
+      () => getGitDiff({ cwd: dir, mode: 'range', range: bad }),
+      /unsafe range|refspec/i,
+      `거부해야 함: ${bad}`,
+    );
+  }
+});
+
+test('rangeHeadRef: head 쪽 ref 추출(3-dot/2-dot/빈쪽=HEAD/단일=null)', () => {
+  assert.equal(rangeHeadRef('main...HEAD'), 'HEAD');
+  assert.equal(rangeHeadRef('abc..def'), 'def');
+  assert.equal(rangeHeadRef('v1...'), 'HEAD');
+  assert.equal(rangeHeadRef('HEAD~3'), null); // 단일 ref → RHS=working tree(disk)
 });
 
 test('parseDiff: binary file diff is marked as binary status', () => {
