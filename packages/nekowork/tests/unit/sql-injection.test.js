@@ -83,6 +83,27 @@ test('python static SQL: not flagged', () => {
   assert.equal(scanFileContent('x.py', 'cursor.execute("SELECT 1")').length, 0);
 });
 
+test('ReDoS guard: pathological unterminated SQL line is bounded (no catastrophic backtracking)', () => {
+  // Regression for catastrophic regex backtracking: a single added line that
+  // opens a SQL string with a keyword but never closes the quote drove the
+  // sql-concat pattern's two unbounded `[^"\n]*` spans into O(n^2) backtracking
+  // (~1.5s at 128KB, ~70s at 512KB) — a DoS of the verify gate. The shared
+  // scanner now caps per-line length before regex execution, so this must
+  // complete in well under a second regardless of input size.
+  const huge = 'db.query("' + 'SELECT FROM WHERE '.repeat(8000); // ~144KB, one line, no closing quote
+  const start = process.hrtime.bigint();
+  const findings = scanFileContent('x.js', huge);
+  const ms = Number(process.hrtime.bigint() - start) / 1e6;
+  assert.ok(Array.isArray(findings), 'returns a findings array');
+  assert.ok(ms < 1000, `scan must be length-bounded; took ${ms.toFixed(1)}ms`);
+});
+
+test('length cap does not affect detection on normal-length lines', () => {
+  // A real injection on a sane line is still flagged after the cap.
+  const f = scanFileContent('x.js', 'db.query("SELECT * FROM users WHERE id = " + id);');
+  assert.ok(f.some(t => t.pattern === 'sql-concat'));
+});
+
 test('fixture manifest: recall + FP gate', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(FIXTURE_ROOT, 'manifest.json'), 'utf8'));
   let posCaught = 0, posTotal = 0, fp = 0, negTotal = 0;
