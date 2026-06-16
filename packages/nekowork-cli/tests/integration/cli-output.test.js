@@ -38,6 +38,41 @@ test('nekowork cockpit preview shows a choice-first terminal cockpit', () => {
   assert.match(r.stdout, /No auto-apply/);
 });
 
+test('nekowork cockpit preview shows remaining usage when configured', () => {
+  const r = runCli(['cockpit', '--preview'], {
+    NEKOWORK_USAGE_MODEL: 'Fable 5',
+    NEKOWORK_SESSION_WINDOW_HOURS: '5',
+    NEKOWORK_SESSION_REMAINING_PERCENT: '90',
+    NEKOWORK_SESSION_RESET: '12:50',
+    NEKOWORK_WEEKLY_REMAINING_PERCENT: '18',
+    NEKOWORK_WEEKLY_RESET: '06/14(일) 12:00',
+  });
+
+  assert.equal(r.status, 0);
+  assert.match(
+    r.stdout,
+    /\[Fable 5\] \| 세션\(5h\) 남음 90% \(12:50 리셋\) \| 주간 남음 18% \(06\/14\(일\) 12:00 리셋\)/,
+  );
+});
+
+test('nekowork cockpit json exposes remaining usage when configured', () => {
+  const r = runCli(['cockpit', '--json'], {
+    NEKOWORK_USAGE_MODEL: 'Fable 5',
+    NEKOWORK_SESSION_WINDOW_HOURS: '5',
+    NEKOWORK_SESSION_REMAINING_PERCENT: '90',
+    NEKOWORK_SESSION_RESET: '12:50',
+    NEKOWORK_WEEKLY_REMAINING_PERCENT: '18',
+    NEKOWORK_WEEKLY_RESET: '06/14(일) 12:00',
+  });
+
+  assert.equal(r.status, 0);
+  const json = JSON.parse(r.stdout);
+  assert.equal(
+    json.usage.line,
+    '[Fable 5] | 세션(5h) 남음 90% (12:50 리셋) | 주간 남음 18% (06/14(일) 12:00 리셋)',
+  );
+});
+
 test('nekowork cockpit json exposes choices and latest state', () => {
   const r = runCli(['cockpit', '--json']);
   assert.equal(r.status, 0);

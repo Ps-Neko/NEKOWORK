@@ -87,3 +87,7 @@ docs/CODEMAPS/
 
 # brainstorming 시각 목업 (superpowers visual companion 산출물, 로컬 임시)
 .superpowers/
+
+# 생성물·보호 사본 (개인 PC 경로 유출 차단 — git commit 금지)
+*.pfile
+**/tests/fixtures/live-ai/captures.csv

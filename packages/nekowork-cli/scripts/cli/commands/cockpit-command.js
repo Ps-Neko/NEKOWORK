@@ -4,7 +4,7 @@ import path from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 import { buildDecision } from '@ps-neko/nekowork/scripts/lib/decision.js';
-import { paint } from '../../lib/ui-format.js';
+import { paint, usageStatusLine } from '../../lib/ui-format.js';
 
 export async function runCockpitCommand({
   argv = [],
@@ -80,12 +80,14 @@ function collectCockpitState({ projectRoot, version }) {
   const latestDecision = latest ? readDecisionForSession(latest.dir) : null;
   const git = gitState(projectRoot);
   const provider = process.env.HARNESS_PROVIDER_OVERRIDE || process.env.NEKOWORK_PROVIDER || 'mock';
+  const usage = collectUsageStatus(process.env);
 
   return {
     version,
     projectRoot,
     installed: fs.existsSync(path.join(projectRoot, '.harness')),
     provider,
+    usage,
     git,
     sessions,
     latest: latest ? {
@@ -151,12 +153,36 @@ function gitState(projectRoot) {
   };
 }
 
+function collectUsageStatus(env) {
+  const model = env.NEKOWORK_USAGE_MODEL || env.HARNESS_USAGE_MODEL;
+  const sessionRemaining = env.NEKOWORK_SESSION_REMAINING_PERCENT || env.NEKOWORK_USAGE_SESSION_REMAINING_PERCENT;
+  const weeklyRemaining = env.NEKOWORK_WEEKLY_REMAINING_PERCENT || env.NEKOWORK_USAGE_WEEKLY_REMAINING_PERCENT;
+
+  if (!model && !sessionRemaining && !weeklyRemaining) return null;
+
+  const usage = {
+    model: model || 'unknown',
+    session: sessionRemaining ? {
+      windowHours: env.NEKOWORK_SESSION_WINDOW_HOURS || env.NEKOWORK_USAGE_SESSION_WINDOW_HOURS,
+      remainingPercent: sessionRemaining,
+      resetLabel: env.NEKOWORK_SESSION_RESET_LABEL || env.NEKOWORK_SESSION_RESET || env.NEKOWORK_USAGE_SESSION_RESET,
+    } : null,
+    weekly: weeklyRemaining ? {
+      remainingPercent: weeklyRemaining,
+      resetLabel: env.NEKOWORK_WEEKLY_RESET_LABEL || env.NEKOWORK_WEEKLY_RESET || env.NEKOWORK_USAGE_WEEKLY_RESET,
+    } : null,
+  };
+
+  return { ...usage, line: usageStatusLine(usage) };
+}
+
 function cockpitJson(state) {
   return {
     version: state.version,
     projectRoot: state.projectRoot,
     installed: state.installed,
     provider: state.provider,
+    usage: state.usage,
     git: state.git,
     latest: state.latest ? {
       id: state.latest.id,
@@ -173,15 +199,18 @@ function cockpitJson(state) {
 }
 
 export function renderCockpitPreview(state) {
-  console.log('');
-  console.log(box('NEKOWORK Cockpit', [
+  const overview = [
     `Version : ${state.version}`,
     `Project : ${state.projectRoot}`,
     `Git     : ${state.git.state} (${state.git.detail})`,
     `Provider: ${state.provider}`,
     `Install : ${state.installed ? 'installed' : 'not installed'}`,
     `Sessions: ${state.sessions.length}`,
-  ]));
+  ];
+  if (state.usage) overview.push(`Usage  : ${state.usage.line}`);
+
+  console.log('');
+  console.log(box('NEKOWORK Cockpit', overview));
   console.log('');
 
   if (state.latest) {
