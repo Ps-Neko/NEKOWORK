@@ -37,3 +37,43 @@ export function kvBlock(rows, opts = {}) {
     return `  ${key}  ${v}`;
   }).join('\n');
 }
+
+export function usageStatusLine({ model = 'unknown', session = null, weekly = null } = {}) {
+  const parts = [`[${oneLine(model) || 'unknown'}]`];
+  const sessionPart = quotaWindow('세션', session, { showHours: true });
+  const weeklyPart = quotaWindow('주간', weekly);
+  if (sessionPart) parts.push(sessionPart);
+  if (weeklyPart) parts.push(weeklyPart);
+  return parts.join(' | ');
+}
+
+function quotaWindow(label, quota, { showHours = false } = {}) {
+  if (!quota) return null;
+  const percent = formatPercent(quota.remainingPercent);
+  if (percent == null) return null;
+
+  const duration = showHours && quota.windowHours
+    ? `(${formatNumber(quota.windowHours)}h)`
+    : '';
+  const reset = quota.resetLabel
+    ? ` (${oneLine(quota.resetLabel)} 리셋)`
+    : '';
+
+  return `${label}${duration} 남음 ${percent}%${reset}`;
+}
+
+function formatPercent(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return null;
+  return String(Math.round(Math.max(0, Math.min(100, n))));
+}
+
+function formatNumber(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return oneLine(value);
+  return String(n);
+}
+
+function oneLine(value) {
+  return String(value ?? '').replace(/\s+/g, ' ').trim();
+}

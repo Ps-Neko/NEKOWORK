@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { paint, nextBlock, isColorEnabled, kvBlock } from '../../scripts/lib/ui-format.js';
+import { paint, nextBlock, isColorEnabled, kvBlock, usageStatusLine } from '../../scripts/lib/ui-format.js';
 
 test('paint wraps text with ANSI when color enabled', () => {
   const out = paint('ok', 'OK', { force: true });
@@ -47,4 +47,37 @@ test('kvBlock paints keys with dim tone when color forced', () => {
   // dim tone is `\x1b[90m`
   assert.ok(out.includes('\x1b[90m'));
   assert.ok(out.includes('v'));
+});
+
+test('usageStatusLine renders model, session, and weekly remaining quota', () => {
+  const out = usageStatusLine({
+    model: 'Fable 5',
+    session: {
+      windowHours: 5,
+      remainingPercent: 90,
+      resetLabel: '12:50',
+    },
+    weekly: {
+      remainingPercent: 18,
+      resetLabel: '06/14(일) 12:00',
+    },
+  });
+
+  assert.equal(
+    out,
+    '[Fable 5] | 세션(5h) 남음 90% (12:50 리셋) | 주간 남음 18% (06/14(일) 12:00 리셋)',
+  );
+});
+
+test('usageStatusLine omits missing quota windows', () => {
+  const out = usageStatusLine({
+    model: 'Fable 5',
+    session: {
+      windowHours: 5,
+      remainingPercent: 12.4,
+      resetLabel: '12:50',
+    },
+  });
+
+  assert.equal(out, '[Fable 5] | 세션(5h) 남음 12% (12:50 리셋)');
 });
