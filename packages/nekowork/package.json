@@ -48,6 +48,6 @@
     "bench:rules": "node scripts/benchmark/rules.js"
   },
   "dependencies": {
-    "acorn": "^8.16.0"
+    "acorn": "^8.17.0"
   }
 }
