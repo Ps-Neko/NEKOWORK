@@ -49,7 +49,7 @@ jobs:
         run: pnpm --filter @ps-neko/visualizer build
 
       - name: Configure Pages (auto-enable if not yet activated)
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         with:
           # NOTE: 첫 deploy 시 repo settings 의 Pages 가 비활성 상태면 자동 활성화 시도.
           # GITHUB_TOKEN 의 pages:write permission 으로 enable API 호출.
