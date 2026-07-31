@@ -2,6 +2,16 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
+> **⚠️ Development ended 2026-07-31 (archived)**
+>
+> NEKOWORK was a local safety gate that checked AI-written code changes before they
+> merged. It shipped to npm as a public alpha but did not find external users, so
+> development has stopped.
+>
+> - The code stays under **MIT** — fork and reuse freely.
+> - The npm package `@ps-neko/nekowork@alpha` still installs and runs.
+> - Issues, PRs, and maintenance are no longer handled.
+
 **Check AI-written code before it enters your project.**
 
 NEKOWORK is a local safety checkpoint for code made by AI tools such as Cursor,

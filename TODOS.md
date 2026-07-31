@@ -1,5 +1,7 @@
 # TODOS
 
+> **[2026-07-31 개발 종료]** 아래 미완 TODO 는 모두 무효다. 기록 목적으로만 남긴다.
+>
 > 본 파일은 monorepo 의 deferred 작업 단일 진실원이다. 새 TODO 등록 시 What/Why/Context/Pros/Cons/Depends-on 6필드 필수. 완료된 TODO 는 삭제하지 말고 `## DONE` 섹션으로 이동하고 완료 date + 결과 commit/PR 을 추가한다.
 >
 > 출처: `~/.gstack/projects/claude/tasks-eng-review-20260521-110117.jsonl` T12 (D14 결정), saved context `Ps-Neko-NEKOWORK/checkpoints/20260522-105500-...md`.

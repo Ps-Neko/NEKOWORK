@@ -1,5 +1,7 @@
 # WORKING-CONTEXT
 
+> **[2026-07-31 개발 종료]** 아래의 진행 중 작업·다음 계획은 모두 무효다. 저장소는 archive 상태다.
+>
 > 현재 스프린트의 액티브 메모리. 스프린트가 끝나면 `docs/dev-log/<date>-<topic>.md` 로 archive.
 > CHANGELOG 가 아니라 working memory 다. 짧게, 자주 갱신.
 
