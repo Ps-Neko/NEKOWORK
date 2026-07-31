@@ -14,6 +14,32 @@ export function render(root: HTMLElement, fixture: Fixture): void {
   root.innerHTML = `
     ${renderHero()}
     <main class="layout" data-fixture-id="${escapeAttr(fixture.id)}">
+      ${renderDecisionCard(fixture)}
+      <section class="local-import" aria-labelledby="import-title">
+        <div class="section-heading"><p class="section-heading__eyebrow">내 검사 결과</p><h2 id="import-title">실제 결과 불러오기</h2><p>파일은 이 브라우저에서만 읽으며 전송되지 않습니다.</p></div>
+        <form id="local-import-form" class="local-import__form">
+          <label>decision.json<input name="decision" type="file" accept="application/json,.json" required /></label>
+          <label>REPORT.md<input name="report" type="file" accept="text/markdown,.md,text/plain" required /></label>
+          <button type="submit">결과 보기</button>
+        </form>
+        <p id="local-import-status" role="status" aria-live="polite"></p>
+        <div id="local-import-result" hidden></div>
+      </section>
+      <section class="quickstart" aria-labelledby="quickstart-title">
+        <div class="section-heading"><p class="section-heading__eyebrow">처음 사용한다면</p><h2 id="quickstart-title">3분 시작 가이드</h2><p>아래 세 단계만 따르면 됩니다. 자동 반영은 하지 않으며 최종 결정은 사람이 합니다.</p></div>
+        <ol class="quickstart__steps">
+          <li><strong>1. 준비 확인</strong><code>npx -y @ps-neko/nekowork@alpha check</code></li>
+          <li><strong>2. 변경 검사</strong><code>npx -y @ps-neko/nekowork@alpha verify-pr</code></li>
+          <li><strong>3. 결과 결정</strong><span><code>REPORT.md</code>와 <code>.nekowork/decision.json</code>을 확인합니다.</span></li>
+        </ol>
+      </section>
+      <details class="advanced-guide">
+        <summary><strong>고급·호환 기능 안내</strong><small>처음에는 열 필요 없습니다.</small></summary>
+        <p><code>report --session</code>, <code>apply --session</code> 같은 기능은 세션 기반 고급 흐름입니다. 일반적인 검사에는 <code>check</code>와 <code>verify-pr</code>만 사용하세요.</p>
+      </details>
+      <aside class="feedback" aria-label="피드백">
+        <span>이 결과가 이해하기 쉬웠나요?</span><a href="https://github.com/Ps-Neko/NEKOWORK/issues/new?template=alpha-feedback.yml" target="_blank" rel="noreferrer">알파 피드백 남기기</a>
+      </aside>
       ${renderDemoSummary(fixture)}
       ${renderConflictFrame(fixture)}
       ${renderKeyEvidence(fixture)}
@@ -23,6 +49,24 @@ export function render(root: HTMLElement, fixture: Fixture): void {
   `;
 }
 
+function renderDecisionCard(fixture: Fixture): string {
+  const { decision } = fixture;
+  const detail = decision.deterministicRulesDetail;
+  const blocked = decision.verdict === 'BLOCK';
+  const reviewRequired = decision.verdict === 'NEEDS_HUMAN_REVIEW' || decision.humanApprovalRequired;
+  const status = blocked ? 'blocked' : reviewRequired ? 'review' : 'ready';
+  const title = blocked ? '\uC218\uC815\uC774 \uD544\uC694\uD55C \uBCC0\uACBD\uC785\uB2C8\uB2E4' : reviewRequired ? '\uC0AC\uB78C\uC758 \uAC80\uD1A0\uAC00 \uD544\uC694\uD569\uB2C8\uB2E4' : '\uB2E4\uC74C \uB2E8\uACC4\uB85C \uC9C4\uD589\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4';
+  const reason = detail ? `${detail.ruleId} \uADDC\uCE59\uC774 ${detail.file}:${detail.line}\uC5D0\uC11C \uAC10\uC9C0\uB418\uC5C8\uC2B5\uB2C8\uB2E4.` : `${decision.verdict} \uD310\uC815\uC774 \uAE30\uB85D\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uC0C1\uC138 \uADFC\uAC70\uB97C \uD655\uC778\uD574 \uC8FC\uC138\uC694.`;
+  const action = blocked ? { href: '#evidence-focus', label: '\uADFC\uAC70 \uD655\uC778\uD558\uAE30', ariaLabel: 'View evidence for this blocked decision' } : { href: '#stations', label: '\uB2E4\uC74C \uB2E8\uACC4 \uD655\uC778\uD558\uAE30', ariaLabel: 'View the next verification step' };
+
+  return `
+    <section class="decision-card decision-card--${status}" data-decision-card aria-label="Verification decision">
+      <div class="decision-card__status"><span class="decision-card__eyebrow">\uD604\uC7AC \uACB0\uC815</span>${badgeFor(decision.verdict, decision.riskLevel)}</div>
+      <div class="decision-card__body"><h2>${escapeHtml(title)}</h2><p>${escapeHtml(reason)}</p><dl class="decision-card__facts"><div><dt>\uC704\uD5D8 \uC218\uC900</dt><dd>${escapeHtml(decision.riskLevel)}</dd></div><div><dt>\uC790\uB3D9 \uBC18\uC601</dt><dd>${decision.apply.allowed ? '\uD5C8\uC6A9\uB418\uC9C0 \uC54A\uC74C: \uC0AC\uB78C \uD655\uC778 \uD544\uC694' : '\uCC28\uB2E8\uB428'}</dd></div></dl></div>
+      <a class="decision-card__action" href="${action.href}" aria-label="${action.ariaLabel}">${escapeHtml(action.label)}</a>
+    </section>
+  `;
+}
 function renderDemoSummary(fixture: Fixture): string {
   const detail = fixture.decision.deterministicRulesDetail;
   const ruleLabel = detail?.ruleId ?? 'deterministic rule';

@@ -126,6 +126,18 @@ test.describe('Visualizer a11y (T11) + mobile (T14)', () => {
     await expect(page.locator('.conflict__heading')).toContainText('sample-pr-001');
   });
 
+  test('decision card explains a block and links to its evidence', async ({ page }) => {
+    await page.goto(FIXTURE_URL, { waitUntil: 'networkidle' });
+
+    const card = page.locator('[data-decision-card]');
+    await expect(card).toHaveCount(1);
+    await expect(card).toContainText('BLOCK');
+    await expect(card).toContainText('hardcoded-credential-fallback');
+
+    const action = card.getByRole('link', { name: /evidence/i });
+    await expect(action).toHaveAttribute('href', '#evidence-focus');
+  });
+
   test('hero toggle reachable by keyboard and operable with Enter', async ({ page }) => {
     await page.goto(FIXTURE_URL, { waitUntil: 'networkidle' });
     await page.locator('#hero-tg-on').focus();
